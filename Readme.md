@@ -1,25 +1,10 @@
 # HashMap Implementation for JavaScript
 
-## Background
-This repository is a refactored version of the [npm hashmao](https://npmjs.org/package/hashmap) repository. It takes that implementation as a starting point, and moves it closer to the core functionality hashmaps are designed to achieve. As such, whilst the interface is based on the originator repository, it has four notable exceptions:
-
-However 0.0.3 of the mootable hashmap should have an identical interface and behaviours to the npm hashmap implementation. With 4 exceptions.
-
-1 As per spec, ordering of hashmaps is not guarenteed to meet order of insertion when iterating over it.
-
-2 Although initial creation time is significantly increased, the speed of insertion and retrieval, is 2 - 5 times faster.
-
-3 Memory footprint will be a little larger, albeit will compress faster and more readily.
-
-4 The keys are now truly typed and unique, this means if you have written code that uses the graphemes fronting strings to hack the map, those will no longer work.
-
-This means you should only use the hasmap as hashmaps were intended, it is no longer a generic mapping implementation, and you may want to consider an alternate collection for different use cases.
-
 ## Installation
 
-[![NPM](https://nodei.co/npm/mootable/hashmap.png?compact=true)](https://npmjs.org/package/mootable/hashmap)
+[![NPM](https://nodei.co/npm/@mootable/hashmap.png?compact=true)](https://npmjs.org/package/@mootable/hashmap)
 
-Using [npm](https://npmjs.org/package/mootable/hashmap):
+Using [npm](https://npmjs.org/package/@mootable/hashmap):
 
     $ npm install @mootable/hashmap
 
@@ -37,6 +22,21 @@ This project provides a `HashMap` class that works both on __Node.js__ and the _
 HashMap instances __store key/value pairs__ allowing __keys of any type__.
 
 Unlike regular objects, __keys will not be stringified__. For example numbers and strings won't be mixed, you can pass `Date`'s, `RegExp`'s, DOM Elements, anything! (even `null` and `undefined`)
+
+## Background
+This repository is a refactored version of the [npm hashmap](https://npmjs.org/package/hashmap) repository. It takes that implementation as a starting point, and moves it closer to the core functionality hashmaps are designed to achieve. As such, whilst the interface is based on the originator repository, it has four notable exceptions:
+
+However 0.0.4 of the mootable hashmap should have an identical interface and behaviours to the npm hashmap implementation. With 4 exceptions.
+
+1 As per spec, ordering of hashmaps is not guarenteed to meet order of insertion when iterating over it.
+
+2 Although initial creation time is significantly increased, the speed of insertion and retrieval, is 2 - 5 times faster.
+
+3 Memory footprint will be a little larger, albeit will compress faster and more readily.
+
+4 The keys are now truly typed and unique, this means if you have written code that uses the graphemes fronting strings to hack the map, those will no longer work.
+
+This means you should only use the hasmap as hashmaps were intended, it is no longer a generic mapping implementation, and you may want to consider an alternate collection for different use cases.
 
 ## HashMap constructor overloads
 - `new HashMap()` creates an empty hashmap

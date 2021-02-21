@@ -1,7 +1,7 @@
 /**
  * HashMap - HashMap Implementation for JavaScript
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.0.3
+ * @version 0.0.4
  * Homepage: https://github.com/mootable/hashmap
  */
 
