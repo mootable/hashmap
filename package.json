@@ -1,8 +1,9 @@
 {
   "name": "hashmap",
-  "version": "2.4.0",
-  "description": "HashMap Class for JavaScript",
+  "version": "0.0.1",
+  "description": "HashMap Implementation for JavaScript",
   "keywords": [
+    "mootable",
     "hashmap",
     "map",
     "object",
@@ -14,13 +15,13 @@
     "browser"
   ],
   "author": {
-    "name": "Ariel Flesler",
-    "url": "https://github.com/flesler"
+    "name": "Jack Moxley",
+    "url": "https://github.com/jackmoxley"
   },
   "license": "MIT",
-  "homepage": "https://github.com/flesler/hashmap",
-  "bugs": "https://github.com/flesler/hashmap/issues",
-  "repository": "git://github.com/flesler/hashmap",
+  "homepage": "https://github.com/mootable/hashmap",
+  "bugs": "https://github.com/mootable/hashmap/issues",
+  "repository": "git://github.com/mootable/hashmap",
   "main": "./hashmap.js",
   "scripts": {
     "test": "mocha test/test.js",
