@@ -1,9 +1,8 @@
 /**
- * HashMap - HashMap Class for JavaScript
- * @author Ariel Flesler <aflesler@gmail.com>
+ * HashMap - HashMap Implementation for JavaScript
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 3.0.0
- * Homepage: https://github.com/flesler/hashmap
+ * @version 0.0.1
+ * Homepage: https://github.com/mootable/hashmap
  */
 
 (function (factory) {

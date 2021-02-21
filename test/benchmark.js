@@ -1,6 +1,12 @@
+/**
+ * HashMap - HashMap Implementation for JavaScript
+ * @author Jack Moxley <https://github.com/jackmoxley>
+ * @version 0.0.1
+ * Homepage: https://github.com/mootable/hashmap
+ */
 
 const Benchmark = require('benchmark');
-const hashmapImplementations = {'flesler-hashmap': 'flesler-hashmap', 'mootable-hashmap': '../hashmap'};
+const hashmapImplementations = { 'mootable-hashmap': '../hashmap','flesler-hashmap': 'flesler-hashmap'};
 const array = require('lodash/array');
 
 let theSuite = new Benchmark.Suite('hashmap benchmarks');
