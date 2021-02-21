@@ -1,6 +1,6 @@
 
 const Benchmark = require('benchmark');
-const hashmapImplementations = {'2.4.0': '../HashMap2.4.0/hashmap', '3.0.0': '../hashmap'};
+const hashmapImplementations = {'flesler-hashmap': 'flesler-hashmap', 'mootable-hashmap': '../hashmap'};
 const array = require('lodash/array');
 
 let theSuite = new Benchmark.Suite('hashmap benchmarks');
