@@ -1,5 +1,5 @@
 {
-	"name": "hashmap",
+	"name": "@mootable/hashmap",
 	"version": "0.0.1",
 	"description": "HashMap Implementation for JavaScript",
 	"homepage": "https://github.com/mootable/hashmap",
