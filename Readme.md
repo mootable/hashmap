@@ -6,7 +6,7 @@ Unfortunatly the owner did not see the need at this time. As such this repo exis
 
 However 0.0.1 of the mootable hashmap should have an identical interface and behaviours to the npm hashmap implementation. With 4 exceptions.
 1 As per spec, ordering of hashmaps is not guarenteed to meet order of insertion when iterating over it.
-2 Although initial creation time is significantly increased, the speed of insertion and retrieval, is 2 - 5 times faster. 
+2 Although initial creation time is significantly increased, the speed of insertion and retrieval, is 2 - 5 times faster.
 3 Memory footprint will be a little larger, albeit will compress faster and more readily.
 4 The keys are now truly typed and unique, this means if you have written code that uses the graphemes fronting strings to hack the map, those will no longer work.
 
@@ -14,7 +14,7 @@ This means you should only use the hasmap as hashmaps were intended, it is no lo
 
 ## Installation
 
-[![NPM](https://nodei.co/npm/mootable/hashmap.png?compact=true)](https://npmjs.org/package/hashmap)
+[![NPM](https://nodei.co/npm/mootable/hashmap.png?compact=true)](https://npmjs.org/package/mootable/hashmap)
 
 Using [npm](https://npmjs.org/package/mootable/hashmap):
 
