@@ -1,10 +1,9 @@
 # HashMap Implementation for JavaScript
 
 ## Background
-The original intent of this repo was to turn the [npm hashmao](https://npmjs.org/package/hashmap) into an actual hashmap. 
-Unfortunatly the owner did not see the need at this time. As such this repo exists, the original code has substantially changed as has the license to match, over the comming weeks and months less and less of the original code will remain. 
+This repository is a refactored version of the [npm hashmao](https://npmjs.org/package/hashmap) repository. It takes that implementation as a starting point, and moves it closer to the core functionality hashmaps are designed to achieve. As such, whilst the interface is based on the originator repository, it has four notable exceptions:
 
-However 0.0.1 of the mootable hashmap should have an identical interface and behaviours to the npm hashmap implementation. With 4 exceptions.
+However 0.0.3 of the mootable hashmap should have an identical interface and behaviours to the npm hashmap implementation. With 4 exceptions.
 
 1 As per spec, ordering of hashmaps is not guarenteed to meet order of insertion when iterating over it.
 
@@ -23,10 +22,6 @@ This means you should only use the hasmap as hashmaps were intended, it is no lo
 Using [npm](https://npmjs.org/package/mootable/hashmap):
 
     $ npm install @mootable/hashmap
-
-Using bower:
-
-    $ bower install @mootable/hashmap
 
 You can download the last stable version from the [releases page](https://github.com/mootable/hashmap/releases).
 
@@ -165,7 +160,7 @@ map
 
 The MIT License (MIT)
 
-Copyright (c) 2012 Ariel Flesler
+Copyright (c) 2021 Jack Moxley
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -183,8 +178,3 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF
-
-## To-Do
-
-* (?) Allow extending the hashing function in a AOP way or by passing a service
-* Make tests work on the browser
