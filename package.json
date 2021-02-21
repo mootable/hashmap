@@ -1,5 +1,5 @@
 {
-  "name": "hashmap",
+  "name": "@mootable/hashmap",
   "version": "0.0.1",
   "description": "HashMap Implementation for JavaScript",
   "keywords": [
@@ -14,14 +14,16 @@
     "node",
     "browser"
   ],
-  "author": {
-    "name": "Jack Moxley",
-    "url": "https://github.com/jackmoxley"
-  },
+  "author": "Jack Moxley (https://github.com/jackmoxley)",
   "license": "MIT",
   "homepage": "https://github.com/mootable/hashmap",
-  "bugs": "https://github.com/mootable/hashmap/issues",
-  "repository": "git://github.com/mootable/hashmap",
+  "bugs": {
+    "url": "https://github.com/mootable/hashmap/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mootable/hashmap.git"
+  },
   "main": "./hashmap.js",
   "scripts": {
     "test": "mocha test/test.js",
@@ -44,5 +46,8 @@
     "husky": "0.14.3",
     "jshint": "^2.12.0",
     "mocha": "^8.3.0"
+  },
+  "directories": {
+    "test": "test"
   }
 }
