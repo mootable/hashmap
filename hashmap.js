@@ -1,7 +1,7 @@
 /**
  * HashMap - HashMap Implementation for JavaScript
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.0.5
+ * @version 0.1.0
  * Homepage: https://github.com/mootable/hashmap
  */
 
@@ -431,46 +431,12 @@
                         hash: hash_code | 0
                     };
                 default:
-                    // TODO: Don't use expandos when Object.defineProperty is not available?
                     if (!key.hasOwnProperty('_hmuid_')) {
                         key._hmuid_ = ++HashMap.uid;
                         hide(key, '_hmuid_');
                     }
 
                     return this.hashEquals(key._hmuid_);
-            }
-        },
-        // Deprecated
-        hash: function (key) {
-            switch (this.type(key)) {
-                case 'undefined':
-                case 'null':
-                case 'boolean':
-                case 'number':
-                case 'regexp':
-                    return key + '';
-
-                case 'date':
-                    return '♣' + key.getTime();
-
-                case 'string':
-                    return '♠' + key;
-
-                case 'array':
-                    var hashes = [];
-                    for (var i = 0; i < key.length; i++) {
-                        hashes[i] = this.hash(key[i]);
-                    }
-                    return '♥' + hashes.join('⁞');
-
-                default:
-                    // TODO: Don't use expandos when Object.defineProperty is not available?
-                    if (!key.hasOwnProperty('_hmuid_')) {
-                        key._hmuid_ = ++HashMap.uid;
-                        hide(key, '_hmuid_');
-                    }
-
-                    return '♦' + key._hmuid_;
             }
         },
         forEach: function (func, ctx) {

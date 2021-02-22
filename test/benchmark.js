@@ -1,7 +1,7 @@
 /**
  * HashMap - HashMap Implementation for JavaScript
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.0.5
+ * @version 0.1.0
  * Homepage: https://github.com/mootable/hashmap
  */
 
@@ -166,6 +166,96 @@ function benchmarkHashMapImplementation(version, location) {
                     key.push(makeid(16));
                     value.push(makeid(128));
                 }
+            },
+            'version': version
+        })
+        .add("_singleDelete_", function () {
+            hashmap1024.delete(key);
+        }, {
+            'onCycle': function () {
+                hashmap.clear();
+                key = makeid(16);
+                hashmap.set(key, makeid(128));
+            },
+            'version': version
+        })
+        .add("_deleteAfter 1'024_", function () {
+            hashmap1024.delete(key);
+        }, {
+            'onCycle': function () {
+                key = makeid(16);
+                hashmap1024.set(key, makeid(128));
+            },
+            'version': version
+        })
+        .add("_deleteAfter 131'072_", function () {
+            hashmap131072.delete(key);
+        }, {
+            'onCycle': function () {
+                key = makeid(16);
+                hashmap131072.set(key, makeid(128));
+            },
+            'version': version
+        }).add("_singleFetch_", function () {
+            hashmap.get(key);
+        }, {
+            'onCycle': function () {
+                hashmap.clear();
+                key = makeid(16);
+                hashmap.set(key, makeid(128));
+            },
+            'version': version
+        })
+        .add("_fetchAfter 1'024_", function () {
+            hashmap1024.get(key);
+        }, {
+            'onCycle': function () {
+                hashmap1024.delete(key);
+                key = makeid(16);
+                hashmap1024.set(key, makeid(128));
+            },
+            'version': version
+        })
+        .add("_fetchAfter 131'072_", function () {
+            hashmap131072.get(key);
+        }, {
+            'onCycle': function () {
+                hashmap131072.delete(key);
+                key = makeid(16);
+                hashmap131072.set(key, makeid(128));
+            },
+            'version': version
+        }).add("_singleCombined_", function () {
+            hashmap.set(key, value);
+            hashmap.get(key);
+            hashmap.delete(key);
+        }, {
+            'onCycle': function () {
+                hashmap.clear();
+                key = makeid(16);
+                value = makeid(128);
+            },
+            'version': version
+        })
+        .add("_combinedAfter 1'024_", function () {
+            hashmap.set(key, value);
+            hashmap.get(key);
+            hashmap.delete(key);
+        }, {
+            'onCycle': function () {
+                key = makeid(16);
+                value = makeid(128);
+            },
+            'version': version
+        })
+        .add("_combinedAfter 131'072_", function () {
+            hashmap.set(key, value);
+            hashmap.get(key);
+            hashmap.delete(key);
+        }, {
+            'onCycle': function () {
+                key = makeid(16);
+                value = makeid(128);
             },
             'version': version
         });
