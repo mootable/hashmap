@@ -28,7 +28,7 @@ This repository is a refactored version of the [npm hashmap](https://npmjs.org/p
 
 1 As per spec, ordering of hashmaps is not guarenteed to meet order of insertion when iterating over it.
 
-2 Although initial creation time is significantly increased, the speed of insertion and retrieval, is 2 - 5 times faster.
+2 Although initial creation time is significantly increased, the speed of insertion, deletion and retrieval, is 2 - 5 times faster.
 
 3 Memory footprint will be a little larger, albeit will compress faster and more readily.
 
@@ -60,7 +60,6 @@ This means you should only use the hasmap as hashmaps were intended, it is no lo
 - `count() : Number` returns the amount of key-value pairs *(deprecated)*
 - `clear() : HashMap` deletes all the key-value pairs on the hashmap
 - `clone() : HashMap` creates a new hashmap with all the key-value pairs of the original
-- `hash(key:*) : String` returns the stringified version of a key (used internally)
 - `forEach(function(value, key)) : HashMap` iterates the pairs and calls the function for each one
 
 ### Method chaining
@@ -78,7 +77,7 @@ var map = new HashMap();
 If you're using this within Node, you first need to import the class
 
 ```js
-var HashMap = require('hashmap');
+var HashMap = require('hashmap').HashMap;
 ```
 
 ### Basic use case
