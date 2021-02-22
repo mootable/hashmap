@@ -26,8 +26,6 @@ Unlike regular objects, __keys will not be stringified__. For example numbers an
 ## Background
 This repository is a refactored version of the [npm hashmap](https://npmjs.org/package/hashmap) repository. It takes that implementation as a starting point, and moves it closer to the core functionality hashmaps are designed to achieve. As such, whilst the interface is based on the originator repository, it has four notable exceptions:
 
-However 0.0.4 of the mootable hashmap should have an identical interface and behaviours to the npm hashmap implementation. With 4 exceptions.
-
 1 As per spec, ordering of hashmaps is not guarenteed to meet order of insertion when iterating over it.
 
 2 Although initial creation time is significantly increased, the speed of insertion and retrieval, is 2 - 5 times faster.
