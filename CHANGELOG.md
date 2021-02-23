@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.1
+- Added the advice to use JS Map
+
 ## 0.1.0
 - Removed the not-a-hash, Hash Function
 - Added Github actions to autodeploy on release

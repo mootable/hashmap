@@ -1,5 +1,10 @@
 # HashMap Implementation for JavaScript
 
+## JS Maps in V8 are faster, by alot.
+- By a factor of 10-20X. This is predominantly because they are backed by C++. This is a good thing.
+- They will also under high load use up all the memory. I was for this reason unable to benchmark it at 131072 capacity, not because it can't hold that amount, but the significant amount of change happening to it during benchmarking without memory cleanup, caused it to fault. It is unlikely they will be able to fix this without sacrificing performance.
+- My advice is to use the inbuilt JS Map unless you are running in a high-load environment where the map starts to fill with uncollected garbage.
+
 ## Installation
 
 [![NPM](https://nodei.co/npm/@mootable/hashmap.png?compact=true)](https://npmjs.org/package/@mootable/hashmap)
