@@ -8,47 +8,6 @@ describe('hashmap', function() {
 		hashmap = new HashMap();
 	});
 
-	describe('hashmap.type()', function() {
-		function check(data, type) {
-			expect(hashmap.type(data)).to.equal(type);
-
-		}
-		it('should detect types accurately', function() {
-			check(null, 'null');
-			check(undefined, 'undefined');
-			check(true, 'boolean');
-			check(false, 'boolean');
-			check(NaN, 'number');
-			check(1, 'number');
-			check(1.1, 'number');
-			check('1.1', 'string');
-			check('Test', 'string');
-			check(/test/, 'regexp');
-			check(new Date(), 'date');
-			check([], 'array');
-			check({}, 'object');
-			check(HashMap, 'function');
-			check(hashmap, 'object');
-		});
-
-		it('should cast type for browsers that don\'t conform to ECMA 5 spec', function() {
-			var originalToString = Object.prototype.toString;
-			var type = 'DOMWindow';
-
-			Object.prototype.toString = function() {
-				return '[object ' + type + ']';
-			};
-
-			check(null, 'null');
-			check(undefined, 'undefined');
-
-			type = "Window";
-			check(null, 'null');
-			check(undefined, 'undefined');
-
-			Object.prototype.toString = originalToString;
-		});
-	});
 
 	describe('method chaining', function() {
 		it('should return the instance on some methods', function() {

@@ -11,7 +11,7 @@
         define([], factory);
     } else if (typeof module === 'object') {
         // Node js environment
-        var HashMap = module.exports = factory();
+        let HashMap = module.exports = factory();
         // Keep it backwards compatible
         HashMap.HashMap = HashMap;
     } else {
@@ -51,7 +51,7 @@
     HashBucket.prototype = {
         constructor: HashBucket,
         get: function (hash, equalTo, key) {
-            var bucket = this;
+            let bucket = this;
             // avoid recursion
             do {
                 if (equalTo(key, bucket._key)) {
@@ -63,7 +63,7 @@
             return null;
         },
         set: function (hash, equalTo, key, value) {
-            var bucket = this;
+            let bucket = this;
             // avoid recursion
             while (true) {
                 if (equalTo(key, bucket._key)) {
@@ -81,7 +81,7 @@
         },
 
         has: function (hash, equalTo, key) {
-            var bucket = this;
+            let bucket = this;
             // avoid recursion
             do {
                 if (equalTo(key, bucket._key)) {
@@ -94,7 +94,7 @@
         },
 
         search: function (value) {
-            var bucket = this;
+            let bucket = this;
             // avoid recursion
             do {
                 if (bucket._value === value) {
@@ -107,12 +107,12 @@
         },
 
         delete: function (hash, equalTo, key) {
-            var bucket = this;
-            var prev = null;
+            let bucket = this;
+            let prev = null;
             // avoid recursion
             do {
                 if (equalTo(key, bucket._key)) {
-                    var next = bucket._next;
+                    let next = bucket._next;
                     if (bucket._next) {
                         bucket._key = next._key;
                         bucket._value = next._value;
@@ -131,7 +131,7 @@
         },
 
         forEach: function (func, ctx) {
-            var bucket = this;
+            let bucket = this;
             // avoid recursion
             do {
                 func.call(ctx, bucket._value, bucket._key);
@@ -144,6 +144,8 @@
     function HashBuckets(options, depth) {
         this._options = options;
         this._buckets = new Array(this._options.width);
+        this._buckets.fill(undefined);
+        Object.seal(this._buckets);
         this._size = 0;
         switch (arguments.length) {
             case 0:
@@ -162,15 +164,15 @@
     HashBuckets.prototype = {
         constructor: HashBuckets,
         get: function (hash, equalTo, key) {
-            var bucket = this._buckets[hash & this._options.mask];
+            const bucket = this._buckets[hash & this._options.mask];
             if (bucket) {
                 return bucket.get(hash >>> this._options.widthB, equalTo, key);
             }
             return null;
         },
         set: function (hash, equalTo, key, value) {
-            var idx = hash & this._options.mask;
-            var bucket = this._buckets[idx];
+            const idx = hash & this._options.mask;
+            let bucket = this._buckets[idx];
             if (bucket) {
                 return bucket.set(hash >>> this._options.widthB, equalTo, key, value);
             } else {
@@ -187,16 +189,16 @@
         },
 
         has: function (hash, equalTo, key) {
-            var bucket = this._buckets[hash & this._options.mask];
+            const bucket = this._buckets[hash & this._options.mask];
             if (bucket) {
                 return bucket.has(hash >>> this._options.widthB, equalTo, key);
             }
             return false;
         },
         search: function (value) {
-            for (var idx in this._buckets) {
-                var data = this._buckets[idx];
-                var key = data.search(value);
+            for (let idx in this._buckets) {
+                const data = this._buckets[idx];
+                const key = data ? data.search(value) : null;
                 if (key) {
                     return key;
                 }
@@ -205,12 +207,12 @@
         },
 
         delete: function (hash, equalTo, key) {
-            var idx = hash & this._options.mask;
-            var bucket = this._buckets[idx];
+            const idx = hash & this._options.mask;
+            const bucket = this._buckets[idx];
             if (bucket) {
                 if (bucket.delete(hash >>> this._options.widthB, equalTo, key)) {
                     if (bucket._size === 0) {
-                        delete this._buckets[idx];
+                        this._buckets[idx] = undefined;
                         this._size--;
                     }
                     return true;
@@ -220,10 +222,9 @@
         },
 
         forEach: function (func, ctx) {
-            for (var idx in this._buckets) {
-                var data = this._buckets[idx];
-                data.forEach(func, ctx);
-            }
+            this._buckets.filter(bucket => bucket).forEach(bucket => {
+               bucket.forEach(func, ctx);
+            });
         }
     };
 
@@ -232,12 +233,12 @@
         constructor: HashMap,
 
         get: function (key) {
-            var hashEquals = this.hashEquals(key);
+            const hashEquals = this.hashEquals(key);
             return this._buckets.get(hashEquals.hash, hashEquals.equalTo, key);
         },
 
         set: function (key, value) {
-            var hashEquals = this.hashEquals(key);
+            const hashEquals = this.hashEquals(key);
             if (this._buckets.set(hashEquals.hash, hashEquals.equalTo, key, value)) {
                 this.size++;
             }
@@ -248,14 +249,14 @@
         },
 
         copy: function (other) {
-            var map = this;
+            const map = this;
             other.forEach(function (value, key) {
                 map.set(key, value);
             });
         },
 
         has: function (key) {
-            var hashEquals = this.hashEquals(key);
+            const hashEquals = this.hashEquals(key);
             return this._buckets.has(hashEquals.hash, hashEquals.equalTo, key);
         },
 
@@ -264,24 +265,13 @@
         },
 
         delete: function (key) {
-            var hashEquals = this.hashEquals(key);
+            const hashEquals = this.hashEquals(key);
             if (this._buckets.delete(hashEquals.hash, hashEquals.equalTo, key)) {
                 this.size--;
             }
         },
-
-        type: function (key) {
-            var str = Object.prototype.toString.call(key);
-            var type = str.slice(8, -1).toLowerCase();
-            // Some browsers yield DOMWindow or Window for null and undefined, works fine on Node
-            if (!key && (type === 'domwindow' || type === 'window')) {
-                return key + '';
-            }
-            return type;
-        },
-
         keys: function () {
-            var keys = [];
+            const keys = [];
             this.forEach(function (_, key) {
                 keys.push(key);
             });
@@ -289,7 +279,7 @@
         },
 
         values: function () {
-            var values = [];
+            const values = [];
             this.forEach(function (value) {
                 values.push(value);
             });
@@ -297,7 +287,7 @@
         },
 
         entries: function () {
-            var entries = [];
+            const entries = [];
             this.forEach(function (value, key) {
                 entries.push([key, value]);
             });
@@ -311,8 +301,8 @@
         // how many layers of hashmap do we want, and to the power of 2 how many buckets do we want.
         setOptions: function (_depth, _widthB) {
 
-            var widthB;
-            var depth;
+            let widthB;
+            let depth;
             switch (arguments.length) {
                 case 0:
                     widthB = 4; // 16 buckets
@@ -327,8 +317,8 @@
                     depth = _depth;
                     break;
             }
-            var width = 1 << widthB; // 2 ^ widthB
-            var mask = width - 1;
+            const width = 1 << widthB; // 2 ^ widthB
+            const mask = width - 1;
             this.options = {widthB, width, mask, depth};
         },
 
@@ -350,13 +340,7 @@
             return new HashMap(this);
         },
         hashEquals: function (key) {
-            var typeFunction = this.type;
-            switch (this.type(key)) {
-                case 'undefined':
-                case 'null':
-                    return {
-                        equalTo: defaultEquals, hash: 0
-                    };
+            switch (typeof key) {
                 case 'boolean':
                     return {
                         equalTo: defaultEquals, hash: key ? 0 : 1
@@ -383,54 +367,67 @@
                     return {
                         equalTo: defaultEquals, hash: compute_hash(key.toString())
                     };
-                case 'regexp':
-                    return {
-                        equalTo: function (me, them) {
-                            if (typeFunction(them) === 'regexp') {
-                                return me + '' === them + '';
-                            }
-                            return false;
-                        }, hash: compute_hash(key + '')
-                    };
-
-                case 'date':
-                    return {
-                        equalTo: function (me, them) {
-                            if (typeFunction(them) === 'date') {
-                                return me.toString() === them.toString();
-                            }
-                            return false;
-                        }, hash: key.getTime() | 0
-                    };
 
                 case 'string':
                     return {
                         equalTo: defaultEquals, hash: compute_hash(key)
                     };
-                case 'array':
-                    var functions = [];
-                    var hash_code = key.length;
-                    for (var i = 0; i < key.length; i++) {
-                        var hashEquals = this.hashEquals(key[i]);
-                        functions.push(hashEquals.equalTo);
-                        hash_code = hash_code + (hashEquals.hash * prime_powers[i & 0xFF]);
-                    }
-                    Object.freeze(functions);
+                case 'undefined':
                     return {
-                        equalTo: function (me, them) {
-                            if (Array.isArray(them) && me.length === them.length) {
-                                for (var i = 0; i < me.length; i++) {
-                                    if (!functions[i](me[i], them[i])) {
-                                        return false;
-                                    }
-                                }
-                                return true;
-                            }
-                            return false;
-                        },
-                        hash: hash_code | 0
+                        equalTo: defaultEquals, hash: 0
                     };
                 default:
+                    // null
+                    if(!key){
+                        return {
+                            equalTo: defaultEquals, hash: 0
+                        };
+                    }
+
+                    if(key instanceof RegExp){
+                        return {
+                            equalTo: function (me, them) {
+                                if (them instanceof RegExp) {
+                                    return me + '' === them + '';
+                                }
+                                return false;
+                            }, hash: compute_hash(key + '')
+                        };
+                    }
+                    if(key instanceof Date){
+                        return {
+                            equalTo: function (me, them) {
+                                if (them instanceof Date) {
+                                    return me.getTime() === them.getTime();
+                                }
+                                return false;
+                            }, hash: key.getTime() | 0
+                        };
+                    }
+                    if(key instanceof Array){
+                        let functions = [];
+                            let hash_code = key.length;
+                            for (let i = 0; i < key.length; i++) {
+                                const hashEquals = this.hashEquals(key[i]);
+                                functions.push(hashEquals.equalTo);
+                                hash_code = hash_code + (hashEquals.hash * prime_powers[i & 0xFF]);
+                            }
+                            Object.freeze(functions);
+                            return {
+                                equalTo: function (me, them) {
+                                    if (them instanceof Array && me.length === them.length) {
+                                        for (let i = 0; i < me.length; i++) {
+                                            if (!functions[i](me[i], them[i])) {
+                                                return false;
+                                            }
+                                        }
+                                        return true;
+                                    }
+                                    return false;
+                                },
+                                hash: hash_code | 0
+                            };
+                    }
                     if (!key.hasOwnProperty('_hmuid_')) {
                         key._hmuid_ = ++HashMap.uid;
                         hide(key, '_hmuid_');
@@ -449,14 +446,14 @@
     // Iterator protocol for ES6
     if (typeof Symbol !== 'undefined' && typeof Symbol.iterator !== 'undefined') {
         proto[Symbol.iterator] = function () {
-            var entries = this.entries();
-            var i = 0;
+            const entries = this.entries();
+            let i = 0;
             return {
                 next: function () {
                     if (i === entries.length) {
                         return {done: true};
                     }
-                    var currentEntry = entries[i++];
+                    const currentEntry = entries[i++];
                     return {
                         value: {key: currentEntry[0], value: currentEntry[1]},
                         done: false
@@ -469,7 +466,7 @@
     //- Add chaining to all methods that don't return something
 
     ['set', 'multi', 'copy', 'delete', 'clear', 'forEach'].forEach(function (method) {
-        var fn = proto[method];
+        const fn = proto[method];
         proto[method] = function () {
             fn.apply(this, arguments);
             return this;
@@ -484,7 +481,7 @@
     //- Utils
 
     function multi(map, args) {
-        for (var i = 0; i < args.length; i += 2) {
+        for (let i = 0; i < args.length; i += 2) {
             map.set(args[i], args[i + 1]);
         }
     }
@@ -493,26 +490,59 @@
         return me === them;
     }
 
-    function compute_hash(str) {
-        var m = 2162722087;
-        var len = Math.min(str.length, 1024); // lets not go above 1024, it does mean we reuse prime powers 4 times.
-        var hash_value = len, i, chr;
-        for (i = 0; i < len; i++) {
-            chr = str.charCodeAt(i);
-            hash_value = (hash_value + (chr * prime_powers[i & 0xFF])) % m;
-        }
-        return hash_value;
-    }
+    // Note: In this version, all arithmetic is performed with unsigned 32-bit integers.
+    //       In the case of overflow, the result is reduced modulo 232.
+    function compute_hash(key, seed, len) {
+        len = len ? Math.min(len, key.length) : key.length;
+        seed = seed ? seed : 0;
+        const remaining = len & 3;
+        const bytes = len - remaining;
+        let hash = seed | 0, k = 0, i  =0;
 
-    function hide(obj, prop) {
-        // Make non iterable if supported
-        if (Object.defineProperty) {
-            Object.defineProperty(obj, prop, {enumerable: false});
+        while (i< bytes)
+        {
+            k = (key.codePointAt(i++) & 0xff) |
+                ((key.codePointAt(i++) & 0xff) << 8) |
+                ((key.codePointAt(i++) & 0xff) << 16) |
+                ((key.codePointAt(i++) & 0xff) << 24);
+
+            k *= (k * 0xcc9e2d51) | 0;
+            k = (k << 15) | (k >>> 17);
+            k =  (k * 0x1b873593) | 0;
+
+            hash ^= k;
+            hash = (hash << 13) | (hash >>> 19);
+            hash = (hash*5+0xe6546b64) | 0;
         }
+        switch(remaining)
+        {
+            case 3: k ^= (key.codePointAt(i + 2) & 0xff) << 16;
+            /* falls through */
+            case 2: k ^= (key.codePointAt(i + 1) & 0xff) << 8;
+            /* falls through */
+            case 1: k ^= (key.codePointAt(i) & 0xff);
+
+            k = k * 0xcc9e2d51 | 0;
+            k = (k << 15) | (k >>> 17);
+            k = k * 0x1b873593 | 0;
+            hash ^= k;
+            break;
+            default:
+                // do nothing
+        }
+
+        hash ^= len;
+
+        hash ^= hash >>> 16;
+        hash = hash * 0x85ebca6b | 0;
+        hash ^= hash >>> 13;
+        hash = hash * 0xc2b2ae35 | 0;
+        hash ^= hash >>> 16;
+        return hash;
     }
 
     //256 prime_powers
-    let prime_powers = Object.freeze(
+    const prime_powers = Object.freeze(
         [1, 127, 16129, 2048383, 260144641, 597538102, 192065909, 602427486, 813017677, 1605306890,
             578098852, 2048725333, 661466851, 1822850771, 90784608, 716034781, 102089533, 2151760256, 770569550, 539838935,
             1515160048, 2105782440, 1419553179, 777320512, 1397211109, 102599709, 53830521, 348309906, 980916322,
@@ -542,5 +572,11 @@
             762566842, 1686217106, 40085849, 765458649, 2053476595, 1264877125, 597960437, 245702454, 926102440, 828017182,
             1347521938, 280241253, 987085739, 2084729894, 908601924, 768173737, 235570684, 1802089737]);
 
+    function hide(obj, prop) {
+        // Make non iterable if supported
+        if (Object.defineProperty) {
+            Object.defineProperty(obj, prop, {enumerable: false});
+        }
+    }
     return HashMap;
 }));
