@@ -51,19 +51,19 @@ function benchmarkHashMapImplementation(version, location) {
 
     let hashmap = new HashMap();
     console.log("setup constants");
-    let key = makeid(16);
-    let value = makeid(128);
+    let key = makeKey();
+    let value = makeValue();
 
     console.log("1'024 hashmap");
     let hashmap1024 = new HashMap();
 
     for (let i = 0; i < 1024; i++) {
-        hashmap1024.set(makeid(16), makeid(128));
+        hashmap1024.set(makeKey(), makeValue());
     }
     console.log("131'072 hashmap");
     var hashmap131072 = new HashMap();
     for (var i = 0; i < 131072; i++) {
-        hashmap131072.set(makeid(16), makeid(128));
+        hashmap131072.set(makeKey(), makeValue());
     }
     console.log("define benchmarks");
     theSuite = theSuite
@@ -81,13 +81,13 @@ function benchmarkHashMapImplementation(version, location) {
             hashmap.set(key, value);
         }, {
             'onStart': function () {
-                key = makeid(16);
-                value = makeid(128);
+                key = makeKey();
+                value = makeValue();
                 hashmap.clear();
             },
             'onCycle': function () {
-                key = makeid(16);
-                value = makeid(128);
+                key = makeKey();
+                value = makeValue();
                 hashmap.clear();
             },
             'version': version
@@ -102,8 +102,8 @@ function benchmarkHashMapImplementation(version, location) {
                 key = [];
                 value = [];
                 for (let k = 0; k < 20; k++) {
-                    key.push(makeid(16));
-                    value.push(makeid(128));
+                    key.push(makeKey());
+                    value.push(makeValue());
                 }
             },
             'onCycle': function () {
@@ -112,8 +112,8 @@ function benchmarkHashMapImplementation(version, location) {
                 key = [];
                 value = [];
                 for (let k = 0; k < 20; k++) {
-                    key.push(makeid(16));
-                    value.push(makeid(128));
+                    key.push(makeKey());
+                    value.push(makeValue());
                 }
             },
             'version': version
@@ -122,14 +122,14 @@ function benchmarkHashMapImplementation(version, location) {
             hashmap.set(key, value);
         }, {
             'onStart': function () {
-                key = makeid(16);
-                value = makeid(128);
+                key = makeKey();
+                value = makeValue();
             },
             'onCycle': function () {
-                key = makeid(16);
-                value = makeid(128);
+                key = makeKey();
+                value = makeValue();
                 hashmap.clear();
-                hashmap.set(key, makeid(128));
+                hashmap.set(key, makeValue());
             },
             'version': version
         })
@@ -137,13 +137,13 @@ function benchmarkHashMapImplementation(version, location) {
             hashmap1024.set(key, value);
         }, {
             'onStart': function () {
-                key = makeid(16);
-                value = makeid(128);
+                key = makeKey();
+                value = makeValue();
             },
             'onCycle': function () {
                 hashmap1024.delete(key);
-                key = makeid(16);
-                value = makeid(128);
+                key = makeKey();
+                value = makeValue();
             },
             'version': version
         })
@@ -156,8 +156,8 @@ function benchmarkHashMapImplementation(version, location) {
                 key = [];
                 value = [];
                 for (let k = 0; k < 20; k++) {
-                    key.push(makeid(16));
-                    value.push(makeid(128));
+                    key.push(makeKey());
+                    value.push(makeValue());
                 }
             },
             'onCycle': function () {
@@ -169,8 +169,8 @@ function benchmarkHashMapImplementation(version, location) {
                 key = [];
                 value = [];
                 for (let k = 0; k < 20; k++) {
-                    key.push(makeid(16));
-                    value.push(makeid(128));
+                    key.push(makeKey());
+                    value.push(makeValue());
                 }
             },
             'version': version
@@ -179,13 +179,13 @@ function benchmarkHashMapImplementation(version, location) {
             hashmap131072.set(key, value);
         }, {
             'onStart': function () {
-                key = makeid(16);
-                value = makeid(128);
+                key = makeKey();
+                value = makeValue();
             },
             'onCycle': function () {
                 hashmap131072.delete(key);
-                key = makeid(16);
-                value = makeid(128);
+                key = makeKey();
+                value = makeValue();
             },
             'version': version
         })
@@ -198,8 +198,8 @@ function benchmarkHashMapImplementation(version, location) {
                 key = [];
                 value = [];
                 for (let k = 0; k < 20; k++) {
-                    key.push(makeid(16));
-                    value.push(makeid(128));
+                    key.push(makeKey());
+                    value.push(makeValue());
                 }
             },
             'onCycle': function () {
@@ -212,8 +212,8 @@ function benchmarkHashMapImplementation(version, location) {
                 key = [];
                 value = [];
                 for (let k = 0; k < 20; k++) {
-                    key.push(makeid(16));
-                    value.push(makeid(128));
+                    key.push(makeKey());
+                    value.push(makeValue());
                 }
             },
             'version': version
@@ -223,13 +223,13 @@ function benchmarkHashMapImplementation(version, location) {
         }, {
             'onStart': function () {
                 hashmap.clear();
-                key = makeid(16);
-                hashmap.set(key, makeid(128));
+                key = makeKey();
+                hashmap.set(key, makeValue());
             },
             'onCycle': function () {
                 hashmap.clear();
-                key = makeid(16);
-                hashmap.set(key, makeid(128));
+                key = makeKey();
+                hashmap.set(key, makeValue());
             },
             'version': version
         })
@@ -237,12 +237,12 @@ function benchmarkHashMapImplementation(version, location) {
             hashmap1024.delete(key);
         }, {
             'onStart': function () {
-                key = makeid(16);
-                hashmap1024.set(key, makeid(128));
+                key = makeKey();
+                hashmap1024.set(key, makeValue());
             },
             'onCycle': function () {
-                key = makeid(16);
-                hashmap1024.set(key, makeid(128));
+                key = makeKey();
+                hashmap1024.set(key, makeValue());
             },
             'version': version
         })
@@ -250,12 +250,12 @@ function benchmarkHashMapImplementation(version, location) {
             hashmap131072.delete(key);
         }, {
             'onStart': function () {
-                key = makeid(16);
-                hashmap131072.set(key, makeid(128));
+                key = makeKey();
+                hashmap131072.set(key, makeValue());
             },
             'onCycle': function () {
-                key = makeid(16);
-                hashmap131072.set(key, makeid(128));
+                key = makeKey();
+                hashmap131072.set(key, makeValue());
             },
             'version': version
         }).add("_singleFetch_", function () {
@@ -263,13 +263,13 @@ function benchmarkHashMapImplementation(version, location) {
         }, {
             'onStart': function () {
                 hashmap.clear();
-                key = makeid(16);
-                hashmap.set(key, makeid(128));
+                key = makeKey();
+                hashmap.set(key, makeValue());
             },
             'onCycle': function () {
                 hashmap.clear();
-                key = makeid(16);
-                hashmap.set(key, makeid(128));
+                key = makeKey();
+                hashmap.set(key, makeValue());
             },
             'version': version
         })
@@ -278,13 +278,13 @@ function benchmarkHashMapImplementation(version, location) {
         }, {
             'onStart': function () {
                 hashmap1024.delete(key);
-                key = makeid(16);
-                hashmap1024.set(key, makeid(128));
+                key = makeKey();
+                hashmap1024.set(key, makeValue());
             },
             'onCycle': function () {
                 hashmap1024.delete(key);
-                key = makeid(16);
-                hashmap1024.set(key, makeid(128));
+                key = makeKey();
+                hashmap1024.set(key, makeValue());
             },
             'version': version
         })
@@ -293,13 +293,13 @@ function benchmarkHashMapImplementation(version, location) {
         }, {
             'onStart': function () {
                 hashmap131072.delete(key);
-                key = makeid(16);
-                hashmap131072.set(key, makeid(128));
+                key = makeKey();
+                hashmap131072.set(key, makeValue());
             },
             'onCycle': function () {
                 hashmap131072.delete(key);
-                key = makeid(16);
-                hashmap131072.set(key, makeid(128));
+                key = makeKey();
+                hashmap131072.set(key, makeValue());
             },
             'version': version
         }).add("_singleCombined_", function () {
@@ -309,13 +309,13 @@ function benchmarkHashMapImplementation(version, location) {
         }, {
             'onStart': function () {
                 hashmap.clear();
-                key = makeid(16);
-                value = makeid(128);
+                key = makeKey();
+                value = makeValue();
             },
             'onCycle': function () {
                 hashmap.clear();
-                key = makeid(16);
-                value = makeid(128);
+                key = makeKey();
+                value = makeValue();
             },
             'version': version
         })
@@ -325,12 +325,12 @@ function benchmarkHashMapImplementation(version, location) {
             hashmap.delete(key);
         }, {
             'onStart': function () {
-                key = makeid(16);
-                value = makeid(128);
+                key = makeKey();
+                value = makeValue();
             },
             'onCycle': function () {
-                key = makeid(16);
-                value = makeid(128);
+                key = makeKey();
+                value = makeValue();
             },
             'version': version
         })
@@ -340,12 +340,12 @@ function benchmarkHashMapImplementation(version, location) {
             hashmap.delete(key);
         }, {
             'onStart': function () {
-                key = makeid(16);
-                value = makeid(128);
+                key = makeKey();
+                value = makeValue();
             },
             'onCycle': function () {
-                key = makeid(16);
-                value = makeid(128);
+                key = makeKey();
+                value = makeValue();
             },
             'version': version,
             'onComplete':  () => {
@@ -359,8 +359,15 @@ function benchmarkHashMapImplementation(version, location) {
         });
 
 }
+this.max32 = Math.pow(2, 32) - 1;
+function makeKey(){
+    // return Math.floor(Math.random() * this.max32);
+    return makeid(32);
+}
 
-
+function makeValue(){
+    return makeid(64);
+}
 function makeid(length) {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     const charactersLength = characters.length;
@@ -372,13 +379,6 @@ function makeid(length) {
     return result;
 }
 
-async function sleep(ms) {
-    await sleepPromise(ms);
-}
-
-function sleepPromise(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
 /**
  * create x 14,494,621 ops/sec ±3.17% (89 runs sampled)
  singleSet x 3,198,502 ops/sec ±1.52% (85 runs sampled)

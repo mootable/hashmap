@@ -12,9 +12,7 @@ describe('hashmap', function() {
 	describe('method chaining', function() {
 		it('should return the instance on some methods', function() {
 			expect(hashmap.set('key', 'value')).to.equal(hashmap);
-			expect(hashmap.multi()).to.equal(hashmap);
 			expect(hashmap.delete('key')).to.equal(hashmap);
-			expect(hashmap.remove('key')).to.equal(hashmap);
 			expect(hashmap.copy(hashmap)).to.equal(hashmap);
 			expect(hashmap.clear()).to.equal(hashmap);
 			expect(hashmap.forEach(function(){})).to.equal(hashmap);
@@ -55,12 +53,6 @@ describe('hashmap', function() {
 		it('should not fail when the key is not found', function() {
 			hashmap.delete('key');
 			expect(hashmap.has('key')).to.be.false;
-		});
-	});
-
-	describe('hashmap.remove()', function() {
-		it('should be the same function as delete', function() {
-			expect(hashmap.remove).to.equal(hashmap.delete);
 		});
 	});
 
@@ -256,64 +248,57 @@ describe('hashmap', function() {
 		});
 	});
 
-	describe('hashmap.count() and hashmap.size', function() {
-		// NOTE: count() is expected to return .size, this
+	describe('hashmap.length', function() {
 		// will be checked only in this unit test!
 		it('should return 0 when nothing was added', function() {
-			expect(hashmap.count()).to.equal(0);
-			expect(hashmap.size).to.equal(0);
+			expect(hashmap.length).to.equal(0);
 		});
 
 		it('should return 1 once an entry was added', function() {
 			hashmap.set('key', 'value');
-			expect(hashmap.count()).to.equal(1);
-			expect(hashmap.size).to.equal(1);
+			expect(hashmap.length).to.equal(1);
 		});
 
 		it('should not increase when setting an existing key', function() {
 			hashmap.set('key', 'value');
 			hashmap.set('key', 'value2');
-			expect(hashmap.count()).to.equal(1);
-			expect(hashmap.size).to.equal(1);
+			expect(hashmap.length).to.equal(1);
 		});
 
 		it('should increase when setting different key', function() {
 			hashmap.set('key', 'value');
 			hashmap.set('key2', 'value2');
-			expect(hashmap.count()).to.equal(2);
-			expect(hashmap.size).to.equal(2);
+			expect(hashmap.length).to.equal(2);
 		});
 
 		it('should decrease when deleting a key', function() {
 			hashmap.set('key', 'value');
 			hashmap.set('key2', 'value');
 			hashmap.delete('key');
-			expect(hashmap.count()).to.equal(1);
-			expect(hashmap.size).to.equal(1);
+			expect(hashmap.length).to.equal(1);
 
 			hashmap.delete('key2');
-			expect(hashmap.count()).to.equal(0);
-			expect(hashmap.size).to.equal(0);
+			expect(hashmap.length).to.equal(0);
 		});
 	});
 
 	describe('hashmap.clear()', function() {
 		it('should do nothing when empty', function() {
 			hashmap.clear();
-			expect(hashmap.count()).to.equal(0);
+			expect(hashmap.length).to.equal(0);
 		});
 
 		it('should delete the only entry', function() {
 			hashmap.set('key', 'value');
 			hashmap.clear();
-			expect(hashmap.count()).to.equal(0);
+			expect(hashmap.length).to.equal(0);
 		});
 
 		it('should delete multiple entries', function() {
 			hashmap.set('key', 'value');
 			hashmap.set('key2', 'value2');
 			hashmap.clear();
-			expect(hashmap.count()).to.equal(0);
+			expect(hashmap.length).to.equal(0);
 		});
 	});
 
@@ -321,7 +306,7 @@ describe('hashmap', function() {
 		it('should work on an empty hashmap', function() {
 			var map = new HashMap();
 			map.copy(hashmap);
-			expect(map.count()).to.equal(0);
+			expect(map.length).to.equal(0);
 		});
 
 		it('should copy all values', function() {
@@ -331,7 +316,7 @@ describe('hashmap', function() {
 			var map = new HashMap();
 			map.copy(hashmap);
 
-			expect(map.count()).to.equal(2);
+			expect(map.length).to.equal(2);
 			expect(map.get('key')).to.equal('value');
 			expect(map.get('key2')).to.equal('value2');
 		});
@@ -346,50 +331,28 @@ describe('hashmap', function() {
 
 		it('should work on an empty hashmap', function() {
 			var clone = hashmap.clone();
-			expect(clone.count()).to.equal(0);
+			expect(clone.length).to.equal(0);
 		});
 
 		it('should retain all values', function() {
 			hashmap.set('key', 'value');
 			hashmap.set('key2', 'value2');
 			var clone = hashmap.clone();
-			expect(clone.count()).to.equal(2);
+			expect(clone.length).to.equal(2);
 			expect(clone.get('key')).to.equal('value');
 			expect(clone.get('key2')).to.equal('value2');
-			expect(hashmap.count()).to.equal(2);
+			expect(hashmap.length).to.equal(2);
 			expect(hashmap.get('key')).to.equal('value');
 			expect(hashmap.get('key2')).to.equal('value2');
 		});
 	});
 
-	describe('hashmap.multi()', function() {
-		it('should do nothing with no arguments', function() {
-			hashmap.multi();
-			expect(hashmap.count()).to.equal(0);
-		});
-
-		it('should work with one pair', function() {
-			hashmap.multi('key', 'value');
-			expect(hashmap.count()).to.equal(1);
-			expect(hashmap.get('key')).to.equal('value');
-		});
-
-		it('should work with several pairs', function() {
-			hashmap.multi(
-				'key', 'value',
-				'key2', 'value2'
-			);
-			expect(hashmap.count()).to.equal(2);
-			expect(hashmap.get('key')).to.equal('value');
-			expect(hashmap.get('key2')).to.equal('value2');
-		});
-	});
 
 	describe('constructor', function() {
 		this.timeout(0);
 
 		it('should create an empty hashmap when no arguments', function() {
-			expect(hashmap.count()).to.equal(0);
+			expect(hashmap.length).to.equal(0);
 		});
 
 		it('should clone a hashmap when one argument', function() {
@@ -397,7 +360,7 @@ describe('hashmap', function() {
 			hashmap.set('key2', 'value2');
 
 			var map = new HashMap(hashmap);
-			expect(map.count()).to.equal(2);
+			expect(map.length).to.equal(2);
 			expect(map.get('key')).to.equal('value');
 			expect(map.get('key2')).to.equal('value2');
 		});
@@ -407,7 +370,7 @@ describe('hashmap', function() {
 				[['key', 'value'],
 				 ['key2', 'value2']]
 			);
-			expect(map.count()).to.equal(2);
+			expect(map.length).to.equal(2);
 			expect(map.get('key')).to.equal('value');
 			expect(map.get('key2')).to.equal('value2');
 		});
@@ -417,19 +380,9 @@ describe('hashmap', function() {
 				[[[1, 'key'], ['value', 1]],
 				 [[2, 'key2'], ['value2', 2]]]
 			);
-			expect(map.count()).to.equal(2);
+			expect(map.length).to.equal(2);
 			expect(map.get([1, 'key'])).to.deep.equal(['value', 1]);
 			expect(map.get([2, 'key2'])).to.deep.equal(['value2', 2]);
-		});
-
-		it('should initialize with pairs when several arguments', function() {
-			var map = new HashMap(
-				'key', 'value',
-				'key2', 'value2'
-			);
-			expect(map.count()).to.equal(2);
-			expect(map.get('key')).to.equal('value');
-			expect(map.get('key2')).to.equal('value2');
 		});
 	});
 });

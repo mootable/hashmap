@@ -21,23 +21,16 @@
 }(function () {
 
 
-    function HashMap(other) {
+    function HashMap(iterable, _depth, _widthB) {
+
+        const widthB = _widthB ? _widthB : 5;
+        const depth = _depth ? _depth : 2;
+        const width = 1 << widthB; // 2 ^ widthB
+        const mask = width - 1;
+        this.options = Object.freeze({widthB, width, mask, depth});
         this.clear();
-        switch (arguments.length) {
-            case 0:
-                break;
-            case 1: {
-                if ('length' in other) {
-                    // Flatten 2D array to alternating key-value array
-                    multi(this, Array.prototype.concat.apply([], other));
-                } else { // Assumed to be a HashMap instance
-                    this.copy(other);
-                }
-                break;
-            }
-            default:
-                multi(this, arguments);
-                break;
+        if(iterable) {
+            this.copy(iterable);
         }
     }
 
@@ -45,7 +38,7 @@
         this._key = key;
         this._value = value;
         this._next = null;
-        this._size = 1;
+        this.length = 1;
     }
 
     HashBucket.prototype = {
@@ -74,7 +67,7 @@
                     bucket = bucket._next;
                 } else {
                     bucket._next = new HashBucket(key, value);
-                    this._size++;
+                    this.length++;
                     return true;
                 }
             }
@@ -120,7 +113,7 @@
                     } else if (prev) {
                         delete prev._next;
                     }
-                    this._size--;
+                    this.length--;
                     return true;
                 }
                 prev = bucket;
@@ -143,22 +136,11 @@
 
     function HashBuckets(options, depth) {
         this._options = options;
+        this.length = 0;
+        this._depth = depth;
         this._buckets = new Array(this._options.width);
         this._buckets.fill(undefined);
         Object.seal(this._buckets);
-        this._size = 0;
-        switch (arguments.length) {
-            case 0:
-                this._depth = 0;
-                break;
-            case 1:
-                this._depth = options.depth;
-                break;
-            case 2:
-            default:
-                this._depth = depth;
-                break;
-        }
     }
 
     HashBuckets.prototype = {
@@ -166,7 +148,7 @@
         get: function (hash, equalTo, key) {
             const bucket = this._buckets[hash & this._options.mask];
             if (bucket) {
-                return bucket.get(hash >>> this._options.widthB, equalTo, key);
+                return bucket.get(hash >> this._options.widthB, equalTo, key);
             }
             return null;
         },
@@ -174,24 +156,23 @@
             const idx = hash & this._options.mask;
             let bucket = this._buckets[idx];
             if (bucket) {
-                return bucket.set(hash >>> this._options.widthB, equalTo, key, value);
-            } else {
-                if (this._depth > 0) {
-                    bucket = new HashBuckets(this._options, this._depth - 1);
-                    bucket.set(hash >>> this._options.widthB, equalTo, key, value);
-                    this._buckets[idx] = bucket;
-                } else {
-                    this._buckets[idx] = new HashBucket(key, value);
-                }
-                this._size++;
-                return true;
+                return bucket.set(hash >> this._options.widthB, equalTo, key, value);
             }
+            if (this._depth > 0) {
+                bucket = new HashBuckets(this._options, this._depth - 1);
+                bucket.set(hash >> this._options.widthB, equalTo, key, value);
+                this._buckets[idx] = bucket;
+            } else {
+                this._buckets[idx] = new HashBucket(key, value);
+            }
+            this.length++;
+            return true;
         },
 
         has: function (hash, equalTo, key) {
             const bucket = this._buckets[hash & this._options.mask];
             if (bucket) {
-                return bucket.has(hash >>> this._options.widthB, equalTo, key);
+                return bucket.has(hash >> this._options.widthB, equalTo, key);
             }
             return false;
         },
@@ -210,10 +191,10 @@
             const idx = hash & this._options.mask;
             const bucket = this._buckets[idx];
             if (bucket) {
-                if (bucket.delete(hash >>> this._options.widthB, equalTo, key)) {
-                    if (bucket._size === 0) {
+                if (bucket.delete(hash >> this._options.widthB, equalTo, key)) {
+                    if (bucket.length === 0) {
                         this._buckets[idx] = undefined;
-                        this._size--;
+                        this.length--;
                     }
                     return true;
                 }
@@ -223,7 +204,7 @@
 
         forEach: function (func, ctx) {
             this._buckets.filter(bucket => bucket).forEach(bucket => {
-               bucket.forEach(func, ctx);
+                bucket.forEach(func, ctx);
             });
         }
     };
@@ -240,19 +221,21 @@
         set: function (key, value) {
             const hashEquals = this.hashEquals(key);
             if (this._buckets.set(hashEquals.hash, hashEquals.equalTo, key, value)) {
-                this.size++;
+                this.length++;
             }
-        },
-
-        multi: function () {
-            multi(this, arguments);
         },
 
         copy: function (other) {
             const map = this;
-            other.forEach(function (value, key) {
-                map.set(key, value);
-            });
+            if(Array.isArray(other)){
+                other.forEach(function (pair) {
+                    map.set(pair[0], pair[1]);
+                });
+            } else {
+                other.forEach(function (value, key) {
+                    map.set(key, value);
+                });
+            }
         },
 
         has: function (key) {
@@ -267,7 +250,7 @@
         delete: function (key) {
             const hashEquals = this.hashEquals(key);
             if (this._buckets.delete(hashEquals.hash, hashEquals.equalTo, key)) {
-                this.size--;
+                this.length--;
             }
         },
         keys: function () {
@@ -293,51 +276,19 @@
             });
             return entries;
         },
-
-        // TODO: This is deprecated and will be deleted in a future version
-        count: function () {
-            return this.size;
-        },
-        // how many layers of hashmap do we want, and to the power of 2 how many buckets do we want.
-        setOptions: function (_depth, _widthB) {
-
-            let widthB;
-            let depth;
-            switch (arguments.length) {
-                case 0:
-                    widthB = 4; // 16 buckets
-                    depth = 4;
-                    break;
-                case 1:
-                    widthB = 4;
-                    depth = _depth;
-                    break;
-                default:
-                    widthB = _widthB;
-                    depth = _depth;
-                    break;
-            }
-            const width = 1 << widthB; // 2 ^ widthB
-            const mask = width - 1;
-            this.options = {widthB, width, mask, depth};
-        },
-
         clear: function () {
-            if (!this.options) {
-                this.setOptions();
-            }
             // we clone the options as its dangerous to modify mid execution.
             this._buckets = new HashBuckets({
                 widthB: this.options.widthB,
                 width: this.options.width,
                 mask: this.options.mask,
                 depth: this.options.depth
-            });
-            this.size = 0;
+            }, this.options.depth);
+            this.length = 0;
         },
 
         clone: function () {
-            return new HashMap(this);
+            return new HashMap(this, this.options);
         },
         hashEquals: function (key) {
             switch (typeof key) {
@@ -465,7 +416,7 @@
 
     //- Add chaining to all methods that don't return something
 
-    ['set', 'multi', 'copy', 'delete', 'clear', 'forEach'].forEach(function (method) {
+    ['set', 'copy', 'delete', 'clear', 'forEach'].forEach(function (method) {
         const fn = proto[method];
         proto[method] = function () {
             fn.apply(this, arguments);
@@ -473,18 +424,6 @@
         };
     });
 
-    //- Backwards compatibility
-
-    // TODO: remove() is deprecated and will be deleted in a future version
-    HashMap.prototype.remove = HashMap.prototype.delete;
-
-    //- Utils
-
-    function multi(map, args) {
-        for (let i = 0; i < args.length; i += 2) {
-            map.set(args[i], args[i + 1]);
-        }
-    }
 
     function defaultEquals(me, them) {
         return me === them;
