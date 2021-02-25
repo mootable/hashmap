@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.0
+- Made the constructor more JS Map like
+- Modernized a touch further
+- Removed Superfluous Methods
+
 ## 0.1.1
 - Added the advice to use JS Map
 
