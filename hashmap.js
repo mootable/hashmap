@@ -20,214 +20,64 @@
     }
 }(function () {
 
-
-    function HashMap(iterable, _depth, _widthB) {
-
-        const widthB = _widthB ? _widthB : 5;
-        const depth = _depth ? _depth : 2;
-        const width = 1 << widthB; // 2 ^ widthB
-        const mask = width - 1;
-        this.options = Object.freeze({widthB, width, mask, depth});
-        this.clear();
-        if(iterable) {
-            this.copy(iterable);
+    /**
+     * Interface Class
+     * Methods to Implement
+     *   has(key) : boolean
+     *   get(key) : value
+     *   search(value) : key
+     *   set(key, value) : this
+     *   copy(other) : this
+     *   clone()
+     *   delete(key) : this
+     *   clear() : this
+     *   count() : integer
+     *   forEach(func, ctx) : this
+     */
+    class MootableMap {
+        constructor(iterable) {
         }
     }
 
-    function HashBucket(key, value) {
-        this._key = key;
-        this._value = value;
-        this._next = null;
-        this.length = 1;
-    }
-
-    HashBucket.prototype = {
-        constructor: HashBucket,
-        get: function (hash, equalTo, key) {
-            let bucket = this;
-            // avoid recursion
-            do {
-                if (equalTo(key, bucket._key)) {
-                    return bucket._value;
-                }
-                bucket = bucket._next;
+    class HashMap extends MootableMap {
+        constructor(iterable, _depth, _widthB) {
+            super();
+            const depth = _depth ? _depth : 4;
+            const widthB = _widthB ? _widthB : 4;
+            const width = 1 << widthB; // 2 ^ widthB
+            const mask = width - 1;
+            this.options = Object.freeze({widthB, width, mask, depth});
+            this.clear();
+            if (iterable) {
+                this.copy(iterable);
             }
-            while (bucket != null);
-            return null;
-        },
-        set: function (hash, equalTo, key, value) {
-            let bucket = this;
-            // avoid recursion
-            while (true) {
-                if (equalTo(key, bucket._key)) {
-                    bucket._value = value;
-                    return false;
-                }
-                if (bucket._next) {
-                    bucket = bucket._next;
-                } else {
-                    bucket._next = new HashBucket(key, value);
-                    this.length++;
-                    return true;
-                }
-            }
-        },
-
-        has: function (hash, equalTo, key) {
-            let bucket = this;
-            // avoid recursion
-            do {
-                if (equalTo(key, bucket._key)) {
-                    return true;
-                }
-                bucket = bucket._next;
-            }
-            while (bucket != null);
-            return false;
-        },
-
-        search: function (value) {
-            let bucket = this;
-            // avoid recursion
-            do {
-                if (bucket._value === value) {
-                    return bucket._key;
-                }
-                bucket = bucket._next;
-            }
-            while (bucket != null);
-            return null;
-        },
-
-        delete: function (hash, equalTo, key) {
-            let bucket = this;
-            let prev = null;
-            // avoid recursion
-            do {
-                if (equalTo(key, bucket._key)) {
-                    let next = bucket._next;
-                    if (bucket._next) {
-                        bucket._key = next._key;
-                        bucket._value = next._value;
-                        bucket._next = next._next;
-                    } else if (prev) {
-                        delete prev._next;
-                    }
-                    this.length--;
-                    return true;
-                }
-                prev = bucket;
-                bucket = bucket._next;
-            }
-            while (bucket != null);
-            return false;
-        },
-
-        forEach: function (func, ctx) {
-            let bucket = this;
-            // avoid recursion
-            do {
-                func.call(ctx, bucket._value, bucket._key);
-                bucket = bucket._next;
-            }
-            while (bucket != null);
         }
-    };
 
-    function HashBuckets(options, depth) {
-        this._options = options;
-        this.length = 0;
-        this._depth = depth;
-        this._buckets = new Array(this._options.width);
-        this._buckets.fill(undefined);
-        Object.seal(this._buckets);
-    }
-
-    HashBuckets.prototype = {
-        constructor: HashBuckets,
-        get: function (hash, equalTo, key) {
-            const bucket = this._buckets[hash & this._options.mask];
-            if (bucket) {
-                return bucket.get(hash >> this._options.widthB, equalTo, key);
-            }
-            return null;
-        },
-        set: function (hash, equalTo, key, value) {
-            const idx = hash & this._options.mask;
-            let bucket = this._buckets[idx];
-            if (bucket) {
-                return bucket.set(hash >> this._options.widthB, equalTo, key, value);
-            }
-            if (this._depth > 0) {
-                bucket = new HashBuckets(this._options, this._depth - 1);
-                bucket.set(hash >> this._options.widthB, equalTo, key, value);
-                this._buckets[idx] = bucket;
-            } else {
-                this._buckets[idx] = new HashBucket(key, value);
-            }
-            this.length++;
-            return true;
-        },
-
-        has: function (hash, equalTo, key) {
-            const bucket = this._buckets[hash & this._options.mask];
-            if (bucket) {
-                return bucket.has(hash >> this._options.widthB, equalTo, key);
-            }
-            return false;
-        },
-        search: function (value) {
-            for (let idx in this._buckets) {
-                const data = this._buckets[idx];
-                const key = data ? data.search(value) : null;
-                if (key) {
-                    return key;
-                }
-            }
-            return null;
-        },
-
-        delete: function (hash, equalTo, key) {
-            const idx = hash & this._options.mask;
-            const bucket = this._buckets[idx];
-            if (bucket) {
-                if (bucket.delete(hash >> this._options.widthB, equalTo, key)) {
-                    if (bucket.length === 0) {
-                        this._buckets[idx] = undefined;
-                        this.length--;
-                    }
-                    return true;
-                }
-            }
-            return false;
-        },
-
-        forEach: function (func, ctx) {
-            this._buckets.filter(bucket => bucket).forEach(bucket => {
-                bucket.forEach(func, ctx);
-            });
+        has(key) {
+            const hashEquals = HashMap.hashEquals(key);
+            return this.buckets.has(key, hashEquals.equalTo, hashEquals.hash);
         }
-    };
 
+        get(key) {
+            const hashEquals = HashMap.hashEquals(key);
+            return this.buckets.get(key, hashEquals.equalTo, hashEquals.hash);
+        }
 
-    var proto = HashMap.prototype = {
-        constructor: HashMap,
+        search(value) {
+            return this.buckets.search(value);
+        }
 
-        get: function (key) {
-            const hashEquals = this.hashEquals(key);
-            return this._buckets.get(hashEquals.hash, hashEquals.equalTo, key);
-        },
-
-        set: function (key, value) {
-            const hashEquals = this.hashEquals(key);
-            if (this._buckets.set(hashEquals.hash, hashEquals.equalTo, key, value)) {
-                this.length++;
+        set(key, value) {
+            const hashEquals = HashMap.hashEquals(key);
+            if (this.buckets.set(key, value, hashEquals.equalTo, hashEquals.hash)) {
+                this.length = this.buckets.length;
             }
-        },
+            return this;
+        }
 
-        copy: function (other) {
+        copy(other) {
             const map = this;
-            if(Array.isArray(other)){
+            if (Array.isArray(other)) {
                 other.forEach(function (pair) {
                     map.set(pair[0], pair[1]);
                 });
@@ -236,167 +86,38 @@
                     map.set(key, value);
                 });
             }
-        },
+            return this;
+        }
 
-        has: function (key) {
-            const hashEquals = this.hashEquals(key);
-            return this._buckets.has(hashEquals.hash, hashEquals.equalTo, key);
-        },
+        clone() {
+            return new HashMap(this, this.options);
+        }
 
-        search: function (value) {
-            return this._buckets.search(value);
-        },
-
-        delete: function (key) {
-            const hashEquals = this.hashEquals(key);
-            if (this._buckets.delete(hashEquals.hash, hashEquals.equalTo, key)) {
+        delete(key) {
+            const hashEquals = HashMap.hashEquals(key);
+            if (this.buckets.delete(key, hashEquals.equalTo, hashEquals.hash)) {
                 this.length--;
             }
-        },
-        keys: function () {
-            const keys = [];
-            this.forEach(function (_, key) {
-                keys.push(key);
-            });
-            return keys;
-        },
+            return this;
+        }
 
-        values: function () {
-            const values = [];
-            this.forEach(function (value) {
-                values.push(value);
-            });
-            return values;
-        },
-
-        entries: function () {
-            const entries = [];
-            this.forEach(function (value, key) {
-                entries.push([key, value]);
-            });
-            return entries;
-        },
-        clear: function () {
+        clear() {
             // we clone the options as its dangerous to modify mid execution.
-            this._buckets = new HashBuckets({
+            this.buckets = new HashBuckets({
                 widthB: this.options.widthB,
                 width: this.options.width,
                 mask: this.options.mask,
                 depth: this.options.depth
             }, this.options.depth);
             this.length = 0;
-        },
-
-        clone: function () {
-            return new HashMap(this, this.options);
-        },
-        hashEquals: function (key) {
-            switch (typeof key) {
-                case 'boolean':
-                    return {
-                        equalTo: defaultEquals, hash: key ? 0 : 1
-                    };
-                case 'number':
-                    if (Number.isNaN(key)) {
-                        return {
-                            equalTo: function (me, them) {
-                                return Number.isNaN(them);
-                            },
-                            hash: 0
-                        };
-                    }
-                    if (!Number.isFinite(key)) {
-                        return {
-                            equalTo: defaultEquals, hash: 0
-                        };
-                    }
-                    if (Number.isInteger(key)) {
-                        return {
-                            equalTo: defaultEquals, hash: key
-                        };
-                    }
-                    return {
-                        equalTo: defaultEquals, hash: compute_hash(key.toString())
-                    };
-
-                case 'string':
-                    return {
-                        equalTo: defaultEquals, hash: compute_hash(key)
-                    };
-                case 'undefined':
-                    return {
-                        equalTo: defaultEquals, hash: 0
-                    };
-                default:
-                    // null
-                    if(!key){
-                        return {
-                            equalTo: defaultEquals, hash: 0
-                        };
-                    }
-
-                    if(key instanceof RegExp){
-                        return {
-                            equalTo: function (me, them) {
-                                if (them instanceof RegExp) {
-                                    return me + '' === them + '';
-                                }
-                                return false;
-                            }, hash: compute_hash(key + '')
-                        };
-                    }
-                    if(key instanceof Date){
-                        return {
-                            equalTo: function (me, them) {
-                                if (them instanceof Date) {
-                                    return me.getTime() === them.getTime();
-                                }
-                                return false;
-                            }, hash: key.getTime() | 0
-                        };
-                    }
-                    if(key instanceof Array){
-                        let functions = [];
-                            let hash_code = key.length;
-                            for (let i = 0; i < key.length; i++) {
-                                const hashEquals = this.hashEquals(key[i]);
-                                functions.push(hashEquals.equalTo);
-                                hash_code = hash_code + (hashEquals.hash * prime_powers[i & 0xFF]);
-                            }
-                            Object.freeze(functions);
-                            return {
-                                equalTo: function (me, them) {
-                                    if (them instanceof Array && me.length === them.length) {
-                                        for (let i = 0; i < me.length; i++) {
-                                            if (!functions[i](me[i], them[i])) {
-                                                return false;
-                                            }
-                                        }
-                                        return true;
-                                    }
-                                    return false;
-                                },
-                                hash: hash_code | 0
-                            };
-                    }
-                    if (!key.hasOwnProperty('_hmuid_')) {
-                        key._hmuid_ = ++HashMap.uid;
-                        hide(key, '_hmuid_');
-                    }
-
-                    return this.hashEquals(key._hmuid_);
-            }
-        },
-        forEach: function (func, ctx) {
-            this._buckets.forEach(func, ctx || this);
+            return this;
         }
-    };
 
-    HashMap.uid = 0;
-
-    // Iterator protocol for ES6
-    if (typeof Symbol !== 'undefined' && typeof Symbol.iterator !== 'undefined') {
-        proto[Symbol.iterator] = function () {
+        forEach(func, ctx) {
+            this.buckets.forEach(func, ctx || this);
+            return this;
+        }
+        [Symbol.iterator]() {
             const entries = this.entries();
             let i = 0;
             return {
@@ -411,23 +132,354 @@
                     };
                 }
             };
-        };
+        }
+
+        keys() {
+            const keys = new Array(this.length);
+            let i = 0;
+            this.forEach(function (_, key) {
+                keys[i++] = key;
+            });
+            return keys;
+        }
+
+        values() {
+            const values = new Array(this.length);
+            let i = 0;
+            this.forEach(function (value) {
+                values[i++] = value;
+            });
+            return values;
+        }
+
+        entries() {
+            const entries = new Array(this.length);
+            let i = 0;
+            this.forEach(function (value, key) {
+                entries[i++] = [key, value];
+            });
+            return entries;
+        }
+
+
+        static hashEquals(key) {
+            switch (typeof key) {
+                case 'boolean':
+                    return {
+                        equalTo: HashMap.defaultEquals, hash: key ? 0 : 1
+                    };
+                case 'number':
+                    if (Number.isNaN(key)) {
+                        return {
+                            equalTo: function (me, them) {
+                                return Number.isNaN(them);
+                            },
+                            hash: 0
+                        };
+                    }
+                    if (!Number.isFinite(key)) {
+                        return {
+                            equalTo: HashMap.defaultEquals, hash: 0
+                        };
+                    }
+                    if (Number.isInteger(key)) {
+                        return {
+                            equalTo: HashMap.defaultEquals, hash: key
+                        };
+                    }
+                    return {
+                        equalTo: HashMap.defaultEquals, hash: compute_hash(key.toString())
+                    };
+
+                case 'string':
+                    return {
+                        equalTo: HashMap.defaultEquals, hash: compute_hash(key)
+                    };
+                case 'undefined':
+                    return {
+                        equalTo: HashMap.defaultEquals, hash: 0
+                    };
+                default:
+                    // null
+                    if (!key) {
+                        return {
+                            equalTo: HashMap.defaultEquals, hash: 0
+                        };
+                    }
+
+                    if (key instanceof RegExp) {
+                        return {
+                            equalTo: function (me, them) {
+                                if (them instanceof RegExp) {
+                                    return me + '' === them + '';
+                                }
+                                return false;
+                            }, hash: compute_hash(key + '')
+                        };
+                    }
+                    if (key instanceof Date) {
+                        return {
+                            equalTo: function (me, them) {
+                                if (them instanceof Date) {
+                                    return me.getTime() === them.getTime();
+                                }
+                                return false;
+                            }, hash: key.getTime() | 0
+                        };
+                    }
+                    if (key instanceof Array) {
+                        let functions = [];
+                        let hash_code = key.length;
+                        for (let i = 0; i < key.length; i++) {
+                            const hashEquals = HashMap.hashEquals(key[i]);
+                            functions.push(hashEquals.equalTo);
+                            hash_code = hash_code + (hashEquals.hash * prime_powers[i & 0xFF]);
+                        }
+                        Object.freeze(functions);
+                        return {
+                            equalTo: function (me, them) {
+                                if (them instanceof Array && me.length === them.length) {
+                                    for (let i = 0; i < me.length; i++) {
+                                        if (!functions[i](me[i], them[i])) {
+                                            return false;
+                                        }
+                                    }
+                                    return true;
+                                }
+                                return false;
+                            },
+                            hash: hash_code | 0
+                        };
+                    }
+                    if (!key.hasOwnProperty('_hmuid_')) {
+                        key._hmuid_ = ++HashMap.uid;
+                        hide(key, '_hmuid_');
+                    }
+
+                    return HashMap.hashEquals(key._hmuid_);
+            }
+        }
+        static defaultEquals(me, them) {
+            return me === them;
+        }
     }
 
-    //- Add chaining to all methods that don't return something
-
-    ['set', 'copy', 'delete', 'clear', 'forEach'].forEach(function (method) {
-        const fn = proto[method];
-        proto[method] = function () {
-            fn.apply(this, arguments);
+    class Entry {
+        constructor(key, value) {
+            this.key = key;
+            this.value = value;
+            this.length = 1;
+        }
+        get ( key, equalTo) {
+            if (equalTo(key, this.key)) {
+                return this.value;
+            }
+            return undefined;
+        }
+        set ( key, value, equalTo) {
+           if(equalTo(key, this.key)) {
+               this.value = value;
+               return this;
+           }
+           return new LinkedStack(key, value, this);
+        }
+        has (key, equalTo) {
+            return equalTo(key, this.key);
+        }
+        search (value) {
+           return value === this.value ? this.key : undefined;
+        }
+        delete (key, equalTo) {
+            if(equalTo(key, this.key)) {
+                this.length = 0;
+            }
             return this;
-        };
-    });
-
-
-    function defaultEquals(me, them) {
-        return me === them;
+        }
+        forEach (func, ctx) {
+            func.call(ctx, this.value, this.key);
+            return this;
+        }
     }
+
+    /**
+     * Last in First out
+     */
+    class LinkedStack extends Entry {
+        constructor(key, value, next) {
+            super(key, value);
+            this.next = next;
+            this.length = next.length + 1;
+        }
+
+        get (key, equalTo) {
+            let entry = this;
+            // avoid recursion
+            do {
+                if (equalTo(key, entry.key)) {
+                    return entry.value;
+                }
+                entry = entry.next;
+            }
+            while (entry);
+            return undefined;
+        }
+
+        set (key, value, equalTo) {
+            let entry = this;
+            // avoid recursion
+            while (entry) {
+                if (equalTo(key, entry.key)) {
+                    entry.value = value;
+                    return this;
+                }
+                entry = entry.next;
+            }
+            return new LinkedStack(key, value, this);
+        }
+
+        has (key, equalTo) {
+            let entry = this;
+            // avoid recursion
+            do {
+                if (equalTo(key, entry.key)) {
+                    return true;
+                }
+                entry = entry.next;
+            }
+            while (entry);
+            return false;
+        }
+
+        search (value) {
+            let entry = this;
+            // avoid recursion
+            do {
+                if (entry.value === value) {
+                    return entry.key;
+                }
+                entry = entry._next;
+            }
+            while (entry);
+            return undefined;
+        }
+
+        delete (key, equalTo) {
+            // first on the list.
+            if (equalTo(key, this.key)) {
+                // lengths are not necessarily consistent.
+                if(this.next){
+                    this.next.length = this.length-1;
+                }
+                return this.next;
+            }
+
+            let entry = this.next;
+            let prev = this;
+            // avoid recursion
+            while (entry != null) {
+                if (equalTo(key, entry.key)) {
+                    const next = entry.next;
+                    if (next) {
+                        entry.key = next.key;
+                        entry.value = next.value;
+                        entry.next = next.next;
+                    } else {
+                        prev.next = undefined;
+                    }
+                    this.length--;
+                    return this;
+                }
+                prev = entry;
+                entry = entry.next;
+            }
+            return this;
+        }
+
+        forEach (func, ctx) {
+            let entry = this;
+            // avoid recursion
+            do {
+                func.call(ctx, entry._value, entry.key);
+                entry = entry.next;
+            }
+            while (entry != null);
+        }
+    }
+
+    class HashBuckets{
+        constructor(options, depth) {
+            this.options = options;
+            this.length = 0;
+            this.depth = depth;
+            this.buckets = new Array(this.options.width);
+        }
+        get (key, equalTo, hash) {
+            const bucket = this.buckets[hash & this.options.mask];
+            if (bucket) {
+                return bucket.get(key, equalTo, hash >> this.options.widthB);
+            }
+            return null;
+        }
+        set ( key, value, equalTo, hash) {
+            const idx = hash & this.options.mask;
+            let bucket = this.buckets[idx];
+            if (bucket) {
+                const len = bucket.length;
+                this.buckets[idx] = bucket.set(key, value, equalTo, hash >> this.options.widthB);
+                if(this.buckets[idx].length > len) {
+                    this.length++;
+                }
+            } else if (this.depth > 0) {
+                bucket = new HashBuckets(this.options, this.depth - 1);
+                this.buckets[idx] = bucket.set(key, value, equalTo, hash >> this.options.widthB);
+                this.length++;
+            } else {
+                this.buckets[idx] = new Entry(key, value);
+                this.length++;
+            }
+            return this;
+        }
+
+        has (key, equalTo, hash) {
+            const bucket = this.buckets[hash & this.options.mask];
+            if (bucket) {
+                return bucket.has(key, equalTo, hash >> this.options.widthB);
+            }
+            return false;
+        }
+        search (value) {
+
+            for (let idx in this.buckets) {
+                const bucket = this.buckets[idx];
+                const key = bucket ? bucket.search(value) : undefined;
+                if (key) {
+                    return key;
+                }
+            }
+            return undefined;
+        }
+
+        delete (key, equalTo, hash) {
+            const idx = hash & this.options.mask;
+            let bucket = this.buckets[idx];
+            if (bucket) {
+                bucket = bucket.delete( key, equalTo, hash >> this.options.widthB);
+                if ((!bucket) || bucket.length === 0) {
+                    this.buckets[idx] = undefined;
+                    this.length--;
+                }
+            }
+            return this;
+        }
+
+        forEach (func, ctx) {
+            this.buckets.filter(bucket => bucket).forEach(bucket => {
+                bucket.forEach(func, ctx);
+            });
+        }
+    }
+
+    HashMap.uid = 0;
 
     // Note: In this version, all arithmetic is performed with unsigned 32-bit integers.
     //       In the case of overflow, the result is reduced modulo 232.
@@ -436,10 +488,9 @@
         seed = seed ? seed : 0;
         const remaining = len & 3;
         const bytes = len - remaining;
-        let hash = seed | 0, k = 0, i  =0;
+        let hash = seed | 0, k = 0, i = 0;
 
-        while (i< bytes)
-        {
+        while (i < bytes) {
             k = (key.codePointAt(i++) & 0xff) |
                 ((key.codePointAt(i++) & 0xff) << 8) |
                 ((key.codePointAt(i++) & 0xff) << 16) |
@@ -447,27 +498,29 @@
 
             k *= (k * 0xcc9e2d51) | 0;
             k = (k << 15) | (k >>> 17);
-            k =  (k * 0x1b873593) | 0;
+            k = (k * 0x1b873593) | 0;
 
             hash ^= k;
             hash = (hash << 13) | (hash >>> 19);
-            hash = (hash*5+0xe6546b64) | 0;
+            hash = (hash * 5 + 0xe6546b64) | 0;
         }
-        switch(remaining)
-        {
-            case 3: k ^= (key.codePointAt(i + 2) & 0xff) << 16;
+        switch (remaining) {
+            case 3:
+                k ^= (key.codePointAt(i + 2) & 0xff) << 16;
             /* falls through */
-            case 2: k ^= (key.codePointAt(i + 1) & 0xff) << 8;
+            case 2:
+                k ^= (key.codePointAt(i + 1) & 0xff) << 8;
             /* falls through */
-            case 1: k ^= (key.codePointAt(i) & 0xff);
+            case 1:
+                k ^= (key.codePointAt(i) & 0xff);
 
-            k = k * 0xcc9e2d51 | 0;
-            k = (k << 15) | (k >>> 17);
-            k = k * 0x1b873593 | 0;
-            hash ^= k;
-            break;
+                k = k * 0xcc9e2d51 | 0;
+                k = (k << 15) | (k >>> 17);
+                k = k * 0x1b873593 | 0;
+                hash ^= k;
+                break;
             default:
-                // do nothing
+            // do nothing
         }
 
         hash ^= len;
@@ -517,5 +570,6 @@
             Object.defineProperty(obj, prop, {enumerable: false});
         }
     }
+
     return HashMap;
 }));

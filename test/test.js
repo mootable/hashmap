@@ -33,8 +33,8 @@ describe('hashmap', function() {
 	});
 
 	describe('hashmap.search()', function() {
-		it('should return null when it does not have an entry with a value', function() {
-			expect(hashmap.search('value')).to.be.null;
+		it('should return undefined when it does not have an entry with a value', function() {
+			expect(hashmap.search('value')).to.be.undefined;
 		});
 
 		it('should return key under which a value is stored', function() {

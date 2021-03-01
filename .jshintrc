@@ -26,5 +26,5 @@
 	"devel": true,
 	"mocha": true,
 	"node": true,
-	"jquery": true
+	"jquery": false
 }
