@@ -1,4 +1,12 @@
 # Changelog
+## 0.3.0
+- Modernized, to use Classes,
+- optimised a few of the methods
+- HashBucket has been renamed to LinkedStack.
+- Fixed Depth bug, due to 0 indexing.
+- Widened Buckets to 2^6 = 64 to see how it performs
+- Added Automatic depth calculation.
+- Added better benchmarks.
 
 ## 0.2.0
 - Made the constructor more JS Map like

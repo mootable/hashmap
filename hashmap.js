@@ -1,7 +1,7 @@
 /**
  * HashMap - HashMap Implementation for JavaScript
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.2.0
+ * @version 0.3.0
  * Homepage: https://github.com/mootable/hashmap
  */
 
@@ -42,8 +42,8 @@
     class HashMap extends MootableMap {
         constructor(iterable, _depth, _widthB) {
             super();
-            const depth = _depth ? _depth-1 : 3; // 0 indexed so 3 is a depth of 4.
-            const widthB = _widthB ? _widthB : 8;
+            const widthB = _widthB ? _widthB : 6; // 2^6 = 64 buckets
+            const depth = _depth ?  _depth : ((32/widthB) >>> 0) - 1; // 0 indexed so 3 is a depth of 4.
             const width = 1 << widthB; // 2 ^ widthB
             const mask = width - 1;
             this.options = Object.freeze({widthB, width, mask, depth});

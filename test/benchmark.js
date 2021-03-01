@@ -1,7 +1,7 @@
 /**
  * HashMap - HashMap Implementation for JavaScript
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.2.0
+ * @version 0.3.0
  * Homepage: https://github.com/mootable/hashmap
  */
 
@@ -77,273 +77,261 @@ function benchmarkHashMapImplementation(version, location) {
                 console.info("=============");
             }
         })
-        .add("_singleSet_", function () {
+        // .add("_singleSet_", function () {
+        //     hashmap.set(key, value);
+        // }, {
+        //     'onStart': function () {
+        //         key = makeKey();
+        //         value = makeValue();
+        //         hashmap.clear();
+        //     },
+        //     'onCycle': function () {
+        //         key = makeKey();
+        //         value = makeValue();
+        //         hashmap.clear();
+        //     },
+        //     'version': version
+        // })
+        // .add("_singleSet 20_", function () {
+        //     for (let k = 0; k < 20; k++) {
+        //         hashmap.set(key[k], value[k]);
+        //     }
+        // }, {
+        //     'onStart': function () {
+        //         hashmap.clear();
+        //         key = [];
+        //         value = [];
+        //         for (let k = 0; k < 20; k++) {
+        //             key.push(makeKey());
+        //             value.push(makeValue());
+        //         }
+        //     },
+        //     'onCycle': function () {
+        //         hashmap.clear();
+        //
+        //         key = [];
+        //         value = [];
+        //         for (let k = 0; k < 20; k++) {
+        //             key.push(makeKey());
+        //             value.push(makeValue());
+        //         }
+        //     },
+        //     'version': version
+        // })
+        // .add("_singleReplace_", function () {
+        //     hashmap.set(key, value);
+        // }, {
+        //     'onStart': function () {
+        //         key = makeKey();
+        //         value = makeValue();
+        //     },
+        //     'onCycle': function () {
+        //         key = makeKey();
+        //         value = makeValue();
+        //         hashmap.clear();
+        //         hashmap.set(key, makeValue());
+        //     },
+        //     'version': version
+        // })
+        // .add("_setAfter 1,024_", function () {
+        //     hashmap1024.set(key, value);
+        // }, {
+        //     'onStart': function () {
+        //         key = makeKey();
+        //         value = makeValue();
+        //     },
+        //     'onCycle': function () {
+        //         hashmap1024.delete(key);
+        //         key = makeKey();
+        //         value = makeValue();
+        //     },
+        //     'version': version
+        // })
+        // .add("_set 20 After 1,024_", function () {
+        //     for (let k = 0; k < 20; k++) {
+        //         hashmap1024.set(key[k], value[k]);
+        //     }
+        // }, {
+        //     'onStart': function () {
+        //         key = [];
+        //         value = [];
+        //         for (let k = 0; k < 20; k++) {
+        //             key.push(makeKey());
+        //             value.push(makeValue());
+        //         }
+        //     },
+        //     'onCycle': function () {
+        //         if (key && key.length) {
+        //             for (let k = 0; k < 20; k++) {
+        //                 hashmap1024.delete(key[k]);
+        //             }
+        //         }
+        //         key = [];
+        //         value = [];
+        //         for (let k = 0; k < 20; k++) {
+        //             key.push(makeKey());
+        //             value.push(makeValue());
+        //         }
+        //     },
+        //     'version': version
+        // })
+        // .add("_setAfter 131'072_", function () {
+        //     hashmap131072.set(key, value);
+        // }, {
+        //     'onStart': function () {
+        //         key = makeKey();
+        //         value = makeValue();
+        //     },
+        //     'onCycle': function () {
+        //         hashmap131072.delete(key);
+        //         key = makeKey();
+        //         value = makeValue();
+        //     },
+        //     'version': version
+        // })
+        // .add("_set 20 After 131'072_", function () {
+        //     for (let k = 0; k < 20; k++) {
+        //         hashmap131072.set(key[k], value[k]);
+        //     }
+        // }, {
+        //     'onStart': function () {
+        //         key = [];
+        //         value = [];
+        //         for (let k = 0; k < 20; k++) {
+        //             key.push(makeKey());
+        //             value.push(makeValue());
+        //         }
+        //     },
+        //     'onCycle': function () {
+        //         if (key && key.length) {
+        //             for (let k = 0; k < 20; k++) {
+        //                 hashmap131072.delete(key[k]);
+        //             }
+        //         }
+        //
+        //         key = [];
+        //         value = [];
+        //         for (let k = 0; k < 20; k++) {
+        //             key.push(makeKey());
+        //             value.push(makeValue());
+        //         }
+        //     },
+        //     'version': version
+        // })
+        // .add("_singleDelete_", function () {
+        //     hashmap1024.delete(key);
+        // }, {
+        //     'onStart': function () {
+        //         hashmap.clear();
+        //         key = makeKey();
+        //         hashmap.set(key, makeValue());
+        //     },
+        //     'onCycle': function () {
+        //         hashmap.clear();
+        //         key = makeKey();
+        //         hashmap.set(key, makeValue());
+        //     },
+        //     'version': version
+        // })
+        // .add("_deleteAfter 1'024_", function () {
+        //     hashmap1024.delete(key);
+        // }, {
+        //     'onStart': function () {
+        //         key = makeKey();
+        //         hashmap1024.set(key, makeValue());
+        //     },
+        //     'onCycle': function () {
+        //         key = makeKey();
+        //         hashmap1024.set(key, makeValue());
+        //     },
+        //     'version': version
+        // })
+        // .add("_deleteAfter 131'072_", function () {
+        //     hashmap131072.delete(key);
+        // }, {
+        //     'onStart': function () {
+        //         key = makeKey();
+        //         hashmap131072.set(key, makeValue());
+        //     },
+        //     'onCycle': function () {
+        //         key = makeKey();
+        //         hashmap131072.set(key, makeValue());
+        //     },
+        //     'version': version
+        // }).add("_singleFetch_", function () {
+        //     hashmap.get(key);
+        // }, {
+        //     'onStart': function () {
+        //         hashmap.clear();
+        //         key = makeKey();
+        //         hashmap.set(key, makeValue());
+        //     },
+        //     'onCycle': function () {
+        //         hashmap.clear();
+        //         key = makeKey();
+        //         hashmap.set(key, makeValue());
+        //     },
+        //     'version': version
+        // })
+        // .add("_fetchAfter 1'024_", function () {
+        //     hashmap1024.get(key);
+        // }, {
+        //     'onStart': function () {
+        //         hashmap1024.delete(key);
+        //         key = makeKey();
+        //         hashmap1024.set(key, makeValue());
+        //     },
+        //     'onCycle': function () {
+        //         hashmap1024.delete(key);
+        //         key = makeKey();
+        //         hashmap1024.set(key, makeValue());
+        //     },
+        //     'version': version
+        // })
+        // .add("_fetchAfter 131'072_", function () {
+        //     hashmap131072.get(key);
+        // }, {
+        //     'onStart': function () {
+        //         hashmap131072.delete(key);
+        //         key = makeKey();
+        //         hashmap131072.set(key, makeValue());
+        //     },
+        //     'onCycle': function () {
+        //         hashmap131072.delete(key);
+        //         key = makeKey();
+        //         hashmap131072.set(key, makeValue());
+        //     },
+        //     'version': version
+        // })
+        .add("_combined 1 op to 0 sized hashmap_", function () {
             hashmap.set(key, value);
-        }, {
-            'onStart': function () {
-                key = makeKey();
-                value = makeValue();
-                hashmap.clear();
-            },
-            'onCycle': function () {
-                key = makeKey();
-                value = makeValue();
-                hashmap.clear();
-            },
-            'version': version
-        })
-        .add("_singleSet 20_", function () {
-            for (let k = 0; k < 20; k++) {
-                hashmap.set(key[k], value[k]);
-            }
+            hashmap.get(key);
+            hashmap.delete(key);
         }, {
             'onStart': function () {
                 hashmap.clear();
-                key = [];
-                value = [];
-                for (let k = 0; k < 20; k++) {
-                    key.push(makeKey());
-                    value.push(makeValue());
-                }
-            },
-            'onCycle': function () {
-                hashmap.clear();
-
-                key = [];
-                value = [];
-                for (let k = 0; k < 20; k++) {
-                    key.push(makeKey());
-                    value.push(makeValue());
-                }
-            },
-            'version': version
-        })
-        .add("_singleReplace_", function () {
-            hashmap.set(key, value);
-        }, {
-            'onStart': function () {
                 key = makeKey();
                 value = makeValue();
             },
-            'onCycle': function () {
-                key = makeKey();
-                value = makeValue();
-                hashmap.clear();
-                hashmap.set(key, makeValue());
-            },
             'version': version
         })
-        .add("_setAfter 1,024_", function () {
+        .add("_combined 1 op to 1'024 sized hashmap_", function () {
             hashmap1024.set(key, value);
+            hashmap1024.get(key);
+            hashmap1024.delete(key);
         }, {
             'onStart': function () {
                 key = makeKey();
                 value = makeValue();
             },
-            'onCycle': function () {
-                hashmap1024.delete(key);
-                key = makeKey();
-                value = makeValue();
-            },
             'version': version
         })
-        .add("_set 20 After 1,024_", function () {
-            for (let k = 0; k < 20; k++) {
-                hashmap1024.set(key[k], value[k]);
-            }
-        }, {
-            'onStart': function () {
-                key = [];
-                value = [];
-                for (let k = 0; k < 20; k++) {
-                    key.push(makeKey());
-                    value.push(makeValue());
-                }
-            },
-            'onCycle': function () {
-                if (key && key.length) {
-                    for (let k = 0; k < 20; k++) {
-                        hashmap1024.delete(key[k]);
-                    }
-                }
-                key = [];
-                value = [];
-                for (let k = 0; k < 20; k++) {
-                    key.push(makeKey());
-                    value.push(makeValue());
-                }
-            },
-            'version': version
-        })
-        .add("_setAfter 131'072_", function () {
+        .add("_combined 1 op to 131'0720 sized hashmap_", function () {
             hashmap131072.set(key, value);
-        }, {
-            'onStart': function () {
-                key = makeKey();
-                value = makeValue();
-            },
-            'onCycle': function () {
-                hashmap131072.delete(key);
-                key = makeKey();
-                value = makeValue();
-            },
-            'version': version
-        })
-        .add("_set 20 After 131'072_", function () {
-            for (let k = 0; k < 20; k++) {
-                hashmap131072.set(key[k], value[k]);
-            }
-        }, {
-            'onStart': function () {
-                key = [];
-                value = [];
-                for (let k = 0; k < 20; k++) {
-                    key.push(makeKey());
-                    value.push(makeValue());
-                }
-            },
-            'onCycle': function () {
-                if (key && key.length) {
-                    for (let k = 0; k < 20; k++) {
-                        hashmap131072.delete(key[k]);
-                    }
-                }
-
-                key = [];
-                value = [];
-                for (let k = 0; k < 20; k++) {
-                    key.push(makeKey());
-                    value.push(makeValue());
-                }
-            },
-            'version': version
-        })
-        .add("_singleDelete_", function () {
-            hashmap1024.delete(key);
-        }, {
-            'onStart': function () {
-                hashmap.clear();
-                key = makeKey();
-                hashmap.set(key, makeValue());
-            },
-            'onCycle': function () {
-                hashmap.clear();
-                key = makeKey();
-                hashmap.set(key, makeValue());
-            },
-            'version': version
-        })
-        .add("_deleteAfter 1'024_", function () {
-            hashmap1024.delete(key);
-        }, {
-            'onStart': function () {
-                key = makeKey();
-                hashmap1024.set(key, makeValue());
-            },
-            'onCycle': function () {
-                key = makeKey();
-                hashmap1024.set(key, makeValue());
-            },
-            'version': version
-        })
-        .add("_deleteAfter 131'072_", function () {
+            hashmap131072.get(key);
             hashmap131072.delete(key);
         }, {
             'onStart': function () {
-                key = makeKey();
-                hashmap131072.set(key, makeValue());
-            },
-            'onCycle': function () {
-                key = makeKey();
-                hashmap131072.set(key, makeValue());
-            },
-            'version': version
-        }).add("_singleFetch_", function () {
-            hashmap.get(key);
-        }, {
-            'onStart': function () {
-                hashmap.clear();
-                key = makeKey();
-                hashmap.set(key, makeValue());
-            },
-            'onCycle': function () {
-                hashmap.clear();
-                key = makeKey();
-                hashmap.set(key, makeValue());
-            },
-            'version': version
-        })
-        .add("_fetchAfter 1'024_", function () {
-            hashmap1024.get(key);
-        }, {
-            'onStart': function () {
-                hashmap1024.delete(key);
-                key = makeKey();
-                hashmap1024.set(key, makeValue());
-            },
-            'onCycle': function () {
-                hashmap1024.delete(key);
-                key = makeKey();
-                hashmap1024.set(key, makeValue());
-            },
-            'version': version
-        })
-        .add("_fetchAfter 131'072_", function () {
-            hashmap131072.get(key);
-        }, {
-            'onStart': function () {
-                hashmap131072.delete(key);
-                key = makeKey();
-                hashmap131072.set(key, makeValue());
-            },
-            'onCycle': function () {
-                hashmap131072.delete(key);
-                key = makeKey();
-                hashmap131072.set(key, makeValue());
-            },
-            'version': version
-        }).add("_singleCombined_", function () {
-            hashmap.set(key, value);
-            hashmap.get(key);
-            hashmap.delete(key);
-        }, {
-            'onStart': function () {
-                hashmap.clear();
-                key = makeKey();
-                value = makeValue();
-            },
-            'onCycle': function () {
-                hashmap.clear();
-                key = makeKey();
-                value = makeValue();
-            },
-            'version': version
-        })
-        .add("_combinedAfter 1'024_", function () {
-            hashmap.set(key, value);
-            hashmap.get(key);
-            hashmap.delete(key);
-        }, {
-            'onStart': function () {
-                key = makeKey();
-                value = makeValue();
-            },
-            'onCycle': function () {
-                key = makeKey();
-                value = makeValue();
-            },
-            'version': version
-        })
-        .add("_combinedAfter 131'072_", function () {
-            hashmap.set(key, value);
-            hashmap.get(key);
-            hashmap.delete(key);
-        }, {
-            'onStart': function () {
-                key = makeKey();
-                value = makeValue();
-            },
-            'onCycle': function () {
                 key = makeKey();
                 value = makeValue();
             },
@@ -356,7 +344,84 @@ function benchmarkHashMapImplementation(version, location) {
                     process.exit();
                 }
             }
+        })
+        .add("_combined 1000 ops to 0 sized hashmap_", function () {
+            for(let idx = 0; idx < 1000; idx++){
+                hashmap.set(key[idx], value[idx]);
+                hashmap.get(key[idx]);
+                hashmap.delete(key[idx]);
+            }
+        }, {
+            'onStart': function () {
+                hashmap.clear();
+                key = [];
+                value = [];
+                for (let k = 0; k < 1000; k++) {
+                    key.push(makeKey());
+                    value.push(makeValue());
+                }
+            },
+            'version': version,
+            'onComplete':  () => {
+                try {
+                    if (global && global.gc) {global.gc();}
+                } catch (e) {
+                    console.log("`node --expose-gc index.js`");
+                    process.exit();
+                }
+            }
+        })
+        .add("_combined 1000 ops to 1024 sized hashmap", function () {
+            for(let idx = 0; idx < 1000; idx++){
+                hashmap1024.set(key[idx], value[idx]);
+                hashmap1024.get(key[idx]);
+                hashmap1024.delete(key[idx]);
+            }
+        }, {
+            'onStart': function () {
+                key = [];
+                value = [];
+                for (let k = 0; k < 1000; k++) {
+                    key.push(makeKey());
+                    value.push(makeValue());
+                }
+            },
+            'version': version,
+            'onComplete':  () => {
+                try {
+                    if (global && global.gc) {global.gc();}
+                } catch (e) {
+                    console.log("`node --expose-gc index.js`");
+                    process.exit();
+                }
+            }
+        })
+        .add("_combined 1000 ops to 131'0720 sized hashmap_", function () {
+            for(let idx = 0; idx < 1000; idx++){
+                hashmap131072.set(key[idx], value[idx]);
+                hashmap131072.get(key[idx]);
+                hashmap131072.delete(key[idx]);
+            }
+        }, {
+            'onStart': function () {
+                key = [];
+                value = [];
+                for (let k = 0; k < 1000; k++) {
+                    key.push(makeKey());
+                    value.push(makeValue());
+                }
+            },
+            'version': version,
+            'onComplete':  () => {
+                try {
+                    if (global && global.gc) {global.gc();}
+                } catch (e) {
+                    console.log("`node --expose-gc index.js`");
+                    process.exit();
+                }
+            }
         });
+
 
 }
 this.max32 = Math.pow(2, 32) - 1;
