@@ -42,8 +42,8 @@
     class HashMap extends MootableMap {
         constructor(iterable, _depth, _widthB) {
             super();
-            const depth = _depth ? _depth : 4;
-            const widthB = _widthB ? _widthB : 4;
+            const depth = _depth ? _depth-1 : 3; // 0 indexed so 3 is a depth of 4.
+            const widthB = _widthB ? _widthB : 8;
             const width = 1 << widthB; // 2 ^ widthB
             const mask = width - 1;
             this.options = Object.freeze({widthB, width, mask, depth});
@@ -416,7 +416,7 @@
         get (key, equalTo, hash) {
             const bucket = this.buckets[hash & this.options.mask];
             if (bucket) {
-                return bucket.get(key, equalTo, hash >> this.options.widthB);
+                return bucket.get(key, equalTo, hash >>> this.options.widthB);
             }
             return null;
         }
@@ -425,13 +425,13 @@
             let bucket = this.buckets[idx];
             if (bucket) {
                 const len = bucket.length;
-                this.buckets[idx] = bucket.set(key, value, equalTo, hash >> this.options.widthB);
+                this.buckets[idx] = bucket.set(key, value, equalTo, hash >>> this.options.widthB);
                 if(this.buckets[idx].length > len) {
                     this.length++;
                 }
-            } else if (this.depth > 0) {
+            } else if (this.depth) {
                 bucket = new HashBuckets(this.options, this.depth - 1);
-                this.buckets[idx] = bucket.set(key, value, equalTo, hash >> this.options.widthB);
+                this.buckets[idx] = bucket.set(key, value, equalTo, hash >>> this.options.widthB);
                 this.length++;
             } else {
                 this.buckets[idx] = new Entry(key, value);
@@ -443,7 +443,7 @@
         has (key, equalTo, hash) {
             const bucket = this.buckets[hash & this.options.mask];
             if (bucket) {
-                return bucket.has(key, equalTo, hash >> this.options.widthB);
+                return bucket.has(key, equalTo, hash >>> this.options.widthB);
             }
             return false;
         }
@@ -463,7 +463,7 @@
             const idx = hash & this.options.mask;
             let bucket = this.buckets[idx];
             if (bucket) {
-                bucket = bucket.delete( key, equalTo, hash >> this.options.widthB);
+                bucket = bucket.delete( key, equalTo, hash >>> this.options.widthB);
                 if ((!bucket) || bucket.length === 0) {
                     this.buckets[idx] = undefined;
                     this.length--;
@@ -502,7 +502,7 @@
 
             hash ^= k;
             hash = (hash << 13) | (hash >>> 19);
-            hash = (hash * 5 + 0xe6546b64) | 0;
+            hash = (hash * 5 + 0xe6546b64);
         }
         switch (remaining) {
             case 3:
@@ -514,9 +514,9 @@
             case 1:
                 k ^= (key.codePointAt(i) & 0xff);
 
-                k = k * 0xcc9e2d51 | 0;
+                k = k * 0xcc9e2d51;
                 k = (k << 15) | (k >>> 17);
-                k = k * 0x1b873593 | 0;
+                k = k * 0x1b873593;
                 hash ^= k;
                 break;
             default:
@@ -526,11 +526,11 @@
         hash ^= len;
 
         hash ^= hash >>> 16;
-        hash = hash * 0x85ebca6b | 0;
+        hash = hash * 0x85ebca6b;
         hash ^= hash >>> 13;
-        hash = hash * 0xc2b2ae35 | 0;
+        hash = hash * 0xc2b2ae35 ;
         hash ^= hash >>> 16;
-        return hash;
+        return hash | 0;
     }
 
     //256 prime_powers
