@@ -1,7 +1,7 @@
 /**
  * HashMap - HashMap Implementation for JavaScript
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.3.0
+ * @version 0.4.0
  * Homepage: https://github.com/mootable/hashmap
  */
 
@@ -54,23 +54,41 @@
         }
 
         has(key) {
-            const hashEquals = HashMap.hashEquals(key);
-            return this.buckets.has(key, hashEquals.equalTo, hashEquals.hash);
+            if(this.buckets) {
+                const hashEquals = HashMap.hashEquals(key);
+                return this.buckets.has(key, hashEquals.equalTo, hashEquals.hash);
+            }
+            return false;
         }
 
         get(key) {
-            const hashEquals = HashMap.hashEquals(key);
-            return this.buckets.get(key, hashEquals.equalTo, hashEquals.hash);
+            if(this.buckets) {
+                const hashEquals = HashMap.hashEquals(key);
+                return this.buckets.get(key, hashEquals.equalTo, hashEquals.hash);
+            }
+            return undefined;
         }
 
         search(value) {
-            return this.buckets.search(value);
+            if(this.buckets) {
+                return this.buckets.search(value);
+            }
+            return undefined;
         }
 
         set(key, value) {
             const hashEquals = HashMap.hashEquals(key);
-            if (this.buckets.set(key, value, hashEquals.equalTo, hashEquals.hash)) {
+            if(this.buckets) {
+                this.buckets = this.buckets.set(key, value, hashEquals.equalTo, hashEquals.hash);
                 this.length = this.buckets.length;
+            } else {
+                this.buckets = new HashEntry(key, value, hashEquals.equalTo, hashEquals.hash, {
+                    widthB: this.options.widthB,
+                    width: this.options.width,
+                    mask: this.options.mask,
+                    depth: this.options.depth
+                }, this.options.depth);
+                this.length = 1;
             }
             return this;
         }
@@ -94,27 +112,29 @@
         }
 
         delete(key) {
-            const hashEquals = HashMap.hashEquals(key);
-            if (this.buckets.delete(key, hashEquals.equalTo, hashEquals.hash)) {
-                this.length--;
+            if(this.buckets) {
+                const hashEquals = HashMap.hashEquals(key);
+                this.buckets = this.buckets.delete(key, hashEquals.equalTo, hashEquals.hash);
+                if (this.buckets) {
+                    this.length = this.buckets.length;
+                } else {
+                    this.length = 0;
+                }
             }
             return this;
         }
 
         clear() {
             // we clone the options as its dangerous to modify mid execution.
-            this.buckets = new HashBuckets({
-                widthB: this.options.widthB,
-                width: this.options.width,
-                mask: this.options.mask,
-                depth: this.options.depth
-            }, this.options.depth);
+            this.buckets = undefined;
             this.length = 0;
             return this;
         }
 
         forEach(func, ctx) {
-            this.buckets.forEach(func, ctx || this);
+            if(this.buckets && this.buckets.length > 0) {
+                this.buckets.forEach(func, ctx || this);
+            }
             return this;
         }
         [Symbol.iterator]() {
@@ -291,7 +311,7 @@
         }
         delete (key, equalTo) {
             if(equalTo(key, this.key)) {
-                this.length = 0;
+                return undefined;
             }
             return this;
         }
@@ -376,7 +396,7 @@
             let entry = this.next;
             let prev = this;
             // avoid recursion
-            while (entry != null) {
+            while (entry) {
                 if (equalTo(key, entry.key)) {
                     const next = entry.next;
                     if (next) {
@@ -406,6 +426,41 @@
         }
     }
 
+    class HashEntry extends Entry {
+        constructor(key, value, equalTo, hash, options, depth) {
+            super(key,value);
+            this.equalTo = equalTo;
+            this.hash = hash;
+            this.options = options;
+            this.depth = depth;
+        }
+        set (key, value, equalTo, hash) {
+            if(hash === this.hash && equalTo(key, this.key)) {
+                this.value = value;
+                return this;
+            }
+            const bucket = new HashBuckets(this.options, this.depth);
+            bucket.set(this.key, this.value, this.equalTo, this.hash);
+            bucket.set(key, value, equalTo, hash);
+            return bucket;
+        }
+        get (key, equalTo, hash) {
+            if(hash === this.hash && equalTo(key, this.key)){
+                return this.value;
+            }
+            return undefined;
+        }
+        has (key, equalTo, hash) {
+            return hash === this.hash && equalTo(key, this.key);
+        }
+        delete (key, equalTo, hash) {
+            if(hash === this.hash && equalTo(key, this.key)) {
+                return undefined;
+            }
+            return this;
+        }
+    }
+
     class HashBuckets{
         constructor(options, depth) {
             this.options = options;
@@ -426,12 +481,11 @@
             if (bucket) {
                 const len = bucket.length;
                 this.buckets[idx] = bucket.set(key, value, equalTo, hash >>> this.options.widthB);
-                if(this.buckets[idx].length > len) {
+                if(this.buckets[idx].length !== len) {
                     this.length++;
                 }
             } else if (this.depth) {
-                bucket = new HashBuckets(this.options, this.depth - 1);
-                this.buckets[idx] = bucket.set(key, value, equalTo, hash >>> this.options.widthB);
+                this.buckets[idx] = new HashEntry(key, value, equalTo, hash >>> this.options.widthB, this.options, this.depth - 1);
                 this.length++;
             } else {
                 this.buckets[idx] = new Entry(key, value);

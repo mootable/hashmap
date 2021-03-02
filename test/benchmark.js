@@ -1,17 +1,31 @@
 /**
  * HashMap - HashMap Implementation for JavaScript
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.3.0
+ * @version 0.4.0
  * Homepage: https://github.com/mootable/hashmap
  */
 
 const Benchmark = require('benchmark');
-const hashmapImplementations = { 'mootable-hashmap': '../hashmap',/* 'map': null, */'flesler-hashmap': 'flesler-hashmap',};
+const hashmapImplementations = { 'mootable-hashmap': '../hashmap', 'map': null , 'flesler-hashmap': 'flesler-hashmap',};
 
 const array = require('lodash/array');
 
-let theSuite = new Benchmark.Suite('hashmap benchmarks');
+console.log("setup constants");
+const ALL_KV = new Array(262144);
+for (let i = 0; i < 262144; i++) {
+    ALL_KV[i] = [makeKey(), makeValue()];
+}
+// random values, few will be the same as above.
+const TEST_KV = new Array(1024);
+for (let i = 0; i < 1024; i++) {
+    TEST_KV[i] = [makeKey(), makeValue()];
+}
+const TEST_SIZE = TEST_KV.length;
 
+console.log(" constants complete");
+
+console.log("setup benchmark");
+let theSuite = new Benchmark.Suite('hashmap benchmarks');
 Object.entries(hashmapImplementations)
     .forEach(([version, location]) => benchmarkHashMapImplementation(version, location));
 
@@ -33,42 +47,41 @@ theSuite = theSuite.on('cycle', function (event) {
 }).on('onError', function (err) {
     console.log("Error", err);
 });
-const RUN_AMOUNTS = 1;
+const RUN_AMOUNTS = 3;
 for(let k = 0; k < RUN_AMOUNTS; k++){
     console.info("Iteration",k);
     theSuite.run();
 }
 
 function benchmarkHashMapImplementation(version, location) {
-    var HashMap;
+    const HashMap = location ? require(location).HashMap : Map ;
     if(location) {
         console.info("Benchmarking:", version, "from:", location);
-        HashMap = require(location).HashMap;
     } else {
         console.info("Benchmarking:", version, "from: JS");
-        HashMap = Map;
     }
 
+    console.log("empty hashmap");
     let hashmap = new HashMap();
-    console.log("setup constants");
-    let key = makeKey();
-    let value = makeValue();
 
     console.log("1'024 hashmap");
     let hashmap1024 = new HashMap();
-
+    let hashmap262144 = new HashMap();
     for (let i = 0; i < 1024; i++) {
-        hashmap1024.set(makeKey(), makeValue());
+        hashmap1024.set(ALL_KV[i][0], ALL_KV[i][1]);
+        hashmap262144.set(ALL_KV[i][0], ALL_KV[i][1]);
     }
-    console.log("131'072 hashmap");
-    var hashmap131072 = new HashMap();
-    for (var i = 0; i < 131072; i++) {
-        hashmap131072.set(makeKey(), makeValue());
+    console.log("262'144 hashmap");
+    for (let i = 1024; i < 262144; i++) {
+        hashmap262144.set(ALL_KV[i][0], ALL_KV[i][1]);
     }
     console.log("define benchmarks");
     theSuite = theSuite
         .add("_create_", function () {
-            new HashMap();
+            const map = new HashMap();
+            if(!map && map.length !== 0){
+                throw "Map creation issue";
+            }
         }, {
             'version': version,
             'onStart': function () {
@@ -77,264 +90,31 @@ function benchmarkHashMapImplementation(version, location) {
                 console.info("=============");
             }
         })
-        // .add("_singleSet_", function () {
-        //     hashmap.set(key, value);
-        // }, {
-        //     'onStart': function () {
-        //         key = makeKey();
-        //         value = makeValue();
-        //         hashmap.clear();
-        //     },
-        //     'onCycle': function () {
-        //         key = makeKey();
-        //         value = makeValue();
-        //         hashmap.clear();
-        //     },
-        //     'version': version
-        // })
-        // .add("_singleSet 20_", function () {
-        //     for (let k = 0; k < 20; k++) {
-        //         hashmap.set(key[k], value[k]);
-        //     }
-        // }, {
-        //     'onStart': function () {
-        //         hashmap.clear();
-        //         key = [];
-        //         value = [];
-        //         for (let k = 0; k < 20; k++) {
-        //             key.push(makeKey());
-        //             value.push(makeValue());
-        //         }
-        //     },
-        //     'onCycle': function () {
-        //         hashmap.clear();
-        //
-        //         key = [];
-        //         value = [];
-        //         for (let k = 0; k < 20; k++) {
-        //             key.push(makeKey());
-        //             value.push(makeValue());
-        //         }
-        //     },
-        //     'version': version
-        // })
-        // .add("_singleReplace_", function () {
-        //     hashmap.set(key, value);
-        // }, {
-        //     'onStart': function () {
-        //         key = makeKey();
-        //         value = makeValue();
-        //     },
-        //     'onCycle': function () {
-        //         key = makeKey();
-        //         value = makeValue();
-        //         hashmap.clear();
-        //         hashmap.set(key, makeValue());
-        //     },
-        //     'version': version
-        // })
-        // .add("_setAfter 1,024_", function () {
-        //     hashmap1024.set(key, value);
-        // }, {
-        //     'onStart': function () {
-        //         key = makeKey();
-        //         value = makeValue();
-        //     },
-        //     'onCycle': function () {
-        //         hashmap1024.delete(key);
-        //         key = makeKey();
-        //         value = makeValue();
-        //     },
-        //     'version': version
-        // })
-        // .add("_set 20 After 1,024_", function () {
-        //     for (let k = 0; k < 20; k++) {
-        //         hashmap1024.set(key[k], value[k]);
-        //     }
-        // }, {
-        //     'onStart': function () {
-        //         key = [];
-        //         value = [];
-        //         for (let k = 0; k < 20; k++) {
-        //             key.push(makeKey());
-        //             value.push(makeValue());
-        //         }
-        //     },
-        //     'onCycle': function () {
-        //         if (key && key.length) {
-        //             for (let k = 0; k < 20; k++) {
-        //                 hashmap1024.delete(key[k]);
-        //             }
-        //         }
-        //         key = [];
-        //         value = [];
-        //         for (let k = 0; k < 20; k++) {
-        //             key.push(makeKey());
-        //             value.push(makeValue());
-        //         }
-        //     },
-        //     'version': version
-        // })
-        // .add("_setAfter 131'072_", function () {
-        //     hashmap131072.set(key, value);
-        // }, {
-        //     'onStart': function () {
-        //         key = makeKey();
-        //         value = makeValue();
-        //     },
-        //     'onCycle': function () {
-        //         hashmap131072.delete(key);
-        //         key = makeKey();
-        //         value = makeValue();
-        //     },
-        //     'version': version
-        // })
-        // .add("_set 20 After 131'072_", function () {
-        //     for (let k = 0; k < 20; k++) {
-        //         hashmap131072.set(key[k], value[k]);
-        //     }
-        // }, {
-        //     'onStart': function () {
-        //         key = [];
-        //         value = [];
-        //         for (let k = 0; k < 20; k++) {
-        //             key.push(makeKey());
-        //             value.push(makeValue());
-        //         }
-        //     },
-        //     'onCycle': function () {
-        //         if (key && key.length) {
-        //             for (let k = 0; k < 20; k++) {
-        //                 hashmap131072.delete(key[k]);
-        //             }
-        //         }
-        //
-        //         key = [];
-        //         value = [];
-        //         for (let k = 0; k < 20; k++) {
-        //             key.push(makeKey());
-        //             value.push(makeValue());
-        //         }
-        //     },
-        //     'version': version
-        // })
-        // .add("_singleDelete_", function () {
-        //     hashmap1024.delete(key);
-        // }, {
-        //     'onStart': function () {
-        //         hashmap.clear();
-        //         key = makeKey();
-        //         hashmap.set(key, makeValue());
-        //     },
-        //     'onCycle': function () {
-        //         hashmap.clear();
-        //         key = makeKey();
-        //         hashmap.set(key, makeValue());
-        //     },
-        //     'version': version
-        // })
-        // .add("_deleteAfter 1'024_", function () {
-        //     hashmap1024.delete(key);
-        // }, {
-        //     'onStart': function () {
-        //         key = makeKey();
-        //         hashmap1024.set(key, makeValue());
-        //     },
-        //     'onCycle': function () {
-        //         key = makeKey();
-        //         hashmap1024.set(key, makeValue());
-        //     },
-        //     'version': version
-        // })
-        // .add("_deleteAfter 131'072_", function () {
-        //     hashmap131072.delete(key);
-        // }, {
-        //     'onStart': function () {
-        //         key = makeKey();
-        //         hashmap131072.set(key, makeValue());
-        //     },
-        //     'onCycle': function () {
-        //         key = makeKey();
-        //         hashmap131072.set(key, makeValue());
-        //     },
-        //     'version': version
-        // }).add("_singleFetch_", function () {
-        //     hashmap.get(key);
-        // }, {
-        //     'onStart': function () {
-        //         hashmap.clear();
-        //         key = makeKey();
-        //         hashmap.set(key, makeValue());
-        //     },
-        //     'onCycle': function () {
-        //         hashmap.clear();
-        //         key = makeKey();
-        //         hashmap.set(key, makeValue());
-        //     },
-        //     'version': version
-        // })
-        // .add("_fetchAfter 1'024_", function () {
-        //     hashmap1024.get(key);
-        // }, {
-        //     'onStart': function () {
-        //         hashmap1024.delete(key);
-        //         key = makeKey();
-        //         hashmap1024.set(key, makeValue());
-        //     },
-        //     'onCycle': function () {
-        //         hashmap1024.delete(key);
-        //         key = makeKey();
-        //         hashmap1024.set(key, makeValue());
-        //     },
-        //     'version': version
-        // })
-        // .add("_fetchAfter 131'072_", function () {
-        //     hashmap131072.get(key);
-        // }, {
-        //     'onStart': function () {
-        //         hashmap131072.delete(key);
-        //         key = makeKey();
-        //         hashmap131072.set(key, makeValue());
-        //     },
-        //     'onCycle': function () {
-        //         hashmap131072.delete(key);
-        //         key = makeKey();
-        //         hashmap131072.set(key, makeValue());
-        //     },
-        //     'version': version
-        // })
-        .add("_combined 1 op to 0 sized hashmap_", function () {
-            hashmap.set(key, value);
-            hashmap.get(key);
-            hashmap.delete(key);
+        .add("_set,get,delete 1 op to 0 sized hashmap_", function () {
+            hashmap.set(TEST_KV[0][0], TEST_KV[0][1]);
+            if(!hashmap.get(TEST_KV[0][0])){
+                throw TEST_KV[0][0]+ " does not exist";
+            }
+            hashmap.delete(TEST_KV[0][0]);
         }, {
-            'onStart': function () {
-                hashmap.clear();
-                key = makeKey();
-                value = makeValue();
-            },
             'version': version
         })
-        .add("_combined 1 op to 1'024 sized hashmap_", function () {
-            hashmap1024.set(key, value);
-            hashmap1024.get(key);
-            hashmap1024.delete(key);
+        .add("_set,get,delete 1 op to 1'024 sized hashmap_", function () {
+            hashmap1024.set(TEST_KV[1][0], TEST_KV[1][1]);
+            if(!hashmap1024.get(TEST_KV[1][0])){
+                throw TEST_KV[1][0]+ " does not exist";
+            }
+            hashmap1024.delete(TEST_KV[1][0]);
         }, {
-            'onStart': function () {
-                key = makeKey();
-                value = makeValue();
-            },
             'version': version
         })
-        .add("_combined 1 op to 131'0720 sized hashmap_", function () {
-            hashmap131072.set(key, value);
-            hashmap131072.get(key);
-            hashmap131072.delete(key);
+        .add("_set,get,delete 1 op to 262'144 sized hashmap_", function () {
+            hashmap262144.set(TEST_KV[2][0], TEST_KV[2][1]);
+            if(!hashmap262144.get(TEST_KV[2][0])){
+                throw TEST_KV[2][0]+ " does not exist";
+            }
+            hashmap262144.delete(TEST_KV[2][0]);
         }, {
-            'onStart': function () {
-                key = makeKey();
-                value = makeValue();
-            },
             'version': version,
             'onComplete':  () => {
                 try {
@@ -345,21 +125,17 @@ function benchmarkHashMapImplementation(version, location) {
                 }
             }
         })
-        .add("_combined 1000 ops to 0 sized hashmap_", function () {
-            for(let idx = 0; idx < 1000; idx++){
-                hashmap.set(key[idx], value[idx]);
-                hashmap.get(key[idx]);
-                hashmap.delete(key[idx]);
+        .add("_set,get,delete 1'024 ops to 0 sized hashmap_", function () {
+            for(let idx = 0; idx < TEST_SIZE; idx++){
+                hashmap.set(TEST_KV[idx][0], TEST_KV[idx][1]);
+                if(!hashmap.get(TEST_KV[idx][0])){
+                    throw TEST_KV[idx][0]+ " does not exist";
+                }
+                hashmap.delete(TEST_KV[idx][0]);
             }
         }, {
             'onStart': function () {
                 hashmap.clear();
-                key = [];
-                value = [];
-                for (let k = 0; k < 1000; k++) {
-                    key.push(makeKey());
-                    value.push(makeValue());
-                }
             },
             'version': version,
             'onComplete':  () => {
@@ -371,21 +147,15 @@ function benchmarkHashMapImplementation(version, location) {
                 }
             }
         })
-        .add("_combined 1000 ops to 1024 sized hashmap", function () {
-            for(let idx = 0; idx < 1000; idx++){
-                hashmap1024.set(key[idx], value[idx]);
-                hashmap1024.get(key[idx]);
-                hashmap1024.delete(key[idx]);
+        .add("_set,get,delete 1'024 ops to 1'024 sized hashmap", function () {
+            for(let idx = 0; idx < TEST_SIZE; idx++){
+                hashmap1024.set(TEST_KV[idx][0], TEST_KV[idx][1]);
+                if(!hashmap1024.get(TEST_KV[idx][0])){
+                    throw TEST_KV[idx][0]+ " does not exist";
+                }
+                hashmap1024.delete(TEST_KV[idx][0]);
             }
         }, {
-            'onStart': function () {
-                key = [];
-                value = [];
-                for (let k = 0; k < 1000; k++) {
-                    key.push(makeKey());
-                    value.push(makeValue());
-                }
-            },
             'version': version,
             'onComplete':  () => {
                 try {
@@ -396,21 +166,15 @@ function benchmarkHashMapImplementation(version, location) {
                 }
             }
         })
-        .add("_combined 1000 ops to 131'0720 sized hashmap_", function () {
-            for(let idx = 0; idx < 1000; idx++){
-                hashmap131072.set(key[idx], value[idx]);
-                hashmap131072.get(key[idx]);
-                hashmap131072.delete(key[idx]);
+        .add("_set,get,delete 1'024 ops to 262'144 sized hashmap_", function () {
+            for(let idx = 0; idx < TEST_SIZE; idx++){
+                hashmap262144.set(TEST_KV[idx][0], TEST_KV[idx][1]);
+                if(!hashmap262144.get(TEST_KV[idx][0])){
+                    throw TEST_KV[idx][0]+ " does not exist";
+                }
+                hashmap262144.delete(TEST_KV[idx][0]);
             }
         }, {
-            'onStart': function () {
-                key = [];
-                value = [];
-                for (let k = 0; k < 1000; k++) {
-                    key.push(makeKey());
-                    value.push(makeValue());
-                }
-            },
             'version': version,
             'onComplete':  () => {
                 try {

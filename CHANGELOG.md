@@ -1,4 +1,10 @@
 # Changelog
+## 0.4.0
+- Significant Performance Improvements
+- Made sure we only create arrays if we have more than one entry for a bucket.
+- Improved benchmarking ensuring we use the same key values
+- Now beats JS Map on high number of entries (2^18 = 262144) 
+
 ## 0.3.0
 - Modernized, to use Classes,
 - optimised a few of the methods
