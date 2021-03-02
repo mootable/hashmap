@@ -1,4 +1,7 @@
 # Changelog
+## 0.4.1
+- Removed unneeded function storage
+
 ## 0.4.0
 - Significant Performance Improvements
 - Made sure we only create arrays if we have more than one entry for a bucket.

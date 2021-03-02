@@ -1,7 +1,7 @@
 /**
  * HashMap - HashMap Implementation for JavaScript
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.4.0
+ * @version 0.4.1
  * Homepage: https://github.com/mootable/hashmap
  */
 
@@ -82,7 +82,7 @@
                 this.buckets = this.buckets.set(key, value, hashEquals.equalTo, hashEquals.hash);
                 this.length = this.buckets.length;
             } else {
-                this.buckets = new HashEntry(key, value, hashEquals.equalTo, hashEquals.hash, {
+                this.buckets = new HashEntry(key, value, hashEquals.hash, {
                     widthB: this.options.widthB,
                     width: this.options.width,
                     mask: this.options.mask,
@@ -427,9 +427,8 @@
     }
 
     class HashEntry extends Entry {
-        constructor(key, value, equalTo, hash, options, depth) {
+        constructor(key, value, hash, options, depth) {
             super(key,value);
-            this.equalTo = equalTo;
             this.hash = hash;
             this.options = options;
             this.depth = depth;
@@ -440,8 +439,8 @@
                 return this;
             }
             const bucket = new HashBuckets(this.options, this.depth);
-            bucket.set(this.key, this.value, this.equalTo, this.hash);
-            bucket.set(key, value, equalTo, hash);
+            bucket.set(this.key, this.value, () => false, this.hash);
+            bucket.set(key, value, () => false, hash);
             return bucket;
         }
         get (key, equalTo, hash) {
@@ -485,7 +484,7 @@
                     this.length++;
                 }
             } else if (this.depth) {
-                this.buckets[idx] = new HashEntry(key, value, equalTo, hash >>> this.options.widthB, this.options, this.depth - 1);
+                this.buckets[idx] = new HashEntry(key, value, hash >>> this.options.widthB, this.options, this.depth - 1);
                 this.length++;
             } else {
                 this.buckets[idx] = new Entry(key, value);
