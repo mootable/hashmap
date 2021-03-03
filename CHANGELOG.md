@@ -1,4 +1,9 @@
 # Changelog
+## 0.4.2
+- Added benchmark.md generation
+- Cleaned up benchmarking
+- Updated documentation
+
 ## 0.4.1
 - Removed unneeded function storage
 

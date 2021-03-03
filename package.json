@@ -1,6 +1,6 @@
 {
   "name": "@mootable/hashmap",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "HashMap Implementation for JavaScript",
   "keywords": [
     "mootable",
@@ -36,15 +36,15 @@
   "engines": {
     "node": "*"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "benchmark": "^2.1.4",
-    "microtime": "^3.0.0",
     "chai": "4.1.1",
     "flesler-hashmap": "npm:hashmap@^2.4.0",
     "husky": "0.14.3",
     "jshint": "^2.12.0",
+    "lodash": "^4.17.21",
+    "microtime": "^3.0.0",
     "mocha": "^8.3.0"
   },
   "directories": {

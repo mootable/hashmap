@@ -1,7 +1,7 @@
 /**
  * HashMap - HashMap Implementation for JavaScript
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.4.1
+ * @version 0.4.2
  * Homepage: https://github.com/mootable/hashmap
  */
 
@@ -539,15 +539,13 @@
     function compute_hash(key, seed, len) {
         len = len ? Math.min(len, key.length) : key.length;
         seed = seed ? seed : 0;
-        const remaining = len & 3;
+        const remaining = len & 1;
         const bytes = len - remaining;
         let hash = seed | 0, k = 0, i = 0;
 
         while (i < bytes) {
-            k = (key.codePointAt(i++) & 0xff) |
-                ((key.codePointAt(i++) & 0xff) << 8) |
-                ((key.codePointAt(i++) & 0xff) << 16) |
-                ((key.codePointAt(i++) & 0xff) << 24);
+            k = (key.charCodeAt(i++) & 0xffff) |
+                ((key.charCodeAt(i++) & 0xffff) << 16);
 
             k *= (k * 0xcc9e2d51) | 0;
             k = (k << 15) | (k >>> 17);
@@ -557,23 +555,13 @@
             hash = (hash << 13) | (hash >>> 19);
             hash = (hash * 5 + 0xe6546b64);
         }
-        switch (remaining) {
-            case 3:
-                k ^= (key.codePointAt(i + 2) & 0xff) << 16;
-            /* falls through */
-            case 2:
-                k ^= (key.codePointAt(i + 1) & 0xff) << 8;
-            /* falls through */
-            case 1:
-                k ^= (key.codePointAt(i) & 0xff);
+        if (remaining) {
+            k ^= (key.charCodeAt(i) & 0xffff);
 
-                k = k * 0xcc9e2d51;
-                k = (k << 15) | (k >>> 17);
-                k = k * 0x1b873593;
-                hash ^= k;
-                break;
-            default:
-            // do nothing
+            k = k * 0xcc9e2d51;
+            k = (k << 15) | (k >>> 17);
+            k = k * 0x1b873593;
+            hash ^= k;
         }
 
         hash ^= len;
