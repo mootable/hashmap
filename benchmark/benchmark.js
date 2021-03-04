@@ -14,16 +14,15 @@ const hashmapImplementations = {
 };
 
 console.log("setup constants");
-const ALL_KV = new Array(1048576);
-for (let i = 0; i < 1048576; i++) {
+const ALL_KV = new Array(4194304);
+for (let i = 0; i < 4194304; i++) {
     ALL_KV[i] = [makeKey(), makeValue()];
 }
 // random value
 const TEST_KV = [makeKey(), makeValue()];
 
-const HASHMAP_SIZES = [0, 64, 256, 4096, 16384, 65536, 262144, 1048576];
+const HASHMAP_SIZES = [0, 64, 256, 512, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304];
 
-console.log(" constants complete");
 let header_markdown
     = '| Hashmap | create |';
 let header_seperator_markdown
@@ -36,8 +35,27 @@ HASHMAP_SIZES.forEach(value => {
 header_markdown = header_markdown +'\n'+header_seperator_markdown+'\n';
 console.log("setup benchmark");
 let theSuite = new Benchmark.Suite('hashmap benchmarks');
+const hashmapsTested = [];
 Object.entries(hashmapImplementations)
-    .forEach(([version, location]) => benchmarkHashMapImplementation(version, location));
+    .forEach(
+        ([version, location]) => {
+            if (location) {
+                const required =  require(location);
+                if(required.HashMap) {
+                    console.info("Benchmarking:", version + ".HashMap", "from:", location);
+                    benchmarkHashMapImplementation(version + ".HashMap", required.HashMap);
+                }
+                if(required.LinkedHashMap) {
+                    const required =  require(location);
+                    console.info("Benchmarking:", version+".LinkedHashMap", "from:", location);
+                    benchmarkHashMapImplementation(version+".LinkedHashMap", required.LinkedHashMap);
+                }
+            } else {
+                console.info("Benchmarking:", version, "from: JS");
+                benchmarkHashMapImplementation(version, Map);
+            }
+        }
+    );
 
 
 theSuite = theSuite.on('cycle', function (event) {
@@ -46,7 +64,7 @@ theSuite = theSuite.on('cycle', function (event) {
     let table_md = header_markdown;
     let fastestMap = new Map();
     let slowestMap = new Map();
-    Object.entries(hashmapImplementations).forEach(([version, location]) =>  {
+    hashmapsTested.forEach(version =>  {
             table_md = table_md + '| '+version+' |';
             const sorted = _.sortBy(this.filter({'version': version}), 'hashmap-size');
             sorted.forEach(value => {
@@ -62,7 +80,6 @@ theSuite = theSuite.on('cycle', function (event) {
                 slowestMap.set(value['hashmap-size']+'', slowest);
             });
             table_md = table_md +'\n';
-            console.log(sorted);
         });
     table_md = table_md + '| **Fastest** |';
     fastestMap.forEach((fastest) => {
@@ -80,7 +97,6 @@ theSuite = theSuite.on('cycle', function (event) {
         }
     });
     table_md = table_md + '\n';
-    console.log(table_md);
     _.uniq(this.filter('name').map('name'))
         .forEach((name) => {
                 const fastest = Benchmark.filter(this.filter({'name': name}), 'fastest')[0];
@@ -106,14 +122,8 @@ for (let k = 0; k < RUN_AMOUNTS; k++) {
     theSuite.run();
 }
 
-function benchmarkHashMapImplementation(version, location) {
-    const HashMap = location ? require(location).HashMap : Map;
-    if (location) {
-        console.info("Benchmarking:", version, "from:", location);
-    } else {
-        console.info("Benchmarking:", version, "from: JS");
-    }
-
+function benchmarkHashMapImplementation(version, HashMap) {
+    hashmapsTested.push(version);
     theSuite = theSuite
         .add("_create_", function () {
             const map = new HashMap();
@@ -130,9 +140,9 @@ function benchmarkHashMapImplementation(version, location) {
             }
         });
 
+    console.log("Building "+version+" test hashmaps", HASHMAP_SIZES);
     for (let h = 0; h < HASHMAP_SIZES.length; h++) {
         const size = HASHMAP_SIZES[h];
-        console.log(size, "size hashmap building");
         const hashmap = new HashMap();
         for (let i = 0; i < size; i++) {
             hashmap.set(ALL_KV[i][0], ALL_KV[i][1]);
@@ -148,8 +158,8 @@ function benchmarkHashMapImplementation(version, location) {
             'hashmap-size': size
         });
 
-        console.log(size, "size hashmap ready");
     }
+    console.log("Built "+version+" test hashmaps", HASHMAP_SIZES);
 }
 
 this.max32 = Math.pow(2, 32) - 1;
