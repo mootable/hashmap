@@ -322,10 +322,10 @@
         }
         delete(key) {
             super.delete(key);
-            if(this.start.deleted){
+            if(this.start && this.start.deleted){
                 this.start = this.start.next;
             }
-            if(this.end.deleted){
+            if(this.end && this.end.deleted){
                 this.end = this.end.previous;
             }
             return this;
