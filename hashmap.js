@@ -1,7 +1,7 @@
 /**
  * HashMap - HashMap Implementation for JavaScript
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.4.2
+ * @version 0.5.0
  * Homepage: https://github.com/mootable/hashmap
  */
 
@@ -42,7 +42,7 @@
         }
         overwrite(oldEntry){
             oldEntry.value = this.value;
-            this.previous = true;
+            this.deleted = true;
         }
         delete() {
             if(this.previous){
@@ -51,6 +51,7 @@
             if(this.next){
                 this.next.previous = this.previous;
             }
+            this.deleted = true;
         }
     }
 
@@ -309,7 +310,7 @@
             const entry = this.addEntry(new LinkedEntry(key, value));
             // if we added at the end, shift forward one.
             if(this.end){
-                if(!entry.previous) {
+                if(!entry.deleted) {
                     this.end.next = entry;
                     entry.previous = this.end;
                     this.end = entry;
@@ -321,29 +322,11 @@
         }
         delete(key) {
             super.delete(key);
-            switch(this.length){
-                case 0:
-                    // clear out start and end.
-                    this.start = undefined;
-                    this.end = undefined;
-                    break;
-                case 1:
-                    // if it has a next then then its the one that has been deleted.
-                    if(this.start.next) {
-                        this.start = this.end;
-                    } else {
-                        this.end = this.start;
-                    }
-                    break;
-                default:
-                    if(!this.start.next.previous) {
-                        // if start's next doesn't have a previous then start has been deleted
-                        this.start = this.start.next;
-                    } else if(!this.end.previous.next){
-                        // if end's previous doesn't have a next then end has been deleted
-                        this.end = this.end.previous;
-                    }
-                    break;
+            if(this.start.deleted){
+                this.start = this.start.next;
+            }
+            if(this.end.deleted){
+                this.end = this.end.previous;
             }
             return this;
         }

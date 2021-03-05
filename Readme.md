@@ -15,6 +15,8 @@ This repository is a refactored version of the [npm hashmap](https://npmjs.org/p
 2) Memory footprint will be a little larger, albeit will compress faster and more readily.
 3) The keys are now truly typed and unique, this means if you have written code that uses the graphemes fronting strings to hack the map, those will no longer work.
 
+If you want ordering use LinkedHashMap instead, which is a little slower, but guarentees order of insertion.
+
 This means you should only use the hashmap as hashmaps were intended, it is no longer a generic mapping implementation, and you may want to consider an alternate collection for different use cases.
 
 ### Choose your map wisely.
@@ -28,13 +30,12 @@ This means you should only use the hashmap as hashmaps were intended, it is no l
   Each benchmark does a single set, get and delete against a hashmap of a specific size. 
   It does this thousands of times, and finds an approximate average.
   
-### Benchmarks on version 0.4.2
-| Hashmap | create | 0 Entries | 64 Entries | 256 Entries | 4096 Entries | 16384 Entries | 65536 Entries | 262144 Entries | 1048576 Entries |
-| ------- | ------ | --------- | ---------- | ----------- | ------------ | ------------- | ------------- | -------------- | --------------- |
-| mootable-hashmap | 7890772 op/sec | 876074 op/sec | 870144 op/sec | 839829 op/sec | **864686** op/sec | **828014** op/sec | **823861** op/sec | **710420** op/sec | **750642** op/sec |
-| map | **10819102** op/sec | **1993329** op/sec | **3316291** op/sec | **1332715** op/sec | 105962 op/sec | 27003 op/sec | 6503 op/sec | 7671 op/sec | 7463 op/sec |
-| **Fastest** | **map** | **map** | **map** | **map** | **mootable-hashmap** | **mootable-hashmap** | **mootable-hashmap** | **mootable-hashmap** | **mootable-hashmap** |
-| Fastest inc % | 37% | 370% | 705% | 222% | 716% | 2966% | 12568% | 9161% | 9958% |
+### Benchmarks on version 0.5.0
+
+<table>
+<thead><tr><th>Entry Size</th><th>Fastest Version</th><th>Percentage Faster</th><th>Times Faster</th></tr></thead>
+<tbody><tr><td>0</td><td>map</td><td>1234%</td><td>X 13.34</td></tr><tr><td>64</td><td>map</td><td>824%</td><td>X 9.24</td></tr><tr><td>256</td><td>map</td><td>308%</td><td>X 4.08</td></tr><tr><td>512</td><td>map</td><td>121%</td><td>X 2.21</td></tr><tr><td>1024</td><td>mootable-hashmap.HashMap</td><td>124%</td><td>X 2.24</td></tr><tr><td>4096</td><td>mootable-hashmap.HashMap</td><td>551%</td><td>X 6.51</td></tr><tr><td>16384</td><td>mootable-hashmap.HashMap</td><td>2254%</td><td>X 23.54</td></tr><tr><td>65536</td><td>mootable-hashmap.HashMap</td><td>7643%</td><td>X 77.43</td></tr><tr><td>262144</td><td>mootable-hashmap.LinkedHashMap</td><td>8755%</td><td>X 88.55</td></tr><tr><td>1048576</td><td>mootable-hashmap.HashMap</td><td>7199%</td><td>X 72.99</td></tr><tr><td>4194304</td><td>mootable-hashmap.HashMap</td><td>7957%</td><td>X 80.57</td></tr><tr><td>create</td><td>mootable-hashmap.HashMap</td><td>47%</td><td>X 1.47</td></tr></tbody>
+</table>
 
 ## Installation
 

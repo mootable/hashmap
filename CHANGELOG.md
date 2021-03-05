@@ -1,4 +1,10 @@
 # Changelog
+## 0.5.0
+- Added memory to benchmarking report
+- Cleaned up benchmarking
+- Switched to html rendering of benchmarks
+- Added LinkedHashMap implementation, and refactored HashMap as the base for it.
+
 ## 0.4.2
 - Added benchmark.md generation
 - Cleaned up benchmarking

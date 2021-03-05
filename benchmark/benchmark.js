@@ -1,7 +1,7 @@
 /**
  * HashMap - HashMap Implementation for JavaScript
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.4.2
+ * @version 0.5.0
  * Homepage: https://github.com/mootable/hashmap
  */
 const fs = require('fs');
@@ -13,7 +13,41 @@ const hashmapImplementations = {
     'flesler-hashmap': 'flesler-hashmap',
 };
 
-console.log("setup constants");
+const metrics = {benchmarks: {}, fastest: {}, slowest: {}};
+let used = 0;
+
+function formatAmount(amount, unit) {
+    let reduced = amount / 1024;
+    if (reduced < 1024) {
+        return `${reduced.toFixed(3)} K${unit}`;
+    }
+    reduced = reduced / 1024;
+    if (reduced < 1024) {
+        return `${reduced.toFixed(3)} M${unit}`;
+    }
+    reduced = reduced / 1024;
+    if (reduced < 1024) {
+        return `${reduced.toFixed(3)} G${unit}`;
+    }
+    return `${reduced.toFixed(3)} T${unit}`;
+}
+
+function resetMemoryUsed() {
+    if (global.gc) {
+        global.gc();
+    }
+    used = process.memoryUsage().heapUsed;
+}
+
+function memoryUsage(preText) {
+    const heap = process.memoryUsage().heapUsed;
+    used = heap - used;
+    console.info(`Memory used for ${preText} is ${formatAmount(used, 'b')} out of ${formatAmount(heap, 'b')}`);
+    return used;
+}
+
+memoryUsage("Key Generation");
+resetMemoryUsed();
 const ALL_KV = new Array(4194304);
 for (let i = 0; i < 4194304; i++) {
     ALL_KV[i] = [makeKey(), makeValue()];
@@ -22,17 +56,10 @@ for (let i = 0; i < 4194304; i++) {
 const TEST_KV = [makeKey(), makeValue()];
 
 const HASHMAP_SIZES = [0, 64, 256, 512, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304];
-
-let header_markdown
-    = '| Hashmap | create |';
-let header_seperator_markdown
-    = '| ------- | ------ |';
 HASHMAP_SIZES.forEach(value => {
-    let valueStr = ''+value;
-    header_markdown = header_markdown + ' ' + valueStr + ' Entries |';
-    header_seperator_markdown = header_seperator_markdown + ' '.padEnd(Math.max(3,valueStr.length+9),'-')+' |';
+    metrics.fastest[value + ''] = null;
+    metrics.slowest[value + ''] = null;
 });
-header_markdown = header_markdown +'\n'+header_seperator_markdown+'\n';
 console.log("setup benchmark");
 let theSuite = new Benchmark.Suite('hashmap benchmarks');
 const hashmapsTested = [];
@@ -40,15 +67,15 @@ Object.entries(hashmapImplementations)
     .forEach(
         ([version, location]) => {
             if (location) {
-                const required =  require(location);
-                if(required.HashMap) {
+                const required = require(location);
+                if (required.HashMap) {
                     console.info("Benchmarking:", version + ".HashMap", "from:", location);
                     benchmarkHashMapImplementation(version + ".HashMap", required.HashMap);
                 }
-                if(required.LinkedHashMap) {
-                    const required =  require(location);
-                    console.info("Benchmarking:", version+".LinkedHashMap", "from:", location);
-                    benchmarkHashMapImplementation(version+".LinkedHashMap", required.LinkedHashMap);
+                if (required.LinkedHashMap) {
+                    const required = require(location);
+                    console.info("Benchmarking:", version + ".LinkedHashMap", "from:", location);
+                    benchmarkHashMapImplementation(version + ".LinkedHashMap", required.LinkedHashMap);
                 }
             } else {
                 console.info("Benchmarking:", version, "from: JS");
@@ -57,46 +84,83 @@ Object.entries(hashmapImplementations)
         }
     );
 
+function writeToFile() {
+
+    let table = "# Benchmarks \n" +
+        "## Scores\n" +
+        "<table>\n<thead><tr>" +
+        "<th>Version</th><th>Entry Size</th><th>Memory</th><th>Operations</th>" +
+        "<th>Memory Raw</th><th>Operations Raw</th><th>Fastest / Slowest</th>" +
+        "</tr></thead>\n<tbody>";
+
+    Object.entries(metrics.benchmarks).forEach(([version, benchmark]) => {
+        table = table + `<tr><td rowspan="${Object.entries(benchmark).length}">${version}</td>`;
+        let first = true;
+        Object.entries(benchmark).forEach(([size, metrics]) => {
+            if(first) {
+                first = false;
+            } else {
+                table = table + "<tr>";
+            }
+            if(!metrics.memory){
+                metrics.memory = '';
+                metrics.memoryRaw = '';
+            }
+            table = table + `<td>${parseInt(metrics.size) < 0 ? 'create' : metrics.size}</td>`;
+            table = table + `<td>${metrics.memory}</td><td>${metrics.operations}</td>`;
+            table = table + `<td>${metrics.memoryRaw}</td><td>${metrics.operationsRaw.toFixed(0)}</td>`;
+            table = table + `<td>${metrics.fastest ? 'fastest' : metrics.slowest ? 'slowest' : ''}</td></tr>`;
+        });
+        table = table + "\n";
+    });
+    table = table + "</tbody>\n</table>\n" +
+        "## Fastest Implementation\n" +
+        "<table>\n<thead><tr>" +
+        "<th>Entry Size</th><th>Fastest Version</th><th>Percentage Faster</th><th>Times Faster</th>" +
+        "</tr></thead>\n<tbody>";
+    Object.entries(metrics.fastest).forEach(([size, fastest]) => {
+        table = table + `<tr><td>${parseInt(size) < 0 ? 'create' : size}</td><td>${fastest.version}</td>`;
+
+        const slowest = metrics.slowest[size];
+        const difference = ((fastest.operations - slowest.operations) / slowest.operations);
+        const percentageDifference = difference * 100;
+        table = table + `<td>${percentageDifference.toFixed(0)}%</td>`;
+        table = table + `<td>X ${(difference + 1).toFixed(2)}</td></tr>`;
+    });
+    table = table + "</tbody>\n</table>\n";
+    fs.writeFile("Benchmarks.md", table, function (err) {
+        if (err) return console.log(err);
+        console.log('Written > Benchmarks.md');
+    });
+}
+
 
 theSuite = theSuite.on('cycle', function (event) {
     console.log(String(event.target));
 }).on('complete', function () {
-    let table_md = header_markdown;
-    let fastestMap = new Map();
-    let slowestMap = new Map();
-    hashmapsTested.forEach(version =>  {
-            table_md = table_md + '| '+version+' |';
-            const sorted = _.sortBy(this.filter({'version': version}), 'hashmap-size');
-            sorted.forEach(value => {
-
-                const fastest = Benchmark.filter(this.filter({'name': value.name}), 'fastest')[0];
-                const slowest = Benchmark.filter(this.filter({'name': value.name}), 'slowest')[0];
-                if(fastest.version === version){
-                    table_md = table_md + ' **'+ value.hz.toFixed(0).toLocaleString() +'** op/sec |';
-                } else {
-                    table_md = table_md + ' '+ value.hz.toFixed(0).toLocaleString() +' op/sec |';
-                }
-                fastestMap.set(value['hashmap-size']+'', fastest);
-                slowestMap.set(value['hashmap-size']+'', slowest);
-            });
-            table_md = table_md +'\n';
+    hashmapsTested.forEach(version => {
+        const sorted = _.sortBy(this.filter({'version': version}), 'hashmap-size');
+        const versionMetrics = metrics.benchmarks[version]  ? metrics.benchmarks[version] : {};
+        metrics.benchmarks[version] = versionMetrics;
+        sorted.forEach(value => {
+            const size = value['hashmap-size'];
+            const sizeMetrics = versionMetrics[size + ''] ? versionMetrics[size + ''] : {};
+            versionMetrics[size + ''] = sizeMetrics;
+            const fastest = Benchmark.filter(this.filter({'name': value.name}), 'fastest')[0];
+            const slowest = Benchmark.filter(this.filter({'name': value.name}), 'slowest')[0];
+            sizeMetrics.size = size;
+            sizeMetrics.fastest = fastest.version === version;
+            sizeMetrics.slowest = slowest.version === version;
+            sizeMetrics.operationsRaw = value.hz;
+            sizeMetrics.operations = formatAmount(value.hz, 'ops/sec');
+            if (sizeMetrics.fastest) {
+                metrics.fastest[size + ''] = {version: version, operations: value.hz};
+            }
+            if (sizeMetrics.slowest) {
+                metrics.slowest[size + ''] = {version: version, operations: value.hz};
+            }
         });
-    table_md = table_md + '| **Fastest** |';
-    fastestMap.forEach((fastest) => {
-        table_md = table_md + ' **'+ fastest.version + '** |';
     });
-    table_md = table_md + '\n| Fastest inc % |';
-    fastestMap.forEach((fastest, key) => {
-        const slowest = slowestMap.get(key);
-        if(slowest) {
-            const difference = ((fastest.hz - slowest.hz) / slowest.hz);
-            const percentageDifference = difference * 100;
-            table_md = table_md + ' ' + percentageDifference.toFixed(0) + '% |';
-        } else {
-            table_md = table_md + ' |';
-        }
-    });
-    table_md = table_md + '\n';
     _.uniq(this.filter('name').map('name'))
         .forEach((name) => {
                 const fastest = Benchmark.filter(this.filter({'name': name}), 'fastest')[0];
@@ -109,13 +173,11 @@ theSuite = theSuite.on('cycle', function (event) {
             }
         );
 
-    fs.writeFile("Benchmarks.md", table_md, function (err) {
-        if (err) return console.log(err);
-        console.log('Written > Benchmarks.md');
-    });
+    writeToFile();
 }).on('onError', function (err) {
     console.log("Error", err);
 });
+resetMemoryUsed();
 const RUN_AMOUNTS = 1;
 for (let k = 0; k < RUN_AMOUNTS; k++) {
     console.info("Iteration", k);
@@ -140,13 +202,21 @@ function benchmarkHashMapImplementation(version, HashMap) {
             }
         });
 
-    console.log("Building "+version+" test hashmaps", HASHMAP_SIZES);
+    const versionMetrics = metrics.benchmarks[version] ? metrics.benchmarks[version] : {};
+    metrics.benchmarks[version] = versionMetrics;
+    console.log("Building " + version + " test hashmaps", HASHMAP_SIZES);
     for (let h = 0; h < HASHMAP_SIZES.length; h++) {
         const size = HASHMAP_SIZES[h];
+
+        const sizeMetrics = versionMetrics[size + ''] ? versionMetrics[size + ''] : {};
+        versionMetrics[size + ''] = sizeMetrics;
+        resetMemoryUsed();
         const hashmap = new HashMap();
         for (let i = 0; i < size; i++) {
             hashmap.set(ALL_KV[i][0], ALL_KV[i][1]);
         }
+        sizeMetrics.memoryRaw = memoryUsage(`${size} ${version}`);
+        sizeMetrics.memory = formatAmount(sizeMetrics.memoryRaw, 'b');
         theSuite = theSuite.add("_set,get,delete 1 time to " + size + " sized hashmap_", () => {
             hashmap.set(TEST_KV[0], TEST_KV[1]);
             if (!hashmap.get(TEST_KV[0])) {
@@ -159,7 +229,7 @@ function benchmarkHashMapImplementation(version, HashMap) {
         });
 
     }
-    console.log("Built "+version+" test hashmaps", HASHMAP_SIZES);
+    console.log("Built " + version + " test hashmaps", HASHMAP_SIZES);
 }
 
 this.max32 = Math.pow(2, 32) - 1;
@@ -183,11 +253,3 @@ function makeid(length) {
     }
     return result;
 }
-
-/**
- * create x 14,494,621 ops/sec ±3.17% (89 runs sampled)
- singleSet x 3,198,502 ops/sec ±1.52% (85 runs sampled)
- singleReplace x 3,084,387 ops/sec ±1.51% (83 runs sampled)
- setAfter 1,024 x 137,042 ops/sec ±2.51% (59 runs sampled)
-
- */
