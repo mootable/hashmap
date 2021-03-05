@@ -46,21 +46,25 @@ function memoryUsage(preText) {
     return used;
 }
 
+const HASHMAP_SIZES = [0, 64, 256, 512, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304];
+const LARGEST_HASHMAP = HASHMAP_SIZES.sort((left, right) => left-right)[HASHMAP_SIZES.length-1];
 memoryUsage("Key Generation");
 resetMemoryUsed();
-const ALL_KV = new Array(4194304);
-for (let i = 0; i < 4194304; i++) {
+const ALL_KV = new Array(LARGEST_HASHMAP);
+for (let i = 0; i < LARGEST_HASHMAP; i++) {
     ALL_KV[i] = [makeKey(), makeValue()];
 }
 // random value
 const TEST_KV = [makeKey(), makeValue()];
 
-const HASHMAP_SIZES = [0, 64, 256, 512, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304];
+console.log("setup benchmark");
+
+metrics.fastest['-1'] = null;
+metrics.slowest['-1'] = null;
 HASHMAP_SIZES.forEach(value => {
     metrics.fastest[value + ''] = null;
     metrics.slowest[value + ''] = null;
 });
-console.log("setup benchmark");
 let theSuite = new Benchmark.Suite('hashmap benchmarks');
 const hashmapsTested = [];
 Object.entries(hashmapImplementations)
