@@ -197,8 +197,8 @@ map
 </table>
 
 ## Background
-This repository is a reimplemented version of the [npm hashmap](https://npmjs.org/package/hashmap) repository. It takes that implementation as a starting point, and moves it closer to the core functionality hashmaps are designed to achieve. As such, whilst the interface is based on the originator repository, it has four notable exceptions:
-The tests have remained mostly the same, as has some documentation, everything else has changed. The interfaces have now diverged.
+- This repository is a reimplemented version of the [npm hashmap](https://npmjs.org/package/hashmap) repository. It takes that implementation as a starting point, and moves it closer to the core functionality hashmaps are designed to achieve.
+- The tests have remained mostly the same, as has some documentation, everything else has changed. The interfaces have now diverged.
 
 ## LICENSE
 
