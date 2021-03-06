@@ -1,4 +1,9 @@
 # Changelog
+## 0.6.1
+- Changed the Constructor parameters for HashMap and LinkedHashMap to allow sending an array or iterable without an object (This is an un-breaking change, :-) see previous change 0.6.0)
+- Updated Readme documentation.
+- Added more create tests.
+
 ## 0.6.0
 - Changed the Constructor parameters for HashMap and LinkedHashMap (This is a breaking change, read documentation)
 - Cleaned up benchmarking

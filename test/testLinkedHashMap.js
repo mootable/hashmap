@@ -366,16 +366,25 @@ describe('linkedHashMap', function() {
 			linkedHashMap.set('key', 'value');
 			linkedHashMap.set('key2', 'value2');
 
-			var map = new LinkedHashMap({copy:linkedHashMap});
+			var map = new LinkedHashMap(linkedHashMap);
 			expect(map.length).to.equal(2);
 			expect(map.get('key')).to.equal('value');
 			expect(map.get('key2')).to.equal('value2');
 		});
 
+		it('should clone a hashmap when one argument with copy', function() {
+			linkedHashMap.set('key', 'value');
+			linkedHashMap.set('key2', 'value2');
+
+			var map = new LinkedHashMap({copy:linkedHashMap});
+			expect(map.length).to.equal(2);
+			expect(map.get('key')).to.equal('value');
+			expect(map.get('key2')).to.equal('value2');
+		});
 		it('should initialize from a 2D array for a single Array argument', function() {
-			var map = new LinkedHashMap({copy:
+			var map = new LinkedHashMap(
 				[['key', 'value'],
-				 ['key2', 'value2']]}
+				 ['key2', 'value2']]
 			);
 			expect(map.length).to.equal(2);
 			expect(map.get('key')).to.equal('value');
@@ -383,9 +392,28 @@ describe('linkedHashMap', function() {
 		});
 
 		it('should initialize from a 2D array for a nested Array argument', function() {
-			var map = new LinkedHashMap({copy:
+			var map = new LinkedHashMap(
 				[[[1, 'key'], ['value', 1]],
-				 [[2, 'key2'], ['value2', 2]]]}
+				 [[2, 'key2'], ['value2', 2]]]
+			);
+			expect(map.length).to.equal(2);
+			expect(map.get([1, 'key'])).to.deep.equal(['value', 1]);
+			expect(map.get([2, 'key2'])).to.deep.equal(['value2', 2]);
+		});
+		it('should initialize from a 2D array for a single Array argument with copy', function() {
+			var map = new LinkedHashMap({copy:
+					[['key', 'value'],
+						['key2', 'value2']]}
+			);
+			expect(map.length).to.equal(2);
+			expect(map.get('key')).to.equal('value');
+			expect(map.get('key2')).to.equal('value2');
+		});
+
+		it('should initialize from a 2D array for a nested Array argument with copy', function() {
+			var map = new LinkedHashMap({copy:
+					[[[1, 'key'], ['value', 1]],
+						[[2, 'key2'], ['value2', 2]]]}
 			);
 			expect(map.length).to.equal(2);
 			expect(map.get([1, 'key'])).to.deep.equal(['value', 1]);

@@ -39,27 +39,36 @@ To run the benchmarks: (Ensure you have the memory to run them)
 ## `HashMap` constructor
 This HashMap is backed by a hashtrie, and can be tuned to specific use cases.
 - `new HashMap()` creates an empty hashmap
-- `new HashMap({map:?Map, array:?Array, depth:?int, widthB:?int})` creates a hashmap with optional `depth` and `widthB`.  If `copy` is provided (`map` or `array`, its keys and values are inserted into this map.
-  - `copy` either
-    - key-value pairs in an object that follows the `Map` interface such as `HashMap` and `LinkedHashMap`
+- `new HashMap(copy:Iterable)` creates a hashmap which is a copy of the provided iterable.
+  1) `copy` either
+    - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
     - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
-  - `depth` is how many layers deep our hashtrie goes.
+- `new HashMap({copy:?Iterable, depth:?int, widthB:?int})` creates a hashmap with optional `depth` and `widthB`.  If `copy` is provided (`map` or `array`, its keys and values are inserted into this map.
+  1) `copy` either
+    - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
+    - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
+  2) `depth` is how many layers deep our hashtrie goes.
     - Minimum: `1`, Maximum/Default: `(32/widthB)-1`
-  - `widthB` is how many buckets in each hashtrie layer we use to the power of 2, for instance a `widthB` of 4 = 16 buckets.
+  3) `widthB` is how many buckets in each hashtrie layer we use to the power of 2, for instance a `widthB` of 4 = 16 buckets.
     - Minimum: `2`, Maximum: `16`, Default: `6` (64 Buckets)
 
 
 ## `LinkedHashMap` constructor
 LinkedHashMaps maintain insertion order of keys, it has a slightly larger memory footprint and is a little slower.
 - `new LinkedHashMap()` creates an empty linked hashmap
-- `new LinkedHashMap({map:?Map, array:?Array, depth:?int, widthB:?int})` creates a linked hashmap with optional `depth` and `widthB`. If `copy` is provided (`map` or `array`, its keys and values are inserted into this map.
-  - `copy` either 
-    - key-value pairs in an object that follows the `Map` interface such as `HashMap` and `LinkedHashMap`
-    - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
-  - `depth` is how many layers deep our hashtrie goes.
-    - Minimum: `1`, Maximum/Default: `(32/widthB)-1`
-  - `widthB` is how many buckets in each hashtrie layer we use to the power of 2, for instance a `widthB` of 4 = 16 buckets.
-    - Minimum: `2`, Maximum : `16`, Default: `6` (64 Buckets)
+- `new LinkedHashMap(copy:Iterable)` creates a linked hashmap which is a copy of the provided iterable.
+  1) `copy` either
+  - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
+  - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
+- `new LinkedHashMap({copy:?Iterable, depth:?int, widthB:?int})` creates a linked hashmap with optional `depth` and `widthB`.  If `copy` is provided (`map` or `array`, its keys and values are inserted into this map.
+  1) `copy` either
+  - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
+  - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
+  2) `depth` is how many layers deep our hashtrie goes.
+  - Minimum: `1`, Maximum/Default: `(32/widthB)-1`
+  3) `widthB` is how many buckets in each hashtrie layer we use to the power of 2, for instance a `widthB` of 4 = 16 buckets.
+  - Minimum: `2`, Maximum: `16`, Default: `6` (64 Buckets)
+
 
 ## `HashMap` (and `LinkedHashMap`) methods
 
@@ -188,12 +197,12 @@ map
     - It must have an identical interface to JS Map
     - It must be fully written in JS. (Transpiling is acceptable) So that we can guarantee it works in the browser, not just node.
 
-### Benchmarks on version 0.6.0
+### Benchmarks on version 0.6.1
 
 <table>
 <thead><tr><th>Entry Size</th><th>Fastest Version</th><th>Percentage Faster</th><th>Times Faster</th></tr></thead>
 <tbody>
-<tr><td>0</td><td>map</td><td>479%</td><td>X 5.79</td></tr><tr><td>64</td><td>map</td><td>665%</td><td>X 7.65</td></tr><tr><td>256</td><td>map</td><td>309%</td><td>X 4.09</td></tr><tr><td>512</td><td>map</td><td>140%</td><td>X 2.40</td></tr><tr><td>768</td><td>mootable-hashmap.HashMap</td><td>128%</td><td>X 2.28</td></tr><tr><td>1024</td><td>mootable-hashmap.HashMap</td><td>149%</td><td>X 2.49</td></tr><tr><td>4096</td><td>mootable-hashmap.HashMap</td><td>547%</td><td>X 6.47</td></tr><tr><td>16384</td><td>mootable-hashmap.HashMap</td><td>2497%</td><td>X 25.97</td></tr><tr><td>65536</td><td>mootable-hashmap.HashMap</td><td>9601%</td><td>X 97.01</td></tr><tr><td>262144</td><td>mootable-hashmap.HashMap</td><td>9999%</td><td>X 100.99</td></tr><tr><td>1048576</td><td>mootable-hashmap.HashMap</td><td>9470%</td><td>X 95.70</td></tr><tr><td>4194304</td><td>mootable-hashmap.HashMap</td><td>10385%</td><td>X 104.85</td></tr><tr><td>create</td><td>mootable-hashmap.HashMap</td><td>40%</td><td>X 1.40</td></tr></tbody>
+<tr><td>0</td><td>map</td><td>238%</td><td>X 3.38</td></tr><tr><td>64</td><td>map</td><td>347%</td><td>X 4.47</td></tr><tr><td>256</td><td>map</td><td>228%</td><td>X 3.28</td></tr><tr><td>512</td><td>map</td><td>111%</td><td>X 2.11</td></tr><tr><td>768</td><td>mootable-hashmap.HashMap</td><td>109%</td><td>X 2.09</td></tr><tr><td>1024</td><td>mootable-hashmap.HashMap</td><td>92%</td><td>X 1.92</td></tr><tr><td>4096</td><td>mootable-hashmap.HashMap</td><td>521%</td><td>X 6.21</td></tr><tr><td>16384</td><td>mootable-hashmap.HashMap</td><td>2338%</td><td>X 24.38</td></tr><tr><td>65536</td><td>mootable-hashmap.HashMap</td><td>8685%</td><td>X 87.85</td></tr><tr><td>262144</td><td>mootable-hashmap.HashMap</td><td>13699%</td><td>X 137.99</td></tr><tr><td>1048576</td><td>mootable-hashmap.HashMap</td><td>8222%</td><td>X 83.22</td></tr><tr><td>4194304</td><td>mootable-hashmap.HashMap</td><td>8229%</td><td>X 83.29</td></tr><tr><td>create</td><td>mootable-hashmap.HashMap</td><td>19%</td><td>X 1.19</td></tr></tbody>
 </table>
 
 ## Background

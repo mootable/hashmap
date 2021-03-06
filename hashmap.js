@@ -1,7 +1,7 @@
 /**
  * HashMap - HashMap Implementation for JavaScript
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.6.0
+ * @version 0.6.1
  * Homepage: https://github.com/mootable/hashmap
  */
 
@@ -70,16 +70,17 @@
      *   forEach(func, ctx) : this
      */
     class HashMap {
-        constructor({copy, depth, widthB}= {}) {
-            widthB = Math.max(2, Math.min(16, widthB ? widthB : 6)); // 2^6 = 64 buckets
+        constructor(args = {copy: undefined, depth: undefined, widthB : 6}) {
+            let {depth, widthB, copy} = args;
+            widthB = Math.max(2, Math.min(16, widthB)); // 2^6 = 64 buckets
             const defaultDepth = ((32/widthB) >> 0) - 1;
             depth = Math.max(0, Math.min(depth && depth > 0 ? depth - 1 : defaultDepth, defaultDepth)); // 0 indexed so 3 is a depth of 4.
             const width = 1 << widthB; // 2 ^ widthB
             const mask = width - 1;
             this.options = Object.freeze({widthB, width, mask, depth});
             this.clear();
-            if (copy) {
-                this.copy(copy);
+            if ( args.forEach || (copy && copy.forEach)) {
+                this.copy(args.forEach ? args : copy);
             }
         }
         has(key) {
@@ -301,8 +302,8 @@
     HashMap.uid = 0;
 
     class LinkedHashMap extends HashMap {
-        constructor(options) {
-            super(options);
+        constructor(args = {copy: undefined, depth: undefined, widthB : 6}) {
+            super(args);
             this.start = undefined;
             this.end = undefined;
         }
