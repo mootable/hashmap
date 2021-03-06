@@ -6,7 +6,7 @@
 This project provides `HashMap` and `LinkedHashMap` classes that works both on __Node.js__ and the __browser__.
 - They are both implementations of a simplified [HAMT](https://en.wikipedia.org/wiki/Hash_array_mapped_trie) like [hash trie](https://en.wikipedia.org/wiki/Hash_tree_(persistent_data_structure))
 - It uses a modified [Murmer 3](https://en.wikipedia.org/wiki/MurmurHash) algorithm for generating hashes. This ensures the widest possible spread across all buckets.
-- As per spec, ordering the basic `Hashmap` is not guaranteed to meet order of insertion when iterating over it. If you want guaranteed insertion order, use `LinkedHashMap`.
+- As per spec, the basic `Hashmap` is not guaranteed to meet order of insertion when iterating over it. If you want guaranteed insertion order when iterating, use `LinkedHashMap`.
 - The keys are truly typed and unique, this means 1 !== "1".
 
 ### Choose your map wisely.
