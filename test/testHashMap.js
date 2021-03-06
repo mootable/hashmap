@@ -359,16 +359,16 @@ describe('hashmap', function() {
 			hashmap.set('key', 'value');
 			hashmap.set('key2', 'value2');
 
-			var map = new HashMap(hashmap);
+			let map = new HashMap({copy: hashmap});
 			expect(map.length).to.equal(2);
 			expect(map.get('key')).to.equal('value');
 			expect(map.get('key2')).to.equal('value2');
 		});
 
 		it('should initialize from a 2D array for a single Array argument', function() {
-			var map = new HashMap(
+			var map = new HashMap({copy:
 				[['key', 'value'],
-				 ['key2', 'value2']]
+				 ['key2', 'value2']]}
 			);
 			expect(map.length).to.equal(2);
 			expect(map.get('key')).to.equal('value');
@@ -376,9 +376,9 @@ describe('hashmap', function() {
 		});
 
 		it('should initialize from a 2D array for a nested Array argument', function() {
-			var map = new HashMap(
+			var map = new HashMap({copy:
 				[[[1, 'key'], ['value', 1]],
-				 [[2, 'key2'], ['value2', 2]]]
+				 [[2, 'key2'], ['value2', 2]]]}
 			);
 			expect(map.length).to.equal(2);
 			expect(map.get([1, 'key'])).to.deep.equal(['value', 1]);

@@ -1,4 +1,11 @@
 # Changelog
+## 0.6.0
+- Changed the Constructor parameters for HashMap and LinkedHashMap (This is a breaking change, read documentation)
+- Cleaned up benchmarking
+- Updated Readme documentation.
+- Added ordering tests for LinkedHashMap
+- Ensured we have minimum and maximum values when using depth and widthB
+
 ## 0.5.0
 - Added memory to benchmarking report
 - Cleaned up benchmarking

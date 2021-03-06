@@ -1,11 +1,11 @@
 /*jshint -W030,-W121 */
 var expect = require('chai').expect,
-	HashMap = require('../hashmap').LinkedHashMap,
+	LinkedHashMap = require('../hashmap').LinkedHashMap,
 	linkedHashMap;
 
 describe('linkedHashMap', function() {
 	beforeEach(function() {
-		linkedHashMap = new HashMap();
+		linkedHashMap = new LinkedHashMap();
 	});
 
 
@@ -77,7 +77,7 @@ describe('linkedHashMap', function() {
 			check(new Date(1986, 7, 15, 12, 5, 0, 0));
 			check([]);
 			check({});
-			check(HashMap);
+			check(LinkedHashMap);
 			check(linkedHashMap);
 		});
 
@@ -183,7 +183,7 @@ describe('linkedHashMap', function() {
 		it('should work for several keys', function() {
 			linkedHashMap.set('key', 'value');
 			linkedHashMap.set('key2', 'value2');
-			expect(linkedHashMap.keys().sort()).to.deep.equal(['key', 'key2']);
+			expect(linkedHashMap.keys()).to.deep.equal(['key', 'key2']);
 		});
 	});
 
@@ -200,7 +200,7 @@ describe('linkedHashMap', function() {
 		it('should work for several values', function() {
 			linkedHashMap.set('key', 'value');
 			linkedHashMap.set('key2', 'value2');
-			expect(linkedHashMap.values().sort()).to.deep.equal(['value', 'value2']);
+			expect(linkedHashMap.values()).to.deep.equal(['value', 'value2']);
 		});
 	});
 
@@ -217,7 +217,14 @@ describe('linkedHashMap', function() {
 		it('should work for several values', function() {
 			linkedHashMap.set('key', 'value');
 			linkedHashMap.set('key2', 'value2');
-			expect(linkedHashMap.entries().sort()).to.deep.equal([['key','value'], ['key2','value2']]);
+			expect(linkedHashMap.entries()).to.deep.equal([['key','value'], ['key2','value2']]);
+		});
+		it('should guarantee order', function() {
+			linkedHashMap.set('key', 'value');
+			linkedHashMap.set('key2', 'value2');
+			linkedHashMap.set(2, 'value3');
+			linkedHashMap.set(1, 'value4');
+			expect(linkedHashMap.entries()).to.deep.equal([['key','value'], ['key2','value2'], [2,'value3'], [1,'value4']]);
 		});
 	});
 
@@ -304,7 +311,7 @@ describe('linkedHashMap', function() {
 
 	describe('linkedHashMap.copy()', function() {
 		it('should work on an empty linkedHashMap', function() {
-			var map = new HashMap();
+			var map = new LinkedHashMap();
 			map.copy(linkedHashMap);
 			expect(map.length).to.equal(0);
 		});
@@ -313,7 +320,7 @@ describe('linkedHashMap', function() {
 			linkedHashMap.set('key', 'value');
 			linkedHashMap.set('key2', 'value2');
 
-			var map = new HashMap();
+			var map = new LinkedHashMap();
 			map.copy(linkedHashMap);
 
 			expect(map.length).to.equal(2);
@@ -325,7 +332,7 @@ describe('linkedHashMap', function() {
 	describe('linkedHashMap.clone()', function() {
 		it('should return a new linkedHashMap', function() {
 			var clone = linkedHashMap.clone();
-			expect(clone).to.be.instanceOf(HashMap);
+			expect(clone).to.be.instanceOf(LinkedHashMap);
 			expect(clone).not.to.equal(linkedHashMap);
 		});
 
@@ -359,16 +366,16 @@ describe('linkedHashMap', function() {
 			linkedHashMap.set('key', 'value');
 			linkedHashMap.set('key2', 'value2');
 
-			var map = new HashMap(linkedHashMap);
+			var map = new LinkedHashMap({copy:linkedHashMap});
 			expect(map.length).to.equal(2);
 			expect(map.get('key')).to.equal('value');
 			expect(map.get('key2')).to.equal('value2');
 		});
 
 		it('should initialize from a 2D array for a single Array argument', function() {
-			var map = new HashMap(
+			var map = new LinkedHashMap({copy:
 				[['key', 'value'],
-				 ['key2', 'value2']]
+				 ['key2', 'value2']]}
 			);
 			expect(map.length).to.equal(2);
 			expect(map.get('key')).to.equal('value');
@@ -376,9 +383,9 @@ describe('linkedHashMap', function() {
 		});
 
 		it('should initialize from a 2D array for a nested Array argument', function() {
-			var map = new HashMap(
+			var map = new LinkedHashMap({copy:
 				[[[1, 'key'], ['value', 1]],
-				 [[2, 'key2'], ['value2', 2]]]
+				 [[2, 'key2'], ['value2', 2]]]}
 			);
 			expect(map.length).to.equal(2);
 			expect(map.get([1, 'key'])).to.deep.equal(['value', 1]);

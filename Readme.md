@@ -1,41 +1,19 @@
 ![The Moo Tableau](mootableau_sm.png)
 
 ---
-# HashMap Implementation for JavaScript
+# HashMap & LinkedHashMap
 ## Description
-This project provides a `HashMap` class that works both on __Node.js__ and the __browser__. 
-HashMap instances __store key/value pairs__ allowing __keys of any type__.
-
-Unlike regular objects, __keys will not be stringified__. For example numbers and strings won't be mixed, you can pass `Date`'s, `RegExp`'s, DOM Elements, anything! (even `null` and `undefined`)
-
-## Background
-This repository is a refactored version of the [npm hashmap](https://npmjs.org/package/hashmap) repository. It takes that implementation as a starting point, and moves it closer to the core functionality hashmaps are designed to achieve. As such, whilst the interface is based on the originator repository, it has four notable exceptions:
-
-1) As per spec, ordering of hashmaps is not guaranteed to meet order of insertion when iterating over it.
-2) Memory footprint will be a little larger, albeit will compress faster and more readily.
-3) The keys are now truly typed and unique, this means if you have written code that uses the graphemes fronting strings to hack the map, those will no longer work.
-
-If you want ordering use LinkedHashMap instead, which is a little slower, but guarentees order of insertion.
-
-This means you should only use the hashmap as hashmaps were intended, it is no longer a generic mapping implementation, and you may want to consider an alternate collection for different use cases.
+This project provides `HashMap` and `LinkedHashMap` classes that works both on __Node.js__ and the __browser__.
+- They are both implementations of a simplified [HAMT](https://en.wikipedia.org/wiki/Hash_array_mapped_trie) like [hash trie](https://en.wikipedia.org/wiki/Hash_tree_(persistent_data_structure))
+- It uses a modified [Murmer 3](https://en.wikipedia.org/wiki/MurmurHash) algorithm for generating hashes. This ensures the widest possible spread across all buckets.
+- As per spec, ordering the basic `Hashmap` is not guaranteed to meet order of insertion when iterating over it. If you want guaranteed insertion order, use `LinkedHashMap`.
+- The keys are truly typed and unique, this means 1 !== "1".
 
 ### Choose your map wisely.
 - When choosing a collection it is worth understanding the problem you are trying to solve.
-- JS Map for small numbers of entries, will be significantly faster.
-- However once the map reaches 10'000 or more the Mootable Hashmap really shows its strengths. At some point I will do a memory comparison too.
-- The JS Map is likely to have improved speed characteristics if repeating operations in a loop, via things such as JIT compilation. It is worth benchmarking to see if Map works better for you in those situations.
-
-### Benchmarks
-- Current Benchmarks can be found [here](Benchmarks.md).
-  Each benchmark does a single set, get and delete against a hashmap of a specific size. 
-  It does this thousands of times, and finds an approximate average.
-  
-### Benchmarks on version 0.5.0
-
-<table>
-<thead><tr><th>Entry Size</th><th>Fastest Version</th><th>Percentage Faster</th><th>Times Faster</th></tr></thead>
-<tbody><tr><td>0</td><td>map</td><td>1234%</td><td>X 13.34</td></tr><tr><td>64</td><td>map</td><td>824%</td><td>X 9.24</td></tr><tr><td>256</td><td>map</td><td>308%</td><td>X 4.08</td></tr><tr><td>512</td><td>map</td><td>121%</td><td>X 2.21</td></tr><tr><td>1024</td><td>mootable-hashmap.HashMap</td><td>124%</td><td>X 2.24</td></tr><tr><td>4096</td><td>mootable-hashmap.HashMap</td><td>551%</td><td>X 6.51</td></tr><tr><td>16384</td><td>mootable-hashmap.HashMap</td><td>2254%</td><td>X 23.54</td></tr><tr><td>65536</td><td>mootable-hashmap.HashMap</td><td>7643%</td><td>X 77.43</td></tr><tr><td>262144</td><td>mootable-hashmap.LinkedHashMap</td><td>8755%</td><td>X 88.55</td></tr><tr><td>1048576</td><td>mootable-hashmap.HashMap</td><td>7199%</td><td>X 72.99</td></tr><tr><td>4194304</td><td>mootable-hashmap.HashMap</td><td>7957%</td><td>X 80.57</td></tr><tr><td>create</td><td>mootable-hashmap.HashMap</td><td>47%</td><td>X 1.47</td></tr></tbody>
-</table>
+- [Native JS Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) for small numbers of entries, will be significantly faster.
+- However once the map reaches 1'000 or more the Mootable Hashmap really shows its strengths. It utilizes more memory, to do this. [see Benchmarks](Benchmarks.md)
+- The [Native JS Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) is likely to have improved speed characteristics if repeating operations in a loop, via things such as JIT compilation. It is worth benchmarking to see if Map works better for you in those situations.
 
 ## Installation
 
@@ -54,16 +32,36 @@ To run the tests:
     $ npm test
 
 To run the benchmarks: (Ensure you have the memory to run them)
+- If you don't you can reduce the memory size (in MB) accordingly `--max_old_space_size` and remove the last items in `HASHMAP_SIZES`
 
-    $ node  --max_old_space_size=8192 --expose-gc test\benchmark.js
+    $ node  --max_old_space_size=24576 --expose-gc test\benchmark.js
 
-## HashMap constructor overloads
+## `HashMap` constructor
+This HashMap is backed by a hashtrie, and can be tuned to specific use cases.
 - `new HashMap()` creates an empty hashmap
-- `new HashMap(map:HashMap)` creates a hashmap with the key-value pairs of `map`
-- `new HashMap(map:Map)` creates a hashmap with the key-value pairs of `map`
-- `new HashMap(arr:Array)` creates a hashmap from the 2D key-value array `arr`, e.g. `[['key1','val1'], ['key2','val2']]`
+- `new HashMap({map:?Map, array:?Array, depth:?int, widthB:?int})` creates a hashmap with optional `depth` and `widthB`.  If `copy` is provided (`map` or `array`, its keys and values are inserted into this map.
+  - `copy` either
+    - key-value pairs in an object that follows the `Map` interface such as `HashMap` and `LinkedHashMap`
+    - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
+  - `depth` is how many layers deep our hashtrie goes.
+    - Minimum: `1`, Maximum/Default: `(32/widthB)-1`
+  - `widthB` is how many buckets in each hashtrie layer we use to the power of 2, for instance a `widthB` of 4 = 16 buckets.
+    - Minimum: `2`, Maximum: `16`, Default: `6` (64 Buckets)
 
-## HashMap methods
+
+## `LinkedHashMap` constructor
+LinkedHashMaps maintain insertion order of keys, it has a slightly larger memory footprint and is a little slower.
+- `new LinkedHashMap()` creates an empty linked hashmap
+- `new LinkedHashMap({map:?Map, array:?Array, depth:?int, widthB:?int})` creates a linked hashmap with optional `depth` and `widthB`. If `copy` is provided (`map` or `array`, its keys and values are inserted into this map.
+  - `copy` either 
+    - key-value pairs in an object that follows the `Map` interface such as `HashMap` and `LinkedHashMap`
+    - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
+  - `depth` is how many layers deep our hashtrie goes.
+    - Minimum: `1`, Maximum/Default: `(32/widthB)-1`
+  - `widthB` is how many buckets in each hashtrie layer we use to the power of 2, for instance a `widthB` of 4 = 16 buckets.
+    - Minimum: `2`, Maximum : `16`, Default: `6` (64 Buckets)
+
+## `HashMap` (and `LinkedHashMap`) methods
 
 - `get(key:*) : *` returns the value stored for that key.
 - `set(key:*, value:*) : HashMap` stores a key-value pair
@@ -88,13 +86,25 @@ All methods that don't return something, will return the HashMap instance to ena
 Assume this for all examples below
 
 ```js
-var map = new HashMap();
+let map = new HashMap();
+```
+or for the linked hashmap
+```js
+let map = new LinkedHashMap();
 ```
 
-If you're using this within Node, you first need to import the class
+If you're using this within Node, you first need to import the class(es)
 
 ```js
-var HashMap = require('hashmap').HashMap;
+let {HashMap, LinkedHashMap} = require('hashmap');
+```
+or
+```js
+let HashMap = require('hashmap').HashMap;
+```
+or for the linked hashmap
+```js
+let LinkedHashMap = require('hashmap').LinkedHashMap;
 ```
 
 ### Basic use case
@@ -170,6 +180,25 @@ map
   });
 ```
 
+## Benchmarks
+- Current Benchmarks can be found [here](Benchmarks.md).
+  - Each benchmark does a single set, get and delete against a hashmap of a specific size. It does this thousands of times, and finds an approximate average.
+  - If you would like me to include your library for benchmarking, raise an issue in github.
+    - It must be in NPM
+    - It must have an identical interface to JS Map
+    - It must be fully written in JS. (Transpiling is acceptable) So that we can guarantee it works in the browser, not just node.
+
+### Benchmarks on version 0.6.0
+
+<table>
+<thead><tr><th>Entry Size</th><th>Fastest Version</th><th>Percentage Faster</th><th>Times Faster</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>map</td><td>479%</td><td>X 5.79</td></tr><tr><td>64</td><td>map</td><td>665%</td><td>X 7.65</td></tr><tr><td>256</td><td>map</td><td>309%</td><td>X 4.09</td></tr><tr><td>512</td><td>map</td><td>140%</td><td>X 2.40</td></tr><tr><td>768</td><td>mootable-hashmap.HashMap</td><td>128%</td><td>X 2.28</td></tr><tr><td>1024</td><td>mootable-hashmap.HashMap</td><td>149%</td><td>X 2.49</td></tr><tr><td>4096</td><td>mootable-hashmap.HashMap</td><td>547%</td><td>X 6.47</td></tr><tr><td>16384</td><td>mootable-hashmap.HashMap</td><td>2497%</td><td>X 25.97</td></tr><tr><td>65536</td><td>mootable-hashmap.HashMap</td><td>9601%</td><td>X 97.01</td></tr><tr><td>262144</td><td>mootable-hashmap.HashMap</td><td>9999%</td><td>X 100.99</td></tr><tr><td>1048576</td><td>mootable-hashmap.HashMap</td><td>9470%</td><td>X 95.70</td></tr><tr><td>4194304</td><td>mootable-hashmap.HashMap</td><td>10385%</td><td>X 104.85</td></tr><tr><td>create</td><td>mootable-hashmap.HashMap</td><td>40%</td><td>X 1.40</td></tr></tbody>
+</table>
+
+## Background
+This repository is a reimplemented version of the [npm hashmap](https://npmjs.org/package/hashmap) repository. It takes that implementation as a starting point, and moves it closer to the core functionality hashmaps are designed to achieve. As such, whilst the interface is based on the originator repository, it has four notable exceptions:
+The tests have remained mostly the same, as has some documentation, everything else has changed. The interfaces have now diverged.
 
 ## LICENSE
 

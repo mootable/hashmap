@@ -1,11 +1,12 @@
 /**
  * HashMap - HashMap Implementation for JavaScript
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.5.0
+ * @version 0.6.0
  * Homepage: https://github.com/mootable/hashmap
  */
 const fs = require('fs');
 const _ = require('lodash');
+const sleep = require('system-sleep');
 const Benchmark = require('benchmark');
 const hashmapImplementations = {
     'mootable-hashmap': '../hashmap',
@@ -32,32 +33,39 @@ function formatAmount(amount, unit) {
     return `${reduced.toFixed(3)} T${unit}`;
 }
 
+
 function resetMemoryUsed() {
-    if (global.gc) {
-        global.gc();
-    }
+    // if (global.gc) {
+    //     global.gc();
+    //     sleep(100); // sleep for 100 ms
+    // }
+
     used = process.memoryUsage().heapUsed;
 }
 
 function memoryUsage(preText) {
+    // if (global.gc) {
+    //     global.gc();
+    //     sleep(100); // sleep for 100 ms
+    // }
     const heap = process.memoryUsage().heapUsed;
     used = heap - used;
     console.info(`Memory used for ${preText} is ${formatAmount(used, 'b')} out of ${formatAmount(heap, 'b')}`);
     return used;
 }
 
-const HASHMAP_SIZES = [0, 64, 256, 512, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304];
-const LARGEST_HASHMAP = HASHMAP_SIZES.sort((left, right) => left-right)[HASHMAP_SIZES.length-1];
-memoryUsage("Key Generation");
+memoryUsage("Start");
 resetMemoryUsed();
+const HASHMAP_SIZES = [0, 64, 256, 512, 768, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304];
+const LARGEST_HASHMAP = HASHMAP_SIZES.sort((left, right) => left-right)[HASHMAP_SIZES.length-1];
+
 const ALL_KV = new Array(LARGEST_HASHMAP);
 for (let i = 0; i < LARGEST_HASHMAP; i++) {
     ALL_KV[i] = [makeKey(), makeValue()];
 }
 // random value
 const TEST_KV = [makeKey(), makeValue()];
-
-console.log("setup benchmark");
+memoryUsage("Key Generation");
 
 metrics.fastest['-1'] = null;
 metrics.slowest['-1'] = null;
@@ -72,14 +80,14 @@ Object.entries(hashmapImplementations)
         ([version, location]) => {
             if (location) {
                 const required = require(location);
-                if (required.HashMap) {
-                    console.info("Benchmarking:", version + ".HashMap", "from:", location);
-                    benchmarkHashMapImplementation(version + ".HashMap", required.HashMap);
-                }
                 if (required.LinkedHashMap) {
                     const required = require(location);
                     console.info("Benchmarking:", version + ".LinkedHashMap", "from:", location);
                     benchmarkHashMapImplementation(version + ".LinkedHashMap", required.LinkedHashMap);
+                }
+                if (required.HashMap) {
+                    console.info("Benchmarking:", version + ".HashMap", "from:", location);
+                    benchmarkHashMapImplementation(version + ".HashMap", required.HashMap);
                 }
             } else {
                 console.info("Benchmarking:", version, "from: JS");
@@ -90,12 +98,14 @@ Object.entries(hashmapImplementations)
 
 function writeToFile() {
 
-    let table = "# Benchmarks \n" +
-        "## Scores\n" +
+    let table = "# Benchmarks \n\n" +
+        "- Memory Counts are an approximation and do vary depending on garbage collection.\n" +
+        "- Operations per second have approximately 10% variance.\n\n" +
+        "## Scores\n\n" +
         "<table>\n<thead><tr>" +
         "<th>Version</th><th>Entry Size</th><th>Memory</th><th>Operations</th>" +
         "<th>Memory Raw</th><th>Operations Raw</th><th>Fastest / Slowest</th>" +
-        "</tr></thead>\n<tbody>";
+        "</tr></thead>\n<tbody>\n";
 
     Object.entries(metrics.benchmarks).forEach(([version, benchmark]) => {
         table = table + `<tr><td rowspan="${Object.entries(benchmark).length}">${version}</td>`;
@@ -117,11 +127,11 @@ function writeToFile() {
         });
         table = table + "\n";
     });
-    table = table + "</tbody>\n</table>\n" +
-        "## Fastest Implementation\n" +
+    table = table + "</tbody>\n</table>\n\n" +
+        "## Fastest Implementation\n\n" +
         "<table>\n<thead><tr>" +
         "<th>Entry Size</th><th>Fastest Version</th><th>Percentage Faster</th><th>Times Faster</th>" +
-        "</tr></thead>\n<tbody>";
+        "</tr></thead>\n<tbody>\n";
     Object.entries(metrics.fastest).forEach(([size, fastest]) => {
         table = table + `<tr><td>${parseInt(size) < 0 ? 'create' : size}</td><td>${fastest.version}</td>`;
 
@@ -156,7 +166,7 @@ theSuite = theSuite.on('cycle', function (event) {
             sizeMetrics.fastest = fastest.version === version;
             sizeMetrics.slowest = slowest.version === version;
             sizeMetrics.operationsRaw = value.hz;
-            sizeMetrics.operations = formatAmount(value.hz, 'ops/sec');
+            sizeMetrics.operations = formatAmount(value.hz, 'Ops/sec');
             if (sizeMetrics.fastest) {
                 metrics.fastest[size + ''] = {version: version, operations: value.hz};
             }
@@ -224,12 +234,12 @@ function benchmarkHashMapImplementation(version, HashMap) {
         theSuite = theSuite.add("_set,get,delete 1 time to " + size + " sized hashmap_", () => {
             hashmap.set(TEST_KV[0], TEST_KV[1]);
             if (!hashmap.get(TEST_KV[0])) {
-                throw TEST_KV[0] + " does not exist";
+                throw `${TEST_KV[0]} does not exist`;
             }
             hashmap.delete(TEST_KV[0]);
         }, {
             'version': version,
-            'hashmap-size': size
+            'hashmap-size': size,
         });
 
     }
