@@ -132,7 +132,7 @@ describe('hashmap', function() {
 
 		it('should pass the basic test', function() {
 			hashmap.set('key', 'value');
-			var called = 0;
+			let called = 0;
 			hashmap.forEach(function(value, key) {
 				called++;
 				expect(value).to.equal('value');
@@ -172,52 +172,52 @@ describe('hashmap', function() {
 
 	describe('hashmap.keys()', function() {
 		it('should return an empty array for an empty hashmap', function() {
-			expect(hashmap.keys()).to.be.empty;
+			expect(Array.from(hashmap.keys())).to.be.empty;
 		});
 
 		it('should return an array with one key once added', function() {
 			hashmap.set('key', 'value');
-			expect(hashmap.keys()).to.deep.equal(['key']);
+			expect(Array.from(hashmap.keys())).to.deep.equal(['key']);
 		});
 
 		it('should work for several keys', function() {
 			hashmap.set('key', 'value');
 			hashmap.set('key2', 'value2');
-			expect(hashmap.keys().sort()).to.deep.equal(['key', 'key2']);
+			expect(Array.from(hashmap.keys()).sort()).to.deep.equal(['key', 'key2']);
 		});
 	});
 
 	describe('hashmap.values()', function() {
 		it('should return an empty array for an empty hashmap', function() {
-			expect(hashmap.values()).to.be.empty;
+			expect(Array.from(hashmap.values())).to.be.empty;
 		});
 
 		it('should return an array with one value once added', function() {
 			hashmap.set('key', 'value');
-			expect(hashmap.values()).to.deep.equal(['value']);
+			expect(Array.from(hashmap.values())).to.deep.equal(['value']);
 		});
 
 		it('should work for several values', function() {
 			hashmap.set('key', 'value');
 			hashmap.set('key2', 'value2');
-			expect(hashmap.values().sort()).to.deep.equal(['value', 'value2']);
+			expect(Array.from(hashmap.values()).sort()).to.deep.equal(['value', 'value2']);
 		});
 	});
 
 	describe('hashmap.entries()', function() {
 		it('should return an empty array for an empty hashmap', function() {
-			expect(hashmap.entries()).to.be.empty;
+			expect(Array.from(hashmap.entries())).to.be.empty;
 		});
 
 		it('should return an array with one value once added', function() {
 			hashmap.set('key', 'value');
-			expect(hashmap.entries()).to.deep.equal([['key','value']]);
+			expect(Array.from(hashmap.entries())).to.deep.equal([['key','value']]);
 		});
 
 		it('should work for several values', function() {
 			hashmap.set('key', 'value');
 			hashmap.set('key2', 'value2');
-			expect(hashmap.entries().sort()).to.deep.equal([['key','value'], ['key2','value2']]);
+			expect(Array.from(hashmap.entries()).sort()).to.deep.equal([['key','value'], ['key2','value2']]);
 		});
 	});
 
@@ -233,16 +233,16 @@ describe('hashmap', function() {
 
 		it('should iterate over all entries exactly once', function() {
 			// Since order of iteration is not guaranteed, we'll keep track of which key-value pair has been checked, and how many times.
-			var numberOfTries = 10;
-			var calls = new Array(numberOfTries).fill(0);
+			const numberOfTries = 10;
+			const calls = new Array(numberOfTries).fill(0);
 			// Populate hashmap with ['keyI': I] pairs
-			for (var i = 0; i < numberOfTries; i++) {
+			for (let i = 0; i < numberOfTries; i++) {
 				hashmap.set('key' + i, i);
 			}
 			// Perform ES6 iteration
-			for (var pair of hashmap) {
-				expect(pair.key).to.equal('key' + pair.value);
-				calls[pair.value]++;
+			for (let pair of hashmap) {
+				expect(pair[0]).to.equal('key' + pair[1]);
+				calls[pair[1]]++;
 			}
 			expect(calls).to.deep.equal(new Array(numberOfTries).fill(1));
 		});

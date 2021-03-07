@@ -27,10 +27,12 @@
             this.key = key;
             this.value = value;
         }
-        overwrite(oldEntry){
+
+        overwrite(oldEntry) {
             oldEntry.value = this.value;
         }
-        delete(){
+
+        delete() {
         }
     }
 
@@ -40,15 +42,17 @@
             this.previous = undefined;
             this.next = undefined;
         }
-        overwrite(oldEntry){
+
+        overwrite(oldEntry) {
             oldEntry.value = this.value;
             this.deleted = true;
         }
+
         delete() {
-            if(this.previous){
+            if (this.previous) {
                 this.previous.next = this.next;
             }
-            if(this.next){
+            if (this.next) {
                 this.next.previous = this.previous;
             }
             this.deleted = true;
@@ -70,134 +74,20 @@
      *   forEach(func, ctx) : this
      */
     class HashMap {
-        constructor(args = {copy: undefined, depth: undefined, widthB : 6}) {
+        constructor(args = {copy: undefined, depth: undefined, widthB: 6}) {
             let {depth, widthB, copy} = args;
             widthB = Math.max(2, Math.min(16, widthB)); // 2^6 = 64 buckets
-            const defaultDepth = ((32/widthB) >> 0) - 1;
+            const defaultDepth = ((32 / widthB) >> 0) - 1;
             depth = Math.max(0, Math.min(depth && depth > 0 ? depth - 1 : defaultDepth, defaultDepth)); // 0 indexed so 3 is a depth of 4.
             const width = 1 << widthB; // 2 ^ widthB
             const mask = width - 1;
             this.options = Object.freeze({widthB, width, mask, depth});
             this.clear();
-            if ( args.forEach || (copy && copy.forEach)) {
+            if (args.forEach || (copy && copy.forEach)) {
                 this.copy(args.forEach ? args : copy);
             }
         }
-        has(key) {
-            if(this.buckets) {
-                const hashEquals = HashMap.hashEquals(key);
-                return this.buckets.has(key, hashEquals.equalTo, hashEquals.hash);
-            }
-            return false;
-        }
-        get(key) {
-            if(this.buckets) {
-                const hashEquals = HashMap.hashEquals(key);
-                return this.buckets.get(key, hashEquals.equalTo, hashEquals.hash);
-            }
-            return undefined;
-        }
-        search(value) {
-            if(this.buckets) {
-                return this.buckets.search(value);
-            }
-            return undefined;
-        }
-        set(key, value) {
-           this.addEntry(new Entry(key, value));
-           return this;
-        }
-        addEntry(entry){
-            const hashEquals = HashMap.hashEquals(entry.key);
-            if (this.buckets) {
-                this.buckets = this.buckets.set(entry, hashEquals.equalTo, hashEquals.hash);
-                this.length = this.buckets.length;
-            } else {
-                this.buckets = new HashContainer(entry, hashEquals.hash, Object.assign({}, this.options), this.options.depth);
-                this.length = 1;
-            }
-            return entry;
-        }
-        copy(other) {
-            const map = this;
-            if (Array.isArray(other)) {
-                other.forEach(function (pair) {
-                    map.set(pair[0], pair[1]);
-                });
-            } else {
-                other.forEach(function (value, key) {
-                    map.set(key, value);
-                });
-            }
-            return this;
-        }
-        clone() {
-            return new HashMap({copy: this, depth: this.options.depth, widthB: this.options.widthB});
-        }
-        delete(key) {
-            if(this.buckets) {
-                const hashEquals = HashMap.hashEquals(key);
-                this.buckets = this.buckets.delete(key, hashEquals.equalTo, hashEquals.hash);
-                if (this.buckets) {
-                    this.length = this.buckets.length;
-                } else {
-                    this.length = 0;
-                }
-            }
-            return this;
-        }
-        clear() {
-            // we clone the options as its dangerous to modify mid execution.
-            this.buckets = undefined;
-            this.length = 0;
-            return this;
-        }
-        forEach(func, ctx) {
-            if(this.buckets && this.buckets.length > 0) {
-                this.buckets.forEach(func, ctx || this);
-            }
-            return this;
-        }
-        [Symbol.iterator]() {
-            const entries = this.entries();
-            let i = 0;
-            return {
-                next: function () {
-                    if (i === entries.length) {
-                        return {done: true};
-                    }
-                    const currentEntry = entries[i++];
-                    return {
-                        value: {key: currentEntry[0], value: currentEntry[1]},
-                        done: false
-                    };
-                }
-            };
-        }
-        keys() {
-            const keys = new Array(this.length);
-            let i = 0;
-            this.forEach(function (_, key) {
-                keys[i++] = key;
-            });
-            return keys;
-        }
-        values() {
-            const values = new Array(this.length);
-            let i = 0;
-            this.forEach(function (value) {
-                values[i++] = value;
-            });
-            return values;
-        }
-        entries() {
-            const entries = new Array(this.length);
-            let i = 0;
-            this.forEach(function (value, key) {
-                entries[i++] = [key, value];
-            });
-            return entries;
-        }
+
         static hashEquals(key) {
             switch (typeof key) {
                 case 'boolean':
@@ -295,14 +185,129 @@
                     return HashMap.hashEquals(key._hmuid_);
             }
         }
+
         static defaultEquals(me, them) {
             return me === them;
         }
+
+        has(key) {
+            if (this.buckets) {
+                const hashEquals = HashMap.hashEquals(key);
+                return this.buckets.has(key, hashEquals.equalTo, hashEquals.hash);
+            }
+            return false;
+        }
+
+        get(key) {
+            if (this.buckets) {
+                const hashEquals = HashMap.hashEquals(key);
+                return this.buckets.get(key, hashEquals.equalTo, hashEquals.hash);
+            }
+            return undefined;
+        }
+
+        search(searchValue) {
+
+            for (const entry of this) {
+                if (searchValue === entry[1]) {
+                    return entry[0];
+                }
+            }
+            return undefined;
+        }
+
+        set(key, value) {
+            this.addEntry(new Entry(key, value));
+            return this;
+        }
+
+        addEntry(entry) {
+            const hashEquals = HashMap.hashEquals(entry.key);
+            if (this.buckets) {
+                this.buckets = this.buckets.set(entry, hashEquals.equalTo, hashEquals.hash);
+                this.length = this.buckets.length;
+            } else {
+                this.buckets = new HashContainer(entry, hashEquals.hash, Object.assign({}, this.options), this.options.depth);
+                this.length = 1;
+            }
+            return entry;
+        }
+
+        copy(other) {
+            const map = this;
+            if (Array.isArray(other)) {
+                other.forEach(function (pair) {
+                    map.set(pair[0], pair[1]);
+                });
+            } else {
+                other.forEach(function (value, key) {
+                    map.set(key, value);
+                });
+            }
+            return this;
+        }
+
+        clone() {
+            return new HashMap({copy: this, depth: this.options.depth, widthB: this.options.widthB});
+        }
+
+        delete(key) {
+            if (this.buckets) {
+                const hashEquals = HashMap.hashEquals(key);
+                this.buckets = this.buckets.delete(key, hashEquals.equalTo, hashEquals.hash);
+                if (this.buckets) {
+                    this.length = this.buckets.length;
+                } else {
+                    this.length = 0;
+                }
+            }
+            return this;
+        }
+
+        clear() {
+            // we clone the options as its dangerous to modify mid execution.
+            this.buckets = undefined;
+            this.length = 0;
+            return this;
+        }
+
+        forEach(func, ctx) {
+            ctx = ctx || this;
+            for (let [key, value] of this.entries()) {
+                func.call(ctx, value, key);
+            }
+            return this;
+        }
+
+        * [Symbol.iterator]() {
+            if (this.buckets) {
+                for (const entry of this.buckets) {
+                    yield entry;
+                }
+            }
+        }
+
+        * keys() {
+            for (const entry of this) {
+                yield entry[0];
+            }
+        }
+
+        * values() {
+            for (const entry of this) {
+                yield entry[1];
+            }
+        }
+
+        * entries() {
+            yield* this;
+        }
     }
+
     HashMap.uid = 0;
 
     class LinkedHashMap extends HashMap {
-        constructor(args = {copy: undefined, depth: undefined, widthB : 6}) {
+        constructor(args = {copy: undefined, depth: undefined, widthB: 6}) {
             super(args);
             this.start = undefined;
             this.end = undefined;
@@ -311,8 +316,8 @@
         set(key, value) {
             const entry = this.addEntry(new LinkedEntry(key, value));
             // if we added at the end, shift forward one.
-            if(this.end){
-                if(!entry.deleted) {
+            if (this.end) {
+                if (!entry.deleted) {
                     this.end.next = entry;
                     entry.previous = this.end;
                     this.end = entry;
@@ -322,46 +327,30 @@
             }
             return this;
         }
+
         delete(key) {
             super.delete(key);
-            if(this.start && this.start.deleted){
+            if (this.start && this.start.deleted) {
                 this.start = this.start.next;
             }
-            if(this.end && this.end.deleted){
+            if (this.end && this.end.deleted) {
                 this.end = this.end.previous;
             }
             return this;
         }
+
         clone() {
             return new LinkedHashMap({copy: this, depth: this.options.depth, widthB: this.options.widthB});
         }
-        forEach(func, ctx) {
+
+        * [Symbol.iterator]() {
             let entry = this.start;
-            ctx = ctx || this;
-            while(entry){
-                func.call(ctx, entry.value, entry.key);
+            while (entry) {
+                yield [entry.key, entry.value];
                 entry = entry.next;
             }
-            return this;
-        }
-        [Symbol.iterator]() {
-            let entry = this.start;
-            return {
-                next: function () {
-                    if (entry) {
-                        const currentEntry = entry;
-                        entry = entry.next;
-                        return {
-                            value: {key: currentEntry.key, value: currentEntry.value},
-                            done: false
-                        };
-                    }
-                    return {done: true};
-                }
-            };
         }
     }
-
 
     class Container {
         constructor(entry) {
@@ -372,39 +361,47 @@
         get key() {
             return this.entry.key;
         }
+
         get value() {
             return this.entry.value;
         }
 
-        get (key, equalTo) {
+        get(key, equalTo) {
             if (equalTo(key, this.key)) {
                 return this.entry.value;
             }
             return undefined;
         }
-        set (newEntry, equalTo) {
-           if(equalTo(newEntry.key, this.key)) {
-               newEntry.overwrite(this.entry);
-               return this;
-           }
-           return new LinkedStack(newEntry, this);
+
+        set(newEntry, equalTo) {
+            if (equalTo(newEntry.key, this.key)) {
+                newEntry.overwrite(this.entry);
+                return this;
+            }
+            return new LinkedStack(newEntry, this);
         }
-        has (key, equalTo) {
+
+        has(key, equalTo) {
             return equalTo(key, this.key);
         }
-        search (value) {
-           return value === this.value ? this.key : undefined;
-        }
-        delete (key, equalTo) {
-            if(equalTo(key, this.key)) {
+
+        delete(key, equalTo) {
+            if (equalTo(key, this.key)) {
                 this.entry.delete();
                 return undefined;
             }
             return this;
         }
-        forEach (func, ctx) {
+
+        forEach(func, ctx) {
             func.call(ctx, this.value, this.key);
             return this;
+        }
+
+        * [Symbol.iterator]() {
+            if (this.length !== 0) {
+                yield [this.key, this.value];
+            }
         }
     }
 
@@ -418,7 +415,7 @@
             this.length = next.length + 1;
         }
 
-        get (key, equalTo) {
+        get(key, equalTo) {
             let container = this;
             // avoid recursion
             do {
@@ -431,7 +428,7 @@
             return undefined;
         }
 
-        set (newEntry, equalTo) {
+        set(newEntry, equalTo) {
             let container = this;
             // avoid recursion
             while (container) {
@@ -444,7 +441,7 @@
             return new LinkedStack(newEntry, this);
         }
 
-        has (key, equalTo) {
+        has(key, equalTo) {
             let container = this;
             // avoid recursion
             do {
@@ -457,26 +454,13 @@
             return false;
         }
 
-        search (value) {
-            let container = this;
-            // avoid recursion
-            do {
-                if (container.value === value) {
-                    return container.key;
-                }
-                container = container.next;
-            }
-            while (container);
-            return undefined;
-        }
-
-        delete (key, equalTo) {
+        delete(key, equalTo) {
             // first on the list.
             if (equalTo(key, this.key)) {
                 this.entry.delete();
                 // lengths are not necessarily consistent.
-                if(this.next){
-                    this.next.length = this.length-1;
+                if (this.next) {
+                    this.next.length = this.length - 1;
                 }
                 return this.next;
             }
@@ -503,15 +487,14 @@
             return this;
         }
 
-        forEach (func, ctx) {
+        * [Symbol.iterator]() {
             let container = this;
-            // avoid recursion
-            do {
-                func.call(ctx, container.value, container.key);
+            while (container) {
+                yield [container.key, container.value];
                 container = container.next;
             }
-            while (container);
         }
+
     }
 
     class HashContainer extends Container {
@@ -521,8 +504,9 @@
             this.options = options;
             this.depth = depth;
         }
-        set (newEntry, equalTo, hash) {
-            if(hash === this.hash && equalTo(newEntry.key, this.key)) {
+
+        set(newEntry, equalTo, hash) {
+            if (hash === this.hash && equalTo(newEntry.key, this.key)) {
                 newEntry.overwrite(this.entry);
                 return this;
             }
@@ -531,17 +515,20 @@
             bucket.set(newEntry, () => false, hash);
             return bucket;
         }
-        get (key, equalTo, hash) {
-            if(hash === this.hash && equalTo(key, this.key)){
+
+        get(key, equalTo, hash) {
+            if (hash === this.hash && equalTo(key, this.key)) {
                 return this.value;
             }
             return undefined;
         }
-        has (key, equalTo, hash) {
+
+        has(key, equalTo, hash) {
             return hash === this.hash && equalTo(key, this.key);
         }
-        delete (key, equalTo, hash) {
-            if(hash === this.hash && equalTo(key, this.key)) {
+
+        delete(key, equalTo, hash) {
+            if (hash === this.hash && equalTo(key, this.key)) {
                 this.entry.delete();
                 return undefined;
             }
@@ -549,27 +536,29 @@
         }
     }
 
-    class HashBuckets{
+    class HashBuckets {
         constructor(options, depth) {
             this.options = options;
             this.length = 0;
             this.depth = depth;
             this.buckets = new Array(this.options.width);
         }
-        get (key, equalTo, hash) {
+
+        get(key, equalTo, hash) {
             const bucket = this.buckets[hash & this.options.mask];
             if (bucket) {
                 return bucket.get(key, equalTo, hash >>> this.options.widthB);
             }
             return null;
         }
-        set (entry, equalTo, hash) {
+
+        set(entry, equalTo, hash) {
             const idx = hash & this.options.mask;
             let bucket = this.buckets[idx];
             if (bucket) {
                 const len = bucket.length;
                 this.buckets[idx] = bucket.set(entry, equalTo, hash >>> this.options.widthB);
-                if(this.buckets[idx].length !== len) {
+                if (this.buckets[idx].length !== len) {
                     this.length++;
                 }
             } else if (this.depth) {
@@ -582,30 +571,19 @@
             return this;
         }
 
-        has (key, equalTo, hash) {
+        has(key, equalTo, hash) {
             const bucket = this.buckets[hash & this.options.mask];
             if (bucket) {
                 return bucket.has(key, equalTo, hash >>> this.options.widthB);
             }
             return false;
         }
-        search (value) {
 
-            for (let idx in this.buckets) {
-                const bucket = this.buckets[idx];
-                const key = bucket ? bucket.search(value) : undefined;
-                if (key) {
-                    return key;
-                }
-            }
-            return undefined;
-        }
-
-        delete (key, equalTo, hash) {
+        delete(key, equalTo, hash) {
             const idx = hash & this.options.mask;
             let bucket = this.buckets[idx];
             if (bucket) {
-                bucket = bucket.delete( key, equalTo, hash >>> this.options.widthB);
+                bucket = bucket.delete(key, equalTo, hash >>> this.options.widthB);
                 if ((!bucket) || bucket.length === 0) {
                     this.buckets[idx] = undefined;
                     this.length--;
@@ -614,10 +592,14 @@
             return this;
         }
 
-        forEach (func, ctx) {
-            this.buckets.filter(bucket => bucket).forEach(bucket => {
-                bucket.forEach(func, ctx);
-            });
+        * [Symbol.iterator]() {
+            for (const bucket of this.buckets) {
+                if (bucket) {
+                    for (const entry of bucket) {
+                        yield entry;
+                    }
+                }
+            }
         }
     }
 
@@ -657,7 +639,7 @@
         hash ^= hash >>> 16;
         hash = hash * 0x85ebca6b;
         hash ^= hash >>> 13;
-        hash = hash * 0xc2b2ae35 ;
+        hash = hash * 0xc2b2ae35;
         hash ^= hash >>> 16;
         return hash | 0;
     }
@@ -700,5 +682,5 @@
         }
     }
 
-    return {HashMap,LinkedHashMap};
+    return {HashMap, LinkedHashMap};
 }));

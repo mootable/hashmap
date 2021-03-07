@@ -172,66 +172,66 @@ describe('linkedHashMap', function() {
 
 	describe('linkedHashMap.keys()', function() {
 		it('should return an empty array for an empty linkedHashMap', function() {
-			expect(linkedHashMap.keys()).to.be.empty;
+			expect(Array.from(linkedHashMap.keys())).to.be.empty;
 		});
 
 		it('should return an array with one key once added', function() {
 			linkedHashMap.set('key', 'value');
-			expect(linkedHashMap.keys()).to.deep.equal(['key']);
+			expect(Array.from(linkedHashMap.keys())).to.deep.equal(['key']);
 		});
 
 		it('should work for several keys', function() {
 			linkedHashMap.set('key', 'value');
 			linkedHashMap.set('key2', 'value2');
-			expect(linkedHashMap.keys()).to.deep.equal(['key', 'key2']);
+			expect(Array.from(linkedHashMap.keys())).to.deep.equal(['key', 'key2']);
 		});
 	});
 
 	describe('linkedHashMap.values()', function() {
 		it('should return an empty array for an empty linkedHashMap', function() {
-			expect(linkedHashMap.values()).to.be.empty;
+			expect(Array.from(linkedHashMap.values())).to.be.empty;
 		});
 
 		it('should return an array with one value once added', function() {
 			linkedHashMap.set('key', 'value');
-			expect(linkedHashMap.values()).to.deep.equal(['value']);
+			expect(Array.from(linkedHashMap.values())).to.deep.equal(['value']);
 		});
 
 		it('should work for several values', function() {
 			linkedHashMap.set('key', 'value');
 			linkedHashMap.set('key2', 'value2');
-			expect(linkedHashMap.values()).to.deep.equal(['value', 'value2']);
+			expect(Array.from(linkedHashMap.values())).to.deep.equal(['value', 'value2']);
 		});
 	});
 
 	describe('linkedHashMap.entries()', function() {
 		it('should return an empty array for an empty linkedHashMap', function() {
-			expect(linkedHashMap.entries()).to.be.empty;
+			expect(Array.from(linkedHashMap.entries())).to.be.empty;
 		});
 
 		it('should return an array with one value once added', function() {
 			linkedHashMap.set('key', 'value');
-			expect(linkedHashMap.entries()).to.deep.equal([['key','value']]);
+			expect(Array.from(linkedHashMap.entries())).to.deep.equal([['key','value']]);
 		});
 
 		it('should work for several values', function() {
 			linkedHashMap.set('key', 'value');
 			linkedHashMap.set('key2', 'value2');
-			expect(linkedHashMap.entries()).to.deep.equal([['key','value'], ['key2','value2']]);
+			expect(Array.from(linkedHashMap.entries())).to.deep.equal([['key','value'], ['key2','value2']]);
 		});
 		it('should guarantee order', function() {
 			linkedHashMap.set('key', 'value');
 			linkedHashMap.set('key2', 'value2');
 			linkedHashMap.set(2, 'value3');
 			linkedHashMap.set(1, 'value4');
-			expect(linkedHashMap.entries()).to.deep.equal([['key','value'], ['key2','value2'], [2,'value3'], [1,'value4']]);
+			expect(Array.from(linkedHashMap.entries())).to.deep.equal([['key','value'], ['key2','value2'], [2,'value3'], [1,'value4']]);
 		});
 	});
 
 	describe('ES6 Iterators', function() {
 		it('should do nothing on an empty linkedHashMap', function() {
-			var called = false;
-			for (var pair of linkedHashMap) { // jshint ignore:line
+			let called = false;
+			for (let pair of linkedHashMap) { // jshint ignore:line
 				// (`pair` is not used)
 				called = true;
 			}
@@ -240,16 +240,16 @@ describe('linkedHashMap', function() {
 
 		it('should iterate over all entries exactly once', function() {
 			// Since order of iteration is not guaranteed, we'll keep track of which key-value pair has been checked, and how many times.
-			var numberOfTries = 10;
-			var calls = new Array(numberOfTries).fill(0);
+			const numberOfTries = 10;
+			let calls = new Array(numberOfTries).fill(0);
 			// Populate linkedHashMap with ['keyI': I] pairs
-			for (var i = 0; i < numberOfTries; i++) {
+			for (let i = 0; i < numberOfTries; i++) {
 				linkedHashMap.set('key' + i, i);
 			}
 			// Perform ES6 iteration
-			for (var pair of linkedHashMap) {
-				expect(pair.key).to.equal('key' + pair.value);
-				calls[pair.value]++;
+			for (let pair of linkedHashMap) {
+				expect(pair[0]).to.equal('key' + pair[1]);
+				calls[pair[1]]++;
 			}
 			expect(calls).to.deep.equal(new Array(numberOfTries).fill(1));
 		});
