@@ -1,7 +1,7 @@
 /*jshint -W030,-W121 */
-var expect = require('chai').expect,
-	LinkedHashMap = require('../hashmap').LinkedHashMap,
-	linkedHashMap;
+const expect = require('chai').expect,
+	{LinkedHashMap,Mootable} = require('../hashmap');
+let	linkedHashMap;
 
 describe('linkedHashMap', function() {
 	beforeEach(function() {
@@ -16,6 +16,19 @@ describe('linkedHashMap', function() {
 			expect(linkedHashMap.copy(linkedHashMap)).to.equal(linkedHashMap);
 			expect(linkedHashMap.clear()).to.equal(linkedHashMap);
 			expect(linkedHashMap.forEach(function(){})).to.equal(linkedHashMap);
+		});
+
+		it('should return an iterator on LinkedHashMap methods', function () {
+			expect(linkedHashMap.filter()).is.instanceOf(Mootable.MapIterable);
+			expect(linkedHashMap.mapKeys()).is.instanceOf(Mootable.MapIterable);
+			expect(linkedHashMap.mapValues()).is.instanceOf(Mootable.MapIterable);
+			expect(linkedHashMap.mapEntries()).is.instanceOf(Mootable.MapIterable);
+			expect(linkedHashMap.concat()).is.instanceOf(Mootable.MapIterable);
+			expect(linkedHashMap.entries()).is.instanceOf(Mootable.MapIterable);
+
+			expect(linkedHashMap.map()).is.instanceOf(Mootable.SetIterable);
+			expect(linkedHashMap.keys()).is.instanceOf(Mootable.SetIterable);
+			expect(linkedHashMap.values()).is.instanceOf(Mootable.SetIterable);
 		});
 	});
 
@@ -32,14 +45,14 @@ describe('linkedHashMap', function() {
 		// TODO: Check other types?
 	});
 
-	describe('linkedHashMap.search()', function() {
+	describe('linkedHashMap.indexOf()', function() {
 		it('should return undefined when it does not have an entry with a value', function() {
-			expect(linkedHashMap.search('value')).to.be.undefined;
+			expect(linkedHashMap.indexOf('value')).to.be.undefined;
 		});
 
 		it('should return key under which a value is stored', function() {
 			linkedHashMap.set('key', 'value');
-			expect(linkedHashMap.search('value')).to.equal('key');
+			expect(linkedHashMap.indexOf('value')).to.equal('key');
 		});
 	});
 

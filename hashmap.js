@@ -15,12 +15,423 @@
         // Keep it backwards compatible
         HashMap.HashMap = HashMap.HashMap;
         HashMap.LinkedHashMap = HashMap.LinkedHashMap;
+        HashMap.Mootable = HashMap.Mootable;
     } else {
         // Browser globals (this is window)
-        this.HashMap = factory().HashMap;
-        this.LinkedHashMap = factory().LinkedHashMap;
+        const defined = factory();
+        this.HashMap = defined.HashMap;
+        this.LinkedHashMap = defined.LinkedHashMap;
+        this.Mootable = this.Mootable ? Object.assign(this.Mootable, defined.Mootable) : defined.Mootable;
     }
 }(function () {
+
+    /**
+     * Murmur3 HashCode generator
+     * @param key the string being hashed
+     * @param seed an optional random seed
+     * @param len the max limit on the number of characters to hash
+     * @returns {number} the hash
+     */
+    const hashCode = function (key, seed = 0, len = 0) {
+        len = len && len > 0 ? Math.min(len, key.length) : key.length;
+        seed = seed | 0;
+        const remaining = len & 1;
+        const bytes = len - remaining;
+        let hash = seed, k = 0, i = 0;
+
+        while (i < bytes) {
+            k = (key.charCodeAt(i++) & 0xffff) |
+                ((key.charCodeAt(i++) & 0xffff) << 16);
+
+            k *= (k * 0xcc9e2d51) | 0;
+            k = (k << 15) | (k >>> 17);
+            k = (k * 0x1b873593);
+
+            hash ^= k;
+            hash = (hash << 13) | (hash >>> 19);
+            hash = (hash * 5 + 0xe6546b64);
+        }
+        if (remaining) {
+            k ^= (key.charCodeAt(i) & 0xffff);
+
+            k = k * 0xcc9e2d51;
+            k = (k << 15) | (k >>> 17);
+            k = k * 0x1b873593;
+            hash ^= k;
+        }
+
+        hash ^= len;
+
+        hash ^= hash >>> 16;
+        hash = hash * 0x85ebca6b;
+        hash ^= hash >>> 13;
+        hash = hash * 0xc2b2ae35;
+        hash ^= hash >>> 16;
+        return hash | 0;
+    };
+
+    /**
+     * Is the passed value not null and a function
+     * @param func
+     * @returns {boolean}
+     */
+    const isFunction = function (func) {
+        return !!(func && func.constructor && func.call && func.apply);
+    };
+    /**
+     * Is the passed value not null and a string
+     * @param str
+     * @returns {boolean}
+     */
+    const isString = function (str) {
+        return !!(str && (typeof str === 'string' || str instanceof String));
+    };
+
+    /**
+     * Is the passed value not null and a finite number.
+     * NaN and ±Infinity would return false.
+     * @param num
+     * @returns {boolean}
+     */
+    const isNumber = function (num) {
+        return !!(num && ((typeof num === 'number' || num instanceof Number) && isFinite(num)));
+    };
+
+    /**
+     * The default Equals method we use this in most cases.
+     *
+     * @param me
+     * @param them
+     * @returns {boolean}
+     */
+    const defaultEquals = function (me, them) {
+        return me === them;
+    };
+
+    /**
+     * Returns back a pair of equalTo Methods and hash values, for a raft of different objects.
+     * TODO: Revisit this at some point.
+     * @param key
+     * @returns {equalTo: (function(*, *): boolean), hash: number}
+     */
+    const hashEquals = function (key) {
+        switch (typeof key) {
+            case 'boolean':
+                return {
+                    equalTo: defaultEquals, hash: key ? 0 : 1
+                };
+            case 'number':
+                if (Number.isNaN(key)) {
+                    return {
+                        equalTo: function (me, them) {
+                            return Number.isNaN(them);
+                        },
+                        hash: 0
+                    };
+                }
+                if (!Number.isFinite(key)) {
+                    return {
+                        equalTo: defaultEquals, hash: 0
+                    };
+                }
+                if (Number.isInteger(key)) {
+                    return {
+                        equalTo: defaultEquals, hash: key
+                    };
+                }
+                return {
+                    equalTo: defaultEquals, hash: hashCode(key.toString())
+                };
+
+            case 'string':
+                return {
+                    equalTo: defaultEquals, hash: hashCode(key)
+                };
+            case 'undefined':
+                return {
+                    equalTo: defaultEquals, hash: 0
+                };
+            default:
+                // null
+                if (!key) {
+                    return {
+                        equalTo: defaultEquals, hash: 0
+                    };
+                }
+
+                if (key instanceof RegExp) {
+                    return {
+                        equalTo: function (me, them) {
+                            if (them instanceof RegExp) {
+                                return me + '' === them + '';
+                            }
+                            return false;
+                        }, hash: hashCode(key + '')
+                    };
+                }
+                if (key instanceof Date) {
+                    return {
+                        equalTo: function (me, them) {
+                            if (them instanceof Date) {
+                                return me.getTime() === them.getTime();
+                            }
+                            return false;
+                        }, hash: key.getTime() | 0
+                    };
+                }
+                if (key instanceof Array) {
+                    let functions = [];
+                    let hash_code = key.length;
+                    for (let i = 0; i < key.length; i++) {
+                        const currHE = hashEquals(key[i]);
+                        functions.push(currHE.equalTo);
+                        hash_code = hash_code + (currHE.hash * 31);
+                    }
+                    Object.freeze(functions);
+                    return {
+                        equalTo: function (me, them) {
+                            if (them instanceof Array && me.length === them.length) {
+                                for (let i = 0; i < me.length; i++) {
+                                    if (!functions[i](me[i], them[i])) {
+                                        return false;
+                                    }
+                                }
+                                return true;
+                            }
+                            return false;
+                        },
+                        hash: hash_code | 0
+                    };
+                }
+                // Ew get rid of this.
+                if (!key.hasOwnProperty('_hmuid_')) {
+                    key._hmuid_ = ++HashMap.uid;
+                    // hide(key, '_hmuid_');
+                }
+
+                return hashEquals(key._hmuid_);
+        }
+    };
+
+    /**
+     * The base class for both the Map Implementations, and the Higher Order Functions for Maps
+     */
+    class MapIterable {
+        filter(filterPredicate = (value, key, iterable) => true, ctx = this) {
+            return new MapFilter(this, filterPredicate, ctx);
+        }
+
+        forEach(forEachFunc = (value, key, iterable) => {}, ctx = this) {
+            for (let [key, value] of this) {
+                forEachFunc.call(ctx, value, key, this);
+            }
+            return this;
+        }
+
+        collect(collector = []) {
+            if (Array.isArray(collector)) {
+                for (let entry of this) {
+                    collector.push(entry);
+                }
+            } else if (isFunction(collector.set)) {
+                for (let [key, value] of this) {
+                    collector.set(key, value);
+                }
+            } else if (isFunction(collector.add)) {
+                for (let entry of this) {
+                    collector.add(entry);
+                }
+            } else {
+                for (let [key, value] of this) {
+                    collector[key] = value;
+                }
+            }
+            return collector;
+        }
+
+        every(everyPredicate = (value, key, iterable) => false, ctx = this) {
+            for (let [key, value] of this) {
+                if (!everyPredicate.call(ctx, value, key, this)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        some(somePredicate = (value, key, iterable) => false, ctx = this) {
+            for (let [key, value] of this) {
+                if (somePredicate.call(ctx, value, key, this)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        find(findPredicate = (value, key, iterable) => true, ctx = this) {
+            for (let [key, value] of this) {
+                if (findPredicate.call(ctx, value, key, this)) {
+                    return value;
+                }
+            }
+            return undefined;
+        }
+
+        findIndex(findPredicate = (value, key, iterable) => key, ctx = this) {
+            for (let [key, value] of this) {
+                if (findPredicate.call(ctx, value, key, this)) {
+                    return key;
+                }
+            }
+            return undefined;
+        }
+
+        indexOf(valueToCheck) {
+            for (let [key, value] of this) {
+                if (valueToCheck === value) {
+                    return key;
+                }
+            }
+            return undefined;
+        }
+
+        has(key) {
+            const equalTo = hashEquals(key).equalTo;
+            return this.some((_, otherKey) => equalTo(otherKey, key));
+        }
+
+        get(key) {
+            const equalTo = hashEquals(key).equalTo;
+            return this.find((value, otherKey) => equalTo(key, otherKey));
+        }
+
+        reduce(reduceFunction = (accumulator, value, key, iterable) => value, initialValue = undefined, ctx = this) {
+            let accumulator = initialValue;
+            for (let [key, value] of this) {
+                accumulator = reduceFunction.call(ctx, accumulator, value, key, this);
+            }
+            return accumulator;
+        }
+
+        mapKeys(mapKeyFunction = (value, key, iterable) => key, ctx = this) {
+            return new MapKeyMapper(this, mapKeyFunction, ctx);
+        }
+
+        mapValues(mapValueFunction = (value, key, iterable) => value, ctx = this) {
+            return new MapValueMapper(this, mapValueFunction, ctx);
+        }
+
+        mapEntries(mapEntryFunction = (value, key, iterable) => [key, value], ctx = this) {
+            return new MapEntryMapper(this, mapEntryFunction, ctx);
+        }
+
+        map(mapFunction = (value, key, map) => {
+            return {key: key, value: value};
+        }, ctx = this) {
+            return new MapMapper(this, mapFunction, ctx);
+        }
+
+        concat(otherMapIterable = []) {
+            return new MapConcat(this, otherMapIterable);
+        }
+
+        keys() {
+            return new MapMapper(this, (_,key) => key, this);
+        }
+
+        values() {
+            return new MapMapper(this, (value) => value, this);
+        }
+
+        entries() {
+            return this;
+        }
+    }
+
+    class SetIterable {
+        * [Symbol.iterator]() {
+            yield undefined;
+        }
+
+        forEach(forEachFunc = (value, map) => {
+        }, ctx = this) {
+            for (let value of this) {
+                forEachFunc.call(ctx, value, this);
+            }
+        }
+
+        collect(collector = []) {
+            if (Array.isArray(collector)) {
+                for (let entry of this) {
+                    collector.push(entry);
+                }
+            } else if (isFunction(collector.add)) {
+                for (let entry of this) {
+                    collector.add(entry);
+                }
+            } else if (isString(collector)) {
+                for (let entry of this) {
+                    collector = collector + entry;
+                }
+            } else if (isNumber(collector)) {
+                for (let entry of this) {
+                    collector = collector + Number(entry);
+                }
+            }
+            return collector;
+        }
+
+        reduce(reduceFunction = (accumulator, value, iterable) => value, initialValue = undefined, ctx = this) {
+            let accumulator = initialValue;
+            for (let value of this) {
+                accumulator = reduceFunction.call(ctx, accumulator, value, this);
+            }
+            return accumulator;
+        }
+
+        every(everyPredicate = (value, iterable) => false, ctx = this) {
+            for (let value of this) {
+                if (!everyPredicate.call(ctx, value, this)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        some(somePredicate = (value, iterable) => false, ctx = this) {
+            for (let value of this) {
+                if (somePredicate.call(ctx, value, this)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        filter(filterPredicate = (value, map) => true, ctx = this) {
+            return new SetFilter(this, filterPredicate, ctx);
+        }
+
+        find(findPredicate = (value, iterable) => true, ctx = this) {
+            for (let value of this) {
+                if (findPredicate.call(ctx, value, this)) {
+                    return value;
+                }
+            }
+            return undefined;
+        }
+
+        map(mapFunction = (value, map) => value, ctx = this) {
+            return new SetMapper(this, mapFunction, ctx);
+        }
+
+        concat(otherIterable = []) {
+            return new SetConcat(this, otherIterable);
+        }
+
+        values() {
+            return this;
+        }
+    }
+
 
     class Entry {
         constructor(key, value, map) {
@@ -73,8 +484,9 @@
      *   count() : integer
      *   forEach(func, ctx) : this
      */
-    class HashMap {
+    class HashMap extends MapIterable {
         constructor(args = {copy: undefined, depth: undefined, widthB: 6}) {
+            super();
             let {depth, widthB, copy} = args;
             widthB = Math.max(2, Math.min(16, widthB)); // 2^6 = 64 buckets
             const defaultDepth = ((32 / widthB) >> 0) - 1;
@@ -88,130 +500,18 @@
             }
         }
 
-        static hashEquals(key) {
-            switch (typeof key) {
-                case 'boolean':
-                    return {
-                        equalTo: HashMap.defaultEquals, hash: key ? 0 : 1
-                    };
-                case 'number':
-                    if (Number.isNaN(key)) {
-                        return {
-                            equalTo: function (me, them) {
-                                return Number.isNaN(them);
-                            },
-                            hash: 0
-                        };
-                    }
-                    if (!Number.isFinite(key)) {
-                        return {
-                            equalTo: HashMap.defaultEquals, hash: 0
-                        };
-                    }
-                    if (Number.isInteger(key)) {
-                        return {
-                            equalTo: HashMap.defaultEquals, hash: key
-                        };
-                    }
-                    return {
-                        equalTo: HashMap.defaultEquals, hash: compute_hash(key.toString())
-                    };
-
-                case 'string':
-                    return {
-                        equalTo: HashMap.defaultEquals, hash: compute_hash(key)
-                    };
-                case 'undefined':
-                    return {
-                        equalTo: HashMap.defaultEquals, hash: 0
-                    };
-                default:
-                    // null
-                    if (!key) {
-                        return {
-                            equalTo: HashMap.defaultEquals, hash: 0
-                        };
-                    }
-
-                    if (key instanceof RegExp) {
-                        return {
-                            equalTo: function (me, them) {
-                                if (them instanceof RegExp) {
-                                    return me + '' === them + '';
-                                }
-                                return false;
-                            }, hash: compute_hash(key + '')
-                        };
-                    }
-                    if (key instanceof Date) {
-                        return {
-                            equalTo: function (me, them) {
-                                if (them instanceof Date) {
-                                    return me.getTime() === them.getTime();
-                                }
-                                return false;
-                            }, hash: key.getTime() | 0
-                        };
-                    }
-                    if (key instanceof Array) {
-                        let functions = [];
-                        let hash_code = key.length;
-                        for (let i = 0; i < key.length; i++) {
-                            const hashEquals = HashMap.hashEquals(key[i]);
-                            functions.push(hashEquals.equalTo);
-                            hash_code = hash_code + (hashEquals.hash * prime_powers[i & 0xFF]);
-                        }
-                        Object.freeze(functions);
-                        return {
-                            equalTo: function (me, them) {
-                                if (them instanceof Array && me.length === them.length) {
-                                    for (let i = 0; i < me.length; i++) {
-                                        if (!functions[i](me[i], them[i])) {
-                                            return false;
-                                        }
-                                    }
-                                    return true;
-                                }
-                                return false;
-                            },
-                            hash: hash_code | 0
-                        };
-                    }
-                    if (!key.hasOwnProperty('_hmuid_')) {
-                        key._hmuid_ = ++HashMap.uid;
-                        hide(key, '_hmuid_');
-                    }
-
-                    return HashMap.hashEquals(key._hmuid_);
-            }
-        }
-
-        static defaultEquals(me, them) {
-            return me === them;
-        }
-
         has(key) {
             if (this.buckets) {
-                const hashEquals = HashMap.hashEquals(key);
-                return this.buckets.has(key, hashEquals.equalTo, hashEquals.hash);
+                const currHE = hashEquals(key);
+                return this.buckets.has(key, currHE.equalTo, currHE.hash);
             }
             return false;
         }
 
         get(key) {
             if (this.buckets) {
-                const hashEquals = HashMap.hashEquals(key);
-                return this.buckets.get(key, hashEquals.equalTo, hashEquals.hash);
-            }
-            return undefined;
-        }
-
-        search(searchValue) {
-
-            for (const entry of this) {
-                if (searchValue === entry[1]) {
-                    return entry[0];
-                }
+                const currHE = hashEquals(key);
+                return this.buckets.get(key, currHE.equalTo, currHE.hash);
             }
             return undefined;
         }
@@ -222,12 +522,12 @@
         }
 
         addEntry(entry) {
-            const hashEquals = HashMap.hashEquals(entry.key);
+            const currHE = hashEquals(entry.key);
             if (this.buckets) {
-                this.buckets = this.buckets.set(entry, hashEquals.equalTo, hashEquals.hash);
+                this.buckets = this.buckets.set(entry, currHE.equalTo, currHE.hash);
                 this.length = this.buckets.length;
             } else {
-                this.buckets = new HashContainer(entry, hashEquals.hash, Object.assign({}, this.options), this.options.depth);
+                this.buckets = new HashContainer(entry, currHE.hash, Object.assign({}, this.options), this.options.depth);
                 this.length = 1;
             }
             return entry;
@@ -253,8 +553,8 @@
 
         delete(key) {
             if (this.buckets) {
-                const hashEquals = HashMap.hashEquals(key);
-                this.buckets = this.buckets.delete(key, hashEquals.equalTo, hashEquals.hash);
+                const currHE = hashEquals(key);
+                this.buckets = this.buckets.delete(key, currHE.equalTo, currHE.hash);
                 if (this.buckets) {
                     this.length = this.buckets.length;
                 } else {
@@ -271,36 +571,12 @@
             return this;
         }
 
-        forEach(func, ctx) {
-            ctx = ctx || this;
-            for (let [key, value] of this.entries()) {
-                func.call(ctx, value, key);
-            }
-            return this;
-        }
-
         * [Symbol.iterator]() {
             if (this.buckets) {
                 for (const entry of this.buckets) {
                     yield entry;
                 }
             }
-        }
-
-        * keys() {
-            for (const entry of this) {
-                yield entry[0];
-            }
-        }
-
-        * values() {
-            for (const entry of this) {
-                yield entry[1];
-            }
-        }
-
-        * entries() {
-            yield* this;
         }
     }
 
@@ -603,84 +879,242 @@
         }
     }
 
-
-    // Note: In this version, all arithmetic is performed with unsigned 32-bit integers.
-    //       In the case of overflow, the result is reduced modulo 232.
-    function compute_hash(key, seed, len) {
-        len = len ? Math.min(len, key.length) : key.length;
-        seed = seed ? seed : 0;
-        const remaining = len & 1;
-        const bytes = len - remaining;
-        let hash = seed | 0, k = 0, i = 0;
-
-        while (i < bytes) {
-            k = (key.charCodeAt(i++) & 0xffff) |
-                ((key.charCodeAt(i++) & 0xffff) << 16);
-
-            k *= (k * 0xcc9e2d51) | 0;
-            k = (k << 15) | (k >>> 17);
-            k = (k * 0x1b873593) | 0;
-
-            hash ^= k;
-            hash = (hash << 13) | (hash >>> 19);
-            hash = (hash * 5 + 0xe6546b64);
-        }
-        if (remaining) {
-            k ^= (key.charCodeAt(i) & 0xffff);
-
-            k = k * 0xcc9e2d51;
-            k = (k << 15) | (k >>> 17);
-            k = k * 0x1b873593;
-            hash ^= k;
+    class SetIterableWrapper extends SetIterable {
+        constructor(iterable, ctx) {
+            super();
+            this.iterable = iterable;
+            this.ctx = ctx;
         }
 
-        hash ^= len;
-
-        hash ^= hash >>> 16;
-        hash = hash * 0x85ebca6b;
-        hash ^= hash >>> 13;
-        hash = hash * 0xc2b2ae35;
-        hash ^= hash >>> 16;
-        return hash | 0;
-    }
-
-    //256 prime_powers
-    const prime_powers = Object.freeze(
-        [1, 127, 16129, 2048383, 260144641, 597538102, 192065909, 602427486, 813017677, 1605306890,
-            578098852, 2048725333, 661466851, 1822850771, 90784608, 716034781, 102089533, 2151760256, 770569550, 539838935,
-            1515160048, 2105782440, 1419553179, 777320512, 1397211109, 102599709, 53830521, 348309906, 980916322,
-            1301213935, 887291133, 224425367, 386634478, 1522692792, 899718841, 1802744283, 1862704806, 826802879,
-            1193305457, 159246949, 759863740, 1342923152, 1858917518, 345817303, 664355741, 27017714, 1268527591,
-            1061569619, 730572219, 1948344159, 889390275, 491016401, 1802864491, 1877971222, 602915624, 875011203,
-            827596344, 1294075512, 2143433499, 1875793498, 326344676, 354054199, 1710441533, 953865991, 28543985,
-            1462364008, 1888851621, 1984726297, 1184477627, 1200834626, 1115451412, 1085393669, 1593504482, 1241915123,
-            2007230357, 1879771160, 831507750, 1790824074, 348838263, 1048017661, 1172195640, 1803744364, 1989715093,
-            1818054719, 1644408091, 1218507205, 1197146858, 647104876, 2161602033, 2020475229, 1399147817, 348561625,
-            1012884635, 1035745512, 1776354804, 673963060, 1247147227, 508985478, 1922215183, 1896454497, 787569462,
-            536105672, 1041035647, 285479862, 1652389082, 69370975, 159225477, 757136796, 996601264, 1130479482, 831236472,
-            1756371768, 298839575, 1186350546, 1438695339, 1045652745, 871851308, 426289679, 70737058, 332718018,
-            1163468633, 695414475, 1808754845, 463324093, 448663462, 749485412, 24875496, 996465905, 1113288889, 810753248,
-            1317724407, 821398990, 507011554, 1671526835, 337143519, 1725507260, 704491233, 798781024, 1959974046,
-            203663837, 2075364342, 1881898907, 1101731619, 1505702045, 904616059, 261968882, 829216709, 1499861867,
-            162913453, 1225509748, 2086469819, 1129572399, 716036931, 102362583, 23715519, 849148826, 1868518639,
-            1565159670, 1967568173, 1168117966, 1285879766, 1102573757, 1612653571, 1511127339, 1593628397, 1257652328,
-            1843133305, 503944339, 1281990530, 608640785, 1602106650, 171668372, 174662374, 554900628, 1265272972,
-            648233006, 142152456, 751585216, 291550604, 260651229, 661874778, 1874657500, 182072930, 1496041240,
-            1840415911, 158835301, 707584444, 1191618821, 2107766264, 1671498827, 333586503, 1273766228, 1726876518,
-            878386999, 1256322436, 1674237021, 681337141, 20933427, 495823142, 250598511, 1547901679, 1938525403,
-            1805130350, 3013228, 382679956, 1020468498, 1998896113, 821322172, 497255668, 432529313, 863170576,
-            1486558802, 636146285, 769860976, 449850037, 900180437, 1861366975, 656898342, 1242650128, 2100575992,
-            758334283, 1148682113, 980248522, 1216403335, 929955368, 1317339038, 772457127, 779561214, 1681780263,
-            1639328875, 573446773, 1457911300, 1323357705, 1536827836, 532147342, 538327737, 1323237902, 1521612855,
-            762566842, 1686217106, 40085849, 765458649, 2053476595, 1264877125, 597960437, 245702454, 926102440, 828017182,
-            1347521938, 280241253, 987085739, 2084729894, 908601924, 768173737, 235570684, 1802089737]);
-
-    function hide(obj, prop) {
-        // Make non iterable if supported
-        if (Object.defineProperty) {
-            Object.defineProperty(obj, prop, {enumerable: false});
+        * [Symbol.iterator]() {
+            yield* this.iterable;
         }
     }
 
-    return {HashMap, LinkedHashMap};
+    class MapIterableWrapper extends MapIterable {
+        constructor(iterable, ctx) {
+            super();
+            this.iterable = iterable;
+            this.ctx = ctx;
+        }
+
+        * [Symbol.iterator]() {
+            yield* this.iterable;
+        }
+
+        has(key) {
+            if (isFunction(this.iterable.has)) {
+                return this.iterable.has(key);
+            }
+            return super.has(key);
+        }
+
+        get(key) {
+            if (isFunction(this.iterable.get)) {
+                return this.iterable.get(key);
+            }
+            return super.get(key);
+        }
+    }
+
+    /**
+     * Wraps any class that iterates with [key,value] pairs and provides higher order chained functions.
+     */
+    const mapIterator = function (map) {
+        return new MapIterableWrapper(map);
+    };
+    /**
+     * Wraps any class that iterates entries and provides higher order chained functions.
+     */
+    const setIterator = function (set) {
+        return new SetIterableWrapper(set);
+    };
+
+    class MapFilter extends MapIterableWrapper {
+
+        constructor(iterable, filterPredicate, ctx) {
+            super(iterable, ctx);
+            this.filterPredicate = filterPredicate;
+        }
+
+        * [Symbol.iterator]() {
+            for (let [key, value] of this.iterable) {
+                if (this.filterPredicate.call(this.ctx, value, key, this)) {
+                    yield [key, value];
+                }
+            }
+        }
+
+        has(key) {
+            if (super.has(key)) {
+                if (isFunction(this.iterable.has)) {
+                    return this.filterPredicate.call(this.ctx, this.iterable.get(key), key, this);
+                }
+                return true;
+            }
+            return false;
+        }
+
+        get(key) {
+            const value = super.get(key);
+            if (isFunction(this.iterable.get)) {
+                if (this.filterPredicate.call(this.ctx, value, key, this)) {
+                    return value;
+                }
+            }
+            return undefined;
+        }
+    }
+
+    class MapKeyMapper extends MapIterableWrapper {
+
+        constructor(iterable, mapFunction, ctx) {
+            super(iterable, ctx);
+            this.mapFunction = mapFunction;
+        }
+
+        * [Symbol.iterator]() {
+            for (let [key, value] of this.iterable) {
+                yield [this.mapFunction.call(this.ctx, value, key, this), value];
+            }
+        }
+    }
+
+    class MapValueMapper extends MapIterableWrapper {
+
+        constructor(iterable, mapFunction, ctx) {
+            super(iterable, ctx);
+            this.mapFunction = mapFunction;
+        }
+
+        * [Symbol.iterator]() {
+            for (let [key, value] of this.iterable) {
+                yield [key, this.mapFunction.call(this.ctx, value, key, this)];
+            }
+        }
+    }
+
+    class MapEntryMapper extends MapIterableWrapper {
+
+        constructor(iterable, mapFunction, ctx) {
+            super(iterable, ctx);
+            this.mapFunction = mapFunction;
+        }
+
+        * [Symbol.iterator]() {
+            for (let [key, value] of this.iterable) {
+                const [newKey, newValue] = this.mapFunction.call(this.ctx, value, key, this);
+                yield [newKey, newValue];
+            }
+        }
+    }
+
+    class MapConcat extends MapIterable {
+        constructor(iterable, otherIterable) {
+            super();
+            this.iterable = iterable;
+            this.otherIterable = otherIterable;
+        }
+
+        * [Symbol.iterator]() {
+            yield* this.iterable;
+            yield* this.otherIterable;
+        }
+
+        has(key) {
+            if (this.iterable.has(key)) {
+                return true;
+            }
+            if (isFunction(this.otherIterable.has)) {
+                return this.otherIterable.has(key);
+            }
+            const equalTo = hashEquals(key).equalTo;
+            for (let [otherKey,] of this.otherIterable) {
+                if (equalTo(key, otherKey)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        get(key) {
+            const ret = this.iterable.get(key);
+            if (ret) {
+                return ret;
+            }
+            if (isFunction(this.otherIterable.get)) {
+                return this.otherIterable.get(key);
+            }
+            const equalTo = hashEquals(key).equalTo;
+            for (let [otherKey, value] of this.otherIterable) {
+                if (equalTo(key, otherKey)) {
+                    return value;
+                }
+            }
+            return undefined;
+        }
+    }
+
+// The following are set iterables.
+
+    class SetConcat extends SetIterable {
+        constructor(iterable, otherIterable) {
+            super();
+            this.iterable = iterable;
+            this.otherIterable = otherIterable;
+        }
+
+        * [Symbol.iterator]() {
+            yield* this.iterable;
+            yield* this.otherIterable;
+        }
+    }
+
+    class MapMapper extends SetIterableWrapper {
+
+        constructor(iterable, mapFunction, ctx) {
+            super(iterable, ctx);
+            this.mapFunction = mapFunction;
+        }
+
+        * [Symbol.iterator]() {
+            for (let [key, value] of this.iterable) {
+                yield this.mapFunction.call(this.ctx, value, key, this);
+            }
+        }
+    }
+
+    class SetMapper extends SetIterableWrapper {
+
+        constructor(iterable, mapFunction, ctx) {
+            super(iterable, ctx);
+            this.mapFunction = mapFunction;
+        }
+
+        * [Symbol.iterator]() {
+            for (let value of this.iterable) {
+                yield this.mapFunction.call(this.ctx, value, this);
+            }
+        }
+    }
+
+    class SetFilter extends SetIterableWrapper {
+
+        constructor(iterable, filterPredicate, ctx) {
+            super(iterable, ctx);
+            this.filterPredicate = filterPredicate;
+        }
+
+        * [Symbol.iterator]() {
+            for (let value of this.iterable) {
+                if (this.filterPredicate.call(this.ctx, value, this)) {
+                    yield value;
+                }
+            }
+        }
+    }
+
+    return {HashMap, LinkedHashMap, Mootable : {
+            HashMap, LinkedHashMap, mapIterator, setIterator, hashCode, SetIterable, MapIterable
+        }};
 }));

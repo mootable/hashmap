@@ -1,7 +1,7 @@
 /*jshint -W030,-W121 */
-var expect = require('chai').expect,
-	HashMap = require('../hashmap').HashMap,
-	hashmap;
+const expect = require('chai').expect,
+	{HashMap, Mootable} = require('../hashmap');
+let	hashmap;
 
 describe('hashmap', function() {
 	beforeEach(function() {
@@ -16,6 +16,18 @@ describe('hashmap', function() {
 			expect(hashmap.copy(hashmap)).to.equal(hashmap);
 			expect(hashmap.clear()).to.equal(hashmap);
 			expect(hashmap.forEach(function(){})).to.equal(hashmap);
+		});
+		it('should return an iterator on HashMap methods', function () {
+			expect(hashmap.filter()).is.instanceOf(Mootable.MapIterable);
+			expect(hashmap.mapKeys()).is.instanceOf(Mootable.MapIterable);
+			expect(hashmap.mapValues()).is.instanceOf(Mootable.MapIterable);
+			expect(hashmap.mapEntries()).is.instanceOf(Mootable.MapIterable);
+			expect(hashmap.concat()).is.instanceOf(Mootable.MapIterable);
+			expect(hashmap.entries()).is.instanceOf(Mootable.MapIterable);
+
+			expect(hashmap.map()).is.instanceOf(Mootable.SetIterable);
+			expect(hashmap.keys()).is.instanceOf(Mootable.SetIterable);
+			expect(hashmap.values()).is.instanceOf(Mootable.SetIterable);
 		});
 	});
 
@@ -32,14 +44,14 @@ describe('hashmap', function() {
 		// TODO: Check other types?
 	});
 
-	describe('hashmap.search()', function() {
+	describe('hashmap.indexOf()', function() {
 		it('should return undefined when it does not have an entry with a value', function() {
-			expect(hashmap.search('value')).to.be.undefined;
+			expect(hashmap.indexOf('value')).to.be.undefined;
 		});
 
 		it('should return key under which a value is stored', function() {
 			hashmap.set('key', 'value');
-			expect(hashmap.search('value')).to.equal('key');
+			expect(hashmap.indexOf('value')).to.equal('key');
 		});
 	});
 
