@@ -83,7 +83,7 @@
      * @param str
      * @returns {boolean}
      */
-    const isString = function (str) {
+    const isString = function (str) { // jshint ignore:line
         return !!(str && (typeof str === 'string' || str instanceof String));
     };
 
@@ -93,7 +93,7 @@
      * @param num
      * @returns {boolean}
      */
-    const isNumber = function (num) {
+    const isNumber = function (num) { // jshint ignore:line
         return !!(num && ((typeof num === 'number' || num instanceof Number) && isFinite(num)));
     };
 
@@ -222,7 +222,7 @@
         }
 
         forEach(forEachFunc = (value, key, iterable) => {}, ctx = this) {
-            for (let [key, value] of this) {
+            for (const [key, value] of this) {
                 forEachFunc.call(ctx, value, key, this);
             }
             return this;
@@ -230,19 +230,19 @@
 
         collect(collector = []) {
             if (Array.isArray(collector)) {
-                for (let entry of this) {
+                for (const entry of this) {
                     collector.push(entry);
                 }
             } else if (isFunction(collector.set)) {
-                for (let [key, value] of this) {
+                for (const [key, value] of this) {
                     collector.set(key, value);
                 }
             } else if (isFunction(collector.add)) {
-                for (let entry of this) {
+                for (const entry of this) {
                     collector.add(entry);
                 }
             } else {
-                for (let [key, value] of this) {
+                for (const [key, value] of this) {
                     collector[key] = value;
                 }
             }
@@ -250,7 +250,7 @@
         }
 
         every(everyPredicate = (value, key, iterable) => false, ctx = this) {
-            for (let [key, value] of this) {
+            for (const [key, value] of this) {
                 if (!everyPredicate.call(ctx, value, key, this)) {
                     return false;
                 }
@@ -259,7 +259,7 @@
         }
 
         some(somePredicate = (value, key, iterable) => false, ctx = this) {
-            for (let [key, value] of this) {
+            for (const [key, value] of this) {
                 if (somePredicate.call(ctx, value, key, this)) {
                     return true;
                 }
@@ -268,7 +268,7 @@
         }
 
         find(findPredicate = (value, key, iterable) => true, ctx = this) {
-            for (let [key, value] of this) {
+            for (const [key, value] of this) {
                 if (findPredicate.call(ctx, value, key, this)) {
                     return value;
                 }
@@ -277,7 +277,7 @@
         }
 
         findIndex(findPredicate = (value, key, iterable) => key, ctx = this) {
-            for (let [key, value] of this) {
+            for (const [key, value] of this) {
                 if (findPredicate.call(ctx, value, key, this)) {
                     return key;
                 }
@@ -286,7 +286,7 @@
         }
 
         indexOf(valueToCheck) {
-            for (let [key, value] of this) {
+            for (const [key, value] of this) {
                 if (valueToCheck === value) {
                     return key;
                 }
@@ -306,8 +306,16 @@
 
         reduce(reduceFunction = (accumulator, value, key, iterable) => value, initialValue = undefined, ctx = this) {
             let accumulator = initialValue;
-            for (let [key, value] of this) {
+            for (const [key, value] of this) {
                 accumulator = reduceFunction.call(ctx, accumulator, value, key, this);
+            }
+            return accumulator;
+        }
+
+        get size() {
+            let accumulator = 0;
+            for (const i of this) { // jshint ignore:line
+                accumulator++;
             }
             return accumulator;
         }
@@ -330,10 +338,12 @@
             return new MapMapper(this, mapFunction, ctx);
         }
 
-        concat(otherMapIterable = []) {
+        concat(otherIterable = []) {
+            return new SetConcat(this, otherIterable);
+        }
+        concatMap(otherMapIterable = []) {
             return new MapConcat(this, otherMapIterable);
         }
-
         keys() {
             return new MapMapper(this, (_,key) => key, this);
         }
@@ -354,27 +364,23 @@
 
         forEach(forEachFunc = (value, map) => {
         }, ctx = this) {
-            for (let value of this) {
+            for (const value of this) {
                 forEachFunc.call(ctx, value, this);
             }
         }
 
         collect(collector = []) {
             if (Array.isArray(collector)) {
-                for (let entry of this) {
+                for (const entry of this) {
                     collector.push(entry);
                 }
             } else if (isFunction(collector.add)) {
-                for (let entry of this) {
+                for (const entry of this) {
                     collector.add(entry);
                 }
-            } else if (isString(collector)) {
-                for (let entry of this) {
-                    collector = collector + entry;
-                }
-            } else if (isNumber(collector)) {
-                for (let entry of this) {
-                    collector = collector + Number(entry);
+            } else if (isFunction(collector.set)) {
+                for (const entry of this) {
+                    collector.set(entry);
                 }
             }
             return collector;
@@ -382,14 +388,22 @@
 
         reduce(reduceFunction = (accumulator, value, iterable) => value, initialValue = undefined, ctx = this) {
             let accumulator = initialValue;
-            for (let value of this) {
+            for (const value of this) {
                 accumulator = reduceFunction.call(ctx, accumulator, value, this);
             }
             return accumulator;
         }
 
+        get size() {
+            let accumulator = 0;
+            for (const i of this) { // jshint ignore:line
+                accumulator++;
+            }
+            return accumulator;
+        }
+
         every(everyPredicate = (value, iterable) => false, ctx = this) {
-            for (let value of this) {
+            for (const value of this) {
                 if (!everyPredicate.call(ctx, value, this)) {
                     return false;
                 }
@@ -398,7 +412,7 @@
         }
 
         some(somePredicate = (value, iterable) => false, ctx = this) {
-            for (let value of this) {
+            for (const value of this) {
                 if (somePredicate.call(ctx, value, this)) {
                     return true;
                 }
@@ -406,12 +420,16 @@
             return false;
         }
 
+        has(value) {
+            return this.some((otherValue) => value === otherValue);
+        }
+
         filter(filterPredicate = (value, map) => true, ctx = this) {
             return new SetFilter(this, filterPredicate, ctx);
         }
 
         find(findPredicate = (value, iterable) => true, ctx = this) {
-            for (let value of this) {
+            for (const value of this) {
                 if (findPredicate.call(ctx, value, this)) {
                     return value;
                 }
@@ -498,6 +516,10 @@
             if (args.forEach || (copy && copy.forEach)) {
                 this.copy(args.forEach ? args : copy);
             }
+        }
+
+        get size() {
+            return this.length;
         }
 
         has(key) {
