@@ -112,7 +112,7 @@
      * Returns back a pair of equalTo Methods and hash values, for a raft of different objects.
      * TODO: Revisit this at some point.
      * @param key
-     * @returns {equalTo: (function(*, *): boolean), hash: number}
+     * @returns {{equalTo: (function(*, *): boolean), hash: number}}
      */
     const hashEquals = function (key) {
         switch (typeof key) {
