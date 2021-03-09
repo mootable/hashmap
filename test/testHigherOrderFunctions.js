@@ -5,14 +5,16 @@ let hashmap, mapIterator, setIterator;
 
 /**
  * Map Iterable
+ * - ES6 Symbol.Iterator✓
  * - Specialist: forEach✓, collect✓, every✓, has✓, some✓, find✓, reduce✓, findIndex✓, indexOf✓, get✓
- * - Map Iterables: filter,mapKeys,mapValues,mapEntries,concatMap,entries
- * - Set Iterables: map, keys, values,concat
- * - Properties: .size
+ * - Map Iterables: entries✓, filter, mapKeys, mapValues, mapEntries, concatMap
+ * - Set Iterables:  keys✓, values✓, map, concat
+ * - Properties: .size✓
  * Set Iterable
+ * - ES6 Symbol.Iterator✓
  * - Specialist: forEach✓, collect✓, every✓, has✓, some✓, find✓, reduce✓
- * - Set Iterables: filter, map, concat, values
- * - Properties: .size
+ * - Set Iterables: values✓, filter, map, concat
+ * - Properties: .size✓
  */
 describe('Higher Order Functions', function () {
     beforeEach(function () {
@@ -42,6 +44,59 @@ describe('Higher Order Functions', function () {
             expect(setIterator.concat()).is.instanceOf(Mootable.SetIterable);
             expect(setIterator.map()).is.instanceOf(Mootable.SetIterable);
             expect(setIterator.values()).is.instanceOf(Mootable.SetIterable);
+        });
+    });
+
+    describe('ES6 Iterators MapIterable', function () {
+        it('should do nothing on an empty hashmap', function () {
+            let called = false;
+            for (const pair of mapIterator) { // jshint ignore:line
+                // (`pair` is not used)
+                called = true;
+            }
+            expect(called).to.be.false;
+        });
+
+        it('should iterate over all entries exactly once', function () {
+            // Since order of iteration is not guaranteed, we'll keep track of which key-value pair has been checked, and how many times.
+            const numberOfTries = 10;
+            const calls = new Array(numberOfTries).fill(0);
+            // Populate hashmap with ['keyI': I] pairs
+            for (let i = 0; i < numberOfTries; i++) {
+                hashmap.set('key' + i, i);
+            }
+            // Perform ES6 iteration
+            for (let pair of mapIterator) {
+                expect(pair[0]).to.equal('key' + pair[1]);
+                calls[pair[1]]++;
+            }
+            expect(calls).to.deep.equal(new Array(numberOfTries).fill(1));
+        });
+    });
+    describe('ES6 Iterators SetIterable', function () {
+        it('should do nothing on an empty hashmap', function () {
+            let called = false;
+            for (const pair of setIterator) { // jshint ignore:line
+                // (`pair` is not used)
+                called = true;
+            }
+            expect(called).to.be.false;
+        });
+
+        it('should iterate over all entries exactly once', function () {
+            // Since order of iteration is not guaranteed, we'll keep track of which key-value pair has been checked, and how many times.
+            const numberOfTries = 10;
+            const calls = new Array(numberOfTries).fill(0);
+            // Populate hashmap with ['keyI': I] pairs
+            for (let i = 0; i < numberOfTries; i++) {
+                hashmap.set('key' + i, i);
+            }
+            // Perform ES6 iteration
+            for (let pair of setIterator) {
+                expect(pair[0]).to.equal('key' + pair[1]);
+                calls[pair[1]]++;
+            }
+            expect(calls).to.deep.equal(new Array(numberOfTries).fill(1));
         });
     });
     describe('MapIterable.forEach()', function () {
@@ -312,75 +367,7 @@ describe('Higher Order Functions', function () {
             expect(setIterator.map(entry => entry[0]).has('key')).to.be.true;
         });
     });
-    describe('MapIterable.every()', function () {
-        it('should pass the basic test', function () {
-            hashmap.set('key', 'value');
-            let called = 0;
-            const every = mapIterator.every(function (value, key, iterable) {
-                called++;
-                expect(value).to.equal('value');
-                expect(key).to.equal('key');
-                expect(this).to.equal(mapIterator);
-                expect(iterable).to.equal(mapIterator);
-                return true;
-            });
-            expect(called).to.equal(1);
-            expect(every).to.be.true;
-        });
 
-        it('should call the callback once per key', function () {
-            hashmap.set('key', 'value');
-            hashmap.set('key2', 'value2');
-            hashmap.set('key2', 'value2a');
-            let called1 = false;
-            let called2 = false;
-            let called = 0;
-            const every = mapIterator.every(function (value, key) {
-                called++;
-                if (key === 'key') {
-                    called1 = true;
-                    expect(value).to.be.equal('value');
-                } else if (key === 'key2') {
-                    called2 = true;
-                    expect(value).to.be.equal('value2a');
-                }
-                return true;
-            });
-            expect(called).to.equal(2);
-            expect(every).to.be.true;
-            expect(called1).to.be.true;
-            expect(called2).to.be.true;
-        });
-
-        it('should be true on an empty map', function () {
-            expect(mapIterator.every(() => false)).to.be.true;
-            expect(mapIterator.every(() => true)).to.be.true;
-        });
-
-        it('should return false if all are wrong', function () {
-            hashmap.set('key', 'value');
-            hashmap.set('key2', 'value2');
-            expect(mapIterator.every(() => false)).to.be.false;
-        });
-
-        it('should return true if all are right', function () {
-            hashmap.set('key', 'value');
-            hashmap.set('key2', 'value2');
-            expect(mapIterator.every(() => true)).to.be.true;
-        });
-        it('should return false if one is wrong', function () {
-            hashmap.set('key', 'value');
-            hashmap.set('key2', 'value2');
-            expect(mapIterator.every((value) => value !== 'value2')).to.be.false;
-        });
-        it('should respect function context', function () {
-            hashmap.set('key', 'value');
-            let ctx = {};
-            mapIterator.every(function () {
-                expect(this).to.equal(ctx);
-            }, ctx);
-        });
-    });
     describe('SetIterable.every()', function () {
         it('should pass the basic test', function () {
             hashmap.set('key', 'value');
@@ -1031,10 +1018,7 @@ describe('Higher Order Functions', function () {
         });
     });
 
-    //*******************************************TO BE DONE******************************
-
-
-    describe('mapIterator.get()', function () {
+    describe('MapIterable.get()', function () {
         var uid = 1;
 
         function val() {
@@ -1101,84 +1085,163 @@ describe('Higher Order Functions', function () {
             check(hashmap, Object.create(hashmap));
         });
     });
-
-
-    describe('hashmap.keys()', function () {
+    describe('MapIterable.keys()', function () {
         it('should return an empty array for an empty hashmap', function () {
-            expect(Array.from(hashmap.keys())).to.be.empty;
+            expect(Array.from(mapIterator.keys())).to.be.empty;
         });
 
         it('should return an array with one key once added', function () {
             hashmap.set('key', 'value');
-            expect(Array.from(hashmap.keys())).to.deep.equal(['key']);
+            expect(Array.from(mapIterator.keys())).to.deep.equal(['key']);
         });
 
         it('should work for several keys', function () {
             hashmap.set('key', 'value');
             hashmap.set('key2', 'value2');
-            expect(Array.from(hashmap.keys()).sort()).to.deep.equal(['key', 'key2']);
+            expect(Array.from(mapIterator.keys()).sort()).to.deep.equal(['key', 'key2']);
         });
     });
 
-    describe('hashmap.values()', function () {
+    describe('MapIterable.values()', function () {
         it('should return an empty array for an empty hashmap', function () {
-            expect(Array.from(hashmap.values())).to.be.empty;
+            expect(Array.from(mapIterator.values())).to.be.empty;
         });
 
         it('should return an array with one value once added', function () {
             hashmap.set('key', 'value');
-            expect(Array.from(hashmap.values())).to.deep.equal(['value']);
+            expect(Array.from(mapIterator.values())).to.deep.equal(['value']);
         });
 
         it('should work for several values', function () {
             hashmap.set('key', 'value');
             hashmap.set('key2', 'value2');
-            expect(Array.from(hashmap.values()).sort()).to.deep.equal(['value', 'value2']);
+            expect(Array.from(mapIterator.values()).sort()).to.deep.equal(['value', 'value2']);
         });
     });
 
-    describe('hashmap.entries()', function () {
+    describe('MapIterable.entries()', function () {
         it('should return an empty array for an empty hashmap', function () {
-            expect(Array.from(hashmap.entries())).to.be.empty;
+            expect(Array.from(mapIterator.entries())).to.be.empty;
         });
 
         it('should return an array with one value once added', function () {
             hashmap.set('key', 'value');
-            expect(Array.from(hashmap.entries())).to.deep.equal([['key', 'value']]);
+            expect(Array.from(mapIterator.entries())).to.deep.equal([['key', 'value']]);
         });
 
         it('should work for several values', function () {
             hashmap.set('key', 'value');
             hashmap.set('key2', 'value2');
-            expect(Array.from(hashmap.entries()).sort()).to.deep.equal([['key', 'value'], ['key2', 'value2']]);
+            expect(Array.from(mapIterator.entries()).sort()).to.deep.equal([['key', 'value'], ['key2', 'value2']]);
         });
     });
 
-    describe('ES6 Iterators', function () {
-        it('should do nothing on an empty hashmap', function () {
-            var called = false;
-            for (var pair of hashmap) { // jshint ignore:line
-                // (`pair` is not used)
-                called = true;
-            }
-            expect(called).to.be.false;
+    describe('SetIterable.values()', function () {
+        it('should return an empty array for an empty hashmap', function () {
+            expect(Array.from(setIterator.values())).to.be.empty;
         });
 
-        it('should iterate over all entries exactly once', function () {
-            // Since order of iteration is not guaranteed, we'll keep track of which key-value pair has been checked, and how many times.
-            const numberOfTries = 10;
-            const calls = new Array(numberOfTries).fill(0);
-            // Populate hashmap with ['keyI': I] pairs
-            for (let i = 0; i < numberOfTries; i++) {
-                hashmap.set('key' + i, i);
-            }
-            // Perform ES6 iteration
-            for (let pair of hashmap) {
-                expect(pair[0]).to.equal('key' + pair[1]);
-                calls[pair[1]]++;
-            }
-            expect(calls).to.deep.equal(new Array(numberOfTries).fill(1));
+        it('should return an array with one value once added', function () {
+            hashmap.set('key', 'value');
+            expect(Array.from(setIterator.values())).to.deep.equal([['key', 'value']]);
+        });
+
+        it('should work for several values', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            expect(Array.from(setIterator.values()).sort()).to.deep.equal([['key', 'value'], ['key2', 'value2']]);
         });
     });
+    describe('MapIterable.size', function () {
+        it('should pass the basic test', function () {
+            hashmap.set('key', 'value');
+            let size = mapIterator.size;
+            expect(size).to.equal(1);
+        });
 
+        it('should return a size even with replaced keys', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            const size = mapIterator.size;
+            expect(size).to.equal(2);
+        });
+
+        it('should be 0 on an  empty map', function () {
+            const size = mapIterator.size;
+            expect(size).to.equal(0);
+        });
+
+        it('should not count deleted values', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.delete('key2');
+            const size = mapIterator.size;
+            expect(size).to.equal(1);
+        });
+
+        it('should not count filtered values', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            const size = mapIterator.filter((value) => (value === 'value2')).size;
+            expect(size).to.equal(1);
+        });
+        it('should count concatenated maps', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            const hashmap2 = [['key3', 'value3']];
+            const size = mapIterator.concatMap(hashmap2).size;
+            expect(size).to.equal(3);
+        });
+        it('should count concatenated sets', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            const other = ['somethihng', 'other'];
+            const size = mapIterator.concat(other).size;
+            expect(size).to.equal(4);
+        });
+    });
+    describe('SetIterable.size', function () {
+        it('should pass the basic test', function () {
+            hashmap.set('key', 'value');
+            let size = setIterator.size;
+            expect(size).to.equal(1);
+        });
+
+        it('should return a size even with replaced keys', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            const size = setIterator.size;
+            expect(size).to.equal(2);
+        });
+
+        it('should be 0 on an  empty map', function () {
+            const size = setIterator.size;
+            expect(size).to.equal(0);
+        });
+
+        it('should not count deleted values', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.delete('key2');
+            const size = setIterator.size;
+            expect(size).to.equal(1);
+        });
+
+        it('should not count filtered values', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            const size = setIterator.filter((entry) => (entry[1] === 'value2')).size;
+            expect(size).to.equal(1);
+        });
+
+        it('should count concatenated sets', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            const other = ['somethihng', 'other'];
+            const size = setIterator.concat(other).size;
+            expect(size).to.equal(4);
+        });
+    });
 });
