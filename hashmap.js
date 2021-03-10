@@ -213,15 +213,48 @@
         }
     };
 
+
     /**
-     * The base class for both the Map Implementations, and the Higher Order Functions for Maps
+     * The base class for the Map Implementations, and the Higher Order Functions for Maps
+     * @abstract
      */
     class MapIterable {
+        /**
+         * Filter Predicate
+         * Test each element of the map and only include entries where this returns true.
+         * @name MapIterable~FilterPredicate
+         * @function
+         * @param {*} [value] - the entry value.
+         * @param {*} [key] - the entry key
+         * @param {MapIterable} [iterable] - this Map Iterable that allows you to iterate key value pairs.
+         * @return {boolean} a value that coerces to true to keep the element, or to false otherwise.
+         */
+
+        /**
+         * Returns the number of elements returned by this Map Iterable. If filter is used in the method chain, it is forced to count all the elements, and may be slower.
+         * @returns {number}
+         */
+        get size() {
+            let accumulator = 0;
+            for (const i of this) { // jshint ignore:line
+                accumulator++;
+            }
+            return accumulator;
+        }
+
+        /**
+         * Test each element of the map and only include entries where the <code>FilterPredicate</code> returns true.
+         *
+         * @param {FilterPredicate} [filterPredicate=() => true] if the provided function returns <code>false</code>, that entry is excluded.
+         * @param {*} [ctx=this] Value to use as <code>this</code> when executing <code>filterPredicate</code>
+         * @returns {MapIterable} an iterable that allows you to iterate key value pairs.
+         */
         filter(filterPredicate = (value, key, iterable) => true, ctx = this) {
             return new MapFilter(this, filterPredicate, ctx);
         }
 
-        forEach(forEachFunc = (value, key, iterable) => {}, ctx = this) {
+        forEach(forEachFunc = (value, key, iterable) => {
+        }, ctx = this) {
             for (const [key, value] of this) {
                 forEachFunc.call(ctx, value, key, this);
             }
@@ -312,14 +345,6 @@
             return accumulator;
         }
 
-        get size() {
-            let accumulator = 0;
-            for (const i of this) { // jshint ignore:line
-                accumulator++;
-            }
-            return accumulator;
-        }
-
         mapKeys(mapKeyFunction = (value, key, iterable) => key, ctx = this) {
             return new MapKeyMapper(this, mapKeyFunction, ctx);
         }
@@ -341,11 +366,13 @@
         concat(otherIterable = []) {
             return new SetConcat(this, otherIterable);
         }
+
         concatMap(otherMapIterable = []) {
             return new MapConcat(this, otherMapIterable);
         }
+
         keys() {
-            return new MapMapper(this, (_,key) => key, this);
+            return new MapMapper(this, (_, key) => key, this);
         }
 
         values() {
@@ -357,9 +384,18 @@
         }
     }
 
+    /**
+     * The base class for the Set Implementations, and the Higher Order Functions for Sets, many Map functions result in SetIterables
+     * @abstract
+     */
     class SetIterable {
-        * [Symbol.iterator]() {
-            yield undefined;
+
+        get size() {
+            let accumulator = 0;
+            for (const i of this) { // jshint ignore:line
+                accumulator++;
+            }
+            return accumulator;
         }
 
         forEach(forEachFunc = (value, map) => {
@@ -390,14 +426,6 @@
             let accumulator = initialValue;
             for (const value of this) {
                 accumulator = reduceFunction.call(ctx, accumulator, value, this);
-            }
-            return accumulator;
-        }
-
-        get size() {
-            let accumulator = 0;
-            for (const i of this) { // jshint ignore:line
-                accumulator++;
             }
             return accumulator;
         }
@@ -911,6 +939,9 @@
         * [Symbol.iterator]() {
             yield* this.iterable;
         }
+        get size() {
+            return this.iterable.size;
+        }
     }
 
     class MapIterableWrapper extends MapIterable {
@@ -936,6 +967,9 @@
                 return this.iterable.get(key);
             }
             return super.get(key);
+        }
+        get size() {
+            return this.iterable.size;
         }
     }
 
@@ -985,6 +1019,13 @@
                 }
             }
             return undefined;
+        }
+        get size() {
+            let accumulator = 0;
+            for (const i of this) { // jshint ignore:line
+                accumulator++;
+            }
+            return accumulator;
         }
     }
 
@@ -1043,6 +1084,10 @@
             yield* this.otherIterable;
         }
 
+        get size() {
+            return this.iterable.size + (this.otherIterable.size | this.otherIterable.length);
+        }
+
         has(key) {
             if (this.iterable.has(key)) {
                 return true;
@@ -1090,6 +1135,10 @@
             yield* this.iterable;
             yield* this.otherIterable;
         }
+
+        get size() {
+            return this.iterable.size + (this.otherIterable.size | this.otherIterable.length);
+        }
     }
 
     class MapMapper extends SetIterableWrapper {
@@ -1134,9 +1183,19 @@
                 }
             }
         }
+
+        get size() {
+            let accumulator = 0;
+            for (const i of this) { // jshint ignore:line
+                accumulator++;
+            }
+            return accumulator;
+        }
     }
 
-    return {HashMap, LinkedHashMap, Mootable : {
+    return {
+        HashMap, LinkedHashMap, Mootable: {
             HashMap, LinkedHashMap, mapIterator, setIterator, hashCode, SetIterable, MapIterable
-        }};
+        }
+    };
 }));
