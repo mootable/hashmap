@@ -333,7 +333,7 @@
         }
 
         map(mapFunction = (value, key, map) => {
-            return {key: key, value: value};
+            return [key, value];
         }, ctx = this) {
             return new MapMapper(this, mapFunction, ctx);
         }

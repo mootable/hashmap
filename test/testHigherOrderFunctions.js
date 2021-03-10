@@ -7,21 +7,21 @@ let hashmap, mapIterator, setIterator;
  * Map Iterable
  * - ES6 Symbol.Iterator✓
  * - Specialist: forEach✓, collect✓, every✓, has✓, some✓, find✓, reduce✓, findIndex✓, indexOf✓, get✓
- * - Map Iterables: entries✓, filter, mapKeys, mapValues, mapEntries, concatMap
- * - Set Iterables:  keys✓, values✓, map, concat
+ * - Map Iterables: entries✓, filter✓, concatMap✓, mapEntries✓, mapKeys✓, mapValues✓
+ * - Set Iterables:  keys✓, values✓, map✓, concat✓
  * - Properties: .size✓
  * Set Iterable
  * - ES6 Symbol.Iterator✓
  * - Specialist: forEach✓, collect✓, every✓, has✓, some✓, find✓, reduce✓
- * - Set Iterables: values✓, filter, map, concat
+ * - Set Iterables: values✓, filter✓, map✓, concat✓
  * - Properties: .size✓
  */
 describe('Higher Order Functions', function () {
     beforeEach(function () {
         hashmap = new LinkedHashMap();
         // you don't need the filter or maps, but showing some method chaining is fun.
-        mapIterator = Mootable.mapIterator(hashmap).filter(()=>true).mapKeys((value, key) => key);
-        setIterator = Mootable.setIterator(hashmap).filter(()=>true).map((entry) => entry);
+        mapIterator = Mootable.mapIterator(hashmap).filter(() => true).mapKeys((value, key) => key);
+        setIterator = Mootable.setIterator(hashmap).filter(() => true).map((entry) => entry);
     });
 
     describe('high order method chaining', function () {
@@ -97,6 +97,446 @@ describe('Higher Order Functions', function () {
                 calls[pair[1]]++;
             }
             expect(calls).to.deep.equal(new Array(numberOfTries).fill(1));
+        });
+    });
+    describe('MapIterable.mapValues()', function () {
+        it('should pass the basic test', function () {
+            hashmap.set('key', 'value');
+            let called = 0;
+            const ret = mapIterator.mapValues(function (value, key) {
+                called++;
+                expect(value).to.equal('value');
+                expect(key).to.equal('key');
+                expect(this).to.equal(mapIterator);
+                return value;
+            }).collect();
+            expect(called).to.equal(1);
+            expect(ret).to.deep.equal([['key', 'value']]);
+        });
+
+        it('should map all to the same value', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(mapIterator.mapValues(() => true).size).to.equal(2);
+            expect(mapIterator.mapValues(() => true).collect()).to.deep.equal([['key', true], ['key2', true]]);
+        });
+
+        it('should map all to entry set if no function provided', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(mapIterator.mapValues().size).to.equal(2);
+            expect(mapIterator.mapValues().collect())
+                .to.deep.equal([['key', 'value'], ['key2', 'value2a']]);
+        });
+
+        it('should map all to different values', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(mapIterator.mapValues((value, key) => {
+                return value + 'Z';
+            }).size)
+                .to.equal(2);
+            expect(mapIterator.mapValues((value, key) => {
+                return value + 'Z';
+            }).collect())
+                .to.deep.equal([['key', 'valueZ'], ['key2', 'value2aZ']]);
+        });
+
+
+        it('should respect map context', function () {
+            hashmap.set('key', 'value');
+            let ctx = {};
+            mapIterator.mapValues(function (value, key) {
+                expect(this).to.equal(ctx);
+                return [key,value];
+            }, ctx).collect();
+        });
+    });
+    describe('MapIterable.mapKeys()', function () {
+        it('should pass the basic test', function () {
+            hashmap.set('key', 'value');
+            let called = 0;
+            const ret = mapIterator.mapKeys(function (value, key) {
+                called++;
+                expect(value).to.equal('value');
+                expect(key).to.equal('key');
+                expect(this).to.equal(mapIterator);
+                return key;
+            }).collect();
+            expect(called).to.equal(1);
+            expect(ret).to.deep.equal([['key', 'value']]);
+        });
+
+        it('should map all to the same value', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(mapIterator.mapKeys(() => true).size).to.equal(2);
+            expect(mapIterator.mapKeys(() => true).collect()).to.deep.equal([[true, 'value'], [true, 'value2a']]);
+        });
+
+        it('should map all to entry set if no function provided', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(mapIterator.mapKeys().size).to.equal(2);
+            expect(mapIterator.mapKeys().collect())
+                .to.deep.equal([['key', 'value'], ['key2', 'value2a']]);
+        });
+
+        it('should map all to different values', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(mapIterator.mapKeys((value, key) => {
+                return key + 'Z';
+            }).size)
+                .to.equal(2);
+            expect(mapIterator.mapKeys((value, key) => {
+                return key + 'Z';
+            }).collect())
+                .to.deep.equal([['keyZ', 'value'], ['key2Z', 'value2a']]);
+        });
+
+
+        it('should respect map context', function () {
+            hashmap.set('key', 'value');
+            let ctx = {};
+            mapIterator.mapKeys(function (value, key) {
+                expect(this).to.equal(ctx);
+                return [key,value];
+            }, ctx).collect();
+        });
+    });
+    describe('MapIterable.mapEntries()', function () {
+        it('should pass the basic test', function () {
+            hashmap.set('key', 'value');
+            let called = 0;
+            const ret = mapIterator.mapEntries(function (value, key) {
+                called++;
+                expect(value).to.equal('value');
+                expect(key).to.equal('key');
+                expect(this).to.equal(mapIterator);
+                return [key, value];
+            }).collect();
+            expect(called).to.equal(1);
+            expect(ret).to.deep.equal([['key', 'value']]);
+        });
+
+        it('should map all to the same value', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(mapIterator.mapEntries(() => [true, true]).size).to.equal(2);
+            expect(mapIterator.mapEntries(() => [true, true]).collect()).to.deep.equal([[true, true], [true, true]]);
+        });
+
+        it('should map all to entry set if no function provided', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(mapIterator.mapEntries().size).to.equal(2);
+            expect(mapIterator.mapEntries().collect())
+                .to.deep.equal([['key', 'value'], ['key2', 'value2a']]);
+        });
+
+        it('should map all to different values', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(mapIterator.mapEntries((value, key) => {
+                return [key + 'Z', value + 'Z'];
+            }).size)
+                .to.equal(2);
+            expect(mapIterator.mapEntries((value, key) => {
+                return [key + 'Z', value + 'Z'];
+            }).collect())
+                .to.deep.equal([['keyZ', 'valueZ'], ['key2Z', 'value2aZ']]);
+        });
+
+
+        it('should respect map context', function () {
+            hashmap.set('key', 'value');
+            let ctx = {};
+            mapIterator.mapEntries(function (value, key) {
+                expect(this).to.equal(ctx);
+                return [key,value];
+            }, ctx).collect();
+        });
+    });
+    describe('MapIterable.map()', function () {
+        it('should pass the basic test', function () {
+            hashmap.set('key', 'value');
+            let called = 0;
+            const ret = mapIterator.map(function (value, key) {
+                called++;
+                expect(value).to.equal('value');
+                expect(key).to.equal('key');
+                expect(this).to.equal(mapIterator);
+                return true;
+            }).collect();
+            expect(called).to.equal(1);
+            expect(ret).to.deep.equal([true]);
+        });
+
+        it('should map all to true', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(mapIterator.map(() => true).size).to.equal(2);
+            expect(mapIterator.map(() => true).collect()).to.deep.equal([true, true]);
+        });
+
+        it('should map all to entry set if no function provided', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(mapIterator.map().size).to.equal(2);
+            expect(mapIterator.map().collect())
+                .to.deep.equal([['key', 'value'], ['key2', 'value2a']]);
+        });
+
+        it('should map all to different values', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(mapIterator.map((value, key) => {
+                return {v: value + 'Z', k: key + 'Z'};
+            }).size)
+                .to.equal(2);
+            expect(mapIterator.map((value, key) => {
+                return {v: value + 'Z', k: key + 'Z'};
+            }).collect())
+                .to.deep.equal([{k: 'keyZ', v: 'valueZ'}, {k: 'key2Z', v: 'value2aZ'}]);
+        });
+
+        it('should map to undefined', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(mapIterator.map((value, key) => undefined).size)
+                .to.equal(2);
+            expect(mapIterator.map((value, key) => undefined).collect())
+                .to.deep.equal([undefined, undefined]);
+        });
+
+        it('should respect map context', function () {
+            hashmap.set('key', 'value');
+            let ctx = {};
+            mapIterator.map(function () {
+                expect(this).to.equal(ctx);
+            }, ctx).collect();
+        });
+    });
+    describe('SetIterable.map()', function () {
+        it('should pass the basic test', function () {
+            hashmap.set('key', 'value');
+            let called = 0;
+            const ret = setIterator.map(function (entry) {
+                called++;
+                expect(entry[1]).to.equal('value');
+                expect(entry[0]).to.equal('key');
+                expect(this).to.equal(setIterator);
+                return true;
+            }).collect();
+            expect(called).to.equal(1);
+            expect(ret).to.deep.equal([true]);
+        });
+
+        it('should map all to true', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(setIterator.map(() => true).size).to.equal(2);
+            expect(setIterator.map(() => true).collect()).to.deep.equal([true, true]);
+        });
+
+        it('should map all to entry set if no function provided', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(setIterator.map().size).to.equal(2);
+            expect(setIterator.map().collect())
+                .to.deep.equal([['key', 'value'], ['key2', 'value2a']]);
+        });
+
+        it('should map all to different values', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(setIterator.map((entry) => {
+                return {v: entry[1] + 'Z', k: entry[0] + 'Z'};
+            }).size)
+                .to.equal(2);
+            let ret = setIterator.map((entry) => {
+                return {v: entry[1] + 'Z', k: entry[0] + 'Z'};
+            }).collect();
+            expect(ret[0].k)
+                .to.equal('keyZ');
+            expect(ret[0].v)
+                .to.equal('valueZ');
+            expect(ret[1].k)
+                .to.equal('key2Z');
+            expect(ret[1].v)
+                .to.equal('value2aZ');
+        });
+
+        it('should map to undefined', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(setIterator.map((value) => undefined).size)
+                .to.equal(2);
+            expect(setIterator.map((value) => undefined).collect())
+                .to.deep.equal([undefined, undefined]);
+        });
+
+        it('should respect map context', function () {
+            hashmap.set('key', 'value');
+            let ctx = {};
+            setIterator.map(function () {
+                expect(this).to.equal(ctx);
+            }, ctx).collect();
+        });
+    });
+    describe('MapIterable.filter()', function () {
+        it('should pass the basic test', function () {
+            hashmap.set('key', 'value');
+            let called = 0;
+            const ret = mapIterator.filter(function (value, key) {
+                called++;
+                expect(value).to.equal('value');
+                expect(key).to.equal('key');
+                expect(this).to.equal(mapIterator);
+                return true;
+            }).collect();
+            expect(called).to.equal(1);
+            expect(ret).to.deep.equal([['key', 'value']]);
+        });
+
+        it('should collect all if filter is true', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(mapIterator.filter(() => true).size).to.equal(2);
+            expect(mapIterator.filter(() => true).collect()).to.deep.equal([['key', 'value'], ['key2', 'value2a']]);
+        });
+
+        it('should collect none if filter is false', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(mapIterator.filter(() => false).size).to.equal(0);
+            expect(mapIterator.filter(() => false).collect()).to.be.empty;
+        });
+
+        it('should filter out all but one', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key3', 'value3');
+            hashmap.set('key2', 'value2a');
+            expect(mapIterator.filter((value) => value === 'value3').size).to.equal(1);
+            expect(mapIterator.filter((value) => value === 'value3').collect()).to.deep.equal([['key3', 'value3']]);
+        });
+
+        it('should filter out just one', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key3', 'value3');
+            hashmap.set('key2', 'value2a');
+            expect(mapIterator.filter((value) => value !== 'value3').size).to.equal(2);
+            expect(mapIterator.filter((value) => value !== 'value3').collect()).to.deep.equal([['key', 'value'], ['key2', 'value2a']]);
+        });
+
+        it('should work on empty map', function () {
+            expect(mapIterator.filter(() => true).size).to.equal(0);
+            expect(mapIterator.filter(() => true).collect()).to.be.empty;
+        });
+
+        it('should remain consistent among calls', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            expect(mapIterator.filter(() => true).collect()).to.deep.equal(mapIterator.filter(() => true).collect());
+        });
+
+        it('should respect filter context', function () {
+            hashmap.set('key', 'value');
+            let ctx = {};
+            mapIterator.filter(function () {
+                expect(this).to.equal(ctx);
+            }, ctx).collect();
+        });
+    });
+
+    describe('SetIterable.filter()', function () {
+
+        it('should pass the basic test', function () {
+            hashmap.set('key', 'value');
+            let called = 0;
+            const ret = setIterator.filter(function (value) {
+                called++;
+                expect(value).to.deep.equal(['key', 'value']);
+                expect(this).to.equal(setIterator);
+                return true;
+            }).collect();
+            expect(called).to.equal(1);
+            expect(ret).to.deep.equal([['key', 'value']]);
+        });
+
+        it('should collect all if filter is true', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(setIterator.filter(() => true).size).to.equal(2);
+            expect(setIterator.filter(() => true).collect()).to.deep.equal([['key', 'value'], ['key2', 'value2a']]);
+        });
+
+        it('should collect none if filter is false', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(setIterator.filter(() => false).size).to.equal(0);
+            expect(setIterator.filter(() => false).collect()).to.be.empty;
+        });
+
+        it('should filter out all but one', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key3', 'value3');
+            hashmap.set('key2', 'value2a');
+            expect(setIterator.filter((entry) => entry[1] === 'value3').size).to.equal(1);
+            expect(setIterator.filter((entry) => entry[1] === 'value3').collect()).to.deep.equal([['key3', 'value3']]);
+        });
+
+        it('should filter out just one', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key3', 'value3');
+            hashmap.set('key2', 'value2a');
+            expect(setIterator.filter((entry) => entry[1] !== 'value3').size).to.equal(2);
+            expect(setIterator.filter((entry) => entry[1] !== 'value3').collect()).to.deep.equal([['key', 'value'], ['key2', 'value2a']]);
+        });
+
+        it('should work on empty map', function () {
+            expect(setIterator.filter(() => true).size).to.equal(0);
+            expect(setIterator.filter(() => true).collect()).to.be.empty;
+        });
+
+        it('should remain consistent among calls', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            expect(setIterator.filter(() => true).collect()).to.deep.equal(setIterator.filter(() => true).collect());
+        });
+
+        it('should respect filter context', function () {
+            hashmap.set('key', 'value');
+            let ctx = {};
+            setIterator.filter(function () {
+                expect(this).to.equal(ctx);
+            }, ctx).collect();
         });
     });
     describe('MapIterable.forEach()', function () {
@@ -367,6 +807,75 @@ describe('Higher Order Functions', function () {
             expect(setIterator.map(entry => entry[0]).has('key')).to.be.true;
         });
     });
+    describe('MapIterable.every()', function () {
+        it('should pass the basic test', function () {
+            hashmap.set('key', 'value');
+            let called = 0;
+            const every = mapIterator.every(function (value, key, iterable) {
+                called++;
+                expect(value).to.be.equal('value');
+                expect(key).to.be.equal('key');
+                expect(this).to.equal(mapIterator);
+                expect(iterable).to.equal(mapIterator);
+                return true;
+            });
+            expect(called).to.equal(1);
+            expect(every).to.be.true;
+        });
+
+        it('should call the callback once per key', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            let called1 = false;
+            let called2 = false;
+            let called = 0;
+            const every = mapIterator.every(function (value, key) {
+                called++;
+                if (key === 'key') {
+                    called1 = true;
+                    expect(value).to.be.equal('value');
+                } else if (key === 'key2') {
+                    called2 = true;
+                    expect(value).to.be.equal('value2a');
+                }
+                return true;
+            });
+            expect(called).to.equal(2);
+            expect(every).to.be.true;
+            expect(called1).to.be.true;
+            expect(called2).to.be.true;
+        });
+
+        it('should be true on an empty map', function () {
+            expect(mapIterator.every(() => false)).to.be.true;
+            expect(mapIterator.every(() => true)).to.be.true;
+        });
+
+        it('should return false if all are wrong', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            expect(mapIterator.every(() => false)).to.be.false;
+        });
+
+        it('should true false if all are right', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            expect(mapIterator.every(() => true)).to.be.true;
+        });
+        it('should return false if one is wrong', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            expect(mapIterator.every((value) => value !== 'value2')).to.be.false;
+        });
+        it('should respect function context', function () {
+            hashmap.set('key', 'value');
+            let ctx = {};
+            mapIterator.every(function () {
+                expect(this).to.equal(ctx);
+            }, ctx);
+        });
+    });
 
     describe('SetIterable.every()', function () {
         it('should pass the basic test', function () {
@@ -374,7 +883,7 @@ describe('Higher Order Functions', function () {
             let called = 0;
             const every = setIterator.every(function (value, iterable) {
                 called++;
-                expect(value).to.deep.equal(['key','value']);
+                expect(value).to.deep.equal(['key', 'value']);
                 expect(this).to.equal(setIterator);
                 expect(iterable).to.equal(setIterator);
                 return true;
@@ -391,7 +900,7 @@ describe('Higher Order Functions', function () {
             let called2 = false;
             let called = 0;
             const every = setIterator.every(function (entry) {
-                const [key,value] = entry;
+                const [key, value] = entry;
                 called++;
                 if (key === 'key') {
                     called1 = true;
@@ -581,79 +1090,6 @@ describe('Higher Order Functions', function () {
             }, ctx);
         });
     });
-
-    describe('SetIterable.some()', function () {
-        it('should pass the basic test', function () {
-            hashmap.set('key', 'value');
-            let called = 0;
-            const some = setIterator.some(function (entry, iterable) {
-                called++;
-                const [key, value] = entry;
-                expect(value).to.equal('value');
-                expect(key).to.equal('key');
-                expect(this).to.equal(setIterator);
-                expect(iterable).to.equal(setIterator);
-                return false;
-            });
-            expect(called).to.equal(1);
-            expect(some).to.be.false;
-        });
-
-        it('should call the callback once per key', function () {
-            hashmap.set('key', 'value');
-            hashmap.set('key2', 'value2');
-            hashmap.set('key2', 'value2a');
-            let called1 = false;
-            let called2 = false;
-            let called = 0;
-            const some = setIterator.some(function (entry) {
-                const [key, value] = entry;
-                called++;
-                if (key === 'key') {
-                    called1 = true;
-                    expect(value).to.be.equal('value');
-                } else if (key === 'key2') {
-                    called2 = true;
-                    expect(value).to.be.equal('value2a');
-                }
-                return false;
-            });
-            expect(called).to.equal(2);
-            expect(some).to.be.false;
-            expect(called1).to.be.true;
-            expect(called2).to.be.true;
-        });
-
-        it('should be false on an empty map', function () {
-            expect(setIterator.some(() => false)).to.be.false;
-            expect(setIterator.some(() => true)).to.be.false;
-        });
-
-        it('should return false if all are wrong', function () {
-            hashmap.set('key', 'value');
-            hashmap.set('key2', 'value2');
-            expect(setIterator.some(() => false)).to.be.false;
-        });
-        it('should return true if all are right', function () {
-            hashmap.set('key', 'value');
-            hashmap.set('key2', 'value2');
-            expect(setIterator.some(() => true)).to.be.true;
-        });
-
-        it('should return true if only one is right', function () {
-            hashmap.set('key', 'value');
-            hashmap.set('key2', 'value2');
-            expect(setIterator.some((entry) => entry[1] === 'value2')).to.be.true;
-        });
-        it('should respect function context', function () {
-            hashmap.set('key', 'value');
-            let ctx = {};
-            setIterator.some(function () {
-                expect(this).to.equal(ctx);
-                return true;
-            }, ctx);
-        });
-    });
     describe('MapIterable.find()', function () {
         it('should pass the basic test', function () {
             hashmap.set('key', 'value');
@@ -732,7 +1168,7 @@ describe('Higher Order Functions', function () {
             hashmap.set('key', 'value');
             let called = 0;
             const find = setIterator.find(function (entry, iterable) {
-                const [key,value] = entry ;
+                const [key, value] = entry;
                 called++;
                 expect(value).to.equal('value');
                 expect(key).to.equal('key');
@@ -752,7 +1188,7 @@ describe('Higher Order Functions', function () {
             let called2 = false;
             let called = 0;
             const find = setIterator.find(function (entry) {
-                const [key,value] = entry ;
+                const [key, value] = entry;
                 called++;
                 if (key === 'key') {
                     called1 = true;
@@ -810,7 +1246,7 @@ describe('Higher Order Functions', function () {
                 expect(this).to.equal(mapIterator);
                 expect(iterable).to.equal(mapIterator);
                 return accumulator + 1;
-            },0);
+            }, 0);
             expect(called).to.equal(1);
         });
 
@@ -829,7 +1265,7 @@ describe('Higher Order Functions', function () {
                     expect(value).to.be.equal('value2a');
                 }
                 return accumulator + 2;
-            },10);
+            }, 10);
             expect(calledPlus10).to.be.equal(14);
             expect(called1).to.be.true;
             expect(called2).to.be.true;
@@ -872,13 +1308,13 @@ describe('Higher Order Functions', function () {
         it('should pass the basic test', function () {
             hashmap.set('key', 'value');
             const called = setIterator.reduce(function (accumulator, entry, iterable) {
-                const [key,value] = entry;
+                const [key, value] = entry;
                 expect(value).to.equal('value');
                 expect(key).to.equal('key');
                 expect(this).to.equal(setIterator);
                 expect(iterable).to.equal(setIterator);
                 return accumulator + 1;
-            },0);
+            }, 0);
             expect(called).to.equal(1);
         });
 
@@ -889,7 +1325,7 @@ describe('Higher Order Functions', function () {
             let called1 = false;
             let called2 = false;
             const calledPlus10 = setIterator.reduce(function (accumulator, entry) {
-                const [key,value] = entry;
+                const [key, value] = entry;
                 if (key === 'key') {
                     called1 = true;
                     expect(value).to.be.equal('value');
@@ -898,7 +1334,7 @@ describe('Higher Order Functions', function () {
                     expect(value).to.be.equal('value2a');
                 }
                 return accumulator + 2;
-            },10);
+            }, 10);
             expect(calledPlus10).to.be.equal(14);
             expect(called1).to.be.true;
             expect(called2).to.be.true;
@@ -1242,6 +1678,170 @@ describe('Higher Order Functions', function () {
             const other = ['somethihng', 'other'];
             const size = setIterator.concat(other).size;
             expect(size).to.equal(4);
+        });
+    });
+    describe('MapIterable.concat', function () {
+
+        it('should pass the basic test', function () {
+            hashmap.set('key', 'value');
+            let called = 0;
+            const ret = mapIterator.concat([]).filter(function (value) {
+                called++;
+                expect(value).to.deep.equal(['key', 'value']);
+                expect(this).to.be.instanceOf(Mootable.SetIterable);
+                return true;
+            }).collect();
+            expect(called).to.equal(1);
+            expect(ret).to.deep.equal([['key', 'value']]);
+        });
+
+        it('should concat empty array', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(mapIterator.concat([]).filter(() => true).size).to.equal(2);
+            expect(mapIterator.concat([]).filter(() => true).collect()).to.deep.equal([['key', 'value'], ['key2', 'value2a']]);
+        });
+
+        it('should concat values from an array', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(mapIterator.concat(['other']).filter(() => true).collect())
+                .to.deep.equal([['key', 'value'], ['key2', 'value2a'], 'other']);
+            expect(mapIterator.concat(['other']).size).to.equal(3);
+        });
+
+        it('should concat from an empty map', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            let otherMap = new Map();
+            expect(mapIterator.concat(otherMap).filter(() => true).size).to.equal(2);
+            expect(mapIterator.concat(otherMap).filter(() => true).collect())
+                .to.deep.equal([['key', 'value'], ['key2', 'value2a']]);
+        });
+
+        it('should concat from a map', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            let otherMap = new Map();
+            otherMap.set('key3', 'value3');
+            otherMap.set('key4', 'value4');
+            expect(mapIterator.concat(otherMap).filter(() => true).size).to.equal(4);
+            expect(mapIterator.concat(otherMap).filter(() => true).collect())
+                .to.deep.equal([['key', 'value'], ['key2', 'value2a'], ['key3', 'value3'], ['key4', 'value4']]);
+        });
+    });
+    describe('SetIterable.concat', function () {
+
+        it('should pass the basic test', function () {
+            hashmap.set('key', 'value');
+            let called = 0;
+            const ret = setIterator.concat([]).filter(function (value) {
+                called++;
+                expect(value).to.deep.equal(['key', 'value']);
+                expect(this).to.be.instanceOf(Mootable.SetIterable);
+                return true;
+            }).collect();
+            expect(called).to.equal(1);
+            expect(ret).to.deep.equal([['key', 'value']]);
+        });
+
+        it('should concat empty array', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(setIterator.concat([]).filter(() => true).size).to.equal(2);
+            expect(setIterator.concat([]).filter(() => true).collect()).to.deep.equal([['key', 'value'], ['key2', 'value2a']]);
+        });
+
+        it('should concat values from an array', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(setIterator.concat(['other']).filter(() => true).collect())
+                .to.deep.equal([['key', 'value'], ['key2', 'value2a'], 'other']);
+            expect(setIterator.concat(['other']).size).to.equal(3);
+        });
+
+        it('should concat from an empty map', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            let otherMap = new Map();
+            expect(setIterator.concat(otherMap).filter(() => true).size).to.equal(2);
+            expect(setIterator.concat(otherMap).filter(() => true).collect())
+                .to.deep.equal([['key', 'value'], ['key2', 'value2a']]);
+        });
+
+        it('should concat from a map', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            let otherMap = new Map();
+            otherMap.set('key3', 'value3');
+            otherMap.set('key4', 'value4');
+            expect(setIterator.concat(otherMap).filter(() => true).size).to.equal(4);
+            expect(setIterator.concat(otherMap).filter(() => true).collect())
+                .to.deep.equal([['key', 'value'], ['key2', 'value2a'], ['key3', 'value3'], ['key4', 'value4']]);
+        });
+    });
+
+    describe('MapIterable.concatMap', function () {
+
+        it('should pass the basic test', function () {
+            hashmap.set('key', 'value');
+            let called = 0;
+            const ret = mapIterator.concatMap([]).filter(function (value, key) {
+                called++;
+                expect(value).to.equal('value');
+                expect(key).to.equal('key');
+                expect(this).to.be.instanceOf(Mootable.MapIterable);
+                return true;
+            }).collect();
+            expect(called).to.equal(1);
+            expect(ret).to.deep.equal([['key', 'value']]);
+        });
+
+        it('should concatMap empty array', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(mapIterator.concatMap([]).filter(() => true).size).to.equal(2);
+            expect(mapIterator.concatMap([]).filter(() => true).collect()).to.deep.equal([['key', 'value'], ['key2', 'value2a']]);
+        });
+
+        it('should concatMap values from an array', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(mapIterator.concatMap([['key3', 'value3']]).filter(() => true).collect())
+                .to.deep.equal([['key', 'value'], ['key2', 'value2a'], ['key3', 'value3']]);
+            expect(mapIterator.concatMap(['other']).size).to.equal(3);
+        });
+
+        it('should concatMap from an empty map', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            let otherMap = new Map();
+            expect(mapIterator.concatMap(otherMap).filter(() => true).size).to.equal(2);
+            expect(mapIterator.concatMap(otherMap).filter(() => true).collect())
+                .to.deep.equal([['key', 'value'], ['key2', 'value2a']]);
+        });
+
+        it('should concatMap from a map', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            let otherMap = new Map();
+            otherMap.set('key3', 'value3');
+            otherMap.set('key4', 'value4');
+            expect(mapIterator.concatMap(otherMap).filter(() => true).size).to.equal(4);
+            expect(mapIterator.concatMap(otherMap).filter(() => true).collect())
+                .to.deep.equal([['key', 'value'], ['key2', 'value2a'], ['key3', 'value3'], ['key4', 'value4']]);
         });
     });
 });
