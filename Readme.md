@@ -36,9 +36,9 @@ To run the benchmarks: (Ensure you have the memory to run them)
 
     $ node  --max_old_space_size=24576 --expose-gc test\benchmark.js
 
-## API Documentation
+## [API Documentation](https://mootable.github.io/hashmap/)
 
-The methods listed in the readme below, are just a small selection of the now included Higher Order Functions. I am in the process of documenting them out, and they can be found [here](docs/). However these methods match the same signatures and effective behaviours as Array and Map, and have the advantage of being both chainable and having defered execution.
+The methods listed in the readme below, are just a small selection of the now included Higher Order Functions. I am in the process of documenting them out, and they can be found [here](https://mootable.github.io/hashmap/). However these methods match the same signatures and effective behaviours as Array and Map, and have the advantage of being both chainable and having defered execution.
 
 ## `HashMap` constructor
 This HashMap is backed by a hashtrie, and can be tuned to specific use cases.
