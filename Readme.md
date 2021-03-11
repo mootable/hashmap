@@ -36,6 +36,10 @@ To run the benchmarks: (Ensure you have the memory to run them)
 
     $ node  --max_old_space_size=24576 --expose-gc test\benchmark.js
 
+## API Documentation
+
+The methods listed in the readme below, are just a small selection of the now included Higher Order Functions. I am in the process of documenting them out, and they can be found [here](docs/). However these methods match the same signatures and effective behaviours as Array and Map, and have the advantage of being both chainable and having defered execution.
+
 ## `HashMap` constructor
 This HashMap is backed by a hashtrie, and can be tuned to specific use cases.
 - `new HashMap()` creates an empty hashmap
@@ -76,15 +80,30 @@ LinkedHashMaps maintain insertion order of keys, it has a slightly larger memory
 - `set(key:*, value:*) : HashMap` stores a key-value pair
 - `copy(other:HashMap) : HashMap` copies all key-value pairs from other to this instance
 - `has(key:*) : Boolean` returns whether a key is set on the hashmap
-- `search(value:*) : *` returns key under which given value is stored (`null` if not found)
+- `indexOf(value:*) : *` returns key under which given value is stored (`null` if not found)
 - `delete(key:*) : HashMap` deletes a key-value pair by key
-- `keys() : Array<*>` returns an array with all the registered keys
-- `values() : Array<*>` returns an array with all the values
-- `entries() : Array<[*,*]>` returns an array with [key,value] pairs
+- `keys() : Iterable<*>` returns an array with all the registered keys
+- `values() : Iterable<*>` returns an array with all the values
+- `entries() : Iterable<[*,*]>` returns an array with [key,value] pairs
 - `length : Number` the amount of key-value pairs
 - `clear() : HashMap` deletes all the key-value pairs on the hashmap
 - `clone() : HashMap` creates a new hashmap with all the key-value pairs of the original
 - `forEach(function(value, key)) : HashMap` iterates the pairs and calls the function for each one
+  Higher Order Functions added and in and in the process of being documented are:
+- `collect`
+- `concat`
+- `concatMap`
+- `every`
+- `filter`
+- `find`
+- `findIndex`
+- `forEach`
+- `map`
+- `mapEntries`
+- `mapKeys`
+- `mapValues`
+- `reduce`
+- `some`
 
 ### Method chaining
 
@@ -105,15 +124,17 @@ let map = new LinkedHashMap();
 If you're using this within Node, you first need to import the class(es)
 
 ```js
-let {HashMap, LinkedHashMap} = require('hashmap');
+let {HashMap, LinkedHashMap} = require('src/hashmap');
 ```
 or
+
 ```js
-let HashMap = require('hashmap').HashMap;
+let HashMap = require('src/hashmap').HashMap;
 ```
 or for the linked hashmap
+
 ```js
-let LinkedHashMap = require('hashmap').LinkedHashMap;
+let LinkedHashMap = require('src/hashmap').LinkedHashMap;
 ```
 
 ### Basic use case
@@ -197,7 +218,7 @@ map
     - It must have an identical interface to JS Map
     - It must be fully written in JS. (Transpiling is acceptable) So that we can guarantee it works in the browser, not just node.
 
-### Benchmarks on version 0.6.1
+### Benchmarks on version 0.7.0
 
 <table>
 <thead><tr><th>Entry Size</th><th>Fastest Version</th><th>Percentage Faster</th><th>Times Faster</th></tr></thead>

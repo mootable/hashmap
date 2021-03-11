@@ -1,6 +1,6 @@
 /*jshint -W030,-W121 */
 const expect = require('chai').expect,
-    {LinkedHashMap, Mootable} = require('../hashmap');
+    {LinkedHashMap, Mootable} = require('../src/hashmap');
 let hashmap, mapIterator, setIterator;
 
 /**
@@ -644,15 +644,15 @@ describe('Higher Order Functions', function () {
             hashmap.set('key', 'value');
             const collected = [];
             const ret = mapIterator.collect(collected);
-            expect(collected).to.deep.equal([['key', 'value']]);
-            expect(collected).to.deep.equal(ret);
+            expect(collected).to.deep.equal([]);
+            expect(ret).to.deep.equal([['key', 'value']]);
         });
         it('collect on an array with contents', function () {
             hashmap.set('key', 'value');
             const collected = ['other'];
             const ret = mapIterator.collect(collected);
-            expect(collected).to.deep.equal(['other', ['key', 'value']]);
-            expect(collected).to.deep.equal(ret);
+            expect(ret).to.deep.equal(['other', ['key', 'value']]);
+            expect(collected).to.deep.equal( ['other']);
         });
         it('collect on an array with multiple', function () {
             hashmap.set('key', 'value');
@@ -660,8 +660,8 @@ describe('Higher Order Functions', function () {
             hashmap.set('key2', 'value2a');
             const collected = ['other'];
             const ret = mapIterator.collect(collected);
-            expect(collected).to.deep.equal(['other', ['key', 'value'], ['key2', 'value2a']]);
-            expect(collected).to.deep.equal(ret);
+            expect(ret).to.deep.equal(['other', ['key', 'value'], ['key2', 'value2a']]);
+            expect(collected).to.deep.equal(['other']);
         });
 
         it('collect on an array with filter', function () {
@@ -725,15 +725,15 @@ describe('Higher Order Functions', function () {
             hashmap.set('key', 'value');
             const collected = [];
             const ret = setIterator.collect(collected);
-            expect(collected).to.deep.equal([['key', 'value']]);
-            expect(collected).to.deep.equal(ret);
+            expect(ret).to.deep.equal([['key', 'value']]);
+            expect(collected).to.deep.equal([]);
         });
         it('collect on an array with contents', function () {
             hashmap.set('key', 'value');
             const collected = ['other'];
             const ret = setIterator.collect(collected);
-            expect(collected).to.deep.equal(['other', ['key', 'value']]);
-            expect(collected).to.deep.equal(ret);
+            expect(ret).to.deep.equal(['other', ['key', 'value']]);
+            expect(collected).to.deep.equal( ['other']);
         });
         it('collect on an array with multiple', function () {
             hashmap.set('key', 'value');
@@ -741,8 +741,8 @@ describe('Higher Order Functions', function () {
             hashmap.set('key2', 'value2a');
             const collected = ['other'];
             const ret = setIterator.collect(collected);
-            expect(collected).to.deep.equal(['other', ['key', 'value'], ['key2', 'value2a']]);
-            expect(collected).to.deep.equal(ret);
+            expect(ret).to.deep.equal(['other', ['key', 'value'], ['key2', 'value2a']]);
+            expect(collected).to.deep.equal(['other']);
         });
         it('collect on a Set', function () {
             hashmap.set('key', 'value');

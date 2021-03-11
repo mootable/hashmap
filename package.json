@@ -1,6 +1,6 @@
 {
   "name": "@mootable/hashmap",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "description": "HashMap Implementation for JavaScript",
   "keywords": [
     "mootable",
@@ -24,14 +24,14 @@
     "type": "git",
     "url": "git://github.com/mootable/hashmap.git"
   },
-  "main": "./hashmap.js",
+  "main": "src/hashmap.js",
   "scripts": {
     "test": "mocha test/",
     "benchmark": "node benchmark/benchmark.js",
-    "lint": "jshint hashmap.js test/testHashMap.js",
+    "lint": "jshint src/hashmap.js test/testHashMap.js",
     "precommit": "npm run lint",
     "prepush": "npm run test -- --reporter dot",
-    "generate-docs": "jsdoc hashmap.js"
+    "generate-docs": "jsdoc -c jsdoc-config.json"
   },
   "engines": {
     "node": "*"

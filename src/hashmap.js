@@ -1,7 +1,7 @@
 /**
  * HashMap - HashMap Implementation for JavaScript
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.6.1
+ * @version 0.7.0
  * Homepage: https://github.com/mootable/hashmap
  */
 
@@ -24,9 +24,12 @@
         this.Mootable = this.Mootable ? Object.assign(this.Mootable, defined.Mootable) : defined.Mootable;
     }
 }(function () {
-
+    /**
+     * @namespace Mootable
+     */
     /**
      * Murmur3 HashCode generator
+     * @function Mootable.hashCode
      * @param key the string being hashed
      * @param seed an optional random seed
      * @param len the max limit on the number of characters to hash
@@ -213,6 +216,10 @@
         }
     };
 
+    /**
+     * A collection of MapIterable Callbacks.
+     * @interface MapCallbacks
+     */
 
     /**
      * The base class for the Map Implementations, and the Higher Order Functions for Maps
@@ -222,16 +229,15 @@
         /**
          * Filter Predicate
          * Test each element of the map and only include entries where this returns true.
-         * @name MapIterable~FilterPredicate
-         * @function
+         * @callback MapCallbacks.FilterPredicate
          * @param {*} [value] - the entry value.
          * @param {*} [key] - the entry key
-         * @param {MapIterable} [iterable] - this Map Iterable that allows you to iterate key value pairs.
-         * @return {boolean} a value that coerces to true to keep the element, or to false otherwise.
+         * @param {MapIterable} [iterable] - the calling Map Iterable.
+         * @return {boolean} - a value that coerces to true to keep the element, or to false otherwise.
          */
 
         /**
-         * Returns the number of elements returned by this Map Iterable. If filter is used in the method chain, it is forced to count all the elements, and may be slower.
+         * Returns the number of elements returned by this Map Iterable. If filter is used in the method chain, it is forced to iterate over all the elements, and will be slower. Otherwise even with concats, it just queries the base collection size.
          * @returns {number}
          */
         get size() {
@@ -245,27 +251,54 @@
         /**
          * Test each element of the map and only include entries where the <code>FilterPredicate</code> returns true.
          *
-         * @param {FilterPredicate} [filterPredicate=() => true] if the provided function returns <code>false</code>, that entry is excluded.
-         * @param {*} [ctx=this] Value to use as <code>this</code> when executing <code>filterPredicate</code>
-         * @returns {MapIterable} an iterable that allows you to iterate key value pairs.
+         * @param {MapCallbacks.FilterPredicate} [filterPredicate=() => true] - if the provided function returns <code>false</code>, that entry is excluded.
+         * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>filterPredicate</code>
+         * @returns {MapIterable} - an iterable that allows you to iterate key value pairs.
          */
         filter(filterPredicate = (value, key, iterable) => true, ctx = this) {
             return new MapFilter(this, filterPredicate, ctx);
         }
 
-        forEach(forEachFunc = (value, key, iterable) => {
+        /**
+         * For Each Function
+         * A callback to execute on every <code>[key,value]</code> pair of this map iterable.
+         *
+         * @callback MapCallbacks.ForEachCallback
+         * @param {*} [value] - the entry value.
+         * @param {*} [key] - the entry key
+         * @param {MapIterable} [iterable] - the calling Map Iterable.
+         */
+
+        /**
+         * Execute the provided callback on every <code>[key,value]</code> pair of this map iterable.
+         * @param {MapCallbacks.ForEachCallback} [forEachCallback=() => {}]
+         * @param {*} [ctx=this] Value to use as <code>this</code> when executing <code>filterMapPredicate</code>
+         * @returns {MapIterable} - an iterable that allows you to iterate key value pairs.
+         */
+        forEach(forEachCallback = (value, key, iterable) => {
         }, ctx = this) {
             for (const [key, value] of this) {
-                forEachFunc.call(ctx, value, key, this);
+                forEachCallback.call(ctx, value, key, this);
             }
             return this;
         }
 
+        /**
+         * Executes the MapIterable chain, and fills it with the <code>[key,value]</code> pairs,
+         *
+         * if it is an {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array Array} a new array is created and passed back with the filled values, and the orignal is not changed.
+         * If it is a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set Set} a <code>[key,value]</code> pair is added to it. The original is modified.
+         * If it is a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map Map}, {@link HashMap} or {@link LinkedHashMap} a value is set to key, if the value already exists for that key it is overriden. The original is modified.
+         * If it is an {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object Object} a property of <code>key</code> has a value of <code>value</code> set on it. The original is modified.
+         * @param {(Array|Set|Map|HashMap|LinkedHashMap|Object)} [collector=[]] the collection to fill
+         * @returns {(Array|Set|Map|HashMap|LinkedHashMap|Object)} The collector that was passed in.
+         */
         collect(collector = []) {
             if (Array.isArray(collector)) {
-                for (const entry of this) {
-                    collector.push(entry);
+                if(collector.length){
+                    return collector.concat(Array.from(this));
                 }
+               return Array.from(this);
             } else if (isFunction(collector.set)) {
                 for (const [key, value] of this) {
                     collector.set(key, value);
@@ -282,6 +315,12 @@
             return collector;
         }
 
+        /**
+         *
+         * @param everyPredicate
+         * @param ctx
+         * @return {boolean}
+         */
         every(everyPredicate = (value, key, iterable) => false, ctx = this) {
             for (const [key, value] of this) {
                 if (!everyPredicate.call(ctx, value, key, this)) {
@@ -291,6 +330,12 @@
             return true;
         }
 
+        /**
+         *
+         * @param somePredicate
+         * @param ctx
+         * @return {boolean}
+         */
         some(somePredicate = (value, key, iterable) => false, ctx = this) {
             for (const [key, value] of this) {
                 if (somePredicate.call(ctx, value, key, this)) {
@@ -300,6 +345,12 @@
             return false;
         }
 
+        /**
+         *
+         * @param findPredicate
+         * @param ctx
+         * @return {undefined|*}
+         */
         find(findPredicate = (value, key, iterable) => true, ctx = this) {
             for (const [key, value] of this) {
                 if (findPredicate.call(ctx, value, key, this)) {
@@ -309,6 +360,12 @@
             return undefined;
         }
 
+        /**
+         *
+         * @param findPredicate
+         * @param ctx
+         * @return {undefined|*}
+         */
         findIndex(findPredicate = (value, key, iterable) => key, ctx = this) {
             for (const [key, value] of this) {
                 if (findPredicate.call(ctx, value, key, this)) {
@@ -318,6 +375,11 @@
             return undefined;
         }
 
+        /**
+         *
+         * @param valueToCheck
+         * @return {undefined|*}
+         */
         indexOf(valueToCheck) {
             for (const [key, value] of this) {
                 if (valueToCheck === value) {
@@ -327,16 +389,33 @@
             return undefined;
         }
 
+        /**
+         *
+         * @param key
+         * @return {boolean}
+         */
         has(key) {
             const equalTo = hashEquals(key).equalTo;
             return this.some((_, otherKey) => equalTo(otherKey, key));
         }
 
+        /**
+         *
+         * @param key
+         * @return {undefined|*}
+         */
         get(key) {
             const equalTo = hashEquals(key).equalTo;
             return this.find((value, otherKey) => equalTo(key, otherKey));
         }
 
+        /**
+         *
+         * @param reduceFunction
+         * @param initialValue
+         * @param ctx
+         * @return {*}
+         */
         reduce(reduceFunction = (accumulator, value, key, iterable) => value, initialValue = undefined, ctx = this) {
             let accumulator = initialValue;
             for (const [key, value] of this) {
@@ -345,40 +424,86 @@
             return accumulator;
         }
 
+        /**
+         *
+         * @param mapKeyFunction
+         * @param ctx
+         * @return {MapIterable}
+         */
         mapKeys(mapKeyFunction = (value, key, iterable) => key, ctx = this) {
             return new MapKeyMapper(this, mapKeyFunction, ctx);
         }
 
+        /**
+         *
+         * @param mapValueFunction
+         * @param ctx
+         * @return {MapIterable}
+         */
         mapValues(mapValueFunction = (value, key, iterable) => value, ctx = this) {
             return new MapValueMapper(this, mapValueFunction, ctx);
         }
 
+        /**
+         *
+         * @param mapEntryFunction
+         * @param ctx
+         * @return {MapIterable}
+         */
         mapEntries(mapEntryFunction = (value, key, iterable) => [key, value], ctx = this) {
             return new MapEntryMapper(this, mapEntryFunction, ctx);
         }
 
+        /**
+         *
+         * @param mapFunction
+         * @param ctx
+         * @return {MapIterable}
+         */
         map(mapFunction = (value, key, map) => {
             return [key, value];
         }, ctx = this) {
             return new MapMapper(this, mapFunction, ctx);
         }
 
+        /**
+         *
+         * @param otherIterable
+         * @return {MapIterable}
+         */
         concat(otherIterable = []) {
             return new SetConcat(this, otherIterable);
         }
 
+        /**
+         *
+         * @param otherMapIterable
+         * @return {MapIterable}
+         */
         concatMap(otherMapIterable = []) {
             return new MapConcat(this, otherMapIterable);
         }
 
+        /**
+         *
+         * @return {MapIterable}
+         */
         keys() {
             return new MapMapper(this, (_, key) => key, this);
         }
 
+        /**
+         *
+         * @return {MapIterable}
+         */
         values() {
             return new MapMapper(this, (value) => value, this);
         }
 
+        /**
+         *
+         * @return {MapIterable}
+         */
         entries() {
             return this;
         }
@@ -390,6 +515,10 @@
      */
     class SetIterable {
 
+        /**
+         * Returns the number of elements returned by this Set Iterable. If filter is used in the method chain, it is forced to iterate over all the elements, and will be slower. Otherwise even with concats, it just queries the base collection size.
+         * @returns {number}
+         */
         get size() {
             let accumulator = 0;
             for (const i of this) { // jshint ignore:line
@@ -398,6 +527,11 @@
             return accumulator;
         }
 
+        /**
+         *
+         * @param forEachFunc
+         * @param ctx
+         */
         forEach(forEachFunc = (value, map) => {
         }, ctx = this) {
             for (const value of this) {
@@ -405,11 +539,17 @@
             }
         }
 
+        /**
+         *
+         * @param collector
+         * @return {*}
+         */
         collect(collector = []) {
             if (Array.isArray(collector)) {
-                for (const entry of this) {
-                    collector.push(entry);
+                if(collector.length){
+                    return collector.concat(Array.from(this));
                 }
+                return Array.from(this);
             } else if (isFunction(collector.add)) {
                 for (const entry of this) {
                     collector.add(entry);
@@ -422,6 +562,13 @@
             return collector;
         }
 
+        /**
+         *
+         * @param reduceFunction
+         * @param initialValue
+         * @param ctx
+         * @return {undefined}
+         */
         reduce(reduceFunction = (accumulator, value, iterable) => value, initialValue = undefined, ctx = this) {
             let accumulator = initialValue;
             for (const value of this) {
@@ -430,6 +577,12 @@
             return accumulator;
         }
 
+        /**
+         *
+         * @param everyPredicate
+         * @param ctx
+         * @return {boolean}
+         */
         every(everyPredicate = (value, iterable) => false, ctx = this) {
             for (const value of this) {
                 if (!everyPredicate.call(ctx, value, this)) {
@@ -439,6 +592,12 @@
             return true;
         }
 
+        /**
+         *
+         * @param somePredicate
+         * @param ctx
+         * @return {boolean}
+         */
         some(somePredicate = (value, iterable) => false, ctx = this) {
             for (const value of this) {
                 if (somePredicate.call(ctx, value, this)) {
@@ -448,14 +607,31 @@
             return false;
         }
 
+        /**
+         *
+         * @param value
+         * @return {boolean}
+         */
         has(value) {
             return this.some((otherValue) => value === otherValue);
         }
 
+        /**
+         *
+         * @param filterPredicate
+         * @param ctx
+         * @return {SetFilter}
+         */
         filter(filterPredicate = (value, map) => true, ctx = this) {
             return new SetFilter(this, filterPredicate, ctx);
         }
 
+        /**
+         *
+         * @param findPredicate
+         * @param ctx
+         * @return {any|undefined}
+         */
         find(findPredicate = (value, iterable) => true, ctx = this) {
             for (const value of this) {
                 if (findPredicate.call(ctx, value, this)) {
@@ -465,20 +641,37 @@
             return undefined;
         }
 
+        /**
+         *
+         * @param mapFunction
+         * @param ctx
+         * @return {SetMapper}
+         */
         map(mapFunction = (value, map) => value, ctx = this) {
             return new SetMapper(this, mapFunction, ctx);
         }
 
+        /**
+         *
+         * @param otherIterable
+         * @return {SetConcat}
+         */
         concat(otherIterable = []) {
             return new SetConcat(this, otherIterable);
         }
 
+        /**
+         *
+         * @return {SetIterable}
+         */
         values() {
             return this;
         }
     }
 
-
+    /**
+     * @private
+     */
     class Entry {
         constructor(key, value, map) {
             this.key = key;
@@ -493,6 +686,10 @@
         }
     }
 
+    /**
+     * @private
+     * @extends Entry
+     */
     class LinkedEntry extends Entry {
         constructor(key, value) {
             super(key, value);
@@ -517,18 +714,7 @@
     }
 
     /**
-     * Interface Class
-     * Methods to Implement
-     *   has(key) : boolean
-     *   get(key) : value
-     *   search(value) : key
-     *   set(key, value) : this
-     *   copy(other) : this
-     *   clone()
-     *   delete(key) : this
-     *   clear() : this
-     *   count() : integer
-     *   forEach(func, ctx) : this
+     * @extends MapIterable
      */
     class HashMap extends MapIterable {
         constructor(args = {copy: undefined, depth: undefined, widthB: 6}) {
@@ -546,10 +732,17 @@
             }
         }
 
+        /**
+         * @return {number|*}
+         */
         get size() {
             return this.length;
         }
 
+        /**
+         * @param key
+         * @return {boolean|*}
+         */
         has(key) {
             if (this.buckets) {
                 const currHE = hashEquals(key);
@@ -558,6 +751,10 @@
             return false;
         }
 
+        /**
+         * @param key
+         * @return {undefined|*}
+         */
         get(key) {
             if (this.buckets) {
                 const currHE = hashEquals(key);
@@ -566,11 +763,22 @@
             return undefined;
         }
 
+        /**
+         *
+         * @param key
+         * @param value
+         * @return {HashMap}
+         */
         set(key, value) {
             this.addEntry(new Entry(key, value));
             return this;
         }
 
+        /**
+         * @ignore
+         * @param entry
+         * @return {*}
+         */
         addEntry(entry) {
             const currHE = hashEquals(entry.key);
             if (this.buckets) {
@@ -583,6 +791,11 @@
             return entry;
         }
 
+        /**
+         *
+         * @param other
+         * @return {HashMap}
+         */
         copy(other) {
             const map = this;
             if (Array.isArray(other)) {
@@ -597,10 +810,19 @@
             return this;
         }
 
+        /**
+         *
+         * @return {HashMap}
+         */
         clone() {
             return new HashMap({copy: this, depth: this.options.depth, widthB: this.options.widthB});
         }
 
+        /**
+         *
+         * @param key
+         * @return {HashMap}
+         */
         delete(key) {
             if (this.buckets) {
                 const currHE = hashEquals(key);
@@ -614,13 +836,19 @@
             return this;
         }
 
+        /**
+         *
+         * @return {HashMap}
+         */
         clear() {
             // we clone the options as its dangerous to modify mid execution.
             this.buckets = undefined;
             this.length = 0;
             return this;
         }
-
+        /**
+         * @return {Generator<Array.<key,value>>}
+         */
         * [Symbol.iterator]() {
             if (this.buckets) {
                 for (const entry of this.buckets) {
@@ -632,13 +860,26 @@
 
     HashMap.uid = 0;
 
+    /**
+     * @extends HashMap
+     */
     class LinkedHashMap extends HashMap {
+        /**
+         *
+         * @param args
+         */
         constructor(args = {copy: undefined, depth: undefined, widthB: 6}) {
             super(args);
             this.start = undefined;
             this.end = undefined;
         }
 
+        /**
+         *
+         * @param key
+         * @param value
+         * @return {LinkedHashMap}
+         */
         set(key, value) {
             const entry = this.addEntry(new LinkedEntry(key, value));
             // if we added at the end, shift forward one.
@@ -654,6 +895,11 @@
             return this;
         }
 
+        /**
+         *
+         * @param key
+         * @return {LinkedHashMap}
+         */
         delete(key) {
             super.delete(key);
             if (this.start && this.start.deleted) {
@@ -665,10 +911,17 @@
             return this;
         }
 
+        /**
+         *
+         * @return {LinkedHashMap}
+         */
         clone() {
             return new LinkedHashMap({copy: this, depth: this.options.depth, widthB: this.options.widthB});
         }
 
+        /**
+         * @return {Generator<Array.<key,value>>}
+         */
         * [Symbol.iterator]() {
             let entry = this.start;
             while (entry) {
@@ -678,6 +931,9 @@
         }
     }
 
+    /**
+     * @private
+     */
     class Container {
         constructor(entry) {
             this.entry = entry;
@@ -732,7 +988,8 @@
     }
 
     /**
-     * Last in First out
+     * @private
+     * @extends Container
      */
     class LinkedStack extends Container {
         constructor(entry, next) {
@@ -823,6 +1080,10 @@
 
     }
 
+    /**
+     * @private
+     * @extends Container
+     */
     class HashContainer extends Container {
         constructor(entry, hash, options, depth) {
             super(entry);
@@ -862,6 +1123,9 @@
         }
     }
 
+    /**
+     * @private
+     */
     class HashBuckets {
         constructor(options, depth) {
             this.options = options;
@@ -929,6 +1193,10 @@
         }
     }
 
+    /**
+     * @extends SetIterable
+     * @private
+     */
     class SetIterableWrapper extends SetIterable {
         constructor(iterable, ctx) {
             super();
@@ -936,19 +1204,28 @@
             this.ctx = ctx;
         }
 
-        * [Symbol.iterator]() {
-            yield* this.iterable;
-        }
         get size() {
             return this.iterable.size;
         }
+
+        * [Symbol.iterator]() {
+            yield* this.iterable;
+        }
     }
 
+    /**
+     * @extends MapIterable
+     * @private
+     */
     class MapIterableWrapper extends MapIterable {
         constructor(iterable, ctx) {
             super();
             this.iterable = iterable;
             this.ctx = ctx;
+        }
+
+        get size() {
+            return this.iterable.size;
         }
 
         * [Symbol.iterator]() {
@@ -968,29 +1245,45 @@
             }
             return super.get(key);
         }
-        get size() {
-            return this.iterable.size;
-        }
     }
 
+
     /**
-     * Wraps any class that iterates with [key,value] pairs and provides higher order chained functions.
+     * Wraps any class that iterates with <code>[key,value]</code> pairs and provides higher order chained functions.
+     * @function Mootable.mapIterator
+     * @param {!(Set.<Array.<key,value>>|Map|Array.<Array.<key,value>>|Iterator.<Array.<key,value>>)} map the map to wrap
+     * @return {MapIterable} the wrapped Map.
      */
     const mapIterator = function (map) {
         return new MapIterableWrapper(map);
     };
     /**
-     * Wraps any class that iterates entries and provides higher order chained functions.
+     * Wraps any class that iterates any value and provides higher order chained functions.
+     * @function Mootable.setIterator
+     * @param {(Set|Map|Array|Iterator)} set the map to wrap
+     * @return {SetIterable} the wrapped Set.
      */
     const setIterator = function (set) {
         return new SetIterableWrapper(set);
     };
 
+    /**
+     * @extends MapIterableWrapper
+     * @private
+     */
     class MapFilter extends MapIterableWrapper {
 
         constructor(iterable, filterPredicate, ctx) {
             super(iterable, ctx);
             this.filterPredicate = filterPredicate;
+        }
+
+        get size() {
+            let accumulator = 0;
+            for (const i of this) { // jshint ignore:line
+                accumulator++;
+            }
+            return accumulator;
         }
 
         * [Symbol.iterator]() {
@@ -1020,15 +1313,12 @@
             }
             return undefined;
         }
-        get size() {
-            let accumulator = 0;
-            for (const i of this) { // jshint ignore:line
-                accumulator++;
-            }
-            return accumulator;
-        }
     }
 
+    /**
+     * @extends MapIterableWrapper
+     * @private
+     */
     class MapKeyMapper extends MapIterableWrapper {
 
         constructor(iterable, mapFunction, ctx) {
@@ -1043,6 +1333,10 @@
         }
     }
 
+    /**
+     * @extends MapIterableWrapper
+     * @private
+     */
     class MapValueMapper extends MapIterableWrapper {
 
         constructor(iterable, mapFunction, ctx) {
@@ -1057,6 +1351,10 @@
         }
     }
 
+    /**
+     * @extends MapIterableWrapper
+     * @private
+     */
     class MapEntryMapper extends MapIterableWrapper {
 
         constructor(iterable, mapFunction, ctx) {
@@ -1072,6 +1370,10 @@
         }
     }
 
+    /**
+     * @extends MapIterable
+     * @private
+     */
     class MapConcat extends MapIterable {
         constructor(iterable, otherIterable) {
             super();
@@ -1079,13 +1381,13 @@
             this.otherIterable = otherIterable;
         }
 
+        get size() {
+            return this.iterable.size + (this.otherIterable.size | this.otherIterable.length);
+        }
+
         * [Symbol.iterator]() {
             yield* this.iterable;
             yield* this.otherIterable;
-        }
-
-        get size() {
-            return this.iterable.size + (this.otherIterable.size | this.otherIterable.length);
         }
 
         has(key) {
@@ -1123,7 +1425,10 @@
     }
 
 // The following are set iterables.
-
+    /**
+     * @extends SetIterable
+     * @private
+     */
     class SetConcat extends SetIterable {
         constructor(iterable, otherIterable) {
             super();
@@ -1131,16 +1436,20 @@
             this.otherIterable = otherIterable;
         }
 
+        get size() {
+            return this.iterable.size + (this.otherIterable.size | this.otherIterable.length);
+        }
+
         * [Symbol.iterator]() {
             yield* this.iterable;
             yield* this.otherIterable;
         }
-
-        get size() {
-            return this.iterable.size + (this.otherIterable.size | this.otherIterable.length);
-        }
     }
 
+    /**
+     * @extends SetIterableWrapper
+     * @private
+     */
     class MapMapper extends SetIterableWrapper {
 
         constructor(iterable, mapFunction, ctx) {
@@ -1155,6 +1464,10 @@
         }
     }
 
+    /**
+     * @extends SetIterableWrapper
+     * @private
+     */
     class SetMapper extends SetIterableWrapper {
 
         constructor(iterable, mapFunction, ctx) {
@@ -1169,19 +1482,15 @@
         }
     }
 
+    /**
+     * @extends SetIterableWrapper
+     * @private
+     */
     class SetFilter extends SetIterableWrapper {
 
         constructor(iterable, filterPredicate, ctx) {
             super(iterable, ctx);
             this.filterPredicate = filterPredicate;
-        }
-
-        * [Symbol.iterator]() {
-            for (let value of this.iterable) {
-                if (this.filterPredicate.call(this.ctx, value, this)) {
-                    yield value;
-                }
-            }
         }
 
         get size() {
@@ -1190,6 +1499,14 @@
                 accumulator++;
             }
             return accumulator;
+        }
+
+        * [Symbol.iterator]() {
+            for (let value of this.iterable) {
+                if (this.filterPredicate.call(this.ctx, value, this)) {
+                    yield value;
+                }
+            }
         }
     }
 
