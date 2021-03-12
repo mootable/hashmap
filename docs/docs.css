@@ -1,0 +1,62 @@
+article h4.name {
+    background: #374e94;
+    padding-top: 1em;
+    margin-top: 2.5em;
+    box-shadow: none;
+    border: none;
+    border-radius: 0.3em
+}
+table {
+    box-shadow: none;
+    border-radius: 0.3em;
+    border: 1px solid #dfdbd3;
+}
+
+article .description,
+article .param-desc,
+article .param-type {
+    margin-left: 2em;
+}
+/*article h5 {*/
+/*    margin-left: 1em;*/
+/*}*/
+
+article dl.details {
+    text-align: right;
+    border: none;
+}
+article dl.details dt {
+    display: none;
+}
+
+.type-signature {
+    color: #c7ebdf;
+}
+.type-signature:last-child {
+    color: #d6be8f;
+}
+.signature {
+    color: #d6be8f;
+}
+.signature-attributes {
+    color: #c7ebdf;
+    vertical-align: super;
+    margin-left: 0.2em;
+}
+h4.name a:hover {
+    border-bottom-color: white;
+}
+h4.name a {
+    color: #d6be8f;
+    border-bottom-color: #d6be8f;
+}
+code {
+    background: #f8f4ed;
+}
+span.param-type, .params td .param-type, .param-type dd {
+    color: #573794;
+}
+
+article .params .param-type, article .param-type .param-type, article .type .param-type {
+    margin: unset;
+}

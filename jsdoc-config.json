@@ -4,15 +4,20 @@
 	},
 	"source": {
 		"include": [
-			"src"
+			"src",
+			"assets"
 		]
 	},
+
 	"plugins": ["plugins/markdown"],
 	"templates": {
 		"cleverLinks": true,
 		"monospaceLinks": true,
 		"default": {
-			"outputSourceFiles": true
+			"outputSourceFiles": true,
+			"staticFiles" : {
+				"include" : ["assets"]
+			}
 		}
 	},
 	"opts": {
@@ -32,6 +37,7 @@
 		"collapse": true,
 		"wrap": true,
 		"typedefs": true,
-		"navLevel" : 5
+		"navLevel" : 5,
+		"scripts" : ["docs.css"]
 	}
 }

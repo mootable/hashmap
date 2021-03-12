@@ -1,5 +1,6 @@
 ![The Moo Tableau](mootableau_sm.png)
 
+[API Documentation](https://mootable.github.io/hashmap/HashMap)
 ---
 # HashMap & LinkedHashMap
 ## Description
@@ -38,10 +39,8 @@ To run the benchmarks: (Ensure you have the memory to run them)
 
 ## [API Documentation](https://mootable.github.io/hashmap/)
 
-The methods listed in the readme below, are just a small selection of the now included Higher Order Functions. I am in the process of documenting them out, and they can be found [here](https://mootable.github.io/hashmap/). However these methods match the same signatures and effective behaviours as Array and Map, and have the advantage of being both chainable and having defered execution.
-
-## `HashMap` constructor
-This HashMap is backed by a hashtrie, and can be tuned to specific use cases.
+### [HashMap](https://mootable.github.io/hashmap/HashMap) constructor
+This [HashMap](https://mootable.github.io/hashmap/HashMap) is backed by a hashtrie, and can be tuned to specific use cases.
 - `new HashMap()` creates an empty hashmap
 - `new HashMap(copy:Iterable)` creates a hashmap which is a copy of the provided iterable.
   1) `copy` either
@@ -57,8 +56,8 @@ This HashMap is backed by a hashtrie, and can be tuned to specific use cases.
     - Minimum: `2`, Maximum: `16`, Default: `6` (64 Buckets)
 
 
-## `LinkedHashMap` constructor
-LinkedHashMaps maintain insertion order of keys, it has a slightly larger memory footprint and is a little slower.
+### [LinkedHashMap](https://mootable.github.io/hashmap/LinkedHashMap) constructor
+[LinkedHashMap](https://mootable.github.io/hashmap/LinkedHashMap) maintains insertion order of keys, it has a slightly larger memory footprint and is a little slower.
 - `new LinkedHashMap()` creates an empty linked hashmap
 - `new LinkedHashMap(copy:Iterable)` creates a linked hashmap which is a copy of the provided iterable.
   1) `copy` either
@@ -74,40 +73,63 @@ LinkedHashMaps maintain insertion order of keys, it has a slightly larger memory
   - Minimum: `2`, Maximum: `16`, Default: `6` (64 Buckets)
 
 
-## `HashMap` (and `LinkedHashMap`) methods
+[comment]: <> (## `HashMap` &#40;and `LinkedHashMap`&#41; methods)
 
-- `get(key:*) : *` returns the value stored for that key.
-- `set(key:*, value:*) : HashMap` stores a key-value pair
-- `copy(other:HashMap) : HashMap` copies all key-value pairs from other to this instance
-- `has(key:*) : Boolean` returns whether a key is set on the hashmap
-- `indexOf(value:*) : *` returns key under which given value is stored (`null` if not found)
-- `delete(key:*) : HashMap` deletes a key-value pair by key
-- `keys() : Iterable<*>` returns an array with all the registered keys
-- `values() : Iterable<*>` returns an array with all the values
-- `entries() : Iterable<[*,*]>` returns an array with [key,value] pairs
-- `length : Number` the amount of key-value pairs
-- `clear() : HashMap` deletes all the key-value pairs on the hashmap
-- `clone() : HashMap` creates a new hashmap with all the key-value pairs of the original
-- `forEach(function(value, key)) : HashMap` iterates the pairs and calls the function for each one
-  Higher Order Functions added and in and in the process of being documented are:
-- `collect`
-- `concat`
-- `concatMap`
-- `every`
-- `filter`
-- `find`
-- `findIndex`
-- `forEach`
-- `map`
-- `mapEntries`
-- `mapKeys`
-- `mapValues`
-- `reduce`
-- `some`
+[comment]: <> (- `get&#40;key:*&#41; : *` returns the value stored for that key.)
 
-### Method chaining
+[comment]: <> (- `set&#40;key:*, value:*&#41; : HashMap` stores a key-value pair)
 
-All methods that don't return something, will return the HashMap instance to enable chaining.
+[comment]: <> (- `copy&#40;other:HashMap&#41; : HashMap` copies all key-value pairs from other to this instance)
+
+[comment]: <> (- `has&#40;key:*&#41; : Boolean` returns whether a key is set on the hashmap)
+
+[comment]: <> (- `indexOf&#40;value:*&#41; : *` returns key under which given value is stored &#40;`null` if not found&#41;)
+
+[comment]: <> (- `delete&#40;key:*&#41; : HashMap` deletes a key-value pair by key)
+
+[comment]: <> (- `keys&#40;&#41; : Iterable<*>` returns an array with all the registered keys)
+
+[comment]: <> (- `values&#40;&#41; : Iterable<*>` returns an array with all the values)
+
+[comment]: <> (- `entries&#40;&#41; : Iterable<[*,*]>` returns an array with [key,value] pairs)
+
+[comment]: <> (- `length : Number` the amount of key-value pairs)
+
+[comment]: <> (- `clear&#40;&#41; : HashMap` deletes all the key-value pairs on the hashmap)
+
+[comment]: <> (- `clone&#40;&#41; : HashMap` creates a new hashmap with all the key-value pairs of the original)
+
+[comment]: <> (- `forEach&#40;function&#40;value, key&#41;&#41; : HashMap` iterates the pairs and calls the function for each one)
+
+[comment]: <> (  Higher Order Functions added and in and in the process of being documented are:)
+
+[comment]: <> (- `collect`)
+
+[comment]: <> (- `concat`)
+
+[comment]: <> (- `concatMap`)
+
+[comment]: <> (- `every`)
+
+[comment]: <> (- `filter`)
+
+[comment]: <> (- `find`)
+
+[comment]: <> (- `findIndex`)
+
+[comment]: <> (- `forEach`)
+
+[comment]: <> (- `map`)
+
+[comment]: <> (- `mapEntries`)
+
+[comment]: <> (- `mapKeys`)
+
+[comment]: <> (- `mapValues`)
+
+[comment]: <> (- `reduce`)
+
+[comment]: <> (- `some`)
 
 ## Examples
 
@@ -218,7 +240,7 @@ map
     - It must have an identical interface to JS Map
     - It must be fully written in JS. (Transpiling is acceptable) So that we can guarantee it works in the browser, not just node.
 
-### Benchmarks on version 0.7.0
+### Benchmarks on version 0.7.1
 
 <table>
 <thead><tr><th>Entry Size</th><th>Fastest Version</th><th>Percentage Faster</th><th>Times Faster</th></tr></thead>

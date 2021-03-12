@@ -1,4 +1,11 @@
 # Changelog
+
+## 0.7.1
+- Doc Styling
+- Each and Some now default to true, if no function is provided.
+- Added more documentation
+- Modified Readme.
+
 ## 0.7.0
 - Breaking changes.
   - Search has been renamed indexOf to match Arrays methods more closely. 

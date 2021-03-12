@@ -1,7 +1,7 @@
 /**
  * HashMap - HashMap Implementation for JavaScript
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.7.0
+ * @version 0.7.1
  * Homepage: https://github.com/mootable/hashmap
  */
 
@@ -222,19 +222,15 @@
      */
 
     /**
+     * A collection of MapIterable Callbacks.
+     * @interface SetCallbacks
+     */
+
+    /**
      * The base class for the Map Implementations, and the Higher Order Functions for Maps
      * @abstract
      */
     class MapIterable {
-        /**
-         * Filter Predicate
-         * Test each element of the map and only include entries where this returns true.
-         * @callback MapCallbacks.FilterPredicate
-         * @param {*} [value] - the entry value.
-         * @param {*} [key] - the entry key
-         * @param {MapIterable} [iterable] - the calling Map Iterable.
-         * @return {boolean} - a value that coerces to true to keep the element, or to false otherwise.
-         */
 
         /**
          * Returns the number of elements returned by this Map Iterable. If filter is used in the method chain, it is forced to iterate over all the elements, and will be slower. Otherwise even with concats, it just queries the base collection size.
@@ -249,9 +245,20 @@
         }
 
         /**
-         * Test each element of the map and only include entries where the <code>FilterPredicate</code> returns true.
+         * Test each element of the map to see if it matches and return
+         *  - true if the key and value match.
+         *  - false if it doesn't.
+         * @callback MapCallbacks.MatchesPredicate
+         * @param {*} [value] - the entry value.
+         * @param {*} [key] - the entry key
+         * @param {MapIterable} [iterable] - the calling Map Iterable.
+         * @return {boolean} - a value that coerces to true if it matches, or to false otherwise.
+         */
+
+        /**
+         * Test each element of the map and only include entries where the <code>MatchesPredicate</code> returns true.
          *
-         * @param {MapCallbacks.FilterPredicate} [filterPredicate=() => true] - if the provided function returns <code>false</code>, that entry is excluded.
+         * @param {MapCallbacks.MatchesPredicate} [filterPredicate=(value, key, iterable) => true] - if the provided function returns <code>false</code>, that entry is excluded.
          * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>filterPredicate</code>
          * @returns {MapIterable} - an iterable that allows you to iterate key value pairs.
          */
@@ -271,8 +278,8 @@
 
         /**
          * Execute the provided callback on every <code>[key,value]</code> pair of this map iterable.
-         * @param {MapCallbacks.ForEachCallback} [forEachCallback=() => {}]
-         * @param {*} [ctx=this] Value to use as <code>this</code> when executing <code>filterMapPredicate</code>
+         * @param {MapCallbacks.ForEachCallback} [forEachCallback=(value, key, iterable) => {}]
+         * @param {*} [ctx=this] Value to use as <code>this</code> when executing <code>forEachCallback</code>
          * @returns {MapIterable} - an iterable that allows you to iterate key value pairs.
          */
         forEach(forEachCallback = (value, key, iterable) => {
@@ -295,10 +302,10 @@
          */
         collect(collector = []) {
             if (Array.isArray(collector)) {
-                if(collector.length){
+                if (collector.length) {
                     return collector.concat(Array.from(this));
                 }
-               return Array.from(this);
+                return Array.from(this);
             } else if (isFunction(collector.set)) {
                 for (const [key, value] of this) {
                     collector.set(key, value);
@@ -315,13 +322,20 @@
             return collector;
         }
 
+
         /**
+         * Test each element of the map against the <code>MatchesPredicate</code>.
+         * - if any element does not match, returns false
+         * - if all elements match, returns true.
+         * - if no elements match, returns false.
+         * - if the iterable is empty, returns true
+         * - if no predicate is provided, returns true.
          *
-         * @param everyPredicate
-         * @param ctx
-         * @return {boolean}
+         * @param {MapCallbacks.MatchesPredicate} [everyPredicate=(value, key, iterable) => true] - if the provided function returns <code>false</code>, at any point the <code>every()</code> function returns false.
+         * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>everyPredicate</code>
+         * @returns {boolean} - true if all elements match, false if one or more elements fails to match.
          */
-        every(everyPredicate = (value, key, iterable) => false, ctx = this) {
+        every(everyPredicate = (value, key, iterable) => true, ctx = this) {
             for (const [key, value] of this) {
                 if (!everyPredicate.call(ctx, value, key, this)) {
                     return false;
@@ -331,12 +345,18 @@
         }
 
         /**
+         * Test each element of the map against the <code>MatchesPredicate</code>.
+         * - if any element matches, returns true.
+         * - if all elements match returns true.
+         * - if no elements match returns false.
+         * - if the iterable is empty, returns true.
+         * - if no predicate is provided, returns true.
          *
-         * @param somePredicate
-         * @param ctx
-         * @return {boolean}
+         * @param {MapCallbacks.MatchesPredicate} [somePredicate=(value, key, iterable) => true] - the predicate to identify if we have a match.
+         * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>somePredicate</code>
+         * @returns {boolean} - true if all elements match, false if one or more elements fails to match.
          */
-        some(somePredicate = (value, key, iterable) => false, ctx = this) {
+        some(somePredicate = (value, key, iterable) => true, ctx = this) {
             for (const [key, value] of this) {
                 if (somePredicate.call(ctx, value, key, this)) {
                     return true;
@@ -346,10 +366,14 @@
         }
 
         /**
+         * Test each element of the map against the <code>MatchesPredicate</code> until we get a match.
+         * - return the first <code>value</code> from the <code>[key,value]</code> pair that matches
+         * - if no elements match, it returns undefined.
+         * - if no predicate is defined, will return the first value it finds.
          *
-         * @param findPredicate
-         * @param ctx
-         * @return {undefined|*}
+         * @param {MapCallbacks.MatchesPredicate} [findPredicate=(value, key, iterable) => value] - the predicate to identify if we have a match.
+         * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>findPredicate</code>
+         * @returns {*} - the value of the element that matches..
          */
         find(findPredicate = (value, key, iterable) => true, ctx = this) {
             for (const [key, value] of this) {
@@ -361,14 +385,20 @@
         }
 
         /**
+         * Test each element of the map against the <code>MatchesPredicate</code> until we get a match.
+         * - return the first <code>key</code> from the <code>[key,value]</code> pair that matches
+         * - if no elements match, it returns undefined.
+         * - if no predicate is defined, will return the first key it finds.
          *
-         * @param findPredicate
-         * @param ctx
-         * @return {undefined|*}
+         * @see Array.findIndex
+         *
+         * @param {MapCallbacks.MatchesPredicate} [findIndexPredicate=(value, key, iterable) => key] - the predicate to identify if we have a match.
+         * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>findIndexPredicate</code>
+         * @returns {*} - the key of the element that matches..
          */
-        findIndex(findPredicate = (value, key, iterable) => key, ctx = this) {
+        findIndex(findIndexPredicate = (value, key, iterable) => key, ctx = this) {
             for (const [key, value] of this) {
-                if (findPredicate.call(ctx, value, key, this)) {
+                if (findIndexPredicate.call(ctx, value, key, this)) {
                     return key;
                 }
             }
@@ -376,9 +406,17 @@
         }
 
         /**
+         * Test each element of the map to see if it contains a value that is <code>===</code> to the provided value.
+         * - return the first <code>key</code> from the <code>[key,value]</code> pair that matches
+         * - if no elements match, it returns undefined.
+         * - it is legitimate for values to be null or undefined, and if set, will find a key.
          *
-         * @param valueToCheck
-         * @return {undefined|*}
+         * Values are not indexed, this is potentially an expensive operation.
+         *
+         * @see Array.indexOf
+         *
+         * @param {*} valueToCheck - the value we use to === against the entries value to identify if we have a match.
+         * @returns {*} - the key of the element that matches..
          */
         indexOf(valueToCheck) {
             for (const [key, value] of this) {
@@ -390,9 +428,18 @@
         }
 
         /**
+         * Does the map have this key.
+         * If backed by a Map or HashMap, or in fact any collection that implements the <code>.has(key)</code> function, then it will utilize that, otherwise it will iterate across the collection.
+         * - return true if the <code>key</code> matches a <code>[key,value]</code> pair.
+         * - if no elements match, it returns false.
+         * - it is legitimate for keys to be null or undefined, and if set, will return true
          *
-         * @param key
-         * @return {boolean}
+         * Maps typically index keys, and so is generally a fast operation.
+         *
+         * @see Map.has
+         *
+         * @param {*} key - the key we use to === against the entries key to identify if we have a match.
+         * @returns {boolean} - if it holds the key or not.
          */
         has(key) {
             const equalTo = hashEquals(key).equalTo;
@@ -400,9 +447,18 @@
         }
 
         /**
+         * Get a value from the map using this key.
+         * If backed by a Map or HashMap, or in fact any collection that implements the <code>.has(key)</code> function, then it will utilize that, otherwise it will iterate across the collection.
+         * - return the first <code>value</code> from the <code>[key,value]</code> pair that matches
+         * - if no elements match, it returns undefined.
+         * - it is legitimate for keys to be null or undefined, and if set, will find a value.
          *
-         * @param key
-         * @return {undefined|*}
+         * Maps typically index keys, and so is generally a fast operation.
+         *
+         * @see Map.has
+         *
+         * @param {*} key - the key we use to === against the entries key to identify if we have a match.
+         * @returns {*} - the value of the element that matches..
          */
         get(key) {
             const equalTo = hashEquals(key).equalTo;
@@ -528,9 +584,42 @@
         }
 
         /**
+         * Test each element of the set to see if it matches and return
+         *  - true if the value matches.
+         *  - false if it doesn't.
+         * @callback SetCallbacks.MatchesPredicate
+         * @param {*} [value] - the value.
+         * @param {SetIterable} [iterable] - the calling Set Iterable.
+         * @return {boolean} - coerces to true if it matches, or to false otherwise.
+         */
+
+        /**
+         * Test each element of the set and only include entries where the <code>MatchesPredicate</code> returns true.
          *
-         * @param forEachFunc
-         * @param ctx
+         * @param {SetCallbacks.MatchesPredicate} [filterPredicate=() => true] - if the provided function returns <code>false</code>, that entry is excluded.
+         * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>filterPredicate</code>
+         * @returns {SetIterable} - an iterable that allows you to iterate values.
+         */
+        filter(filterPredicate = (value, map) => true, ctx = this) {
+            return new SetFilter(this, filterPredicate, ctx);
+        }
+
+        /**
+         * For Each Function
+         * A callback to execute on every <code>value</code> of this set iterable.
+         *
+         * @callback SetCallbacks.ForEachCallback
+         * @param {*} [value] - the entry value.
+         * @param {*} [key] - the entry key
+         * @param {SetIterable} [iterable] - the calling Map Iterable.
+         */
+
+        /**
+         * Execute the provided <code>forEachCallback</code> on every <code>value</code> of this set iterable.
+         *
+         * @param {SetCallbacks.ForEachCallback} [forEachCallback=() => {}]
+         * @param {*} [ctx=this] Value to use as <code>this</code> when executing <code>forEachCallback</code>
+         * @returns {SetIterable} - an iterable that allows you to iterate on values.
          */
         forEach(forEachFunc = (value, map) => {
         }, ctx = this) {
@@ -546,7 +635,7 @@
          */
         collect(collector = []) {
             if (Array.isArray(collector)) {
-                if(collector.length){
+                if (collector.length) {
                     return collector.concat(Array.from(this));
                 }
                 return Array.from(this);
@@ -583,7 +672,7 @@
          * @param ctx
          * @return {boolean}
          */
-        every(everyPredicate = (value, iterable) => false, ctx = this) {
+        every(everyPredicate = (value, iterable) => true, ctx = this) {
             for (const value of this) {
                 if (!everyPredicate.call(ctx, value, this)) {
                     return false;
@@ -598,7 +687,7 @@
          * @param ctx
          * @return {boolean}
          */
-        some(somePredicate = (value, iterable) => false, ctx = this) {
+        some(somePredicate = (value, iterable) => true, ctx = this) {
             for (const value of this) {
                 if (somePredicate.call(ctx, value, this)) {
                     return true;
@@ -616,15 +705,6 @@
             return this.some((otherValue) => value === otherValue);
         }
 
-        /**
-         *
-         * @param filterPredicate
-         * @param ctx
-         * @return {SetFilter}
-         */
-        filter(filterPredicate = (value, map) => true, ctx = this) {
-            return new SetFilter(this, filterPredicate, ctx);
-        }
 
         /**
          *
@@ -714,9 +794,39 @@
     }
 
     /**
+     * This HashMap is backed by a hashtrie, and can be tuned to specific use cases.
      * @extends MapIterable
      */
     class HashMap extends MapIterable {
+        /**
+         * @typedef HashMap~ConstructorOptions
+         * @property {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>)} [copy] - an object that provides a forEach function with the same signature as`Map.forEach`.
+         * such as `Map` or this `HashMap` and `LinkedHashMap`or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
+         * @property {number} [depth] - how many layers deep our hashtrie goes.
+         * - Minimum: `1`
+         * - Maximum/Default: `(32/widthB)-1`
+         * @property {number} [widthB] - how many buckets in each hashtrie layer we use to the power of 2, for instance a `widthB` of 4 = 16 buckets.
+         * - Minimum: `2`
+         * - Maximum: `16`
+         * - Default: `6` (64 Buckets)
+         */
+        /**
+         * This HashMap is backed by a hashtrie, and can be tuned to specific use cases.
+         * - `new HashMap()` creates an empty hashmap
+         * - `new HashMap(copy:Iterable)` creates a hashmap which is a copy of the provided iterable.
+         *   1) `copy` either
+         *      - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
+         *      - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
+         * - `new HashMap({copy:?Iterable, depth:?int, widthB:?int})` creates a hashmap with optional `depth` and `widthB`.  If `copy` is provided (`map` or `array`, its keys and values are inserted into this map.
+         *   1) `copy` either
+         *      - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
+         *      - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
+         *   2) `depth` is how many layers deep our hashtrie goes.
+         *      - Minimum: `1`, Maximum/Default: `(32/widthB)-1`
+         *   3) `widthB` is how many buckets in each hashtrie layer we use to the power of 2, for instance a `widthB` of 4 = 16 buckets.
+         *      - Minimum: `2`, Maximum: `16`, Default: `6` (64 Buckets)
+         * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>|HashMap~ConstructorOptions)} [args]
+         */
         constructor(args = {copy: undefined, depth: undefined, widthB: 6}) {
             super();
             let {depth, widthB, copy} = args;
@@ -846,6 +956,7 @@
             this.length = 0;
             return this;
         }
+
         /**
          * @return {Generator<Array.<key,value>>}
          */
@@ -861,12 +972,27 @@
     HashMap.uid = 0;
 
     /**
+     * This LinkedHashMap is is an extension of {@link HashMap} however LinkedHashMap also maintains insertion order of keys, and guarantees to iterate over them in that order.
      * @extends HashMap
      */
     class LinkedHashMap extends HashMap {
+
         /**
-         *
-         * @param args
+         * This LinkedHashMap is is an extension of {@link HashMap} however LinkedHashMap also maintains insertion order of keys, and guarantees to iterate over them in that order.
+         * - `new LinkedHashMap()` creates an empty linked hashmap
+         * - `new LinkedHashMap(copy:Iterable)` creates a linked hashmap which is a copy of the provided iterable.
+         *   1) `copy` either
+         *      - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
+         *      - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
+         * - `new LinkedHashMap({copy:?Iterable, depth:?int, widthB:?int})` creates a linked hashmap with optional `depth` and `widthB`.  If `copy` is provided (`map` or `array`, its keys and values are inserted into this map.
+         *   1) `copy` either
+         *      - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
+         *      - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
+         *   2) `depth` is how many layers deep our hashtrie goes.
+         *      - Minimum: `1`, Maximum/Default: `(32/widthB)-1`
+         *   3) `widthB` is how many buckets in each hashtrie layer we use to the power of 2, for instance a `widthB` of 4 = 16 buckets.
+         *      - Minimum: `2`, Maximum: `16`, Default: `6` (64 Buckets)
+         * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>|HashMap~ConstructorOptions)} [args]
          */
         constructor(args = {copy: undefined, depth: undefined, widthB: 6}) {
             super(args);

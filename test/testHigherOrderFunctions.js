@@ -858,6 +858,12 @@ describe('Higher Order Functions', function () {
             expect(mapIterator.every(() => false)).to.be.false;
         });
 
+        it('should return true if no predicate included', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            expect(mapIterator.every()).to.be.true;
+        });
+
         it('should true false if all are right', function () {
             hashmap.set('key', 'value');
             hashmap.set('key2', 'value2');
@@ -928,6 +934,12 @@ describe('Higher Order Functions', function () {
             expect(setIterator.every(() => false)).to.be.false;
         });
 
+        it('should return true if no predicate included', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            expect(setIterator.every()).to.be.true;
+        });
+
         it('should true false if all are right', function () {
             hashmap.set('key', 'value');
             hashmap.set('key2', 'value2');
@@ -992,6 +1004,11 @@ describe('Higher Order Functions', function () {
             expect(mapIterator.some(() => true)).to.be.false;
         });
 
+        it('should return true if no predicate included', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            expect(mapIterator.some()).to.be.true;
+        });
         it('should return false if all are wrong', function () {
             hashmap.set('key', 'value');
             hashmap.set('key2', 'value2');
@@ -1069,6 +1086,12 @@ describe('Higher Order Functions', function () {
             hashmap.set('key', 'value');
             hashmap.set('key2', 'value2');
             expect(setIterator.some(() => false)).to.be.false;
+        });
+
+        it('should return true if no predicate included', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            expect(setIterator.some()).to.be.true;
         });
         it('should return true if all are right', function () {
             hashmap.set('key', 'value');
