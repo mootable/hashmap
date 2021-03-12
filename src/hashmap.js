@@ -448,7 +448,7 @@
 
         /**
          * Get a value from the map using this key.
-         * If backed by a Map or HashMap, or in fact any collection that implements the <code>.has(key)</code> function, then it will utilize that, otherwise it will iterate across the collection.
+         * If backed by a Map or HashMap, or in fact any collection that implements the <code>.get(key)</code> function, then it will utilize that, otherwise it will iterate across the collection.
          * - return the first <code>value</code> from the <code>[key,value]</code> pair that matches
          * - if no elements match, it returns undefined.
          * - it is legitimate for keys to be null or undefined, and if set, will find a value.
