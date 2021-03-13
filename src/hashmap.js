@@ -228,12 +228,49 @@
 
     /**
      * The base class for the Map Implementations, and the Higher Order Functions for Maps
+     * @example <caption>Create a MapIterable from a Map.</caption>
+     * const myMap = new Map();
+     * const mapIterable = Mootable.mapIterable(myMap);
+     * @example <caption>Create a MapIterable from a Set.</caption>
+     * const mySet = new Set();
+     * // sets wrapped in a map iterable must have a value of an Array matching [key,value]
+     * mySet.add(["key", "value"]);
+     * const mapIterable = Mootable.mapIterable(mySet);
+     * @example <caption>Create a MapIterable from an Array.</caption>
+     * // arrays wrapped in a map iterable must have be an array of arrays matching [key,value]
+     * const myArray = [["key", "value"]];
+     * const mapIterable = Mootable.mapIterable(myArray);
+     * @example <caption>Create a MapIterable from an Iterable.</caption>
+     * // iterables wrapped in a map iterable must yield arrays matching [key,value],
+     * // any object that implements *[Symbol.iterator]() or [Symbol.iterator]()
+     * // can be used as long as they follow that contract.
+     * const myIterable = {
+     *     *[Symbol.iterator]() {
+     *         yield ["key1", "value1"];
+     *         yield ["key2", "value2"];
+     *         yield ["key3", "value3"];
+     *     }
+     * }
+     * const mapIterable = Mootable.mapIterable(myIterable);
+     * @example <caption>Create a MapIterable from a Mootable HashMap.</caption>
+     * // all Mootable HashMaps extend Mapiterable, no need to wrap with the Mootable.mapIterable() function.
+     * const mapIterable = new HashMap();
+     * @example <caption>Create a MapIterable from a Mootable LinkedHashMap.</caption>
+     * // all Mootable LinkedHashMaps extend Mapiterable, no need to wrap with the Mootable.mapIterable() function.
+     * const mapIterable = new LinkedHashMap();
      * @abstract
      */
     class MapIterable {
 
         /**
          * Returns the number of elements returned by this Map Iterable. If filter is used in the method chain, it is forced to iterate over all the elements, and will be slower. Otherwise even with concats, it just queries the base collection size.
+         * @example <caption>Return the size of this mapIterable.</caption>
+         * const myMap = new Map();
+         * // sets 2 values, and replaces 1 of them
+         * myMap.set("key1","val1").set("key2","val2").set("key2","val2a");
+         * const mapIterable = Mootable.mapIterable(myMap);
+         * // returns 2
+         * const theSize = mapIterable.size;
          * @returns {number}
          */
         get size() {
@@ -248,6 +285,12 @@
          * Test each element of the map to see if it matches and return
          *  - true if the key and value match.
          *  - false if it doesn't.
+         * @example <caption>Only match keys divisible by 2</caption>
+         * const myMatchPredicate = (value, key) => key % 2 === 0;
+         * @example <caption>Only match values which are equal to another key in the map</caption>
+         * const myMatchPredicate = (value, key, mapIterable) => mapIterable.has(value);
+         * @example <caption>An alternative implementation, (but potentialy slower, and assumes no undefined value)</caption>
+         * const myMatchPredicate = (value, key, mapIterable) => mapIterable.indexOf(key) !== undefined;
          * @callback MapCallbacks.MatchesPredicate
          * @param {*} [value] - the entry value.
          * @param {*} [key] - the entry key
@@ -257,7 +300,13 @@
 
         /**
          * Test each element of the map and only include entries where the <code>MatchesPredicate</code> returns true.
-         *
+         * @example <caption>Only match keys which are odd numbered.</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const filteredIterable = hashmap.filter((value,key) => key % 2 !== 0);
+         * filteredIterable.forEach((value) => console.log(value));
+         * // will log to the console:
+         * // value1
+         * // value3
          * @param {MapCallbacks.MatchesPredicate} [filterPredicate=(value, key, iterable) => true] - if the provided function returns <code>false</code>, that entry is excluded.
          * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>filterPredicate</code>
          * @returns {MapIterable} - an iterable that allows you to iterate key value pairs.
@@ -269,7 +318,8 @@
         /**
          * For Each Function
          * A callback to execute on every <code>[key,value]</code> pair of this map iterable.
-         *
+         * @example <caption>log the keys and values</caption>
+         * const forEachFunction = (value, key) => console.log(key,value)
          * @callback MapCallbacks.ForEachCallback
          * @param {*} [value] - the entry value.
          * @param {*} [key] - the entry key
@@ -278,6 +328,13 @@
 
         /**
          * Execute the provided callback on every <code>[key,value]</code> pair of this map iterable.
+         * @example <caption>Log all the keys and values.</caption>
+         * const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * mapIterable.forEach((value) => console.log(key, value));
+         * // will log to the console:
+         * // 1 value1
+         * // 2 value2
+         * // 3 value3
          * @param {MapCallbacks.ForEachCallback} [forEachCallback=(value, key, iterable) => {}]
          * @param {*} [ctx=this] Value to use as <code>this</code> when executing <code>forEachCallback</code>
          * @returns {MapIterable} - an iterable that allows you to iterate key value pairs.
@@ -455,7 +512,7 @@
          *
          * Maps typically index keys, and so is generally a fast operation.
          *
-         * @see Map.has
+         * @see Map.get
          *
          * @param {*} key - the key we use to === against the entries key to identify if we have a match.
          * @returns {*} - the value of the element that matches..
@@ -466,11 +523,27 @@
         }
 
         /**
+         * Reduce Function
+         * A callback to accumulate values from the Map Iterables <code>[key,value]</code> into a single value.
+         * if initial value is <code>undefined</code> or <code>null</code>, unlike Array.reduce,
+         * no error occurs, and it is imply passed as the accumulator value
          *
-         * @param reduceFunction
-         * @param initialValue
-         * @param ctx
-         * @return {*}
+         * @see Array.reduce
+         *
+         * @callback MapCallbacks.ReduceFunction
+         * @param {*} [accumulator] - the value from the last execution of this function.
+         * @param {*} [value] - the entry value.
+         * @param {*} [key] - the entry key
+         * @param {MapIterable} [iterable] - the calling Map Iterable.
+         * @return {*} [accumulator] - the value to pass to the next time this function is called or the final return value.
+         */
+
+        /**
+         * Iterate through the map iterable reducing it to a single value.
+         * @see Array.reduce
+         * @param {MapCallbacks.ReduceFunction} [reduceFunction=(accumulator, value, key, iterable) => true] - the predicate to identify if we have a match.
+         * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>reduceFunction</code>
+         * @returns {*} - the final accumulated value.
          */
         reduce(reduceFunction = (accumulator, value, key, iterable) => value, initialValue = undefined, ctx = this) {
             let accumulator = initialValue;
@@ -514,7 +587,7 @@
          *
          * @param mapFunction
          * @param ctx
-         * @return {MapIterable}
+         * @return {SetIterable}
          */
         map(mapFunction = (value, key, map) => {
             return [key, value];
@@ -525,7 +598,7 @@
         /**
          *
          * @param otherIterable
-         * @return {MapIterable}
+         * @return {SetIterable}
          */
         concat(otherIterable = []) {
             return new SetConcat(this, otherIterable);
@@ -542,7 +615,7 @@
 
         /**
          *
-         * @return {MapIterable}
+         * @return {SetIterable}
          */
         keys() {
             return new MapMapper(this, (_, key) => key, this);
@@ -550,7 +623,7 @@
 
         /**
          *
-         * @return {MapIterable}
+         * @return {SetIterable}
          */
         values() {
             return new MapMapper(this, (value) => value, this);
@@ -567,6 +640,38 @@
 
     /**
      * The base class for the Set Implementations, and the Higher Order Functions for Sets, many Map functions result in SetIterables
+     *
+     * @example <caption>Create a SetIterable from a Map.</caption>
+     * const myMap = new Map();
+     * // iterating over a set, will yield [key,value] arrays.
+     * const setIterable = Mootable.setIterable(myMap);
+     * @example <caption>Create a SetIterable from a Set.</caption>
+     * const mySet = new Set();
+     * const setIterable = Mootable.setIterable(mySet);
+     * @example <caption>Create a SetIterable from an Array.</caption>
+     * const setIterable = Mootable.setIterable([]);
+     * @example <caption>Create a SetIterable from an Iterable.</caption>
+     * // any object that implements *[Symbol.iterator]() or [Symbol.iterator]() can be used.
+     * const myIterable = {
+     *     *[Symbol.iterator]() {
+     *         yield "value1";
+     *         yield "value2";
+     *         yield "value3";
+     *     }
+     * }
+     * const setIterable = Mootable.setIterable(myIterable);
+     * @example <caption>Create a MapIterable from a Mootable HashMap.</caption>
+     * // iterating over a SetIterable backed by a map, will yield [key,value] arrays.
+     * const setIterable =  Mootable.setIterable(new HashMap());
+     * @example <caption>Create a MapIterable by using <code>HashMap.map()</code>.</caption>
+     * // iterating over an unparametrized HashMap.map() will yield [key,value] arrays
+     * const setIterable =  new HashMap().map();
+     * @example <caption>Create a MapIterable from a Mootable LinkedHashMap.</caption>
+     * // iterating over a SetIterable backed by a map, will yield [key,value] arrays.
+     * const setIterable =  Mootable.setIterable(new LinkedHashMap());
+     * @example <caption>Create a MapIterable by using <code>LinkedHashMap.map()</code>.</caption>
+     * // iterating over an unparametrized LinkedHashMap.map() will yield [key,value] arrays
+     * const setIterable =  new LinkedHashMap().map();
      * @abstract
      */
     class SetIterable {
@@ -1376,20 +1481,83 @@
 
     /**
      * Wraps any class that iterates with <code>[key,value]</code> pairs and provides higher order chained functions.
-     * @function Mootable.mapIterator
+     *
+     * @example <caption>Create a MapIterable from a Map.</caption>
+     * const myMap = new Map();
+     * const mapIterable = Mootable.mapIterable(myMap);
+     * @example <caption>Create a MapIterable from a Set.</caption>
+     * const mySet = new Set();
+     * // sets wrapped in a map iterable must have a value of an Array matching [key,value]
+     * mySet.add(["key", "value"]);
+     * const mapIterable = Mootable.mapIterable(mySet);
+     * @example <caption>Create a MapIterable from an Array.</caption>
+     * // arrays wrapped in a map iterable must have be an array of arrays matching [key,value]
+     * const myArray = [["key", "value"]];
+     * const mapIterable = Mootable.mapIterable(myArray);
+     * @example <caption>Create a MapIterable from an Iterable.</caption>
+     * // iterables wrapped in a map iterable must yield arrays matching [key,value],
+     * // any object that implements *[Symbol.iterator]() or [Symbol.iterator]()
+     * // can be used as long as they follow that contract.
+     * const myIterable = {
+     *     *[Symbol.iterator]() {
+     *         yield ["key1", "value1"];
+     *         yield ["key2", "value2"];
+     *         yield ["key3", "value3"];
+     *     }
+     * }
+     * const mapIterable = Mootable.mapIterable(myIterable);
+     * @example <caption>Create a MapIterable from a Mootable HashMap.</caption>
+     * // all Mootable HashMaps extend Mapiterable, no need to wrap with the Mootable.mapIterable() function.
+     * const mapIterable = new HashMap();
+     * @example <caption>Create a MapIterable from a Mootable LinkedHashMap.</caption>
+     * // all Mootable LinkedHashMaps extend Mapiterable, no need to wrap with the Mootable.mapIterable() function.
+     * const mapIterable = new LinkedHashMap();
+     * @function Mootable.mapIterable
      * @param {!(Set.<Array.<key,value>>|Map|Array.<Array.<key,value>>|Iterator.<Array.<key,value>>)} map the map to wrap
      * @return {MapIterable} the wrapped Map.
      */
-    const mapIterator = function (map) {
+    const mapIterable = function (map) {
         return new MapIterableWrapper(map);
     };
     /**
      * Wraps any class that iterates any value and provides higher order chained functions.
-     * @function Mootable.setIterator
+
+     * @example <caption>Create a SetIterable from a Map.</caption>
+     * const myMap = new Map();
+     * // iterating over a set, will yield [key,value] arrays.
+     * const setIterable = Mootable.setIterable(myMap);
+     * @example <caption>Create a SetIterable from a Set.</caption>
+     * const mySet = new Set();
+     * const setIterable = Mootable.setIterable(mySet);
+     * @example <caption>Create a SetIterable from an Array.</caption>
+     * const setIterable = Mootable.setIterable([]);
+     * @example <caption>Create a SetIterable from an Iterable.</caption>
+     * // any object that implements *[Symbol.iterator]() or [Symbol.iterator]() can be used.
+     * const myIterable = {
+     *     *[Symbol.iterator]() {
+     *         yield "value1";
+     *         yield "value2";
+     *         yield "value3";
+     *     }
+     * }
+     * const setIterable = Mootable.setIterable(myIterable);
+     * @example <caption>Create a MapIterable from a Mootable HashMap.</caption>
+     * // iterating over a SetIterable backed by a map, will yield [key,value] arrays.
+     * const setIterable =  Mootable.setIterable(new HashMap());
+     * @example <caption>Create a MapIterable by using <code>HashMap.map()</code>.</caption>
+     * // iterating over an unparametrized HashMap.map() will yield [key,value] arrays
+     * const setIterable =  new HashMap().map();
+     * @example <caption>Create a MapIterable from a Mootable LinkedHashMap.</caption>
+     * // iterating over a SetIterable backed by a map, will yield [key,value] arrays.
+     * const setIterable =  Mootable.setIterable(new LinkedHashMap());
+     * @example <caption>Create a MapIterable by using <code>LinkedHashMap.map()</code>.</caption>
+     * // iterating over an unparametrized LinkedHashMap.map() will yield [key,value] arrays
+     * const setIterable =  new LinkedHashMap().map();
+     * @function Mootable.setIterable
      * @param {(Set|Map|Array|Iterator)} set the map to wrap
      * @return {SetIterable} the wrapped Set.
      */
-    const setIterator = function (set) {
+    const setIterable = function (set) {
         return new SetIterableWrapper(set);
     };
 
@@ -1638,7 +1806,7 @@
 
     return {
         HashMap, LinkedHashMap, Mootable: {
-            HashMap, LinkedHashMap, mapIterator, setIterator, hashCode, SetIterable, MapIterable
+            HashMap, LinkedHashMap, mapIterator: mapIterable, setIterator: setIterable, hashCode, SetIterable, MapIterable
         }
     };
 }));
