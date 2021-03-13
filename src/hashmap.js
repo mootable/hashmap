@@ -660,17 +660,17 @@
      *     }
      * }
      * const setIterable = Mootable.setIterable(myIterable);
-     * @example <caption>Create a MapIterable from a Mootable HashMap.</caption>
+     * @example <caption>Create a SetIterable from a Mootable HashMap.</caption>
      * // iterating over a SetIterable backed by a map, will yield [key,value] arrays.
      * const setIterable =  Mootable.setIterable(new HashMap());
-     * @example <caption>Create a MapIterable by using <code>HashMap.map()</code>.</caption>
-     * // iterating over an unparametrized HashMap.map() will yield [key,value] arrays
+     * @example <caption>Create a SetIterable by using <code>HashMap.map()</code>.</caption>
+     * // iterating over any unparametrized MapIterable.map() will yield [key,value] arrays
      * const setIterable =  new HashMap().map();
-     * @example <caption>Create a MapIterable from a Mootable LinkedHashMap.</caption>
+     * @example <caption>Create a SetIterable from a Mootable LinkedHashMap.</caption>
      * // iterating over a SetIterable backed by a map, will yield [key,value] arrays.
      * const setIterable =  Mootable.setIterable(new LinkedHashMap());
-     * @example <caption>Create a MapIterable by using <code>LinkedHashMap.map()</code>.</caption>
-     * // iterating over an unparametrized LinkedHashMap.map() will yield [key,value] arrays
+     * @example <caption>Create a SetIterable by using <code>LinkedHashMap.map()</code>.</caption>
+     * // iterating over any unparametrized MapIterable.map() will yield [key,value] arrays
      * const setIterable =  new LinkedHashMap().map();
      * @abstract
      */
@@ -1541,17 +1541,17 @@
      *     }
      * }
      * const setIterable = Mootable.setIterable(myIterable);
-     * @example <caption>Create a MapIterable from a Mootable HashMap.</caption>
+     * @example <caption>Create a SetIterable from a Mootable HashMap.</caption>
      * // iterating over a SetIterable backed by a map, will yield [key,value] arrays.
      * const setIterable =  Mootable.setIterable(new HashMap());
-     * @example <caption>Create a MapIterable by using <code>HashMap.map()</code>.</caption>
-     * // iterating over an unparametrized HashMap.map() will yield [key,value] arrays
+     * @example <caption>Create a SetIterable by using <code>HashMap.map()</code>.</caption>
+     * // iterating over any unparametrized MapIterable.map() will yield [key,value] arrays
      * const setIterable =  new HashMap().map();
-     * @example <caption>Create a MapIterable from a Mootable LinkedHashMap.</caption>
+     * @example <caption>Create a SetIterable from a Mootable LinkedHashMap.</caption>
      * // iterating over a SetIterable backed by a map, will yield [key,value] arrays.
      * const setIterable =  Mootable.setIterable(new LinkedHashMap());
-     * @example <caption>Create a MapIterable by using <code>LinkedHashMap.map()</code>.</caption>
-     * // iterating over an unparametrized LinkedHashMap.map() will yield [key,value] arrays
+     * @example <caption>Create a SetIterable by using <code>LinkedHashMap.map()</code>.</caption>
+     * // iterating over any unparametrized MapIterable.map() will yield [key,value] arrays
      * const setIterable =  new LinkedHashMap().map();
      * @function Mootable.setIterable
      * @param {(Set|Map|Array|Iterator)} set the map to wrap
