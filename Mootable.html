@@ -397,27 +397,45 @@ This is NOT a cryptographic hash, this hash is designed to create as even a spre
     
         <p class="code-caption">Create a MapIterable from a Map.</p>
     
-    <pre class="prettyprint"><code>const myMap = new Map();const mapIterable = Mootable.mapIterable(myMap);</code></pre>
+    <pre class="prettyprint"><code>const myMap = new Map();
+const mapIterable = Mootable.mapIterable(myMap);</code></pre>
 
         <p class="code-caption">Create a MapIterable from a Set.</p>
     
-    <pre class="prettyprint"><code>const mySet = new Set();// sets wrapped in a map iterable must have a value of an Array matching [key,value]mySet.add(["key", "value"]);const mapIterable = Mootable.mapIterable(mySet);</code></pre>
+    <pre class="prettyprint"><code>const mySet = new Set();
+// sets wrapped in a map iterable must have a value of an Array matching [key,value]
+mySet.add(["key", "value"]);
+const mapIterable = Mootable.mapIterable(mySet);</code></pre>
 
         <p class="code-caption">Create a MapIterable from an Array.</p>
     
-    <pre class="prettyprint"><code>// arrays wrapped in a map iterable must have be an array of arrays matching [key,value]const myArray = [["key", "value"]];const mapIterable = Mootable.mapIterable(myArray);</code></pre>
+    <pre class="prettyprint"><code>// arrays wrapped in a map iterable must have be an array of arrays matching [key,value]
+const myArray = [["key", "value"]];
+const mapIterable = Mootable.mapIterable(myArray);</code></pre>
 
         <p class="code-caption">Create a MapIterable from an Iterable.</p>
     
-    <pre class="prettyprint"><code>// iterables wrapped in a map iterable must yield arrays matching [key,value],// any object that implements *[Symbol.iterator]() or [Symbol.iterator]()// can be used as long as they follow that contract.const myIterable = {    *[Symbol.iterator]() {        yield ["key1", "value1"];        yield ["key2", "value2"];        yield ["key3", "value3"];    }}const mapIterable = Mootable.mapIterable(myIterable);</code></pre>
+    <pre class="prettyprint"><code>// iterables wrapped in a map iterable must yield arrays matching [key,value],
+// any object that implements *[Symbol.iterator]() or [Symbol.iterator]()
+// can be used as long as they follow that contract.
+const myIterable = {
+    *[Symbol.iterator]() {
+        yield ["key1", "value1"];
+        yield ["key2", "value2"];
+        yield ["key3", "value3"];
+    }
+}
+const mapIterable = Mootable.mapIterable(myIterable);</code></pre>
 
         <p class="code-caption">Create a MapIterable from a Mootable HashMap.</p>
     
-    <pre class="prettyprint"><code>// all Mootable HashMaps extend Mapiterable, no need to wrap with the Mootable.mapIterable() function.const mapIterable = new HashMap();</code></pre>
+    <pre class="prettyprint"><code>// all Mootable HashMaps extend Mapiterable, no need to wrap with the Mootable.mapIterable() function.
+const mapIterable = new HashMap();</code></pre>
 
         <p class="code-caption">Create a MapIterable from a Mootable LinkedHashMap.</p>
     
-    <pre class="prettyprint"><code>// all Mootable LinkedHashMaps extend Mapiterable, no need to wrap with the Mootable.mapIterable() function.const mapIterable = new LinkedHashMap();</code></pre>
+    <pre class="prettyprint"><code>// all Mootable LinkedHashMaps extend Mapiterable, no need to wrap with the Mootable.mapIterable() function.
+const mapIterable = new LinkedHashMap();</code></pre>
 
 
 
@@ -591,11 +609,14 @@ This is NOT a cryptographic hash, this hash is designed to create as even a spre
     
         <p class="code-caption">Create a SetIterable from a Map.</p>
     
-    <pre class="prettyprint"><code>const myMap = new Map();// iterating over a set, will yield [key,value] arrays.const setIterable = Mootable.setIterable(myMap);</code></pre>
+    <pre class="prettyprint"><code>const myMap = new Map();
+// iterating over a set, will yield [key,value] arrays.
+const setIterable = Mootable.setIterable(myMap);</code></pre>
 
         <p class="code-caption">Create a SetIterable from a Set.</p>
     
-    <pre class="prettyprint"><code>const mySet = new Set();const setIterable = Mootable.setIterable(mySet);</code></pre>
+    <pre class="prettyprint"><code>const mySet = new Set();
+const setIterable = Mootable.setIterable(mySet);</code></pre>
 
         <p class="code-caption">Create a SetIterable from an Array.</p>
     
@@ -603,23 +624,35 @@ This is NOT a cryptographic hash, this hash is designed to create as even a spre
 
         <p class="code-caption">Create a SetIterable from an Iterable.</p>
     
-    <pre class="prettyprint"><code>// any object that implements *[Symbol.iterator]() or [Symbol.iterator]() can be used.const myIterable = {    *[Symbol.iterator]() {        yield "value1";        yield "value2";        yield "value3";    }}const setIterable = Mootable.setIterable(myIterable);</code></pre>
+    <pre class="prettyprint"><code>// any object that implements *[Symbol.iterator]() or [Symbol.iterator]() can be used.
+const myIterable = {
+    *[Symbol.iterator]() {
+        yield "value1";
+        yield "value2";
+        yield "value3";
+    }
+}
+const setIterable = Mootable.setIterable(myIterable);</code></pre>
 
         <p class="code-caption">Create a SetIterable from a Mootable HashMap.</p>
     
-    <pre class="prettyprint"><code>// iterating over a SetIterable backed by a map, will yield [key,value] arrays.const setIterable =  Mootable.setIterable(new HashMap());</code></pre>
+    <pre class="prettyprint"><code>// iterating over a SetIterable backed by a map, will yield [key,value] arrays.
+const setIterable =  Mootable.setIterable(new HashMap());</code></pre>
 
         <p class="code-caption">Create a SetIterable by using <code>HashMap.map()</code>.</p>
     
-    <pre class="prettyprint"><code>// iterating over any unparametrized MapIterable.map() will yield [key,value] arraysconst setIterable =  new HashMap().map();</code></pre>
+    <pre class="prettyprint"><code>// iterating over any unparametrized MapIterable.map() will yield [key,value] arrays
+const setIterable =  new HashMap().map();</code></pre>
 
         <p class="code-caption">Create a SetIterable from a Mootable LinkedHashMap.</p>
     
-    <pre class="prettyprint"><code>// iterating over a SetIterable backed by a map, will yield [key,value] arrays.const setIterable =  Mootable.setIterable(new LinkedHashMap());</code></pre>
+    <pre class="prettyprint"><code>// iterating over a SetIterable backed by a map, will yield [key,value] arrays.
+const setIterable =  Mootable.setIterable(new LinkedHashMap());</code></pre>
 
         <p class="code-caption">Create a SetIterable by using <code>LinkedHashMap.map()</code>.</p>
     
-    <pre class="prettyprint"><code>// iterating over any unparametrized MapIterable.map() will yield [key,value] arraysconst setIterable =  new LinkedHashMap().map();</code></pre>
+    <pre class="prettyprint"><code>// iterating over any unparametrized MapIterable.map() will yield [key,value] arrays
+const setIterable =  new LinkedHashMap().map();</code></pre>
 
 
 
@@ -741,7 +774,7 @@ This is NOT a cryptographic hash, this hash is designed to create as even a spre
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a> on Sun Mar 14 2021 16:11:06 GMT+0000 (Greenwich Mean Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a> on Sun Mar 14 2021 16:18:41 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

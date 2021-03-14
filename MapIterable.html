@@ -128,27 +128,45 @@
     
         <p class="code-caption">Create a MapIterable from a Map.</p>
     
-    <pre class="prettyprint"><code>const myMap = new Map();const mapIterable = Mootable.mapIterable(myMap);</code></pre>
+    <pre class="prettyprint"><code>const myMap = new Map();
+const mapIterable = Mootable.mapIterable(myMap);</code></pre>
 
         <p class="code-caption">Create a MapIterable from a Set.</p>
     
-    <pre class="prettyprint"><code>const mySet = new Set();// sets wrapped in a map iterable must have a value of an Array matching [key,value]mySet.add(["key", "value"]);const mapIterable = Mootable.mapIterable(mySet);</code></pre>
+    <pre class="prettyprint"><code>const mySet = new Set();
+// sets wrapped in a map iterable must have a value of an Array matching [key,value]
+mySet.add(["key", "value"]);
+const mapIterable = Mootable.mapIterable(mySet);</code></pre>
 
         <p class="code-caption">Create a MapIterable from an Array.</p>
     
-    <pre class="prettyprint"><code>// arrays wrapped in a map iterable must have be an array of arrays matching [key,value]const myArray = [["key", "value"]];const mapIterable = Mootable.mapIterable(myArray);</code></pre>
+    <pre class="prettyprint"><code>// arrays wrapped in a map iterable must have be an array of arrays matching [key,value]
+const myArray = [["key", "value"]];
+const mapIterable = Mootable.mapIterable(myArray);</code></pre>
 
         <p class="code-caption">Create a MapIterable from an Iterable.</p>
     
-    <pre class="prettyprint"><code>// iterables wrapped in a map iterable must yield arrays matching [key,value],// any object that implements *[Symbol.iterator]() or [Symbol.iterator]()// can be used as long as they follow that contract.const myIterable = {    *[Symbol.iterator]() {        yield ["key1", "value1"];        yield ["key2", "value2"];        yield ["key3", "value3"];    }}const mapIterable = Mootable.mapIterable(myIterable);</code></pre>
+    <pre class="prettyprint"><code>// iterables wrapped in a map iterable must yield arrays matching [key,value],
+// any object that implements *[Symbol.iterator]() or [Symbol.iterator]()
+// can be used as long as they follow that contract.
+const myIterable = {
+    *[Symbol.iterator]() {
+        yield ["key1", "value1"];
+        yield ["key2", "value2"];
+        yield ["key3", "value3"];
+    }
+}
+const mapIterable = Mootable.mapIterable(myIterable);</code></pre>
 
         <p class="code-caption">Create a MapIterable from a Mootable HashMap.</p>
     
-    <pre class="prettyprint"><code>// all Mootable HashMaps extend Mapiterable, no need to wrap with the Mootable.mapIterable() function.const mapIterable = new HashMap();</code></pre>
+    <pre class="prettyprint"><code>// all Mootable HashMaps extend Mapiterable, no need to wrap with the Mootable.mapIterable() function.
+const mapIterable = new HashMap();</code></pre>
 
         <p class="code-caption">Create a MapIterable from a Mootable LinkedHashMap.</p>
     
-    <pre class="prettyprint"><code>// all Mootable LinkedHashMaps extend Mapiterable, no need to wrap with the Mootable.mapIterable() function.const mapIterable = new LinkedHashMap();</code></pre>
+    <pre class="prettyprint"><code>// all Mootable LinkedHashMaps extend Mapiterable, no need to wrap with the Mootable.mapIterable() function.
+const mapIterable = new LinkedHashMap();</code></pre>
 
 
 
@@ -255,7 +273,12 @@
     
         <p class="code-caption">Return the size of this mapIterable.</p>
     
-    <pre class="prettyprint"><code>const myMap = new Map();// sets 2 values, and replaces 1 of themmyMap.set("key1","val1").set("key2","val2").set("key2","val2a");const mapIterable = Mootable.mapIterable(myMap);// returns 2const theSize = mapIterable.size;</code></pre>
+    <pre class="prettyprint"><code>const myMap = new Map();
+// sets 2 values, and replaces 1 of them
+myMap.set("key1","val1").set("key2","val2").set("key2","val2a");
+const mapIterable = Mootable.mapIterable(myMap);
+// returns 2
+const theSize = mapIterable.size;</code></pre>
 
 
 
@@ -363,31 +386,53 @@ The original collector, with the exception of arrays, will be modified as we cal
     
         <p class="code-caption">Collect to a new <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></p>
     
-    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const myArray = mapIterable.collect();// myArray === [[1,'value1'],[2,'value2'],[3,'value3']]:</code></pre>
+    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const myArray = mapIterable.collect();
+// myArray === [[1,'value1'],[2,'value2'],[3,'value3']]:</code></pre>
 
         <p class="code-caption">Collect with an empty existing <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></p>
     
-    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const oldArray = [];const newArray = mapIterable.collect(oldArray);// newArray === [[1,'value1'],[2,'value2'],[3,'value3']]// oldArray === []</code></pre>
+    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const oldArray = [];
+const newArray = mapIterable.collect(oldArray);
+// newArray === [[1,'value1'],[2,'value2'],[3,'value3']]
+// oldArray === []</code></pre>
 
         <p class="code-caption">Collect with an existing <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a> with values</p>
     
-    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const oldArray = [[2,'someOtherValue']];const newArray = mapIterable.collect(oldArray);// newArray === [[2,'someOtherValue'],[1,'value1'],[2,'value2'],[3,'value3']]// oldArray === [[2,'someOtherValue']]</code></pre>
+    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const oldArray = [[2,'someOtherValue']];
+const newArray = mapIterable.collect(oldArray);
+// newArray === [[2,'someOtherValue'],[1,'value1'],[2,'value2'],[3,'value3']]
+// oldArray === [[2,'someOtherValue']]</code></pre>
 
         <p class="code-caption">Collect to an existing <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a> with values, modifying the old array.</p>
     
-    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const array  = [[2,'someOtherValue']];array.push(mapIterable.collect())// array === [[2,'someOtherValue'],[1,'value1'],[2,'value2'],[3,'value3']]</code></pre>
+    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const array  = [[2,'someOtherValue']];
+array.push(mapIterable.collect())
+// array === [[2,'someOtherValue'],[1,'value1'],[2,'value2'],[3,'value3']]</code></pre>
 
         <p class="code-caption">Collect to a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set">Set</a></p>
     
-    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const oldSet = new Set().add('willRemain');const newSet = mapIterable.collect(oldSet);// oldSet === newSet === ['willRemain',[1,'value1'],[2,'value2'],[3,'value3']]</code></pre>
+    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const oldSet = new Set().add('willRemain');
+const newSet = mapIterable.collect(oldSet);
+// oldSet === newSet === ['willRemain',[1,'value1'],[2,'value2'],[3,'value3']]</code></pre>
 
         <p class="code-caption">Collect to a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map">Map</a></p>
     
-    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const oldMap = new Map().set(2,'willBeOverwritten').set(5,'willRemain');const newMap = mapIterable.collect(oldMap);// oldMap === newMap === [[2,'value2'],[5,'willRemain'],[1,'value1'],[3,'value3']]</code></pre>
+    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const oldMap = new Map().set(2,'willBeOverwritten').set(5,'willRemain');
+const newMap = mapIterable.collect(oldMap);
+// oldMap === newMap === [[2,'value2'],[5,'willRemain'],[1,'value1'],[3,'value3']]</code></pre>
 
         <p class="code-caption">Collect to a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a></p>
     
-    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const oldObject = {'1','willBeOverriden'};const newObject = mapIterable.collect(oldObject);// oldObject === newObject === {'1': 'value1', '2': 'value2', '3': 'value3'}</code></pre>
+    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const oldObject = {'1','willBeOverriden'};
+const newObject = mapIterable.collect(oldObject);
+// oldObject === newObject === {'1': 'value1', '2': 'value2', '3': 'value3'}</code></pre>
 
 
 
@@ -1007,11 +1052,15 @@ The original collector, with the exception of arrays, will be modified as we cal
     
         <p class="code-caption">Do all values start with value. (yes)</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const everyResult = hashmap.every((value) => value.startsWith('value'));// everyResult === true</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const everyResult = hashmap.every((value) => value.startsWith('value'));
+// everyResult === true</code></pre>
 
         <p class="code-caption">Do all values start with value. (no)</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'doesntStart'],[3,'value3']]);const everyResult = hashmap.every((value) => value.startsWith('value'));// everyResult === false</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'doesntStart'],[3,'value3']]);
+const everyResult = hashmap.every((value) => value.startsWith('value'));
+// everyResult === false</code></pre>
 
 
 
@@ -1235,7 +1284,12 @@ The original collector, with the exception of arrays, will be modified as we cal
     
         <p class="code-caption">Only match keys which are odd numbered.</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const filteredIterable = hashmap.filter((value,key) => key % 2 !== 0);filteredIterable.forEach((value) => console.log(value));// will log to the console:// value1// value3</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const filteredIterable = hashmap.filter((value,key) => key % 2 !== 0);
+filteredIterable.forEach((value) => console.log(value));
+// will log to the console:
+// value1
+// value3</code></pre>
 
 
 
@@ -1471,11 +1525,15 @@ The original collector, with the exception of arrays, will be modified as we cal
     
         <p class="code-caption">Find a value</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const findResult = hashmap.find((value) => value.endsWith('ue2'));// findResult === 'value2'</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const findResult = hashmap.find((value) => value.endsWith('ue2'));
+// findResult === 'value2'</code></pre>
 
         <p class="code-caption">Can't find a value</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const findResult = hashmap.find((value) => value.startsWith('something'));// findResult === undefined</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const findResult = hashmap.find((value) => value.startsWith('something'));
+// findResult === undefined</code></pre>
 
 
 
@@ -1713,11 +1771,15 @@ The original collector, with the exception of arrays, will be modified as we cal
     
         <p class="code-caption">Find a key</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const findIndexResult = hashmap.findIndex((value) => value.endsWith('ue2'));// findIndexResult === 2</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const findIndexResult = hashmap.findIndex((value) => value.endsWith('ue2'));
+// findIndexResult === 2</code></pre>
 
         <p class="code-caption">Can't find a key</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const findIndexResult = hashmap.findIndex((value) => value.startsWith('something'));// findIndexResult === undefined</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const findIndexResult = hashmap.findIndex((value) => value.startsWith('something'));
+// findIndexResult === undefined</code></pre>
 
 
 
@@ -1943,7 +2005,12 @@ The original collector, with the exception of arrays, will be modified as we cal
     
         <p class="code-caption">Log all the keys and values.</p>
     
-    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);mapIterable.forEach((value) => console.log(key, value));// will log to the console:// 1 value1// 2 value2// 3 value3</code></pre>
+    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+mapIterable.forEach((value) => console.log(key, value));
+// will log to the console:
+// 1 value1
+// 2 value2
+// 3 value3</code></pre>
 
 
 
@@ -2186,11 +2253,15 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
         <p class="code-caption">>What is the value for a key</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const getResult = hashmap.get(1);// getResult === 'value1'</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const getResult = hashmap.get(1);
+// getResult === 'value1'</code></pre>
 
         <p class="code-caption">What is the value for a key that isn't there</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const getResult = hashmap.get(4);// getResult === undefined</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const getResult = hashmap.get(4);
+// getResult === undefined</code></pre>
 
 
 
@@ -2371,11 +2442,15 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
         <p class="code-caption">>Does this contain a key that is there</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const hasResult = hashmap.has(1);// hasResult === true</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const hasResult = hashmap.has(1);
+// hasResult === true</code></pre>
 
         <p class="code-caption">Does this contain a key that isn't there</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const hasResult = hashmap.has(4);// hasResult === false</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const hasResult = hashmap.has(4);
+// hasResult === false</code></pre>
 
 
 
@@ -2555,11 +2630,15 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
         <p class="code-caption">Find the key for a value</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const indexOfResult = hashmap.indexOf('value2');// indexOfResult === 2</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const indexOfResult = hashmap.indexOf('value2');
+// indexOfResult === 2</code></pre>
 
         <p class="code-caption">what is the key of a non existent value</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const indexOfResult = hashmap.indexOf('something');// indexOfResult === undefined</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const indexOfResult = hashmap.indexOf('something');
+// indexOfResult === undefined</code></pre>
 
 
 
@@ -2851,23 +2930,45 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
         <p class="code-caption">return just values</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const setIterable = hashmap.map((value, key) => value]const mapArray = setIterable.collect();// mapArray === ['value1','value2','value3']// setIterable instanceof SetIterable</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const setIterable = hashmap.map((value, key) => value]
+const mapArray = setIterable.collect();
+// mapArray === ['value1','value2','value3']
+// setIterable instanceof SetIterable</code></pre>
 
         <p class="code-caption">swap the keys and the values</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const setIterable = hashmap.map((value, key) => [value,key]]const mapArray = setIterable.collect();// mapArray === [['value1',1],['value2',2],['value3',3]]// setIterable instanceof SetIterable</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const setIterable = hashmap.map((value, key) => [value,key]]
+const mapArray = setIterable.collect();
+// mapArray === [['value1',1],['value2',2],['value3',3]]
+// setIterable instanceof SetIterable</code></pre>
 
         <p class="code-caption">swap the keys and the values with 2 functions</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const mapIterable = hashmap.map([(value) => value,(value, key) => key]]const mapArray = mapIterable.collect();// mapArray === [['value1',1],['value2',2],['value3',3]]// mapIterable instanceof MapIterable</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const mapIterable = hashmap.map([(value) => value,(value, key) => key]]
+const mapArray = mapIterable.collect();
+// mapArray === [['value1',1],['value2',2],['value3',3]]
+// mapIterable instanceof MapIterable</code></pre>
 
         <p class="code-caption">modify just the keys</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);// Notice we are passing an array of one function.const mapIterable = hashmap.map([(value, key) => value]]const mapArray = mapIterable.collect();// mapArray === [['value1','value1'],['value2','value2'],['value2','value2']]// mapIterable instanceof MapIterable</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+// Notice we are passing an array of one function.
+const mapIterable = hashmap.map([(value, key) => value]]
+const mapArray = mapIterable.collect();
+// mapArray === [['value1','value1'],['value2','value2'],['value2','value2']]
+// mapIterable instanceof MapIterable</code></pre>
 
         <p class="code-caption">modify just the values</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);// Notice we are passing an array of two, but have only defined the last as a function.const mapIterable = hashmap.map([undefined,(value, key) => key]]const mapArray = mapIterable.collect();// mapArray === [[1,1],[2,2],[3,3]]// mapIterable instanceof MapIterable</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+// Notice we are passing an array of two, but have only defined the last as a function.
+const mapIterable = hashmap.map([undefined,(value, key) => key]]
+const mapArray = mapIterable.collect();
+// mapArray === [[1,1],[2,2],[3,3]]
+// mapIterable instanceof MapIterable</code></pre>
 
 
 
@@ -3150,19 +3251,33 @@ This does not modify the original collection, and execution is deferred until it
     
         <p class="code-caption">swap the keys and the values</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const mapEntriesIterable = hashmap.mapEntries((value, key) => [value,key]]const mapEntriesArray = mapEntriesIterable.collect();// mapEntriesArray === [['value1',1],['value2',2],['value3',3]]</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const mapEntriesIterable = hashmap.mapEntries((value, key) => [value,key]]
+const mapEntriesArray = mapEntriesIterable.collect();
+// mapEntriesArray === [['value1',1],['value2',2],['value3',3]]</code></pre>
 
         <p class="code-caption">swap the keys and the values with 2 functions</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const mapEntriesIterable = hashmap.mapEntries([(value) => value,(value, key) => key]]const mapEntriesArray = mapEntriesIterable.collect();// mapEntriesArray === [['value1',1],['value2',2],['value3',3]]</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const mapEntriesIterable = hashmap.mapEntries([(value) => value,(value, key) => key]]
+const mapEntriesArray = mapEntriesIterable.collect();
+// mapEntriesArray === [['value1',1],['value2',2],['value3',3]]</code></pre>
 
         <p class="code-caption">modify just the keys</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);// Notice we are passing an array of one function.const mapEntriesIterable = hashmap.mapEntries([(value, key) => value]]const mapEntriesArray = mapEntriesIterable.collect();// mapEntriesArray === [['value1','value1'],['value2','value2'],['value2','value2']]</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+// Notice we are passing an array of one function.
+const mapEntriesIterable = hashmap.mapEntries([(value, key) => value]]
+const mapEntriesArray = mapEntriesIterable.collect();
+// mapEntriesArray === [['value1','value1'],['value2','value2'],['value2','value2']]</code></pre>
 
         <p class="code-caption">modify just the values</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);// Notice we are passing an array of two, but have only defined the last as a function.const mapEntriesIterable = hashmap.mapEntries([undefined,(value, key) => key]]const mapEntriesArray = mapEntriesIterable.collect();// mapEntriesArray === [[1,1],[2,2],[3,3]]</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+// Notice we are passing an array of two, but have only defined the last as a function.
+const mapEntriesIterable = hashmap.mapEntries([undefined,(value, key) => key]]
+const mapEntriesArray = mapEntriesIterable.collect();
+// mapEntriesArray === [[1,1],[2,2],[3,3]]</code></pre>
 
 
 
@@ -3426,7 +3541,10 @@ This does not modify the original collection, and execution is deferred until it
     
         <p class="code-caption">add one to all the keys and turn them into strings</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const mappedKeysIterable = hashmap.mapKeys((value, key) => 'k'+(key+1));const mappedKeysArray = mappedKeysIterable.collect();// mappedKeysArray === [['k2','value1'],['k3','value2'],['k4','value3']]</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const mappedKeysIterable = hashmap.mapKeys((value, key) => 'k'+(key+1));
+const mappedKeysArray = mappedKeysIterable.collect();
+// mappedKeysArray === [['k2','value1'],['k3','value2'],['k4','value3']]</code></pre>
 
 
 
@@ -3658,7 +3776,10 @@ This does not modify the original collection, and execution is deferred until it
     
         <p class="code-caption">prepend the values with the keys</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const mappedValuesIterable = hashmap.mapValues((value, key) => key + value);const mappedValuesArray = mappedValuesIterable.collect();// mappedValuesArray === [['1','1value1'],[2,'2value2'],[3,'3value3']]</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const mappedValuesIterable = hashmap.mapValues((value, key) => key + value);
+const mappedValuesArray = mappedValuesIterable.collect();
+// mappedValuesArray === [['1','1value1'],[2,'2value2'],[3,'3value3']]</code></pre>
 
 
 
@@ -3889,11 +4010,15 @@ This does not modify the original collection, and execution is deferred until it
     
         <p class="code-caption">add all the keys</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const reduceResult = hashmap.reduce((accumulator, value, key) => accumulator+key, 0);// reduceResult === 6</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const reduceResult = hashmap.reduce((accumulator, value, key) => accumulator+key, 0);
+// reduceResult === 6</code></pre>
 
         <p class="code-caption">add all the values into one string in reverse order</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const reduceResult = hashmap.reduce((accumulator, value) => value+accumulator, '');// reduceResult === 'value3value2value1'</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const reduceResult = hashmap.reduce((accumulator, value) => value+accumulator, '');
+// reduceResult === 'value3value2value1'</code></pre>
 
 
 
@@ -4133,11 +4258,15 @@ This does not modify the original collection, and execution is deferred until it
     
         <p class="code-caption">Do any values start with value. (yes all of them)</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const someResult = hashmap.some((value) => value.startsWith('value'));// someResult === true</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const someResult = hashmap.some((value) => value.startsWith('value'));
+// someResult === true</code></pre>
 
         <p class="code-caption">Do any values start with value. (yes 2 of them)</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'doesntStart'],[3,'value3']]);const someResult = hashmap.some((value) => value.startsWith('value'));// someResult === true</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'doesntStart'],[3,'value3']]);
+const someResult = hashmap.some((value) => value.startsWith('value'));
+// someResult === true</code></pre>
 
 
 
@@ -4412,7 +4541,7 @@ This does not modify the original collection, and execution is deferred until it
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a> on Sun Mar 14 2021 16:11:06 GMT+0000 (Greenwich Mean Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a> on Sun Mar 14 2021 16:18:41 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
