@@ -1,7 +1,7 @@
 /**
  * HashMap - HashMap JsDoc helpers, to keep hashmap smaller.
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.7.1
+ * @version 0.7.2
  * Homepage: https://github.com/mootable/hashmap
  */
 

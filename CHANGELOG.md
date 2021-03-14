@@ -1,4 +1,10 @@
 # Changelog
+## 0.7.2
+- Doc Styling
+- Added more documentation
+- Added examples
+- Added support for mapping when get is called.
+- Modified Readme.
 
 ## 0.7.1
 - Doc Styling
