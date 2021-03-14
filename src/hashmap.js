@@ -1157,7 +1157,7 @@
         /**
          * @typedef HashMap~ConstructorOptions
          * @property {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>)} [copy] - an object that provides a forEach function with the same signature as`Map.forEach`.
-         * such as `Map` or this `HashMap` and `LinkedHashMap`or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
+         * such as `Map` or this `HashMap` and `LinkedHashMap`, or any iterable that provides [key,value] pairs such as a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
          * @property {number} [depth] - how many layers deep our hashtrie goes.
          * - Minimum: `1`
          * - Maximum/Default: `(32/widthAs2sExponent)-1`
@@ -1179,7 +1179,7 @@
          *      - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
          *   2) `depth` is how many layers deep our hashtrie goes.
          *      - Minimum: `1`, Maximum/Default: `(32/widthAs2sExponent)-1`
-         *   3) `widthAs2sExponent` is how many buckets in each hashtrie layer we use to the power of 2, for instance a `widthAs2sExponent` of 4 = 16 buckets.
+         *   3) `widthAs2sExponent` is how many buckets in each hashtrie layer we use to the power of 2, for instance a widthAs2sExponent of 4 is 2 ^ 4 = 16 buckets.
          *      - Minimum: `1`, Maximum: `16`, Default: `6` (64 Buckets)
          * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>|HashMap~ConstructorOptions)} [args]
          */
