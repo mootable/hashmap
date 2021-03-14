@@ -64,7 +64,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line219">line 219</a>
+        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line222">line 222</a>
     </li></ul></dd>
     
 
@@ -147,7 +147,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line318">line 318</a>
+        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line321">line 321</a>
     </li></ul></dd>
     
 
@@ -357,6 +357,264 @@ A callback to execute on every <code>[key,value]</code> pair of this map iterabl
 
     
 
+    <h4 class="name" id=".MapFunction"><span class="type-signature"></span>MapFunction<span class="signature">(value<span class="signature-attributes">opt</span>, key<span class="signature-attributes">opt</span>, iterable<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {*}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line666">line 666</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map">Array.map</a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Map Function<br>
+A callback that takes a <code>[key,value]</code> and current iterable, and returns a mapped value.<br>
+How this maped value is used depends on the calling function.</p>
+<ul>
+<li>mapKeys the key is transformed to the returned value</li>
+<li>mapValues the value is transformed to the returned value</li>
+<li>mapEntries the value should be of the form [key, value] and transforms each accordingly</li>
+<li>map the MapIterable is turned into a SetIterable, and this returned value is the resultant entry.</li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Example</h5>
+    
+        <p class="code-caption">swap key and value</p>
+    
+    <pre class="prettyprint"><code>const mapEntriesFunction = ( value, key) => [value, key];// the typical response is [key, value]</code></pre>
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>value</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>the entry value.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>key</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>the entry key</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>iterable</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="MapIterable.html">MapIterable</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>the calling Map Iterable.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>[mappedValue] - the mapped value to return.</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">*</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+            
+                
+
+    
+
     <h4 class="name" id=".MatchesPredicate"><span class="type-signature"></span>MatchesPredicate<span class="signature">(value<span class="signature-attributes">opt</span>, key<span class="signature-attributes">opt</span>, iterable<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
 
     
@@ -369,7 +627,7 @@ A callback to execute on every <code>[key,value]</code> pair of this map iterabl
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line284">line 284</a>
+        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line287">line 287</a>
     </li></ul></dd>
     
 
@@ -586,9 +844,7 @@ A callback to execute on every <code>[key,value]</code> pair of this map iterabl
 
         
 <div class="param-desc">
-    <ul>
-<li>a value that coerces to true if it matches, or to false otherwise.</li>
-</ul>
+    <p>a value that coerces to true if it matches, or to false otherwise.</p>
 </div>
 
 
@@ -626,7 +882,7 @@ A callback to execute on every <code>[key,value]</code> pair of this map iterabl
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line525">line 525</a>
+        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line627">line 627</a>
     </li></ul></dd>
     
 
@@ -660,7 +916,7 @@ A callback to execute on every <code>[key,value]</code> pair of this map iterabl
     <dt class="tag-see">See:</dt>
     <dd class="tag-see">
         <ul>
-            <li>Array.reduce</li>
+            <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce">Array.reduce</a></li>
         </ul>
     </dd>
     
@@ -685,6 +941,13 @@ no error occurs, and it is imply passed as the accumulator value</p>
 
 
 
+
+
+    <h5>Example</h5>
+    
+        <p class="code-caption">add all the keys</p>
+    
+    <pre class="prettyprint"><code>const reduceFunction = (accumulator, value, key) => accumulator+key</code></pre>
 
 
 
@@ -906,7 +1169,7 @@ no error occurs, and it is imply passed as the accumulator value</p>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a> on Sat Mar 13 2021 02:45:59 GMT+0000 (Greenwich Mean Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a> on Sun Mar 14 2021 02:17:10 GMT+0000 (Greenwich Mean Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

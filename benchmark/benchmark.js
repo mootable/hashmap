@@ -6,7 +6,6 @@
  */
 const fs = require('fs');
 const _ = require('lodash');
-const sleep = require('system-sleep');
 const Benchmark = require('benchmark');
 const hashmapImplementations = {
     'mootable-hashmap': '../hashmap',

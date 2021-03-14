@@ -28,7 +28,10 @@
      * @namespace Mootable
      */
     /**
-     * Murmur3 HashCode generator
+     * Modified Murmur3 HashCode generator, with capped lengths.
+     * This is NOT a cryptographic hash, this hash is designed to create as even a spread across a 32bit integer as is possible.
+     * @see {@link https://github.com/aappleby/smhasher|MurmurHash specification on Github}
+     * @see {@link https://en.wikipedia.org/wiki/MurmurHash|MurmurHash on Wikipedia}
      * @function Mootable.hashCode
      * @param key the string being hashed
      * @param seed an optional random seed
@@ -271,7 +274,7 @@
          * const mapIterable = Mootable.mapIterable(myMap);
          * // returns 2
          * const theSize = mapIterable.size;
-         * @returns {number}
+         * @returns {number} the total number of elements in this MapIterable
          */
         get size() {
             let accumulator = 0;
@@ -295,7 +298,7 @@
          * @param {*} [value] - the entry value.
          * @param {*} [key] - the entry key
          * @param {MapIterable} [iterable] - the calling Map Iterable.
-         * @return {boolean} - a value that coerces to true if it matches, or to false otherwise.
+         * @return {boolean} a value that coerces to true if it matches, or to false otherwise.
          */
 
         /**
@@ -309,7 +312,7 @@
          * // value3
          * @param {MapCallbacks.MatchesPredicate} [filterPredicate=(value, key, iterable) => true] - if the provided function returns <code>false</code>, that entry is excluded.
          * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>filterPredicate</code>
-         * @returns {MapIterable} - an iterable that allows you to iterate key value pairs.
+         * @returns {MapIterable} an iterable that allows you to iterate key value pairs.
          */
         filter(filterPredicate = (value, key, iterable) => true, ctx = this) {
             return new MapFilter(this, filterPredicate, ctx);
@@ -337,7 +340,7 @@
          * // 3 value3
          * @param {MapCallbacks.ForEachCallback} [forEachCallback=(value, key, iterable) => {}]
          * @param {*} [ctx=this] Value to use as <code>this</code> when executing <code>forEachCallback</code>
-         * @returns {MapIterable} - an iterable that allows you to iterate key value pairs.
+         * @returns {MapIterable} an iterable that allows you to iterate key value pairs.
          */
         forEach(forEachCallback = (value, key, iterable) => {
         }, ctx = this) {
@@ -348,12 +351,57 @@
         }
 
         /**
-         * Executes the MapIterable chain, and fills it with the <code>[key,value]</code> pairs,
+         * Fills the provided collector, or an array if none provided, and fills it with the values of this {@link MapIterable}. Then return the collector.
+         * The original collector, with the exception of arrays, will be modified as we call functions directly against it.
          *
-         * if it is an {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array Array} a new array is created and passed back with the filled values, and the orignal is not changed.
-         * If it is a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set Set} a <code>[key,value]</code> pair is added to it. The original is modified.
-         * If it is a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map Map}, {@link HashMap} or {@link LinkedHashMap} a value is set to key, if the value already exists for that key it is overriden. The original is modified.
-         * If it is an {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object Object} a property of <code>key</code> has a value of <code>value</code> set on it. The original is modified.
+         * A collector will be resolved in this order:
+         *  - {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array Array}
+         *    - a new array is created and passed back with the filled values, and the original is not changed.
+         *  - Object with a function <code>.set</code>.
+         *    - such as {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map Map}, {@link HashMap} or {@link LinkedHashMap}
+         *    - it will call <code>set(key,value)</code> for every entry, if the value already exists for that key it is typically overriden. The original is modified.
+         *  - Object with a function <code>.add</code>
+         *    - such as {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set Set}
+         *    - it will call <code>add([key,value])</code> for every entry, so that a <code>[key,value]</code> pair is added to the collection. The original is modified.
+         *  - {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object Object}
+         *    - It will call <code>obj[key] = value</code> for every entry, so that a property of <code>key</code> has a value of <code>value</code> set on it. The original is modified.
+         *
+         * @example <caption>Collect to a new {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array Array}</caption>
+         * const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const myArray = mapIterable.collect();
+         * // myArray === [[1,'value1'],[2,'value2'],[3,'value3']]:
+         * @example <caption>Collect with an empty existing {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array Array}</caption>
+         * const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const oldArray = [];
+         * const newArray = mapIterable.collect(oldArray);
+         * // newArray === [[1,'value1'],[2,'value2'],[3,'value3']]
+         * // oldArray === []
+         * @example <caption>Collect with an existing {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array Array} with values</caption>
+         * const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const oldArray = [[2,'someOtherValue']];
+         * const newArray = mapIterable.collect(oldArray);
+         * // newArray === [[2,'someOtherValue'],[1,'value1'],[2,'value2'],[3,'value3']]
+         * // oldArray === [[2,'someOtherValue']]
+         * @example <caption>Collect to an existing {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array Array} with values, modifying the old array.</caption>
+         * const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const array  = [[2,'someOtherValue']];
+         * array.push(mapIterable.collect())
+         * // array === [[2,'someOtherValue'],[1,'value1'],[2,'value2'],[3,'value3']]
+         * @example <caption>Collect to a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set Set}</caption>
+         * const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const oldSet = new Set().add('willRemain');
+         * const newSet = mapIterable.collect(oldSet);
+         * // oldSet === newSet === ['willRemain',[1,'value1'],[2,'value2'],[3,'value3']]
+         * @example <caption>Collect to a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map Map}</caption>
+         * const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const oldMap = new Map().set(2,'willBeOverwritten').set(5,'willRemain');
+         * const newMap = mapIterable.collect(oldMap);
+         * // oldMap === newMap === [[2,'value2'],[5,'willRemain'],[1,'value1'],[3,'value3']]
+         * @example <caption>Collect to a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object Object}</caption>
+         * const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const oldObject = {'1','willBeOverriden'};
+         * const newObject = mapIterable.collect(oldObject);
+         * // oldObject === newObject === {'1': 'value1', '2': 'value2', '3': 'value3'}
          * @param {(Array|Set|Map|HashMap|LinkedHashMap|Object)} [collector=[]] the collection to fill
          * @returns {(Array|Set|Map|HashMap|LinkedHashMap|Object)} The collector that was passed in.
          */
@@ -381,16 +429,25 @@
 
 
         /**
-         * Test each element of the map against the <code>MatchesPredicate</code>.
+         * Test to see if ALL elements pass the test implemented by the passed <code>MatchesPredicate</code>.
          * - if any element does not match, returns false
          * - if all elements match, returns true.
          * - if no elements match, returns false.
-         * - if the iterable is empty, returns true
+         * - if the iterable is empty, returns true. (irrespective of the predicate)
          * - if no predicate is provided, returns true.
          *
+         * @example <caption>Do all values start with value. (yes)</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const everyResult = hashmap.every((value) => value.startsWith('value'));
+         * // everyResult === true
+         * @example <caption>Do all values start with value. (no)</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'doesntStart'],[3,'value3']]);
+         * const everyResult = hashmap.every((value) => value.startsWith('value'));
+         * // everyResult === false
+         * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/every|Array.every}
          * @param {MapCallbacks.MatchesPredicate} [everyPredicate=(value, key, iterable) => true] - if the provided function returns <code>false</code>, at any point the <code>every()</code> function returns false.
          * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>everyPredicate</code>
-         * @returns {boolean} - true if all elements match, false if one or more elements fails to match.
+         * @returns {boolean} true if all elements match, false if one or more elements fails to match.
          */
         every(everyPredicate = (value, key, iterable) => true, ctx = this) {
             for (const [key, value] of this) {
@@ -402,13 +459,22 @@
         }
 
         /**
-         * Test each element of the map against the <code>MatchesPredicate</code>.
+         * Test to see if ANY element pass the test implemented by the passed <code>MatchesPredicate</code>.
          * - if any element matches, returns true.
          * - if all elements match returns true.
          * - if no elements match returns false.
          * - if the iterable is empty, returns true.
          * - if no predicate is provided, returns true.
          *
+         * @example <caption>Do any values start with value. (yes all of them)</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const someResult = hashmap.some((value) => value.startsWith('value'));
+         * // someResult === true
+         * @example <caption>Do any values start with value. (yes 2 of them)</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'doesntStart'],[3,'value3']]);
+         * const someResult = hashmap.some((value) => value.startsWith('value'));
+         * // someResult === true
+         * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some|Array.some}
          * @param {MapCallbacks.MatchesPredicate} [somePredicate=(value, key, iterable) => true] - the predicate to identify if we have a match.
          * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>somePredicate</code>
          * @returns {boolean} - true if all elements match, false if one or more elements fails to match.
@@ -423,11 +489,19 @@
         }
 
         /**
-         * Test each element of the map against the <code>MatchesPredicate</code> until we get a match.
+         * Find the first value in the map which passes the provided <code>MatchesPredicate</code>.
          * - return the first <code>value</code> from the <code>[key,value]</code> pair that matches
          * - if no elements match, it returns undefined.
          * - if no predicate is defined, will return the first value it finds.
-         *
+         * @example <caption>Find a value</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const findResult = hashmap.find((value) => value.endsWith('ue2'));
+         * // findResult === 'value2'
+         * @example <caption>Can't find a value</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const findResult = hashmap.find((value) => value.startsWith('something'));
+         * // findResult === undefined
+         * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find|Array.find}
          * @param {MapCallbacks.MatchesPredicate} [findPredicate=(value, key, iterable) => value] - the predicate to identify if we have a match.
          * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>findPredicate</code>
          * @returns {*} - the value of the element that matches..
@@ -442,13 +516,20 @@
         }
 
         /**
-         * Test each element of the map against the <code>MatchesPredicate</code> until we get a match.
+         * Find the first value in the key which passes the provided  <code>MatchesPredicate</code>.
          * - return the first <code>key</code> from the <code>[key,value]</code> pair that matches
          * - if no elements match, it returns undefined.
          * - if no predicate is defined, will return the first key it finds.
          *
-         * @see Array.findIndex
-         *
+         * @example <caption>Find a key</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const findIndexResult = hashmap.findIndex((value) => value.endsWith('ue2'));
+         * // findIndexResult === 2
+         * @example <caption>Can't find a key</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const findIndexResult = hashmap.findIndex((value) => value.startsWith('something'));
+         * // findIndexResult === undefined
+         * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex|Array.findIndex}
          * @param {MapCallbacks.MatchesPredicate} [findIndexPredicate=(value, key, iterable) => key] - the predicate to identify if we have a match.
          * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>findIndexPredicate</code>
          * @returns {*} - the key of the element that matches..
@@ -463,15 +544,22 @@
         }
 
         /**
-         * Test each element of the map to see if it contains a value that is <code>===</code> to the provided value.
+         * Find the first key in the map whose value is <code>===</code> to the provided value.
          * - return the first <code>key</code> from the <code>[key,value]</code> pair that matches
          * - if no elements match, it returns undefined.
          * - it is legitimate for values to be null or undefined, and if set, will find a key.
          *
          * Values are not indexed, this is potentially an expensive operation.
          *
-         * @see Array.indexOf
-         *
+         * @example <caption>Find the key for a value</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const indexOfResult = hashmap.indexOf('value2');
+         * // indexOfResult === 2
+         * @example <caption>what is the key of a non existent value</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const indexOfResult = hashmap.indexOf('something');
+         * // indexOfResult === undefined
+         * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf|Array.indexOf}
          * @param {*} valueToCheck - the value we use to === against the entries value to identify if we have a match.
          * @returns {*} - the key of the element that matches..
          */
@@ -492,9 +580,15 @@
          * - it is legitimate for keys to be null or undefined, and if set, will return true
          *
          * Maps typically index keys, and so is generally a fast operation.
-         *
-         * @see Map.has
-         *
+         * @example <caption>>Does this contain a key that is there</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const hasResult = hashmap.has(1);
+         * // hasResult === true
+         * @example <caption>Does this contain a key that isn't there</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const hasResult = hashmap.has(4);
+         * // hasResult === false
+         * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/has|Map.has}
          * @param {*} key - the key we use to === against the entries key to identify if we have a match.
          * @returns {boolean} - if it holds the key or not.
          */
@@ -509,11 +603,19 @@
          * - return the first <code>value</code> from the <code>[key,value]</code> pair that matches
          * - if no elements match, it returns undefined.
          * - it is legitimate for keys to be null or undefined, and if set, will find a value.
+         * - if a map is earlier on in the chain, the value, will be mapped along the way.
+         *   - However there is no way to reverse map the key, as we do the fetch, which means the key has to be the same as the one in the original collection.
          *
          * Maps typically index keys, and so is generally a fast operation.
-         *
-         * @see Map.get
-         *
+         * @example <caption>>What is the value for a key</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const getResult = hashmap.get(1);
+         * // getResult === 'value1'
+         * @example <caption>What is the value for a key that isn't there</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const getResult = hashmap.get(4);
+         * // getResult === undefined
+         * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/get|Map.get}
          * @param {*} key - the key we use to === against the entries key to identify if we have a match.
          * @returns {*} - the value of the element that matches..
          */
@@ -528,8 +630,9 @@
          * if initial value is <code>undefined</code> or <code>null</code>, unlike Array.reduce,
          * no error occurs, and it is imply passed as the accumulator value
          *
-         * @see Array.reduce
-         *
+         * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce|Array.reduce}
+         * @example <caption>add all the keys</caption>
+         * const reduceFunction = (accumulator, value, key) => accumulator+key
          * @callback MapCallbacks.ReduceFunction
          * @param {*} [accumulator] - the value from the last execution of this function.
          * @param {*} [value] - the entry value.
@@ -540,7 +643,15 @@
 
         /**
          * Iterate through the map iterable reducing it to a single value.
-         * @see Array.reduce
+         * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce|Array.reduce}
+         * @example <caption>add all the keys</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const reduceResult = hashmap.reduce((accumulator, value, key) => accumulator+key, 0);
+         * // reduceResult === 6
+         * @example <caption>add all the values into one string in reverse order</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const reduceResult = hashmap.reduce((accumulator, value) => value+accumulator, '');
+         * // reduceResult === 'value3value2value1'
          * @param {MapCallbacks.ReduceFunction} [reduceFunction=(accumulator, value, key, iterable) => true] - the predicate to identify if we have a match.
          * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>reduceFunction</code>
          * @returns {*} - the final accumulated value.
@@ -552,44 +663,72 @@
             }
             return accumulator;
         }
+        /**
+         * Map Function
+         * A callback that takes a <code>[key,value]</code> and current iterable, and returns a mapped value.
+         * How this maped value is used depends on the calling function.
+         *  - mapKeys the key is transformed to the returned value
+         *  - mapValues the value is transformed to the returned value
+         *  - mapEntries the value should be of the form [key, value] and transforms each accordingly
+         *  - map the MapIterable is turned into a SetIterable, and this returned value is the resultant entry.
+         *
+         * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map|Array.map}
+         * @example <caption>swap key and value</caption>
+         * const mapEntriesFunction = ( value, key) => [value, key];
+         * // the typical response is [key, value]
+         * @callback MapCallbacks.MapFunction
+         * @param {*} [value] - the entry value.
+         * @param {*} [key] - the entry key
+         * @param {MapIterable} [iterable] - the calling Map Iterable.
+         * @return {*} [mappedValue] - the mapped value to return.
+         */
 
         /**
-         *
-         * @param mapKeyFunction
-         * @param ctx
-         * @return {MapIterable}
+         * For every entry, use the mapKeyFunction to transform the existing key.
+         * This does not modify the original collection, and execution is deferred until it is fetched.
+         * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map|Array.map}
+         * @param {MapCallbacks.MapFunction} [mapKeyFunction=(value, key, iterable) => key] - the function that transforms the key.
+         * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>reduceFunction</code>
+         * @returns {MapIterable} an iterable that allows you to iterate key value pairs.
          */
         mapKeys(mapKeyFunction = (value, key, iterable) => key, ctx = this) {
             return new MapKeyMapper(this, mapKeyFunction, ctx);
         }
 
         /**
-         *
-         * @param mapValueFunction
-         * @param ctx
-         * @return {MapIterable}
+         * For every entry, use the mapValueFunction to transform the existing value.
+         * This does not modify the original collection, and execution is deferred until it is fetched.
+         * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map|Array.map}
+         * @param {MapCallbacks.MapFunction} [mapValueFunction=(value, key, iterable) => value] - the function that transforms the value.
+         * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>reduceFunction</code>
+         * @returns {MapIterable} an iterable that allows you to iterate key value pairs.
          */
         mapValues(mapValueFunction = (value, key, iterable) => value, ctx = this) {
             return new MapValueMapper(this, mapValueFunction, ctx);
         }
 
         /**
-         *
-         * @param mapEntryFunction
-         * @param ctx
-         * @return {MapIterable}
+         * For every entry, use the mapEntryFunction to transform the existing value and existing key.
+         * This does not modify the original collection, and execution is deferred until it is fetched.
+         * The function MUST return an array with at least 2 entries, the first entry is the key, the second is the value.
+         * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map|Array.map}
+         * @param {MapCallbacks.MapFunction} [mapEntryFunction=(value, key, iterable) => [key, value]] - the function that transforms the key and value.
+         * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>reduceFunction</code>
+         * @returns {MapIterable} an iterable that allows you to iterate key value pairs.
          */
         mapEntries(mapEntryFunction = (value, key, iterable) => [key, value], ctx = this) {
             return new MapEntryMapper(this, mapEntryFunction, ctx);
         }
 
         /**
-         *
-         * @param mapFunction
-         * @param ctx
-         * @return {SetIterable}
+         * For every entry, use the mapEntryFunction to transform the existing value and existing key, into one value. This is the equivalent of turning the MapIterable into a SetIterable.
+         * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map|Array.map}
+         * @param {MapCallbacks.MapFunction} [mapFunction=(value, key, iterable) => [key, value]] - the function that transforms the key and value.
+         * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>reduceFunction</code>
+         * @returns {SetIterable} an iterable that allows you to iterate single entries.
          */
         map(mapFunction = (value, key, map) => {
+            //TODO: we may want to keep it a MapIterable and just pass 2 mapping functions.
             return [key, value];
         }, ctx = this) {
             return new MapMapper(this, mapFunction, ctx);
@@ -664,13 +803,13 @@
      * // iterating over a SetIterable backed by a map, will yield [key,value] arrays.
      * const setIterable =  Mootable.setIterable(new HashMap());
      * @example <caption>Create a SetIterable by using <code>HashMap.map()</code>.</caption>
-     * // iterating over any unparametrized MapIterable.map() will yield [key,value] arrays
+     * // iterating over any unparameterized MapIterable.map() will yield [key,value] arrays
      * const setIterable =  new HashMap().map();
      * @example <caption>Create a SetIterable from a Mootable LinkedHashMap.</caption>
      * // iterating over a SetIterable backed by a map, will yield [key,value] arrays.
      * const setIterable =  Mootable.setIterable(new LinkedHashMap());
      * @example <caption>Create a SetIterable by using <code>LinkedHashMap.map()</code>.</caption>
-     * // iterating over any unparametrized MapIterable.map() will yield [key,value] arrays
+     * // iterating over any unparameterized MapIterable.map() will yield [key,value] arrays
      * const setIterable =  new LinkedHashMap().map();
      * @abstract
      */
@@ -1643,6 +1782,12 @@
                 yield [key, this.mapFunction.call(this.ctx, value, key, this)];
             }
         }
+        get(key) {
+            if(this.has(key)) {
+                const value = super.get(key);
+                return this.mapFunction.call(this.ctx, value, key, this);
+            }
+        }
     }
 
     /**
@@ -1661,6 +1806,13 @@
                 const [newKey, newValue] = this.mapFunction.call(this.ctx, value, key, this);
                 yield [newKey, newValue];
             }
+        }
+        get(key) {
+            if(this.has(key)) {
+                const value = super.get(key);
+                return this.mapFunction.call(this.ctx, value, key, this)[1];
+            }
+            return undefined;
         }
     }
 

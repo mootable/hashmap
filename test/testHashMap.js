@@ -59,13 +59,15 @@ describe('hashmap', function() {
 	describe('hashmap.delete()', function() {
 		it('should delete an entry by key', function() {
 			hashmap.set('key', 'value1');
-			hashmap.delete('key');
+			const ret = hashmap.delete('key');
 			expect(hashmap.has('key')).to.be.false;
+			expect(ret).to.equal(hashmap);
 		});
 
 		it('should not fail when the key is not found', function() {
-			hashmap.delete('key');
+			const ret = hashmap.delete('key');
 			expect(hashmap.has('key')).to.be.false;
+			expect(ret).to.equal(hashmap);
 		});
 	});
 

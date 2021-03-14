@@ -1,32 +1,51 @@
+article > *{
+    border-left: 10px solid rgba(255,255,255,0);
+}
 article h4.name {
     background: #374e94;
     padding-top: 1em;
+    padding-left: 1em;
     margin-top: 2.5em;
+    margin-bottom: 0;
     box-shadow: none;
     border: none;
-    border-radius: 0.3em
+    border-top-left-radius: 0.5em;
+    border-top-right-radius: 0.5em;
+    font-size: 24px;
 }
 table {
+    border-collapse: unset;
     box-shadow: none;
-    border-radius: 0.3em;
+    border-radius: 0.5em;
     border: 1px solid #dfdbd3;
+    border-left: 10px solid #374e94;
 }
 
-article .description,
-article .param-desc,
-article .param-type {
-    margin-left: 2em;
-}
-/*article h5 {*/
-/*    margin-left: 1em;*/
+/*article .description.usertext p:first-child::first-line {*/
+/*    font-size: 20px;*/
+/*    line-height: 32px;*/
 /*}*/
-
-article dl.details {
-    text-align: right;
-    border: none;
+/*article .description.usertext p:first-child::first-letter {*/
+/*    font-size: 28px;*/
+/*}*/
+article .details {
+    margin-top: 0;
+    padding-top: 0.3em;
+    border-left: 10px solid #374e94;
+    border-bottom-left-radius: 0.5em;
+    background: #f8f4ed;
 }
-article dl.details dt {
-    display: none;
+
+article .details dd {
+    margin-top: 0;
+}
+.prettyprint {
+    border-left: 10px solid #374e94;
+    background-color: #0a0611;
+    border-radius: 0.5em;
+}
+.prettyprint code {
+    background-color: #0a0611;
 }
 
 .type-signature {

@@ -60,13 +60,15 @@ describe('linkedHashMap', function() {
 	describe('linkedHashMap.delete()', function() {
 		it('should delete an entry by key', function() {
 			linkedHashMap.set('key', 'value1');
-			linkedHashMap.delete('key');
+			const ret = linkedHashMap.delete('key');
 			expect(linkedHashMap.has('key')).to.be.false;
+			expect(ret).to.equal(linkedHashMap);
 		});
 
 		it('should not fail when the key is not found', function() {
-			linkedHashMap.delete('key');
+			const ret = linkedHashMap.delete('key');
 			expect(linkedHashMap.has('key')).to.be.false;
+			expect(ret).to.equal(linkedHashMap);
 		});
 	});
 
