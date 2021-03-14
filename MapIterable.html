@@ -77,7 +77,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line263">line 263</a>
+        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line266">line 266</a>
     </li></ul></dd>
     
 
@@ -202,7 +202,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line276">line 276</a>
+        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line279">line 279</a>
     </li></ul></dd>
     
 
@@ -282,7 +282,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line360">line 360</a>
+        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line408">line 408</a>
     </li></ul></dd>
     
 
@@ -322,11 +322,33 @@
 
 
 <div class="description usertext">
-    <p>Executes the MapIterable chain, and fills it with the <code>[key,value]</code> pairs,</p>
-<p>if it is an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a> a new array is created and passed back with the filled values, and the orignal is not changed.<br>
-If it is a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set">Set</a> a <code>[key,value]</code> pair is added to it. The original is modified.<br>
-If it is a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map">Map</a>, <a href="HashMap.html"><code>HashMap</code></a> or <a href="LinkedHashMap.html"><code>LinkedHashMap</code></a> a value is set to key, if the value already exists for that key it is overriden. The original is modified.<br>
-If it is an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a> a property of <code>key</code> has a value of <code>value</code> set on it. The original is modified.</p>
+    <p>Fills the provided collector, or an array if none provided, and fills it with the values of this <a href="MapIterable.html"><code>MapIterable</code></a>. Then return the collector.<br>
+The original collector, with the exception of arrays, will be modified as we call functions directly against it.</p>
+<p>A collector will be resolved in this order:</p>
+<ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>
+<ul>
+<li>a new array is created and passed back with the filled values, and the original is not changed.</li>
+</ul>
+</li>
+<li>Object with a function <code>.set</code>.
+<ul>
+<li>such as <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map">Map</a>, <a href="HashMap.html"><code>HashMap</code></a> or <a href="LinkedHashMap.html"><code>LinkedHashMap</code></a></li>
+<li>it will call <code>set(key,value)</code> for every entry, if the value already exists for that key it is typically overriden. The original is modified.</li>
+</ul>
+</li>
+<li>Object with a function <code>.add</code>
+<ul>
+<li>such as <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set">Set</a></li>
+<li>it will call <code>add([key,value])</code> for every entry, so that a <code>[key,value]</code> pair is added to the collection. The original is modified.</li>
+</ul>
+</li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>
+<ul>
+<li>It will call <code>obj[key] = value</code> for every entry, so that a property of <code>key</code> has a value of <code>value</code> set on it. The original is modified.</li>
+</ul>
+</li>
+</ul>
 </div>
 
 
@@ -335,6 +357,37 @@ If it is an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Ref
 
 
 
+
+
+    <h5>Examples</h5>
+    
+        <p class="code-caption">Collect to a new <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></p>
+    
+    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const myArray = mapIterable.collect();// myArray === [[1,'value1'],[2,'value2'],[3,'value3']]:</code></pre>
+
+        <p class="code-caption">Collect with an empty existing <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></p>
+    
+    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const oldArray = [];const newArray = mapIterable.collect(oldArray);// newArray === [[1,'value1'],[2,'value2'],[3,'value3']]// oldArray === []</code></pre>
+
+        <p class="code-caption">Collect with an existing <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a> with values</p>
+    
+    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const oldArray = [[2,'someOtherValue']];const newArray = mapIterable.collect(oldArray);// newArray === [[2,'someOtherValue'],[1,'value1'],[2,'value2'],[3,'value3']]// oldArray === [[2,'someOtherValue']]</code></pre>
+
+        <p class="code-caption">Collect to an existing <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a> with values, modifying the old array.</p>
+    
+    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const array  = [[2,'someOtherValue']];array.push(mapIterable.collect())// array === [[2,'someOtherValue'],[1,'value1'],[2,'value2'],[3,'value3']]</code></pre>
+
+        <p class="code-caption">Collect to a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set">Set</a></p>
+    
+    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const oldSet = new Set().add('willRemain');const newSet = mapIterable.collect(oldSet);// oldSet === newSet === ['willRemain',[1,'value1'],[2,'value2'],[3,'value3']]</code></pre>
+
+        <p class="code-caption">Collect to a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map">Map</a></p>
+    
+    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const oldMap = new Map().set(2,'willBeOverwritten').set(5,'willRemain');const newMap = mapIterable.collect(oldMap);// oldMap === newMap === [[2,'value2'],[5,'willRemain'],[1,'value1'],[3,'value3']]</code></pre>
+
+        <p class="code-caption">Collect to a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a></p>
+    
+    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const oldObject = {'1','willBeOverriden'};const newObject = mapIterable.collect(oldObject);// oldObject === newObject === {'1': 'value1', '2': 'value2', '3': 'value3'}</code></pre>
 
 
 
@@ -494,7 +547,7 @@ If it is an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Ref
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line603">line 603</a>
+        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line742">line 742</a>
     </li></ul></dd>
     
 
@@ -639,7 +692,7 @@ If it is an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Ref
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line612">line 612</a>
+        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line751">line 751</a>
     </li></ul></dd>
     
 
@@ -784,7 +837,7 @@ If it is an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Ref
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line636">line 636</a>
+        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line775">line 775</a>
     </li></ul></dd>
     
 
@@ -885,7 +938,7 @@ If it is an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Ref
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line395">line 395</a>
+        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line452">line 452</a>
     </li></ul></dd>
     
 
@@ -916,6 +969,13 @@ If it is an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Ref
     
 
     
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/every">Array.every</a></li>
+        </ul>
+    </dd>
+    
 
     
 </dl>
@@ -925,12 +985,12 @@ If it is an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Ref
 
 
 <div class="description usertext">
-    <p>Test each element of the map against the <code>MatchesPredicate</code>.</p>
+    <p>Test to see if ALL elements pass the test implemented by the passed <code>MatchesPredicate</code>.</p>
 <ul>
 <li>if any element does not match, returns false</li>
 <li>if all elements match, returns true.</li>
 <li>if no elements match, returns false.</li>
-<li>if the iterable is empty, returns true</li>
+<li>if the iterable is empty, returns true. (irrespective of the predicate)</li>
 <li>if no predicate is provided, returns true.</li>
 </ul>
 </div>
@@ -941,6 +1001,17 @@ If it is an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Ref
 
 
 
+
+
+    <h5>Examples</h5>
+    
+        <p class="code-caption">Do all values start with value. (yes)</p>
+    
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const everyResult = hashmap.every((value) => value.startsWith('value'));// everyResult === true</code></pre>
+
+        <p class="code-caption">Do all values start with value. (no)</p>
+    
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'doesntStart'],[3,'value3']]);const everyResult = hashmap.every((value) => value.startsWith('value'));// everyResult === false</code></pre>
 
 
 
@@ -1071,9 +1142,7 @@ If it is an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Ref
 
         
 <div class="param-desc">
-    <ul>
-<li>true if all elements match, false if one or more elements fails to match.</li>
-</ul>
+    <p>true if all elements match, false if one or more elements fails to match.</p>
 </div>
 
 
@@ -1111,7 +1180,7 @@ If it is an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Ref
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line314">line 314</a>
+        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line317">line 317</a>
     </li></ul></dd>
     
 
@@ -1297,9 +1366,7 @@ If it is an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Ref
 
         
 <div class="param-desc">
-    <ul>
-<li>an iterable that allows you to iterate key value pairs.</li>
-</ul>
+    <p>an iterable that allows you to iterate key value pairs.</p>
 </div>
 
 
@@ -1337,7 +1404,7 @@ If it is an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Ref
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line435">line 435</a>
+        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line509">line 509</a>
     </li></ul></dd>
     
 
@@ -1368,6 +1435,13 @@ If it is an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Ref
     
 
     
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find">Array.find</a></li>
+        </ul>
+    </dd>
+    
 
     
 </dl>
@@ -1377,7 +1451,7 @@ If it is an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Ref
 
 
 <div class="description usertext">
-    <p>Test each element of the map against the <code>MatchesPredicate</code> until we get a match.</p>
+    <p>Find the first value in the map which passes the provided <code>MatchesPredicate</code>.</p>
 <ul>
 <li>return the first <code>value</code> from the <code>[key,value]</code> pair that matches</li>
 <li>if no elements match, it returns undefined.</li>
@@ -1391,6 +1465,17 @@ If it is an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Ref
 
 
 
+
+
+    <h5>Examples</h5>
+    
+        <p class="code-caption">Find a value</p>
+    
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const findResult = hashmap.find((value) => value.endsWith('ue2'));// findResult === 'value2'</code></pre>
+
+        <p class="code-caption">Can't find a value</p>
+    
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const findResult = hashmap.find((value) => value.startsWith('something'));// findResult === undefined</code></pre>
 
 
 
@@ -1561,7 +1646,7 @@ If it is an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Ref
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line456">line 456</a>
+        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line537">line 537</a>
     </li></ul></dd>
     
 
@@ -1595,7 +1680,7 @@ If it is an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Ref
     <dt class="tag-see">See:</dt>
     <dd class="tag-see">
         <ul>
-            <li>Array.findIndex</li>
+            <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex">Array.findIndex</a></li>
         </ul>
     </dd>
     
@@ -1608,7 +1693,7 @@ If it is an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Ref
 
 
 <div class="description usertext">
-    <p>Test each element of the map against the <code>MatchesPredicate</code> until we get a match.</p>
+    <p>Find the first value in the key which passes the provided  <code>MatchesPredicate</code>.</p>
 <ul>
 <li>return the first <code>key</code> from the <code>[key,value]</code> pair that matches</li>
 <li>if no elements match, it returns undefined.</li>
@@ -1622,6 +1707,17 @@ If it is an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Ref
 
 
 
+
+
+    <h5>Examples</h5>
+    
+        <p class="code-caption">Find a key</p>
+    
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const findIndexResult = hashmap.findIndex((value) => value.endsWith('ue2'));// findIndexResult === 2</code></pre>
+
+        <p class="code-caption">Can't find a key</p>
+    
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const findIndexResult = hashmap.findIndex((value) => value.startsWith('something'));// findIndexResult === undefined</code></pre>
 
 
 
@@ -1792,7 +1888,7 @@ If it is an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Ref
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line342">line 342</a>
+        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line345">line 345</a>
     </li></ul></dd>
     
 
@@ -1978,9 +2074,7 @@ If it is an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Ref
 
         
 <div class="param-desc">
-    <ul>
-<li>an iterable that allows you to iterate key value pairs.</li>
-</ul>
+    <p>an iterable that allows you to iterate key value pairs.</p>
 </div>
 
 
@@ -2018,7 +2112,7 @@ If it is an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Ref
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line520">line 520</a>
+        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line622">line 622</a>
     </li></ul></dd>
     
 
@@ -2052,7 +2146,7 @@ If it is an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Ref
     <dt class="tag-see">See:</dt>
     <dd class="tag-see">
         <ul>
-            <li>Map.get</li>
+            <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/get">Map.get</a></li>
         </ul>
     </dd>
     
@@ -2071,6 +2165,11 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
 <li>return the first <code>value</code> from the <code>[key,value]</code> pair that matches</li>
 <li>if no elements match, it returns undefined.</li>
 <li>it is legitimate for keys to be null or undefined, and if set, will find a value.</li>
+<li>if a map is earlier on in the chain, the value, will be mapped along the way.
+<ul>
+<li>However there is no way to reverse map the key, as we do the fetch, which means the key has to be the same as the one in the original collection.</li>
+</ul>
+</li>
 </ul>
 <p>Maps typically index keys, and so is generally a fast operation.</p>
 </div>
@@ -2081,6 +2180,17 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
 
 
 
+
+
+    <h5>Examples</h5>
+    
+        <p class="code-caption">>What is the value for a key</p>
+    
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const getResult = hashmap.get(1);// getResult === 'value1'</code></pre>
+
+        <p class="code-caption">What is the value for a key that isn't there</p>
+    
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const getResult = hashmap.get(4);// getResult === undefined</code></pre>
 
 
 
@@ -2192,7 +2302,7 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line501">line 501</a>
+        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line595">line 595</a>
     </li></ul></dd>
     
 
@@ -2226,7 +2336,7 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     <dt class="tag-see">See:</dt>
     <dd class="tag-see">
         <ul>
-            <li>Map.has</li>
+            <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/has">Map.has</a></li>
         </ul>
     </dd>
     
@@ -2255,6 +2365,17 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
 
 
 
+
+
+    <h5>Examples</h5>
+    
+        <p class="code-caption">>Does this contain a key that is there</p>
+    
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const hasResult = hashmap.has(1);// hasResult === true</code></pre>
+
+        <p class="code-caption">Does this contain a key that isn't there</p>
+    
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const hasResult = hashmap.has(4);// hasResult === false</code></pre>
 
 
 
@@ -2366,7 +2487,7 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line478">line 478</a>
+        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line566">line 566</a>
     </li></ul></dd>
     
 
@@ -2400,7 +2521,7 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     <dt class="tag-see">See:</dt>
     <dd class="tag-see">
         <ul>
-            <li>Array.indexOf</li>
+            <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf">Array.indexOf</a></li>
         </ul>
     </dd>
     
@@ -2413,7 +2534,7 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
 
 
 <div class="description usertext">
-    <p>Test each element of the map to see if it contains a value that is <code>===</code> to the provided value.</p>
+    <p>Find the first key in the map whose value is <code>===</code> to the provided value.</p>
 <ul>
 <li>return the first <code>key</code> from the <code>[key,value]</code> pair that matches</li>
 <li>if no elements match, it returns undefined.</li>
@@ -2428,6 +2549,17 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
 
 
 
+
+
+    <h5>Examples</h5>
+    
+        <p class="code-caption">Find the key for a value</p>
+    
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const indexOfResult = hashmap.indexOf('value2');// indexOfResult === 2</code></pre>
+
+        <p class="code-caption">what is the key of a non existent value</p>
+    
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const indexOfResult = hashmap.indexOf('something');// indexOfResult === undefined</code></pre>
 
 
 
@@ -2539,7 +2671,7 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line620">line 620</a>
+        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line759">line 759</a>
     </li></ul></dd>
     
 
@@ -2628,7 +2760,7 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
 
     
 
-    <h4 class="name" id="map"><span class="type-signature"></span>map<span class="signature">(mapFunction, ctx)</span><span class="type-signature"> &rarr; {<a href="SetIterable.html">SetIterable</a>}</span></h4>
+    <h4 class="name" id="map"><span class="type-signature"></span>map<span class="signature">(mapFunction<span class="signature-attributes">opt</span>, ctx<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {<a href="SetIterable.html">SetIterable</a>}</span></h4>
 
     
 
@@ -2640,7 +2772,7 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line592">line 592</a>
+        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line730">line 730</a>
     </li></ul></dd>
     
 
@@ -2671,6 +2803,13 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
 
     
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map">Array.map</a></li>
+        </ul>
+    </dd>
+    
 
     
 </dl>
@@ -2678,6 +2817,10 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
 
 
 
+
+<div class="description usertext">
+    <p>For every entry, use the mapEntryFunction to transform the existing value and existing key, into one value. This is the equivalent of turning the MapIterable into a SetIterable.</p>
+</div>
 
 
 
@@ -2702,7 +2845,11 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
+        
+        <th>Default</th>
         
 
         <th class="last">Description</th>
@@ -2719,13 +2866,34 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
 
             <td class="type">
             
+                
+<span class="param-type"><a href="MapCallbacks.html#.MapFunction">MapCallbacks.MapFunction</a></span>
+
+
+            
             </td>
 
             
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
 
+                
+
+                
+                </td>
             
 
-            <td class="description last"></td>
+            
+                <td class="default">
+                
+                    <code>(value, key, iterable) => [key, value]</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>the function that transforms the key and value.</p></td>
         </tr>
 
     
@@ -2737,13 +2905,34 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
 
             <td class="type">
             
+                
+<span class="param-type">*</span>
+
+
+            
             </td>
 
             
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
 
+                
+
+                
+                </td>
             
 
-            <td class="description last"></td>
+            
+                <td class="default">
+                
+                    <code>this</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Value to use as <code>this</code> when executing <code>reduceFunction</code></p></td>
         </tr>
 
     
@@ -2768,6 +2957,10 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
 <h5>Returns:</h5>
 
         
+<div class="param-desc">
+    <p>an iterable that allows you to iterate single entries.</p>
+</div>
+
 
 
 <dl class="param-type">
@@ -2791,7 +2984,7 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
 
     
 
-    <h4 class="name" id="mapEntries"><span class="type-signature"></span>mapEntries<span class="signature">(mapEntryFunction, ctx)</span><span class="type-signature"> &rarr; {<a href="MapIterable.html">MapIterable</a>}</span></h4>
+    <h4 class="name" id="mapEntries"><span class="type-signature"></span>mapEntries<span class="signature">(mapEntryFunction<span class="signature-attributes">opt</span>, ctx<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {<a href="MapIterable.html">MapIterable</a>}</span></h4>
 
     
 
@@ -2803,7 +2996,7 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line582">line 582</a>
+        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line719">line 719</a>
     </li></ul></dd>
     
 
@@ -2834,6 +3027,13 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
 
     
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map">Array.map</a></li>
+        </ul>
+    </dd>
+    
 
     
 </dl>
@@ -2841,6 +3041,12 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
 
 
 
+
+<div class="description usertext">
+    <p>For every entry, use the mapEntryFunction to transform the existing value and existing key.<br>
+This does not modify the original collection, and execution is deferred until it is fetched.<br>
+The function MUST return an array with at least 2 entries, the first entry is the key, the second is the value.</p>
+</div>
 
 
 
@@ -2865,7 +3071,11 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
+        
+        <th>Default</th>
         
 
         <th class="last">Description</th>
@@ -2882,13 +3092,34 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
 
             <td class="type">
             
+                
+<span class="param-type"><a href="MapCallbacks.html#.MapFunction">MapCallbacks.MapFunction</a></span>
+
+
+            
             </td>
 
             
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
 
+                
+
+                
+                </td>
             
 
-            <td class="description last"></td>
+            
+                <td class="default">
+                
+                    <code>(value, key, iterable) => [key, value]</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>the function that transforms the key and value.</p></td>
         </tr>
 
     
@@ -2900,13 +3131,34 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
 
             <td class="type">
             
+                
+<span class="param-type">*</span>
+
+
+            
             </td>
 
             
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
 
+                
+
+                
+                </td>
             
 
-            <td class="description last"></td>
+            
+                <td class="default">
+                
+                    <code>this</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Value to use as <code>this</code> when executing <code>reduceFunction</code></p></td>
         </tr>
 
     
@@ -2931,6 +3183,10 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
 <h5>Returns:</h5>
 
         
+<div class="param-desc">
+    <p>an iterable that allows you to iterate key value pairs.</p>
+</div>
+
 
 
 <dl class="param-type">
@@ -2954,7 +3210,7 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
 
     
 
-    <h4 class="name" id="mapKeys"><span class="type-signature"></span>mapKeys<span class="signature">(mapKeyFunction, ctx)</span><span class="type-signature"> &rarr; {<a href="MapIterable.html">MapIterable</a>}</span></h4>
+    <h4 class="name" id="mapKeys"><span class="type-signature"></span>mapKeys<span class="signature">(mapKeyFunction<span class="signature-attributes">opt</span>, ctx<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {<a href="MapIterable.html">MapIterable</a>}</span></h4>
 
     
 
@@ -2966,7 +3222,7 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line562">line 562</a>
+        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line694">line 694</a>
     </li></ul></dd>
     
 
@@ -2997,6 +3253,13 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
 
     
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map">Array.map</a></li>
+        </ul>
+    </dd>
+    
 
     
 </dl>
@@ -3004,6 +3267,11 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
 
 
 
+
+<div class="description usertext">
+    <p>For every entry, use the mapKeyFunction to transform the existing key.<br>
+This does not modify the original collection, and execution is deferred until it is fetched.</p>
+</div>
 
 
 
@@ -3028,7 +3296,11 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
+        
+        <th>Default</th>
         
 
         <th class="last">Description</th>
@@ -3045,13 +3317,34 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
 
             <td class="type">
             
+                
+<span class="param-type"><a href="MapCallbacks.html#.MapFunction">MapCallbacks.MapFunction</a></span>
+
+
+            
             </td>
 
             
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
 
+                
+
+                
+                </td>
             
 
-            <td class="description last"></td>
+            
+                <td class="default">
+                
+                    <code>(value, key, iterable) => key</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>the function that transforms the key.</p></td>
         </tr>
 
     
@@ -3063,13 +3356,34 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
 
             <td class="type">
             
+                
+<span class="param-type">*</span>
+
+
+            
             </td>
 
             
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
 
+                
+
+                
+                </td>
             
 
-            <td class="description last"></td>
+            
+                <td class="default">
+                
+                    <code>this</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Value to use as <code>this</code> when executing <code>reduceFunction</code></p></td>
         </tr>
 
     
@@ -3094,6 +3408,10 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
 <h5>Returns:</h5>
 
         
+<div class="param-desc">
+    <p>an iterable that allows you to iterate key value pairs.</p>
+</div>
+
 
 
 <dl class="param-type">
@@ -3117,7 +3435,7 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
 
     
 
-    <h4 class="name" id="mapValues"><span class="type-signature"></span>mapValues<span class="signature">(mapValueFunction, ctx)</span><span class="type-signature"> &rarr; {<a href="MapIterable.html">MapIterable</a>}</span></h4>
+    <h4 class="name" id="mapValues"><span class="type-signature"></span>mapValues<span class="signature">(mapValueFunction<span class="signature-attributes">opt</span>, ctx<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {<a href="MapIterable.html">MapIterable</a>}</span></h4>
 
     
 
@@ -3129,7 +3447,7 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line572">line 572</a>
+        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line706">line 706</a>
     </li></ul></dd>
     
 
@@ -3160,6 +3478,13 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
 
     
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map">Array.map</a></li>
+        </ul>
+    </dd>
+    
 
     
 </dl>
@@ -3167,6 +3492,11 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
 
 
 
+
+<div class="description usertext">
+    <p>For every entry, use the mapValueFunction to transform the existing value.<br>
+This does not modify the original collection, and execution is deferred until it is fetched.</p>
+</div>
 
 
 
@@ -3191,7 +3521,11 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
+        
+        <th>Default</th>
         
 
         <th class="last">Description</th>
@@ -3208,13 +3542,34 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
 
             <td class="type">
             
+                
+<span class="param-type"><a href="MapCallbacks.html#.MapFunction">MapCallbacks.MapFunction</a></span>
+
+
+            
             </td>
 
             
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
 
+                
+
+                
+                </td>
             
 
-            <td class="description last"></td>
+            
+                <td class="default">
+                
+                    <code>(value, key, iterable) => value</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>the function that transforms the value.</p></td>
         </tr>
 
     
@@ -3226,13 +3581,34 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
 
             <td class="type">
             
+                
+<span class="param-type">*</span>
+
+
+            
             </td>
 
             
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
 
+                
+
+                
+                </td>
             
 
-            <td class="description last"></td>
+            
+                <td class="default">
+                
+                    <code>this</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Value to use as <code>this</code> when executing <code>reduceFunction</code></p></td>
         </tr>
 
     
@@ -3257,6 +3633,10 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
 <h5>Returns:</h5>
 
         
+<div class="param-desc">
+    <p>an iterable that allows you to iterate key value pairs.</p>
+</div>
+
 
 
 <dl class="param-type">
@@ -3292,7 +3672,7 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line548">line 548</a>
+        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line659">line 659</a>
     </li></ul></dd>
     
 
@@ -3326,7 +3706,7 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     <dt class="tag-see">See:</dt>
     <dd class="tag-see">
         <ul>
-            <li>Array.reduce</li>
+            <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce">Array.reduce</a></li>
         </ul>
     </dd>
     
@@ -3348,6 +3728,17 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
 
 
 
+
+
+    <h5>Examples</h5>
+    
+        <p class="code-caption">add all the keys</p>
+    
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const reduceResult = hashmap.reduce((accumulator, value, key) => accumulator+key, 0);// reduceResult === 6</code></pre>
+
+        <p class="code-caption">add all the values into one string in reverse order</p>
+    
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const reduceResult = hashmap.reduce((accumulator, value) => value+accumulator, '');// reduceResult === 'value3value2value1'</code></pre>
 
 
 
@@ -3518,7 +3909,7 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line416">line 416</a>
+        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line482">line 482</a>
     </li></ul></dd>
     
 
@@ -3549,6 +3940,13 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
 
     
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some">Array.some</a></li>
+        </ul>
+    </dd>
+    
 
     
 </dl>
@@ -3558,7 +3956,7 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
 
 
 <div class="description usertext">
-    <p>Test each element of the map against the <code>MatchesPredicate</code>.</p>
+    <p>Test to see if ANY element pass the test implemented by the passed <code>MatchesPredicate</code>.</p>
 <ul>
 <li>if any element matches, returns true.</li>
 <li>if all elements match returns true.</li>
@@ -3574,6 +3972,17 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
 
 
 
+
+
+    <h5>Examples</h5>
+    
+        <p class="code-caption">Do any values start with value. (yes all of them)</p>
+    
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const someResult = hashmap.some((value) => value.startsWith('value'));// someResult === true</code></pre>
+
+        <p class="code-caption">Do any values start with value. (yes 2 of them)</p>
+    
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'doesntStart'],[3,'value3']]);const someResult = hashmap.some((value) => value.startsWith('value'));// someResult === true</code></pre>
 
 
 
@@ -3744,7 +4153,7 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line628">line 628</a>
+        <a href="hashmap.js.html">hashmap.js</a>, <a href="hashmap.js.html#line767">line 767</a>
     </li></ul></dd>
     
 
@@ -3848,7 +4257,7 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a> on Sat Mar 13 2021 02:45:59 GMT+0000 (Greenwich Mean Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a> on Sun Mar 14 2021 02:17:10 GMT+0000 (Greenwich Mean Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
