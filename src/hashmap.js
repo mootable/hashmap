@@ -1160,9 +1160,9 @@
          * such as `Map` or this `HashMap` and `LinkedHashMap`or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
          * @property {number} [depth] - how many layers deep our hashtrie goes.
          * - Minimum: `1`
-         * - Maximum/Default: `(32/widthB)-1`
-         * @property {number} [widthB] - how many buckets in each hashtrie layer we use to the power of 2, for instance a `widthB` of 4 = 16 buckets.
-         * - Minimum: `2`
+         * - Maximum/Default: `(32/widthAs2sExponent)-1`
+         * @property {number} [widthAs2sExponent] - how many buckets in each hashtrie layer we use 2 to the power of widthAs2sExponent, for instance a widthAs2sExponent of 4 is 2 ^ 4 = 16 buckets.
+         * - Minimum: `1`
          * - Maximum: `16`
          * - Default: `6` (64 Buckets)
          */
@@ -1173,25 +1173,25 @@
          *   1) `copy` either
          *      - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
          *      - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
-         * - `new HashMap({copy:?Iterable, depth:?int, widthB:?int})` creates a hashmap with optional `depth` and `widthB`.  If `copy` is provided (`map` or `array`, its keys and values are inserted into this map.
+         * - `new HashMap({copy:?Iterable, depth:?int, widthAs2sExponent:?int})` creates a hashmap with optional `depth` and `widthAs2sExponent`.  If `copy` is provided (`map` or `array`, its keys and values are inserted into this map.
          *   1) `copy` either
          *      - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
          *      - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
          *   2) `depth` is how many layers deep our hashtrie goes.
-         *      - Minimum: `1`, Maximum/Default: `(32/widthB)-1`
-         *   3) `widthB` is how many buckets in each hashtrie layer we use to the power of 2, for instance a `widthB` of 4 = 16 buckets.
-         *      - Minimum: `2`, Maximum: `16`, Default: `6` (64 Buckets)
+         *      - Minimum: `1`, Maximum/Default: `(32/widthAs2sExponent)-1`
+         *   3) `widthAs2sExponent` is how many buckets in each hashtrie layer we use to the power of 2, for instance a `widthAs2sExponent` of 4 = 16 buckets.
+         *      - Minimum: `1`, Maximum: `16`, Default: `6` (64 Buckets)
          * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>|HashMap~ConstructorOptions)} [args]
          */
-        constructor(args = {copy: undefined, depth: undefined, widthB: 6}) {
+        constructor(args = {copy: undefined, depth: undefined, widthAs2sExponent: 6}) {
             super();
-            let {depth, widthB, copy} = args;
-            widthB = Math.max(2, Math.min(16, widthB)); // 2^6 = 64 buckets
-            const defaultDepth = ((32 / widthB) >> 0) - 1;
+            let {depth, widthAs2sExponent, copy} = args;
+            widthAs2sExponent = Math.max(1, Math.min(16, widthAs2sExponent)); // 2^6 = 64 buckets
+            const defaultDepth = ((32 / widthAs2sExponent) >> 0) - 1;
             depth = Math.max(0, Math.min(depth && depth > 0 ? depth - 1 : defaultDepth, defaultDepth)); // 0 indexed so 3 is a depth of 4.
-            const width = 1 << widthB; // 2 ^ widthB
+            const width = 1 << widthAs2sExponent; // 2 ^ widthAs2sExponent
             const mask = width - 1;
-            this.options = Object.freeze({widthB, width, mask, depth});
+            this.options = Object.freeze({widthAs2sExponent, width, mask, depth});
             this.clear();
             if (args.forEach || (copy && copy.forEach)) {
                 this.copy(args.forEach ? args : copy);
@@ -1281,7 +1281,7 @@
          * @return {HashMap}
          */
         clone() {
-            return new HashMap({copy: this, depth: this.options.depth, widthB: this.options.widthB});
+            return new HashMap({copy: this, depth: this.options.depth, widthAs2sExponent: this.options.widthAs2sExponent});
         }
 
         /**
@@ -1340,17 +1340,17 @@
          *   1) `copy` either
          *      - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
          *      - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
-         * - `new LinkedHashMap({copy:?Iterable, depth:?int, widthB:?int})` creates a linked hashmap with optional `depth` and `widthB`.  If `copy` is provided (`map` or `array`, its keys and values are inserted into this map.
+         * - `new LinkedHashMap({copy:?Iterable, depth:?int, widthAs2sExponent:?int})` creates a linked hashmap with optional `depth` and `widthAs2sExponent`.  If `copy` is provided (`map` or `array`, its keys and values are inserted into this map.
          *   1) `copy` either
          *      - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
          *      - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
          *   2) `depth` is how many layers deep our hashtrie goes.
-         *      - Minimum: `1`, Maximum/Default: `(32/widthB)-1`
-         *   3) `widthB` is how many buckets in each hashtrie layer we use to the power of 2, for instance a `widthB` of 4 = 16 buckets.
+         *      - Minimum: `1`, Maximum/Default: `(32/widthAs2sExponent)-1`
+         *   3) `widthAs2sExponent` is how many buckets in each hashtrie layer we use to the power of 2, for instance a widthAs2sExponent of 4 is 2 ^ 4 = 16 buckets.
          *      - Minimum: `2`, Maximum: `16`, Default: `6` (64 Buckets)
          * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>|HashMap~ConstructorOptions)} [args]
          */
-        constructor(args = {copy: undefined, depth: undefined, widthB: 6}) {
+        constructor(args = {copy: undefined, depth: undefined, widthAs2sExponent: 6}) {
             super(args);
             this.start = undefined;
             this.end = undefined;
@@ -1398,7 +1398,7 @@
          * @return {LinkedHashMap}
          */
         clone() {
-            return new LinkedHashMap({copy: this, depth: this.options.depth, widthB: this.options.widthB});
+            return new LinkedHashMap({copy: this, depth: this.options.depth, widthAs2sExponent: this.options.widthAs2sExponent});
         }
 
         /**
@@ -1619,7 +1619,7 @@
         get(key, equalTo, hash) {
             const bucket = this.buckets[hash & this.options.mask];
             if (bucket) {
-                return bucket.get(key, equalTo, hash >>> this.options.widthB);
+                return bucket.get(key, equalTo, hash >>> this.options.widthAs2sExponent);
             }
             return null;
         }
@@ -1629,12 +1629,12 @@
             let bucket = this.buckets[idx];
             if (bucket) {
                 const len = bucket.length;
-                this.buckets[idx] = bucket.set(entry, equalTo, hash >>> this.options.widthB);
+                this.buckets[idx] = bucket.set(entry, equalTo, hash >>> this.options.widthAs2sExponent);
                 if (this.buckets[idx].length !== len) {
                     this.length++;
                 }
             } else if (this.depth) {
-                this.buckets[idx] = new HashContainer(entry, hash >>> this.options.widthB, this.options, this.depth - 1);
+                this.buckets[idx] = new HashContainer(entry, hash >>> this.options.widthAs2sExponent, this.options, this.depth - 1);
                 this.length++;
             } else {
                 this.buckets[idx] = new Container(entry);
@@ -1646,7 +1646,7 @@
         has(key, equalTo, hash) {
             const bucket = this.buckets[hash & this.options.mask];
             if (bucket) {
-                return bucket.has(key, equalTo, hash >>> this.options.widthB);
+                return bucket.has(key, equalTo, hash >>> this.options.widthAs2sExponent);
             }
             return false;
         }
@@ -1655,7 +1655,7 @@
             const idx = hash & this.options.mask;
             let bucket = this.buckets[idx];
             if (bucket) {
-                bucket = bucket.delete(key, equalTo, hash >>> this.options.widthB);
+                bucket = bucket.delete(key, equalTo, hash >>> this.options.widthAs2sExponent);
                 if ((!bucket) || bucket.length === 0) {
                     this.buckets[idx] = undefined;
                     this.length--;
