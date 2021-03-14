@@ -1173,7 +1173,7 @@
          *   1) `copy` either
          *      - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
          *      - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
-         * - `new HashMap({copy:?Iterable, depth:?int, widthAs2sExponent:?int})` creates a hashmap with optional `depth` and `widthAs2sExponent`.  If `copy` is provided (map,array or iterable),, its keys and values are inserted into this map.
+         * - `new HashMap({copy:?Iterable, depth:?int, widthAs2sExponent:?int})` creates a hashmap with optional `depth` and `widthAs2sExponent`. If `copy` is provided (map, array or iterable), it's keys and values are inserted into this map.
          *   1) `copy` either
          *      - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
          *      - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
@@ -1340,7 +1340,7 @@
          *   1) `copy` either
          *      - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
          *      - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
-         * - `new LinkedHashMap({copy:?Iterable, depth:?int, widthAs2sExponent:?int})` creates a linked hashmap with optional `depth` and `widthAs2sExponent`.  If `copy` is provided (map,array or iterable), its keys and values are inserted into this map.
+         * - `new LinkedHashMap({copy:?Iterable, depth:?int, widthAs2sExponent:?int})` creates a linked hashmap with optional `depth` and `widthAs2sExponent`. If `copy` is provided (map, array or iterable), it's keys and values are inserted into this map.
          *   1) `copy` either
          *      - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
          *      - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
