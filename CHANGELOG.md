@@ -1,4 +1,11 @@
 # Changelog
+## Current
+- Added support in MapIterable.map for mapping to a map, as well as to a set.
+- Added support to MapIterable.map and .mapEntries to allow for seperate key and value mapping.
+- Added some validation resulting in TypeErrors.
+- More documentation
+- More examples
+
 ## 0.7.2
 - Doc Styling
 - Added more documentation

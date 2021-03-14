@@ -215,17 +215,100 @@ describe('Higher Order Functions', function () {
         it('should pass the basic test', function () {
             hashmap.set('key', 'value');
             let called = 0;
-            const ret = mapIterator.mapEntries(function (value, key) {
+            const newIterator = mapIterator.mapEntries(function (value, key) {
                 called++;
                 expect(value).to.equal('value');
                 expect(key).to.equal('key');
                 expect(this).to.equal(mapIterator);
                 return [key, value];
-            }).collect();
+            });
+            expect(newIterator).to.be.instanceOf(Mootable.MapIterable);
+            const ret = newIterator.collect();
             expect(called).to.equal(1);
             expect(ret).to.deep.equal([['key', 'value']]);
         });
 
+        it('should pass the basic test Key and Map Function', function () {
+            hashmap.set('key', 'value');
+            let calledValues = 0;
+            let calledKeys = 0;
+            const newIterator = mapIterator.mapEntries([function (value, key) {
+                calledKeys++;
+                expect(value).to.equal('value');
+                expect(key).to.equal('key');
+                expect(this).to.equal(mapIterator);
+                return true;
+            },function (value, key) {
+                calledValues++;
+                expect(value).to.equal('value');
+                expect(key).to.equal('key');
+                expect(this).to.equal(mapIterator);
+                return true;
+            }]);
+            expect(newIterator).to.be.instanceOf(Mootable.MapIterable);
+            const ret = newIterator.collect();
+            expect(calledValues).to.equal(1);
+            expect(calledKeys).to.equal(1);
+            expect(ret).to.deep.equal([[true,true]]);
+        });
+
+        it('should pass the basic test Key Function', function () {
+            hashmap.set('key', 'value');
+            let calledKeys = 0;
+            const newIterator = mapIterator.mapEntries([function (value, key) {
+                calledKeys++;
+                expect(value).to.equal('value');
+                expect(key).to.equal('key');
+                expect(this).to.equal(mapIterator);
+                return true;
+            },undefined]);
+            expect(newIterator).to.be.instanceOf(Mootable.MapIterable);
+            const ret = newIterator.collect();
+            expect(calledKeys).to.equal(1);
+            expect(ret).to.deep.equal([[true,'value']]);
+        });
+        it('should pass the basic test Value and Map Function', function () {
+            hashmap.set('key', 'value');
+            let calledValues = 0;
+            const newIterator = mapIterator.mapEntries([undefined,function (value, key) {
+                calledValues++;
+                expect(value).to.equal('value');
+                expect(key).to.equal('key');
+                expect(this).to.equal(mapIterator);
+                return true;
+            }]);
+            expect(newIterator).to.be.instanceOf(Mootable.MapIterable);
+            const ret = newIterator.collect();
+            expect(calledValues).to.equal(1);
+            expect(ret).to.deep.equal([['key',true]]);
+        });
+
+        it('should throw a TypeError if I provide an empty array', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(mapIterator.mapEntries.bind(mapIterator, [])).to.throw('MapIterable.mapEntries expects a function or an array of functions');
+        });
+
+        it('should throw a TypeError if I provide a random non function', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(mapIterator.mapEntries.bind(mapIterator, 'hi')).to.throw('MapIterable.mapEntries expects a function or an array of functions');
+        });
+
+        it('should throw a TypeError if I provide an array, with one entry and it is undefined', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(mapIterator.mapEntries.bind(mapIterator, [undefined])).to.throw('MapIterable.mapEntries expects a function or an array of functions');
+        });
+        it('should throw a TypeError if I provide an array, with two entries and they are undefined', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(mapIterator.mapEntries.bind(mapIterator, [undefined,undefined])).to.throw('MapIterable.mapEntries expects a function or an array of functions');
+        });
         it('should map all to the same value', function () {
             hashmap.set('key', 'value');
             hashmap.set('key2', 'value2');
@@ -268,18 +351,101 @@ describe('Higher Order Functions', function () {
         });
     });
     describe('MapIterable.map()', function () {
-        it('should pass the basic test', function () {
+        it('should pass the basic test singleFunction', function () {
             hashmap.set('key', 'value');
             let called = 0;
-            const ret = mapIterator.map(function (value, key) {
+            const newIterator = mapIterator.map(function (value, key) {
                 called++;
                 expect(value).to.equal('value');
                 expect(key).to.equal('key');
                 expect(this).to.equal(mapIterator);
                 return true;
-            }).collect();
+            });
+            expect(newIterator).to.be.instanceOf(Mootable.SetIterable);
+            const ret = newIterator.collect();
             expect(called).to.equal(1);
             expect(ret).to.deep.equal([true]);
+        });
+        it('should pass the basic test Key and Map Function', function () {
+            hashmap.set('key', 'value');
+            let calledValues = 0;
+            let calledKeys = 0;
+            const newIterator = mapIterator.map([function (value, key) {
+                calledKeys++;
+                expect(value).to.equal('value');
+                expect(key).to.equal('key');
+                expect(this).to.equal(mapIterator);
+                return true;
+            },function (value, key) {
+                calledValues++;
+                expect(value).to.equal('value');
+                expect(key).to.equal('key');
+                expect(this).to.equal(mapIterator);
+                return true;
+            }]);
+            expect(newIterator).to.be.instanceOf(Mootable.MapIterable);
+            const ret = newIterator.collect();
+            expect(calledValues).to.equal(1);
+            expect(calledKeys).to.equal(1);
+            expect(ret).to.deep.equal([[true,true]]);
+        });
+
+        it('should pass the basic test Key Function', function () {
+            hashmap.set('key', 'value');
+            let calledKeys = 0;
+            const newIterator = mapIterator.map([function (value, key) {
+                calledKeys++;
+                expect(value).to.equal('value');
+                expect(key).to.equal('key');
+                expect(this).to.equal(mapIterator);
+                return true;
+            },undefined]);
+            expect(newIterator).to.be.instanceOf(Mootable.MapIterable);
+            const ret = newIterator.collect();
+            expect(calledKeys).to.equal(1);
+            expect(ret).to.deep.equal([[true,'value']]);
+        });
+        it('should pass the basic test Value and Map Function', function () {
+            hashmap.set('key', 'value');
+            let calledValues = 0;
+            const newIterator = mapIterator.map([undefined,function (value, key) {
+                calledValues++;
+                expect(value).to.equal('value');
+                expect(key).to.equal('key');
+                expect(this).to.equal(mapIterator);
+                return true;
+            }]);
+            expect(newIterator).to.be.instanceOf(Mootable.MapIterable);
+            const ret = newIterator.collect();
+            expect(calledValues).to.equal(1);
+            expect(ret).to.deep.equal([['key',true]]);
+        });
+
+        it('should throw a TypeError if I provide an empty array', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(mapIterator.map.bind(mapIterator, [])).to.throw('MapIterable.mapEntries expects a function or an array of functions');
+        });
+
+        it('should throw a TypeError if I provide a random non function', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(mapIterator.map.bind(mapIterator, 'hi')).to.throw('MapIterable.map expects a function or an array of functions');
+        });
+
+        it('should throw a TypeError if I provide an array, with one entry and it is undefined', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(mapIterator.map.bind(mapIterator, [undefined])).to.throw('MapIterable.mapEntries expects a function or an array of functions');
+        });
+        it('should throw a TypeError if I provide an array, with two entries and they are undefined', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(mapIterator.map.bind(mapIterator, [undefined,undefined])).to.throw('MapIterable.mapEntries expects a function or an array of functions');
         });
 
         it('should map all to true', function () {
@@ -288,6 +454,7 @@ describe('Higher Order Functions', function () {
             hashmap.set('key2', 'value2a');
             expect(mapIterator.map(() => true).size).to.equal(2);
             expect(mapIterator.map(() => true).collect()).to.deep.equal([true, true]);
+
         });
 
         it('should map all to entry set if no function provided', function () {

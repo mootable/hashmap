@@ -663,6 +663,7 @@
             }
             return accumulator;
         }
+
         /**
          * Map Function
          * A callback that takes a <code>[key,value]</code> and current iterable, and returns a mapped value.
@@ -686,6 +687,11 @@
         /**
          * For every entry, use the mapKeyFunction to transform the existing key.
          * This does not modify the original collection, and execution is deferred until it is fetched.
+         * @example <caption>add one to all the keys and turn them into strings</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const mappedKeysIterable = hashmap.mapKeys((value, key) => 'k'+(key+1));
+         * const mappedKeysArray = mappedKeysIterable.collect();
+         * // mappedKeysArray === [['k2','value1'],['k3','value2'],['k4','value3']]
          * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map|Array.map}
          * @param {MapCallbacks.MapFunction} [mapKeyFunction=(value, key, iterable) => key] - the function that transforms the key.
          * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>reduceFunction</code>
@@ -698,6 +704,11 @@
         /**
          * For every entry, use the mapValueFunction to transform the existing value.
          * This does not modify the original collection, and execution is deferred until it is fetched.
+         * @example <caption>prepend the values with the keys</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const mappedValuesIterable = hashmap.mapValues((value, key) => key + value);
+         * const mappedValuesArray = mappedValuesIterable.collect();
+         * // mappedValuesArray === [['1','1value1'],[2,'2value2'],[3,'3value3']]
          * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map|Array.map}
          * @param {MapCallbacks.MapFunction} [mapValueFunction=(value, key, iterable) => value] - the function that transforms the value.
          * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>reduceFunction</code>
@@ -710,28 +721,129 @@
         /**
          * For every entry, use the mapEntryFunction to transform the existing value and existing key.
          * This does not modify the original collection, and execution is deferred until it is fetched.
-         * The function MUST return an array with at least 2 entries, the first entry is the key, the second is the value.
+         * - If one Function is provided
+         *   - The function MUST return an array with at least 2 entries, the first entry is the key, the second is the value.
+         *   - if the parameter is not an array or a function a TypeError is thrown.
+         * - If an array of Functions is provided
+         *   - The first function, (if defined), modifies the key. It needs only return the key. see {@link MapIterable#mapKeys mapKeys}
+         *   - the second function, (if defined), modifies the value. see {@link MapIterable#mapValues mapValues}
+         *   - if both the first and second values in the array are not functions a TypeError is thrown.
+         * - In both cases will return {@link MapIterable}
+         * @example <caption>swap the keys and the values</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const mapEntriesIterable = hashmap.mapEntries((value, key) => [value,key]]
+         * const mapEntriesArray = mapEntriesIterable.collect();
+         * // mapEntriesArray === [['value1',1],['value2',2],['value3',3]]
+         * @example <caption>swap the keys and the values with 2 functions</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const mapEntriesIterable = hashmap.mapEntries([(value) => value,(value, key) => key]]
+         * const mapEntriesArray = mapEntriesIterable.collect();
+         * // mapEntriesArray === [['value1',1],['value2',2],['value3',3]]
+         * @example <caption>modify just the keys</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * // Notice we are passing an array of one function.
+         * const mapEntriesIterable = hashmap.mapEntries([(value, key) => value]]
+         * const mapEntriesArray = mapEntriesIterable.collect();
+         * // mapEntriesArray === [['value1','value1'],['value2','value2'],['value2','value2']]
+         * @example <caption>modify just the values</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * // Notice we are passing an array of two, but have only defined the last as a function.
+         * const mapEntriesIterable = hashmap.mapEntries([undefined,(value, key) => key]]
+         * const mapEntriesArray = mapEntriesIterable.collect();
+         * // mapEntriesArray === [[1,1],[2,2],[3,3]]
          * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map|Array.map}
-         * @param {MapCallbacks.MapFunction} [mapEntryFunction=(value, key, iterable) => [key, value]] - the function that transforms the key and value.
+         * @param {MapCallbacks.MapFunction|Array.<MapCallbacks.MapFunction,MapCallbacks.MapFunction>} [mapEntryFunction=(value, key, iterable) => [key, value]] - the function that transforms the key and value.
          * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>reduceFunction</code>
          * @returns {MapIterable} an iterable that allows you to iterate key value pairs.
+         * @throws {TypeError} if at least one function is not provided.
          */
         mapEntries(mapEntryFunction = (value, key, iterable) => [key, value], ctx = this) {
-            return new MapEntryMapper(this, mapEntryFunction, ctx);
+
+            if (Array.isArray(mapEntryFunction)) {
+                if (mapEntryFunction.length === 1 && isFunction(mapEntryFunction[0])) {
+                    // we are just mapping keys
+                    return this.mapKeys(mapEntryFunction[0], ctx);
+                } else if (mapEntryFunction.length > 1) {
+                    if (isFunction(mapEntryFunction[0])) {
+                        if (isFunction(mapEntryFunction[1])) {
+                            // We don't chain, as we don't want the transformed value or key, to appear in either functions as arguments.
+                            const joinedFunction = (value, key, iterable) => [mapEntryFunction[0].call(ctx, value, key, iterable), mapEntryFunction[1].call(ctx, value, key, iterable)];
+                            return new MapEntryMapper(this, joinedFunction, this);
+                        } else {
+                            // we are just mapping keys
+                            return this.mapKeys(mapEntryFunction[0], ctx);
+                        }
+                    } else if (isFunction(mapEntryFunction[1])) {
+                        // we are just mapping values
+                        return this.mapValues(mapEntryFunction[1], ctx);
+                    }
+                }
+            } else if (isFunction(mapEntryFunction)) {
+                return new MapEntryMapper(this, mapEntryFunction, ctx);
+            }
+            // we aren't mapping, lets give the developer a hint as to what the problem is
+            throw new TypeError('MapIterable.mapEntries expects a function or an array of functions');
         }
 
         /**
-         * For every entry, use the mapEntryFunction to transform the existing value and existing key, into one value. This is the equivalent of turning the MapIterable into a SetIterable.
+         * For every entry, use the mapEntryFunction to transform the existing value and existing key.
+         * - If one Function is provided, we are transforming the map into a set.
+         *   - The function can return any value. This is the equivalent of turning the MapIterable into a SetIterable.
+         *   - if the parameter is not an array or a function a TypeError is thrown.
+         *   - Will return a {@link SetIterable}
+         * - If an array of Functions is provided, we are transforming the map into another map. see {@link MapIterable#mapEntries mapEntries}
+         *   - The first function, (if defined), modifies the key. It needs only return the key. see {@link MapIterable#mapKeys mapKeys}
+         *   - the second function, (if defined), modifies the value. see {@link MapIterable#mapKeys mapValues}
+         *   - if both the first and second values in the array are not functions a TypeError is thrown.
+         *   - Will return a {@link MapIterable}.
+         * @example <caption>return just values</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const setIterable = hashmap.map((value, key) => value]
+         * const mapArray = setIterable.collect();
+         * // mapArray === ['value1','value2','value3']
+         * // setIterable instanceof SetIterable
+         * @example <caption>swap the keys and the values</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const setIterable = hashmap.map((value, key) => [value,key]]
+         * const mapArray = setIterable.collect();
+         * // mapArray === [['value1',1],['value2',2],['value3',3]]
+         * // setIterable instanceof SetIterable
+         * @example <caption>swap the keys and the values with 2 functions</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const mapIterable = hashmap.map([(value) => value,(value, key) => key]]
+         * const mapArray = mapIterable.collect();
+         * // mapArray === [['value1',1],['value2',2],['value3',3]]
+         * // mapIterable instanceof MapIterable
+         * @example <caption>modify just the keys</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * // Notice we are passing an array of one function.
+         * const mapIterable = hashmap.map([(value, key) => value]]
+         * const mapArray = mapIterable.collect();
+         * // mapArray === [['value1','value1'],['value2','value2'],['value2','value2']]
+         * // mapIterable instanceof MapIterable
+         * @example <caption>modify just the values</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * // Notice we are passing an array of two, but have only defined the last as a function.
+         * const mapIterable = hashmap.map([undefined,(value, key) => key]]
+         * const mapArray = mapIterable.collect();
+         * // mapArray === [[1,1],[2,2],[3,3]]
+         * // mapIterable instanceof MapIterable
          * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map|Array.map}
-         * @param {MapCallbacks.MapFunction} [mapFunction=(value, key, iterable) => [key, value]] - the function that transforms the key and value.
+         * @param {MapCallbacks.MapFunction|Array.<MapCallbacks.MapFunction,MapCallbacks.MapFunction>} [mapFunction=(value, key, iterable) => [key, value]] - the function that transforms the key and value.
          * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>reduceFunction</code>
-         * @returns {SetIterable} an iterable that allows you to iterate single entries.
+         * @returns {SetIterable|MapIterable} an iterable that allows you to iterate single entries in a set, or an iterable that allows you to iterate a map.
+         * @throws {TypeError} if at least one function is not provided.
          */
         map(mapFunction = (value, key, map) => {
-            //TODO: we may want to keep it a MapIterable and just pass 2 mapping functions.
             return [key, value];
         }, ctx = this) {
-            return new MapMapper(this, mapFunction, ctx);
+            if (Array.isArray(mapFunction)) {
+                return this.mapEntries(mapFunction, ctx);
+            }
+            if (isFunction(mapFunction)) {
+                return new MapMapper(this, mapFunction, ctx);
+            }
+            throw new TypeError('MapIterable.map expects a function or an array of functions');
         }
 
         /**
@@ -1782,8 +1894,9 @@
                 yield [key, this.mapFunction.call(this.ctx, value, key, this)];
             }
         }
+
         get(key) {
-            if(this.has(key)) {
+            if (this.has(key)) {
                 const value = super.get(key);
                 return this.mapFunction.call(this.ctx, value, key, this);
             }
@@ -1807,8 +1920,9 @@
                 yield [newKey, newValue];
             }
         }
+
         get(key) {
-            if(this.has(key)) {
+            if (this.has(key)) {
                 const value = super.get(key);
                 return this.mapFunction.call(this.ctx, value, key, this)[1];
             }
@@ -1958,7 +2072,13 @@
 
     return {
         HashMap, LinkedHashMap, Mootable: {
-            HashMap, LinkedHashMap, mapIterator: mapIterable, setIterator: setIterable, hashCode, SetIterable, MapIterable
+            HashMap,
+            LinkedHashMap,
+            mapIterator: mapIterable,
+            setIterator: setIterable,
+            hashCode,
+            SetIterable,
+            MapIterable
         }
     };
 }));
