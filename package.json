@@ -32,7 +32,9 @@
     "precommit": "npm run lint",
     "prepush": "npm run test -- --reporter dot",
     "generate-docs": "jsdoc -c jsdoc-config.json",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "prepublishOnly": "pinst --disable",
+    "postpublish": "pinst --enable"
   },
   "engines": {
     "node": "*"
