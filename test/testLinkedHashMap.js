@@ -25,8 +25,9 @@ describe('linkedHashMap', function() {
 			expect(linkedHashMap.mapEntries()).is.instanceOf(Mootable.MapIterable);
 			expect(linkedHashMap.entries()).is.instanceOf(Mootable.MapIterable);
 			expect(linkedHashMap.concatMap()).is.instanceOf(Mootable.MapIterable);
+			expect(linkedHashMap.concat()).is.instanceOf(Mootable.MapIterable);
 
-			expect(linkedHashMap.concat()).is.instanceOf(Mootable.SetIterable);
+			expect(linkedHashMap.concat([])).is.instanceOf(Mootable.SetIterable);
 			expect(linkedHashMap.map()).is.instanceOf(Mootable.SetIterable);
 			expect(linkedHashMap.keys()).is.instanceOf(Mootable.SetIterable);
 			expect(linkedHashMap.values()).is.instanceOf(Mootable.SetIterable);

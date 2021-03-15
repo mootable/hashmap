@@ -33,8 +33,9 @@ describe('Higher Order Functions', function () {
             expect(mapIterator.mapEntries()).is.instanceOf(Mootable.MapIterable);
             expect(mapIterator.entries()).is.instanceOf(Mootable.MapIterable);
             expect(mapIterator.concatMap()).is.instanceOf(Mootable.MapIterable);
+            expect(mapIterator.concat()).is.instanceOf(Mootable.MapIterable);
 
-            expect(mapIterator.concat()).is.instanceOf(Mootable.SetIterable);
+            expect(mapIterator.concat([])).is.instanceOf(Mootable.SetIterable);
             expect(mapIterator.map()).is.instanceOf(Mootable.SetIterable);
             expect(mapIterator.keys()).is.instanceOf(Mootable.SetIterable);
             expect(mapIterator.values()).is.instanceOf(Mootable.SetIterable);

@@ -1,7 +1,7 @@
 /**
  * HashMap - HashMap Implementation for JavaScript
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.7.2
+ * @version 0.8.0
  * Homepage: https://github.com/mootable/hashmap
  */
 
@@ -847,41 +847,89 @@
         }
 
         /**
-         *
-         * @param otherIterable
-         * @return {SetIterable}
+         * Return a SetIterable of MapIterable which is a concatination of this and the provided iterable.
+         * - If the provided value is a MapIterable or a Map then the returned iterable is a MapIterable.
+         * - Otherwise since we have no idea if it will return key value pairs we return a SetIterable.
+         *   - If you know the container stores [key,value] pairs and want to return a MapIterable, use {@link MapIterable#concatMap concatMap}
+         * This is based on {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/concat Array.concat} it does not modify the original iterables, and returns a new one.
+         * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/concat|Array.concat}
+         * @example <caption>concatinate 2 maps</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const hashmap2 = new LinkedHashMap([[1,'value1a'],[2,'value2a'],[3,'value3a']]);
+         * const mapIterable = hashmap.concat(hashmap2);
+         * // Notice how the keys are repeated, any unique constraints are gone.
+         * // mapIterable === [[1,'value1'],[2,'value2'],[3,'value3'],[1,'value1a'],[2,'value2a'],[3,'value3a']]
+         * // mapIterable instanceof MapIterable
+         * @example <caption>concatinate an array</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const array = ['hello','world'];
+         * const setIterable = hashmap.concat(array);
+         * // Notice how we have key value pairs and strings mixed.
+         * // setIterable === [[1,'value1'],[2,'value2'],[3,'value3'],'hello','world']
+         * // setIterable instanceof SetIterable
+         * @param {(Array|Set|Map|HashMap|LinkedHashMap)} otherIterable the iterable to concat to this one.
+         * @return {SetIterable|MapIterable} the new iterable to return
          */
-        concat(otherIterable = []) {
-            return new SetConcat(this, otherIterable);
+        concat(otherIterable) {
+            if(otherIterable) {
+                if (otherIterable instanceof MapIterable || otherIterable instanceof Map) {
+                    return this.concatMap(otherIterable);
+                }
+                return new SetConcat(this, otherIterable);
+            }
+            return this;
         }
 
         /**
+         * Return a MapIterable which is a concatination of this and the provided iterable.
+         * - If the provided value is a MapIterable or a Map then the returned iterable is a MapIterable.
+         * - Otherwise the iterable MUST return [key,value] pairs
          *
-         * @param otherMapIterable
-         * @return {MapIterable}
+         * @example <caption>concatinate 2 maps</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const hashmap2 = new LinkedHashMap([[1,'value1a'],[2,'value2a'],[3,'value3a']]);
+         * const mapIterable = hashmap.concatMap(hashmap2);
+         * // Notice how the keys are repeated, any unique constraints are gone.
+         * // mapIterable === [[1,'value1'],[2,'value2'],[3,'value3'],[1,'value1a'],[2,'value2a'],[3,'value3a']]
+         * // mapIterable instanceof MapIterable
+         * @example <caption>concatinate an array</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const array = [[1,'hello'],[3,'world']];
+         * const mapIterable = hashmap.concatMap(array);
+         * // Notice how everything is a key value pair.
+         * // mapIterable === [[1,'value1'],[2,'value2'],[3,'value3'],[1,'hello'],[3,'world']]
+         * // mapIterable instanceof MapIterable
+         * @param {(Array.<Array.<key,value>>|Set.<Array.<key,value>>|Map|HashMap|LinkedHashMap)} otherMapIterable the iterable to concat to this one, has to return [key,value] pairs
+         * @return {MapIterable} the new iterable to return
          */
-        concatMap(otherMapIterable = []) {
-            return new MapConcat(this, otherMapIterable);
+        concatMap(otherMapIterable) {
+            if(otherMapIterable) {
+                return new MapConcat(this, otherMapIterable);
+            }
+            return this;
         }
 
         /**
-         *
-         * @return {SetIterable}
+         * Return a SetIterable which is just the keys in this map.
+         * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/keys keys}
+         * @return {SetIterable} the keys as a set iterable.
          */
         keys() {
             return new MapMapper(this, (_, key) => key, this);
         }
 
         /**
-         *
-         * @return {SetIterable}
+         * Return a SetIterable which is just the values in this map.
+         * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/values values}
+         * @return {SetIterable} the values as a set iterable.
          */
         values() {
             return new MapMapper(this, (value) => value, this);
         }
 
         /**
-         *
+         * Return a MapIterable which is the entries in this map, this is just a short hand for the [Symbol.Iterator]() implementation
+         * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/entries entries}
          * @return {MapIterable}
          */
         entries() {
@@ -938,25 +986,32 @@
             }
             return accumulator;
         }
-
         /**
          * Test each element of the set to see if it matches and return
-         *  - true if the value matches.
+         *  - true if the key and value match.
          *  - false if it doesn't.
+         * @example <caption>Only match values divisible by 2</caption>
+         * const myMatchPredicate = (value) => value % 2 === 0;
          * @callback SetCallbacks.MatchesPredicate
-         * @param {*} [value] - the value.
-         * @param {SetIterable} [iterable] - the calling Set Iterable.
-         * @return {boolean} - coerces to true if it matches, or to false otherwise.
+         * @param {*} [value] - the entry value.
+         * @param {SetpIterable} [iterable] - the calling Set Iterable.
+         * @return {boolean} a value that coerces to true if it matches, or to false otherwise.
          */
 
         /**
          * Test each element of the set and only include entries where the <code>MatchesPredicate</code> returns true.
-         *
-         * @param {SetCallbacks.MatchesPredicate} [filterPredicate=() => true] - if the provided function returns <code>false</code>, that entry is excluded.
+         * @example <caption>Only match values which are odd numbered.</caption>
+         * const hashmap = Mootable.setIterable([1,2,3]);
+         * const filteredIterable = hashmap.filter((value) => value % 2 !== 0);
+         * filteredIterable.forEach((value) => console.log(value));
+         * // will log to the console:
+         * // 1
+         * // 3
+         * @param {SetCallbacks.MatchesPredicate} [filterPredicate=(value, setIterable) => true] - if the provided function returns <code>false</code>, that entry is excluded.
          * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>filterPredicate</code>
          * @returns {SetIterable} - an iterable that allows you to iterate values.
          */
-        filter(filterPredicate = (value, map) => true, ctx = this) {
+        filter(filterPredicate = (value, setIterable) => true, ctx = this) {
             return new SetFilter(this, filterPredicate, ctx);
         }
 

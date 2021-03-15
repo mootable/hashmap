@@ -24,8 +24,9 @@ describe('hashmap', function() {
 			expect(hashmap.mapEntries()).is.instanceOf(Mootable.MapIterable);
 			expect(hashmap.entries()).is.instanceOf(Mootable.MapIterable);
 			expect(hashmap.concatMap()).is.instanceOf(Mootable.MapIterable);
+			expect(hashmap.concat()).is.instanceOf(Mootable.MapIterable);
 
-			expect(hashmap.concat()).is.instanceOf(Mootable.SetIterable);
+			expect(hashmap.concat([])).is.instanceOf(Mootable.SetIterable);
 			expect(hashmap.map()).is.instanceOf(Mootable.SetIterable);
 			expect(hashmap.keys()).is.instanceOf(Mootable.SetIterable);
 			expect(hashmap.values()).is.instanceOf(Mootable.SetIterable);
