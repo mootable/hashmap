@@ -1,5 +1,7 @@
 # Changelog
 ## 0.8.1
+- removed preprocessor causing issues.
+## 0.8.0
 - Added support in MapIterable.map for mapping to a map, as well as to a set.
 - Added support to MapIterable.map and .mapEntries to allow for seperate key and value mapping.
 - Added support for concat to return a mapIterable if a MapIterable or Map is provided.
