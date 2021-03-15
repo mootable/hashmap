@@ -942,7 +942,7 @@
      *
      * @example <caption>Create a SetIterable from a Map.</caption>
      * const myMap = new Map();
-     * // iterating over a set, will yield [key,value] arrays.
+     * // iterating over a setIterable backed by a map, will yield [key,value] arrays.
      * const setIterable = Mootable.setIterable(myMap);
      * @example <caption>Create a SetIterable from a Set.</caption>
      * const mySet = new Set();
@@ -962,15 +962,9 @@
      * @example <caption>Create a SetIterable from a Mootable HashMap.</caption>
      * // iterating over a SetIterable backed by a map, will yield [key,value] arrays.
      * const setIterable =  Mootable.setIterable(new HashMap());
-     * @example <caption>Create a SetIterable by using <code>HashMap.map()</code>.</caption>
-     * // iterating over any unparameterized MapIterable.map() will yield [key,value] arrays
-     * const setIterable =  new HashMap().map();
      * @example <caption>Create a SetIterable from a Mootable LinkedHashMap.</caption>
      * // iterating over a SetIterable backed by a map, will yield [key,value] arrays.
      * const setIterable =  Mootable.setIterable(new LinkedHashMap());
-     * @example <caption>Create a SetIterable by using <code>LinkedHashMap.map()</code>.</caption>
-     * // iterating over any unparameterized MapIterable.map() will yield [key,value] arrays
-     * const setIterable =  new LinkedHashMap().map();
      * @abstract
      */
     class SetIterable {
