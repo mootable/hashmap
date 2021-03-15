@@ -1,4 +1,7 @@
 # Changelog
+## 0.9.0
+- removed setIterable and mapIterable methods and added from on the classes themselves.
+- A bit more documentation and examples
 ## 0.8.1
 - removed preprocessor causing issues.
 ## 0.8.0

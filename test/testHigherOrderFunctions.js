@@ -20,8 +20,8 @@ describe('Higher Order Functions', function () {
     beforeEach(function () {
         hashmap = new LinkedHashMap();
         // you don't need the filter or maps, but showing some method chaining is fun.
-        mapIterator = Mootable.mapIterator(hashmap).filter(() => true).mapKeys((value, key) => key);
-        setIterator = Mootable.setIterator(hashmap).filter(() => true).map((entry) => entry);
+        mapIterator = Mootable.MapIterable.from(hashmap).filter(() => true).mapKeys((value, key) => key);
+        setIterator = Mootable.SetIterable.from(hashmap).filter(() => true).map((entry) => entry);
     });
 
     describe('high order method chaining', function () {
