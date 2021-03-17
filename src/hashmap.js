@@ -115,6 +115,22 @@
     };
 
     /**
+     * Does a wider equals for use with arrays.
+     *
+     * @param me
+     * @param them
+     * @param depth
+     * @return {boolean}
+     */
+    const deepEquals = function (me, them, depth = -1) {
+        if(depth === 0 || (Array.isArray(me) && Array.isArray(them))){
+            return me.length === them.length && me.every((el, ix) => deepEquals(el,them[ix], --depth));
+        }
+        return me === them;
+    };
+
+
+    /**
      * Returns back a pair of equalTo Methods and hash values, for a raft of different objects.
      * TODO: Revisit this at some point.
      * @param key
@@ -470,7 +486,6 @@
             return collector;
         }
 
-
         /**
          * Test to see if ALL elements pass the test implemented by the passed <code>MatchesPredicate</code>.
          * - if any element does not match, returns false
@@ -606,10 +621,18 @@
          * @param {*} valueToCheck - the value we use to === against the entries value to identify if we have a match.
          * @returns {*} - the key of the element that matches..
          */
-        indexOf(valueToCheck) {
-            for (const [key, value] of this) {
-                if (valueToCheck === value) {
-                    return key;
+        indexOf(valueToCheck, depth = -1) {
+            if (Array.isArray(valueToCheck)) {
+                for (const [key, value] of this) {
+                    if (deepEquals(valueToCheck, value, depth)) {
+                        return key;
+                    }
+                }
+            } else {
+                for (const [key, value] of this) {
+                    if (defaultEquals(valueToCheck, value)) {
+                        return key;
+                    }
                 }
             }
             return undefined;
@@ -665,6 +688,22 @@
         get(key) {
             const equalTo = hashEquals(key).equalTo;
             return this.find((value, otherKey) => equalTo(key, otherKey));
+        }
+
+        optionalGet(key) {
+            const equalTo = hashEquals(key).equalTo;
+            let found = false;
+            const val = this.find((value, otherKey) => {
+                if(equalTo(key, otherKey)){
+                    found = true;
+                    return true;
+                }
+                return false;
+            });
+            if(found) {
+                return Optional.of(val);
+            }
+            return Optional.none();
         }
 
         /**
@@ -918,7 +957,7 @@
                 if (otherIterable instanceof MapIterable || otherIterable instanceof Map) {
                     return this.concatMap(otherIterable);
                 }
-                return new SetConcat(this, otherIterable);
+                return new SetConcat(this, SetIterable.from(otherIterable));
             }
             return this;
         }
@@ -947,7 +986,7 @@
          */
         concatMap(otherMapIterable) {
             if (otherMapIterable) {
-                return new MapConcat(this, otherMapIterable);
+                return new MapConcat(this, MapIterable.from(otherMapIterable));
             }
             return this;
         }
@@ -1141,9 +1180,59 @@
         }
 
         /**
+         * Fills the provided collector, or an array if none provided, and fills it with the values of this {@link MapIterable}. Then return the collector.
+         * The original collector, with the exception of arrays, will be modified as we call functions directly against it.
          *
-         * @param collector
-         * @return {*}
+         * A collector will be resolved in this order:
+         *  - {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array Array}
+         *    - a new array is created and passed back with the filled values, and the original is not changed.
+         *  - Object with a function <code>.set</code>.
+         *    - such as {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map Map}, {@link HashMap} or {@link LinkedHashMap}
+         *    - it will call <code>set(key,value)</code> for every entry, if the value already exists for that key it is typically overriden. The original is modified.
+         *  - Object with a function <code>.add</code>
+         *    - such as {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set Set}
+         *    - it will call <code>add([key,value])</code> for every entry, so that a <code>[key,value]</code> pair is added to the collection. The original is modified.
+         *  - {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object Object}
+         *    - It will call <code>obj[key] = value</code> for every entry, so that a property of <code>key</code> has a value of <code>value</code> set on it. The original is modified.
+         *
+         * @example <caption>Collect to a new {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array Array}</caption>
+         * const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const myArray = mapIterable.collect();
+         * // myArray === [[1,'value1'],[2,'value2'],[3,'value3']]:
+         * @example <caption>Collect with an empty existing {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array Array}</caption>
+         * const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const oldArray = [];
+         * const newArray = mapIterable.collect(oldArray);
+         * // newArray === [[1,'value1'],[2,'value2'],[3,'value3']]
+         * // oldArray === []
+         * @example <caption>Collect with an existing {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array Array} with values</caption>
+         * const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const oldArray = [[2,'someOtherValue']];
+         * const newArray = mapIterable.collect(oldArray);
+         * // newArray === [[2,'someOtherValue'],[1,'value1'],[2,'value2'],[3,'value3']]
+         * // oldArray === [[2,'someOtherValue']]
+         * @example <caption>Collect to an existing {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array Array} with values, modifying the old array.</caption>
+         * const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const array  = [[2,'someOtherValue']];
+         * array.push(mapIterable.collect())
+         * // array === [[2,'someOtherValue'],[1,'value1'],[2,'value2'],[3,'value3']]
+         * @example <caption>Collect to a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set Set}</caption>
+         * const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const oldSet = new Set().add('willRemain');
+         * const newSet = mapIterable.collect(oldSet);
+         * // oldSet === newSet === ['willRemain',[1,'value1'],[2,'value2'],[3,'value3']]
+         * @example <caption>Collect to a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map Map}</caption>
+         * const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const oldMap = new Map().set(2,'willBeOverwritten').set(5,'willRemain');
+         * const newMap = mapIterable.collect(oldMap);
+         * // oldMap === newMap === [[2,'value2'],[5,'willRemain'],[1,'value1'],[3,'value3']]
+         * @example <caption>Collect to a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object Object}</caption>
+         * const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const oldObject = {'1','willBeOverriden'};
+         * const newObject = mapIterable.collect(oldObject);
+         * // oldObject === newObject === {'1': 'value1', '2': 'value2', '3': 'value3'}
+         * @param {(Array|Set|Map|HashMap|LinkedHashMap|Object)} [collector=[]] the collection to fill
+         * @returns {(Array|Set|Map|HashMap|LinkedHashMap|Object)} The collector that was passed in.
          */
         collect(collector = []) {
             if (Array.isArray(collector)) {
@@ -1164,11 +1253,37 @@
         }
 
         /**
+         * Reduce Function
+         * A callback to accumulate values from the Map Iterables <code>[key,value]</code> into a single value.
+         * if initial value is <code>undefined</code> or <code>null</code>, unlike Array.reduce,
+         * no error occurs, and it is imply passed as the accumulator value
          *
-         * @param reduceFunction
-         * @param initialValue
-         * @param ctx
-         * @return {undefined}
+         * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce|Array.reduce}
+         * @example <caption>add all the values</caption>
+         * const reduceFunction = (accumulator, value) => accumulator+value
+         * @callback SetCallbacks.ReduceFunction
+         * @param {*} [accumulator] - the value from the last execution of this function.
+         * @param {*} [value] - the entry value.
+         * @param {SetIterable} [iterable] - the calling Set Iterable.
+         * @return {*} [accumulator] - the value to pass to the next time this function is called or the final return value.
+         */
+
+        /**
+         * Iterate through the set iterable reducing it to a single value.
+         * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce|Array.reduce}
+         * @example <caption>add all the values</caption>
+         * const set = new Set().add(1).add(2).add(3);
+         * const setIterable = SetIterable.from(set);
+         * const reduceResult = setIterable.reduce((accumulator, value) => accumulator+value, 0);
+         * // reduceResult === 6
+         * @example <caption>add all the values into one string in reverse order</caption>
+         * const set = new Set().add('value1').add('value2').add('value3');
+         * const setIterable = SetIterable.from(set);
+         * const reduceResult = setIterable.reduce((accumulator, value) => value+accumulator, '');
+         * // reduceResult === 'value3value2value1'
+         * @param {SetCallbacks.ReduceFunction} [reduceFunction=(accumulator, value, iterable) => true] - the predicate to identify if we have a match.
+         * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>reduceFunction</code>
+         * @returns {*} - the final accumulated value.
          */
         reduce(reduceFunction = (accumulator, value, iterable) => value, initialValue = undefined, ctx = this) {
             let accumulator = initialValue;
@@ -1179,10 +1294,27 @@
         }
 
         /**
+         * Test to see if ALL values pass the test implemented by the passed <code>MatchesPredicate</code>.
+         * - if any value does not match, returns false
+         * - if all values match, returns true.
+         * - if no values match, returns false.
+         * - if the iterable is empty, returns true. (irrespective of the predicate)
+         * - if no predicate is provided, returns true.
          *
-         * @param everyPredicate
-         * @param ctx
-         * @return {boolean}
+         * @example <caption>Do all values start with value. (yes)</caption>
+         * const set = new Set().add('value1').add('value2').add('value3');
+         * const setIterable = SetIterable.from(set);
+         * const everyResult = setIterable.every((value) => value.startsWith('value'));
+         * // everyResult === true
+         * @example <caption>Do all values start with value. (no)</caption>
+         * const set = new Set().add('value1').add('doesntStart').add('value3');
+         * const setIterable = SetIterable.from(set);
+         * const everyResult = setIterable.every((value) => value.startsWith('value'));
+         * // everyResult === false
+         * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/every|Array.every}
+         * @param {SetCallbacks.MatchesPredicate} [everyPredicate=(value, iterable) => true] - if the provided function returns <code>false</code>, at any point the <code>every()</code> function returns false.
+         * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>everyPredicate</code>
+         * @returns {boolean} true if all elements match, false if one or more elements fails to match.
          */
         every(everyPredicate = (value, iterable) => true, ctx = this) {
             for (const value of this) {
@@ -1194,10 +1326,27 @@
         }
 
         /**
+         * Test to see if ANY value pass the test implemented by the passed <code>MatchesPredicate</code>.
+         * - if any value matches, returns true.
+         * - if all values match returns true.
+         * - if no values match returns false.
+         * - if the iterable is empty, returns true.
+         * - if no predicate is provided, returns true.
          *
-         * @param somePredicate
-         * @param ctx
-         * @return {boolean}
+         * @example <caption>Do any values start with value. (yes all of them)</caption>
+         * const set = new Set().add('value1').add('value2').add('value3');
+         * const setIterable = SetIterable.from(set);
+         * const someResult = setIterable.some((value) => value.startsWith('value'));
+         * // someResult === true
+         * @example <caption>Do any values start with value. (yes 2 of them)</caption>
+         * const set = new Set().add('value1').add('doesntStart').add('value3');
+         * const setIterable = SetIterable.from(set);
+         * const someResult = setIterable.some((value) => value.startsWith('value'));
+         * // someResult === true
+         * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some|Array.some}
+         * @param {SetCallbacks.MatchesPredicate} [somePredicate=(value, iterable) => true] - the predicate to identify if we have a match.
+         * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>somePredicate</code>
+         * @returns {boolean} - true if all values match, false if one or more values fails to match.
          */
         some(somePredicate = (value, iterable) => true, ctx = this) {
             for (const value of this) {
@@ -1209,12 +1358,31 @@
         }
 
         /**
+         * Does the set have this value.
+         * If backed by a Set, or in fact any collection that implements the <code>.has(key)</code> function, then it will utilize that, otherwise it will iterate across the collection.
+         * If backed by a Map or HashMap, then it will match [key,value] pairs not keys.
+         * - return true if the <code>value</code> matches.
+         * - if no values match, it returns false.
+         * - it is legitimate for values to be null or undefined, and if added, will return true
          *
-         * @param value
-         * @return {boolean}
+         * Sets typically index values, and so is generally a fast operation. However if it backed by a map, then this will be slow as it will be matching entries not keys.
+         * @example <captiSeon>>Does this contain a key that is there</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const hasResult = hashmap.has(1);
+         * // hasResult === true
+         * @example <caption>Does this contain a key that isn't there</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const hasResult = hashmap.has(4);
+         * // hasResult === false
+         * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/has|Map.has}
+         * @param {*} key - the key we use to === against the entries key to identify if we have a match.
+         * @returns {boolean} - if it holds the key or not.
          */
-        has(value) {
-            return this.some((otherValue) => value === otherValue);
+        has(value, depth) {
+            if (Array.isArray(value)) {
+                return this.some((otherValue) => deepEquals(otherValue, value, depth));
+            }
+            return this.some((otherValue) => defaultEquals(otherValue, value));
         }
 
 
@@ -1249,7 +1417,7 @@
          * @return {SetConcat}
          */
         concat(otherIterable = []) {
-            return new SetConcat(this, otherIterable);
+            return new SetConcat(this, SetIterable.from(otherIterable));
         }
 
         /**
@@ -1261,6 +1429,21 @@
         }
     }
 
+    /**
+     * to get round the fact gets might be undefined but the value exists,
+     */
+    class Optional {
+        constructor(has,value){
+            this.has = has;
+            this.value = value;
+        }
+        static of(value) {
+            return new Optional(true, value);
+        }
+        static none() {
+            return new Optional(false, undefined);
+        }
+    }
     /**
      * @private
      */
@@ -1383,6 +1566,18 @@
                 return this.buckets.get(key, currHE.equalTo, currHE.hash);
             }
             return undefined;
+        }
+
+        /**
+         * @param key
+         * @return {boolean|*}
+         */
+        optionalGet(key) {
+            if (this.buckets) {
+                const currHE = hashEquals(key);
+                return this.buckets.optionalGet(key, currHE.equalTo, currHE.hash);
+            }
+            return Optional.none();
         }
 
         /**
@@ -1601,6 +1796,13 @@
             return undefined;
         }
 
+        optionalGet(key, equalTo) {
+            if (equalTo(key, this.key)) {
+                return Optional.of(this.entry.value);
+            }
+            return Optional.none();
+        }
+
         set(newEntry, equalTo) {
             if (equalTo(newEntry.key, this.key)) {
                 newEntry.overwrite(this.entry);
@@ -1655,6 +1857,18 @@
             }
             while (container);
             return undefined;
+        }
+        optionalGet(key, equalTo) {
+            let container = this;
+            // avoid recursion
+            do {
+                if (equalTo(key, container.key)) {
+                    return Optional.of(container.value);
+                }
+                container = container.next;
+            }
+            while (container);
+            return Optional.none();
         }
 
         set(newEntry, equalTo) {
@@ -1756,6 +1970,13 @@
             return undefined;
         }
 
+        optionalGet(key, equalTo, hash) {
+            if (hash === this.hash && equalTo(key, this.key)) {
+                return Optional.of(this.value);
+            }
+            return Optional.none();
+        }
+
         has(key, equalTo, hash) {
             return hash === this.hash && equalTo(key, this.key);
         }
@@ -1785,7 +2006,15 @@
             if (bucket) {
                 return bucket.get(key, equalTo, hash >>> this.options.widthAs2sExponent);
             }
-            return null;
+            return undefined;
+        }
+
+        optionalGet(key, equalTo, hash) {
+            const bucket = this.buckets[hash & this.options.mask];
+            if (bucket) {
+                return bucket.optionalGet(key, equalTo, hash >>> this.options.widthAs2sExponent);
+            }
+            return Optional.none();
         }
 
         set(entry, equalTo, hash) {
@@ -1851,7 +2080,15 @@
         }
 
         get size() {
-            return this.iterable.size;
+            return this.iterable.length ? this.iterable.length : this.iterable.size;
+        }
+
+        has(value, depth) {
+            // if is a map iterable then we want to return the entry not the key. otherwise we can shortcut
+            if (this.iterable instanceof Set || this.iterable instanceof SetIterable) {
+                return this.iterable.has(value, depth);
+            }
+            return super.has(value, depth);
         }
 
         * [Symbol.iterator]() {
@@ -1871,7 +2108,7 @@
         }
 
         get size() {
-            return this.iterable.size;
+            return this.iterable.length ? this.iterable.length : this.iterable.size;
         }
 
         * [Symbol.iterator]() {
@@ -1879,13 +2116,26 @@
         }
 
         has(key) {
+            if (isFunction(this.iterable.optionalGet)) {
+                return this.iterable.optionalGet(key).has;
+            }
             if (isFunction(this.iterable.has)) {
                 return this.iterable.has(key);
             }
             return super.has(key);
         }
 
+        optionalGet(key) {
+            if (isFunction(this.iterable.optionalGet)) {
+                return this.iterable.optionalGet(key);
+            }
+            return super.optionalGet(key);
+        }
         get(key) {
+            if (isFunction(this.iterable.optionalGet)) {
+                const val = this.iterable.optionalGet(key).value;
+                return val;
+            }
             if (isFunction(this.iterable.get)) {
                 return this.iterable.get(key);
             }
@@ -1921,24 +2171,20 @@
             }
         }
 
-        has(key) {
-            if (super.has(key)) {
-                if (isFunction(this.iterable.has)) {
-                    return this.filterPredicate.call(this.ctx, this.iterable.get(key), key, this);
-                }
-                return true;
+        optionalGet(key) {
+            const opt = super.optionalGet(key);
+            if (opt.has && !this.filterPredicate.call(this.ctx, opt.value, key, this)) {
+                return Optional.none();
             }
-            return false;
+            return opt;
+        }
+
+        has(key) {
+            return this.optionalGet(key).has;
         }
 
         get(key) {
-            const value = super.get(key);
-            if (isFunction(this.iterable.get)) {
-                if (this.filterPredicate.call(this.ctx, value, key, this)) {
-                    return value;
-                }
-            }
-            return undefined;
+            return this.optionalGet(key).value;
         }
     }
 
@@ -1976,12 +2222,12 @@
                 yield [key, this.mapFunction.call(this.ctx, value, key, this)];
             }
         }
-
-        get(key) {
-            if (this.has(key)) {
-                const value = super.get(key);
-                return this.mapFunction.call(this.ctx, value, key, this);
+        optionalGet(key) {
+            const opt = super.optionalGet(key);
+            if(opt.has){
+                return Optional.of(this.mapFunction.call(this.ctx, opt.value, key, this));
             }
+            return opt;
         }
     }
 
@@ -2004,8 +2250,8 @@
         }
 
         get(key) {
-            if (this.has(key)) {
-                const value = super.get(key);
+            if (this.iterable.has(key)) {
+                const value = this.iterable.get(key);
                 return this.mapFunction.call(this.ctx, value, key, this)[1];
             }
             return undefined;
@@ -2024,7 +2270,7 @@
         }
 
         get size() {
-            return this.iterable.size + (this.otherIterable.size | this.otherIterable.length);
+            return this.iterable.size + this.otherIterable.size;
         }
 
         * [Symbol.iterator]() {
@@ -2032,37 +2278,17 @@
             yield* this.otherIterable;
         }
 
+        optionalGet(key) {
+            const opt = this.iterable.optionalGet(key);
+            return opt.has ? opt : this.otherIterable.optionalGet(key);
+        }
+
         has(key) {
-            if (this.iterable.has(key)) {
-                return true;
-            }
-            if (isFunction(this.otherIterable.has)) {
-                return this.otherIterable.has(key);
-            }
-            const equalTo = hashEquals(key).equalTo;
-            for (let [otherKey,] of this.otherIterable) {
-                if (equalTo(key, otherKey)) {
-                    return true;
-                }
-            }
-            return false;
+            return this.iterable.has(key) || this.otherIterable.has(key);
         }
 
         get(key) {
-            const ret = this.iterable.get(key);
-            if (ret) {
-                return ret;
-            }
-            if (isFunction(this.otherIterable.get)) {
-                return this.otherIterable.get(key);
-            }
-            const equalTo = hashEquals(key).equalTo;
-            for (let [otherKey, value] of this.otherIterable) {
-                if (equalTo(key, otherKey)) {
-                    return value;
-                }
-            }
-            return undefined;
+            return this.iterable.get(key) || this.otherIterable.get(key);
         }
     }
 
@@ -2079,8 +2305,13 @@
         }
 
         get size() {
-            return this.iterable.size + (this.otherIterable.size | this.otherIterable.length);
+            return this.iterable.size + this.otherIterable.size;
         }
+
+        has(value) {
+            return super.has(value) || this.otherIterable.has(value);
+        }
+
 
         * [Symbol.iterator]() {
             yield* this.iterable;
@@ -2104,6 +2335,14 @@
                 yield this.mapFunction.call(this.ctx, value, key, this);
             }
         }
+
+        has(value) {
+            if(Array.isArray(value)){
+                return this.iterable.some((otherValue) => deepEquals(value,otherValue));
+            } else {
+                return false;
+            }
+        }
     }
 
     /**
@@ -2120,6 +2359,14 @@
         * [Symbol.iterator]() {
             for (let value of this.iterable) {
                 yield this.mapFunction.call(this.ctx, value, this);
+            }
+        }
+
+        has(value) {
+            if (Array.isArray(value)) {
+                return this.some((otherValue) => deepEquals(value, otherValue));
+            } else {
+                return this.some((otherValue) => defaultEquals(value, otherValue));
             }
         }
     }
@@ -2149,6 +2396,12 @@
                     yield value;
                 }
             }
+        }
+        has(key) {
+            if (this.iterable.has(key)) {
+                return this.filterPredicate.call(this.ctx, this.iterable.get(key), key, this);
+            }
+            return false;
         }
     }
 

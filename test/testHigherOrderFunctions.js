@@ -967,12 +967,18 @@ describe('Higher Order Functions', function () {
     });
     describe('SetIterable.has()', function () {
         it('should return false when it does not have an entry with a value', function () {
-            expect(setIterator.map(entry => entry[0]).has('key')).to.be.false;
+            const myFunc = entry => entry[0];
+            const mapped = setIterator.map(myFunc);
+            expect(mapped.has('key')).to.be.false;
         });
 
         it('should return true when it has an entry with a key', function () {
             hashmap.set('key', 'value');
-            expect(setIterator.map(entry => entry[0]).has('key')).to.be.true;
+            const myFunc = function(entry){
+                return entry[0];
+            };
+            const mapped = setIterator.map(myFunc);
+            expect(mapped.has('key')).to.be.true;
         });
     });
     describe('MapIterable.every()', function () {
@@ -1677,7 +1683,8 @@ describe('Higher Order Functions', function () {
             function check(key, key2) {
                 var value = val();
                 hashmap.set(key, value);
-                expect(mapIterator.get(key2)).to.equal(value);
+                const ret = mapIterator.get(key2);
+                expect(ret).to.equal(value);
             }
 
             check(null, null);

@@ -1,4 +1,9 @@
 # Changelog
+## Current
+- added optionalGet method for optimisation of methods. Improved the execution of some methods.
+- added deep array checking, on indexOf and value checking.
+- more examples and documentation.
+- Properly implemented the setiterable has methods.
 ## 0.9.0
 - removed setIterable and mapIterable methods and added from on the classes themselves.
 - A bit more documentation and examples
