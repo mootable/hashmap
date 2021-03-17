@@ -71,66 +71,7 @@ This [HashMap](https://mootable.github.io/hashmap/HashMap) is backed by a hashtr
   - Minimum: `1`, Maximum/Default: `(32/widthB)-1`
   3) `widthB` is how many buckets in each hashtrie layer we use to the power of 2, for instance a `widthB` of 4 = 16 buckets.
   - Minimum: `2`, Maximum: `16`, Default: `6` (64 Buckets)
-
-
-[comment]: <> (## `HashMap` &#40;and `LinkedHashMap`&#41; methods)
-
-[comment]: <> (- `get&#40;key:*&#41; : *` returns the value stored for that key.)
-
-[comment]: <> (- `set&#40;key:*, value:*&#41; : HashMap` stores a key-value pair)
-
-[comment]: <> (- `copy&#40;other:HashMap&#41; : HashMap` copies all key-value pairs from other to this instance)
-
-[comment]: <> (- `has&#40;key:*&#41; : Boolean` returns whether a key is set on the hashmap)
-
-[comment]: <> (- `indexOf&#40;value:*&#41; : *` returns key under which given value is stored &#40;`null` if not found&#41;)
-
-[comment]: <> (- `delete&#40;key:*&#41; : HashMap` deletes a key-value pair by key)
-
-[comment]: <> (- `keys&#40;&#41; : Iterable<*>` returns an array with all the registered keys)
-
-[comment]: <> (- `values&#40;&#41; : Iterable<*>` returns an array with all the values)
-
-[comment]: <> (- `entries&#40;&#41; : Iterable<[*,*]>` returns an array with [key,value] pairs)
-
-[comment]: <> (- `length : Number` the amount of key-value pairs)
-
-[comment]: <> (- `clear&#40;&#41; : HashMap` deletes all the key-value pairs on the hashmap)
-
-[comment]: <> (- `clone&#40;&#41; : HashMap` creates a new hashmap with all the key-value pairs of the original)
-
-[comment]: <> (- `forEach&#40;function&#40;value, key&#41;&#41; : HashMap` iterates the pairs and calls the function for each one)
-
-[comment]: <> (  Higher Order Functions added and in and in the process of being documented are:)
-
-[comment]: <> (- `collect`)
-
-[comment]: <> (- `concat`)
-
-[comment]: <> (- `concatMap`)
-
-[comment]: <> (- `every`)
-
-[comment]: <> (- `filter`)
-
-[comment]: <> (- `find`)
-
-[comment]: <> (- `findIndex`)
-
-[comment]: <> (- `forEach`)
-
-[comment]: <> (- `map`)
-
-[comment]: <> (- `mapEntries`)
-
-[comment]: <> (- `mapKeys`)
-
-[comment]: <> (- `mapValues`)
-
-[comment]: <> (- `reduce`)
-
-[comment]: <> (- `some`)
-
+  
 ## Examples
 
 Assume this for all examples below
@@ -146,17 +87,17 @@ let map = new LinkedHashMap();
 If you're using this within Node, you first need to import the class(es)
 
 ```js
-let {HashMap, LinkedHashMap} = require('src/hashmap');
+let {HashMap, LinkedHashMap} = require('@mootable/hashmap');
 ```
 or
 
 ```js
-let HashMap = require('src/hashmap').HashMap;
+let HashMap = require('@mootable/hashmap').HashMap;
 ```
 or for the linked hashmap
 
 ```js
-let LinkedHashMap = require('src/hashmap').LinkedHashMap;
+let LinkedHashMap = require('@mootable/hashmap').LinkedHashMap;
 ```
 
 ### Basic use case
@@ -240,7 +181,7 @@ map
     - It must have an identical interface to JS Map
     - It must be fully written in JS. (Transpiling is acceptable) So that we can guarantee it works in the browser, not just node.
 
-### Benchmarks on version 0.10.0
+### Benchmarks on version 0.10.1
 
 <table>
 <thead><tr><th>Entry Size</th><th>Fastest Version</th><th>Percentage Faster</th><th>Times Faster</th></tr></thead>

@@ -1,4 +1,7 @@
 # Changelog
+## 0.10.1
+- my instructions on require() were subject to find and replace. Rookie Mistakes ;-)
+- added some more tags to package.json
 ## 0.10.0
 - added optionalGet method for optimisation of methods. Improved the execution of some methods.
 - added deep array checking, on indexOf and value checking.
