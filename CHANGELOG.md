@@ -1,5 +1,5 @@
 # Changelog
-## Current
+## 0.10.0
 - added optionalGet method for optimisation of methods. Improved the execution of some methods.
 - added deep array checking, on indexOf and value checking.
 - more examples and documentation.
