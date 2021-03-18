@@ -1061,9 +1061,10 @@ describe('Higher Order Functions', function () {
         it('should pass the basic test', function () {
             hashmap.set('key', 'value');
             let called = 0;
-            const every = setIterator.every(function (value, iterable) {
+            const every = setIterator.every(function (value, key, iterable) {
                 called++;
                 expect(value).to.deep.equal(['key', 'value']);
+                expect(key).to.deep.equal(['key', 'value']);
                 expect(this).to.equal(setIterator);
                 expect(iterable).to.equal(setIterator);
                 return true;
@@ -1364,7 +1365,7 @@ describe('Higher Order Functions', function () {
         it('should pass the basic test', function () {
             hashmap.set('key', 'value');
             let called = 0;
-            const find = setIterator.find(function (entry, iterable) {
+            const find = setIterator.find(function (entry, entry2, iterable) {
                 const [key, value] = entry;
                 called++;
                 expect(value).to.equal('value');
@@ -1504,7 +1505,7 @@ describe('Higher Order Functions', function () {
     describe('SetIterable.reduce()', function () {
         it('should pass the basic test', function () {
             hashmap.set('key', 'value');
-            const called = setIterator.reduce(function (accumulator, entry, iterable) {
+            const called = setIterator.reduce(function (accumulator, entry, entry2, iterable) {
                 const [key, value] = entry;
                 expect(value).to.equal('value');
                 expect(key).to.equal('key');

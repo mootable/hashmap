@@ -1,4 +1,9 @@
 # Changelog
+## 0.11.0
+- Finished the core API documentation of the exported classes.
+- Optimized some methods
+- Added entries() and keys() to SetIterable
+- (Breaking Change) the signature of SetIterable callbacks now include a key, which is the value. This is to make it align more closely with JS Set.
 ## 0.10.1
 - my instructions on require() were subject to find and replace. Rookie Mistakes ;-)
 - added some more tags to package.json

@@ -1,7 +1,7 @@
 /**
  * HashMap - HashMap Implementation for JavaScript
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.10.1
+ * @version 0.11.0
  * Homepage: https://github.com/mootable/hashmap
  */
 
@@ -84,6 +84,16 @@
     const isFunction = function (func) {
         return !!(func && func.constructor && func.call && func.apply);
     };
+
+    /**
+     * Is the passed object iterable
+     * @param iterable
+     * @return {boolean}
+     */
+    const isIterable = function (iterable) {
+        return !!(iterable && isFunction(iterable[Symbol.iterator]));
+    };
+
     /**
      * Is the passed value not null and a string
      * @param str
@@ -123,8 +133,8 @@
      * @return {boolean}
      */
     const deepEquals = function (me, them, depth = -1) {
-        if(depth === 0 || (Array.isArray(me) && Array.isArray(them))){
-            return me.length === them.length && me.every((el, ix) => deepEquals(el,them[ix], --depth));
+        if (depth === 0 || (Array.isArray(me) && Array.isArray(them))) {
+            return me.length === them.length && me.every((el, ix) => deepEquals(el, them[ix], --depth));
         }
         return me === them;
     };
@@ -235,15 +245,6 @@
         }
     };
 
-    /**
-     * A collection of MapIterable Callbacks.
-     * @interface MapCallbacks
-     */
-
-    /**
-     * A collection of MapIterable Callbacks.
-     * @interface SetCallbacks
-     */
 
     /**
      * The base class for the Map Implementations, and the Higher Order Functions for Maps
@@ -333,7 +334,7 @@
          * @example <caption>Create a MapIterable from a Mootable LinkedHashMap.</caption>
          * // all Mootable LinkedHashMaps extend Mapiterable, no need to wrap with the MapIterable.from() function.If you do it will just return it back.
          * const mapIterable = new LinkedHashMap();
-         * @param {!(Set.<Array.<key,value>>|Map|Array.<Array.<key,value>>|Iterator.<Array.<key,value>>)} mapIterable the map to wrap
+         * @param {(Set.<Array.<key,value>>|Map|Array.<Array.<key,value>>|Iterator.<Array.<key,value>>|SetIterable.<Array.<key,value>>)} mapIterable the map to wrap
          * @return {MapIterable} the wrapped Map.
          */
         static from(mapIterable) {
@@ -353,7 +354,7 @@
          * const myMatchPredicate = (value, key, mapIterable) => mapIterable.has(value);
          * @example <caption>An alternative implementation, (but potentialy slower, and assumes no undefined value)</caption>
          * const myMatchPredicate = (value, key, mapIterable) => mapIterable.indexOf(key) !== undefined;
-         * @callback MapCallbacks.MatchesPredicate
+         * @callback MapIterable#MatchesPredicate
          * @param {*} [value] - the entry value.
          * @param {*} [key] - the entry key
          * @param {MapIterable} [iterable] - the calling Map Iterable.
@@ -369,7 +370,7 @@
          * // will log to the console:
          * // value1
          * // value3
-         * @param {MapCallbacks.MatchesPredicate} [filterPredicate=(value, key, iterable) => true] - if the provided function returns <code>false</code>, that entry is excluded.
+         * @param {MapIterable#MatchesPredicate} [filterPredicate=(value, key, iterable) => true] - if the provided function returns <code>false</code>, that entry is excluded.
          * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>filterPredicate</code>
          * @returns {MapIterable} an iterable that allows you to iterate key value pairs.
          */
@@ -382,7 +383,7 @@
          * A callback to execute on every <code>[key,value]</code> pair of this map iterable.
          * @example <caption>log the keys and values</caption>
          * const forEachFunction = (value, key) => console.log(key,value)
-         * @callback MapCallbacks.ForEachCallback
+         * @callback MapIterable#ForEachCallback
          * @param {*} [value] - the entry value.
          * @param {*} [key] - the entry key
          * @param {MapIterable} [iterable] - the calling Map Iterable.
@@ -397,7 +398,7 @@
          * // 1 value1
          * // 2 value2
          * // 3 value3
-         * @param {MapCallbacks.ForEachCallback} [forEachCallback=(value, key, iterable) => {}]
+         * @param {MapIterable#ForEachCallback} [forEachCallback=(value, key, iterable) => {}]
          * @param {*} [ctx=this] Value to use as <code>this</code> when executing <code>forEachCallback</code>
          * @returns {MapIterable} an iterable that allows you to iterate key value pairs.
          */
@@ -503,7 +504,7 @@
          * const everyResult = hashmap.every((value) => value.startsWith('value'));
          * // everyResult === false
          * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/every|Array.every}
-         * @param {MapCallbacks.MatchesPredicate} [everyPredicate=(value, key, iterable) => true] - if the provided function returns <code>false</code>, at any point the <code>every()</code> function returns false.
+         * @param {MapIterable#MatchesPredicate} [everyPredicate=(value, key, iterable) => true] - if the provided function returns <code>false</code>, at any point the <code>every()</code> function returns false.
          * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>everyPredicate</code>
          * @returns {boolean} true if all elements match, false if one or more elements fails to match.
          */
@@ -533,7 +534,7 @@
          * const someResult = hashmap.some((value) => value.startsWith('value'));
          * // someResult === true
          * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some|Array.some}
-         * @param {MapCallbacks.MatchesPredicate} [somePredicate=(value, key, iterable) => true] - the predicate to identify if we have a match.
+         * @param {MapIterable#MatchesPredicate} [somePredicate=(value, key, iterable) => true] - the predicate to identify if we have a match.
          * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>somePredicate</code>
          * @returns {boolean} - true if all elements match, false if one or more elements fails to match.
          */
@@ -560,9 +561,9 @@
          * const findResult = hashmap.find((value) => value.startsWith('something'));
          * // findResult === undefined
          * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find|Array.find}
-         * @param {MapCallbacks.MatchesPredicate} [findPredicate=(value, key, iterable) => value] - the predicate to identify if we have a match.
+         * @param {MapIterable#MatchesPredicate} [findPredicate=(value, key, iterable) => value] - the predicate to identify if we have a match.
          * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>findPredicate</code>
-         * @returns {*} - the value of the element that matches..
+         * @returns {*} - the value of the element that matches.
          */
         find(findPredicate = (value, key, iterable) => true, ctx = this) {
             for (const [key, value] of this) {
@@ -588,7 +589,7 @@
          * const findIndexResult = hashmap.findIndex((value) => value.startsWith('something'));
          * // findIndexResult === undefined
          * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex|Array.findIndex}
-         * @param {MapCallbacks.MatchesPredicate} [findIndexPredicate=(value, key, iterable) => key] - the predicate to identify if we have a match.
+         * @param {MapIterable#MatchesPredicate} [findIndexPredicate=(value, key, iterable) => key] - the predicate to identify if we have a match.
          * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>findIndexPredicate</code>
          * @returns {*} - the key of the element that matches..
          */
@@ -683,24 +684,46 @@
          * // getResult === undefined
          * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/get|Map.get}
          * @param {*} key - the key we use to === against the entries key to identify if we have a match.
-         * @returns {*} - the value of the element that matches..
+         * @returns {*} - the value of the element that matches.
          */
         get(key) {
             const equalTo = hashEquals(key).equalTo;
             return this.find((value, otherKey) => equalTo(key, otherKey));
         }
 
+        /**
+         * Get a value from the map using this as an optional. This is effectively a combination of calling has and get at the same time.
+         * If backed by a Map or HashMap, or in fact any collection that implements the <code>.optionalGet(key)</code> function, then it will utilize that, otherwise depending on the existence of has and get functions it may iterate across the collection.
+         * - return the first <code>value</code> from the <code>[key,value]</code> pair that matches
+         * - if no elements match, it returns undefined.
+         * - it is legitimate for keys to be null or undefined, and if set, will find a value.
+         * - if a map is earlier on in the chain, the value, will be mapped along the way.
+         *   - However there is no way to reverse map the key, as we do the fetch, which means the key has to be the same as the one in the original collection.
+         *
+         * Maps typically index keys, and so is generally a fast operation.
+         * @example <caption>>What is the value for a key</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const getResult = hashmap.get(1);
+         * // getResult === 'value1'
+         * @example <caption>What is the value for a key that isn't there</caption>
+         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+         * const getResult = hashmap.get(4);
+         * // getResult === undefined
+         * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/get|Map.get}
+         * @param {*} key - the key we use to === against the entries key to identify if we have a match.
+         * @returns {{has: boolean, value:*}} - an optional result.
+         */
         optionalGet(key) {
             const equalTo = hashEquals(key).equalTo;
             let found = false;
             const val = this.find((value, otherKey) => {
-                if(equalTo(key, otherKey)){
+                if (equalTo(key, otherKey)) {
                     found = true;
                     return true;
                 }
                 return false;
             });
-            if(found) {
+            if (found) {
                 return Optional.of(val);
             }
             return Optional.none();
@@ -715,7 +738,7 @@
          * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce|Array.reduce}
          * @example <caption>add all the keys</caption>
          * const reduceFunction = (accumulator, value, key) => accumulator+key
-         * @callback MapCallbacks.ReduceFunction
+         * @callback MapIterable#ReduceFunction
          * @param {*} [accumulator] - the value from the last execution of this function.
          * @param {*} [value] - the entry value.
          * @param {*} [key] - the entry key
@@ -734,7 +757,7 @@
          * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
          * const reduceResult = hashmap.reduce((accumulator, value) => value+accumulator, '');
          * // reduceResult === 'value3value2value1'
-         * @param {MapCallbacks.ReduceFunction} [reduceFunction=(accumulator, value, key, iterable) => true] - the predicate to identify if we have a match.
+         * @param {MapIterable#ReduceFunction} [reduceFunction=(accumulator, value, key, iterable) => true] - the predicate to identify if we have a match.
          * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>reduceFunction</code>
          * @returns {*} - the final accumulated value.
          */
@@ -748,8 +771,8 @@
 
         /**
          * Map Function
-         * A callback that takes a <code>[key,value]</code> and current iterable, and returns a mapped value.
-         * How this maped value is used depends on the calling function.
+         * A callback that takes a <code>[key,value]</code> and the current iterable, and returns a mapped value.
+         * How this mapped value is used depends on the calling function.
          *  - mapKeys the key is transformed to the returned value
          *  - mapValues the value is transformed to the returned value
          *  - mapEntries the value should be of the form [key, value] and transforms each accordingly
@@ -759,7 +782,7 @@
          * @example <caption>swap key and value</caption>
          * const mapEntriesFunction = ( value, key) => [value, key];
          * // the typical response is [key, value]
-         * @callback MapCallbacks.MapFunction
+         * @callback MapIterable#MapFunction
          * @param {*} [value] - the entry value.
          * @param {*} [key] - the entry key
          * @param {MapIterable} [iterable] - the calling Map Iterable.
@@ -775,7 +798,7 @@
          * const mappedKeysArray = mappedKeysIterable.collect();
          * // mappedKeysArray === [['k2','value1'],['k3','value2'],['k4','value3']]
          * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map|Array.map}
-         * @param {MapCallbacks.MapFunction} [mapKeyFunction=(value, key, iterable) => key] - the function that transforms the key.
+         * @param {MapIterable#MapFunction} [mapKeyFunction=(value, key, iterable) => key] - the function that transforms the key.
          * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>reduceFunction</code>
          * @returns {MapIterable} an iterable that allows you to iterate key value pairs.
          */
@@ -792,7 +815,7 @@
          * const mappedValuesArray = mappedValuesIterable.collect();
          * // mappedValuesArray === [['1','1value1'],[2,'2value2'],[3,'3value3']]
          * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map|Array.map}
-         * @param {MapCallbacks.MapFunction} [mapValueFunction=(value, key, iterable) => value] - the function that transforms the value.
+         * @param {MapIterable#MapFunction} [mapValueFunction=(value, key, iterable) => value] - the function that transforms the value.
          * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>reduceFunction</code>
          * @returns {MapIterable} an iterable that allows you to iterate key value pairs.
          */
@@ -813,28 +836,28 @@
          * - In both cases will return {@link MapIterable}
          * @example <caption>swap the keys and the values</caption>
          * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
-         * const mapEntriesIterable = hashmap.mapEntries((value, key) => [value,key]]
+         * const mapEntriesIterable = hashmap.mapEntries((value, key) => [value,key])
          * const mapEntriesArray = mapEntriesIterable.collect();
          * // mapEntriesArray === [['value1',1],['value2',2],['value3',3]]
          * @example <caption>swap the keys and the values with 2 functions</caption>
          * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
-         * const mapEntriesIterable = hashmap.mapEntries([(value) => value,(value, key) => key]]
+         * const mapEntriesIterable = hashmap.mapEntries([(value) => value,(value, key) => key])
          * const mapEntriesArray = mapEntriesIterable.collect();
          * // mapEntriesArray === [['value1',1],['value2',2],['value3',3]]
          * @example <caption>modify just the keys</caption>
          * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
          * // Notice we are passing an array of one function.
-         * const mapEntriesIterable = hashmap.mapEntries([(value, key) => value]]
+         * const mapEntriesIterable = hashmap.mapEntries([(value, key) => value])
          * const mapEntriesArray = mapEntriesIterable.collect();
          * // mapEntriesArray === [['value1','value1'],['value2','value2'],['value2','value2']]
          * @example <caption>modify just the values</caption>
          * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
          * // Notice we are passing an array of two, but have only defined the last as a function.
-         * const mapEntriesIterable = hashmap.mapEntries([undefined,(value, key) => key]]
+         * const mapEntriesIterable = hashmap.mapEntries([undefined,(value, key) => key])
          * const mapEntriesArray = mapEntriesIterable.collect();
          * // mapEntriesArray === [[1,1],[2,2],[3,3]]
          * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map|Array.map}
-         * @param {MapCallbacks.MapFunction|Array.<MapCallbacks.MapFunction,MapCallbacks.MapFunction>} [mapEntryFunction=(value, key, iterable) => [key, value]] - the function that transforms the key and value.
+         * @param {MapIterable#MapFunction|Array.<MapIterable#MapFunction,MapIterable#MapFunction>} [mapEntryFunction=(value, key, iterable) => [key, value]] - the function that transforms the key and value.
          * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>reduceFunction</code>
          * @returns {MapIterable} an iterable that allows you to iterate key value pairs.
          * @throws {TypeError} if at least one function is not provided.
@@ -868,7 +891,7 @@
         }
 
         /**
-         * For every entry, use the mapEntryFunction to transform the existing value and existing key.
+         * For every entry, use the mapFunction to transform the existing value and existing key.
          * - If one Function is provided, we are transforming the map into a set.
          *   - The function can return any value. This is the equivalent of turning the MapIterable into a SetIterable.
          *   - if the parameter is not an array or a function a TypeError is thrown.
@@ -880,38 +903,38 @@
          *   - Will return a {@link MapIterable}.
          * @example <caption>return just values</caption>
          * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
-         * const setIterable = hashmap.map((value, key) => value]
+         * const setIterable = hashmap.map((value, key) => value)
          * const mapArray = setIterable.collect();
          * // mapArray === ['value1','value2','value3']
          * // setIterable instanceof SetIterable
          * @example <caption>swap the keys and the values</caption>
          * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
-         * const setIterable = hashmap.map((value, key) => [value,key]]
+         * const setIterable = hashmap.map((value, key) => [value,key])
          * const mapArray = setIterable.collect();
          * // mapArray === [['value1',1],['value2',2],['value3',3]]
          * // setIterable instanceof SetIterable
          * @example <caption>swap the keys and the values with 2 functions</caption>
          * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
-         * const mapIterable = hashmap.map([(value) => value,(value, key) => key]]
+         * const mapIterable = hashmap.map([(value) => value,(value, key) => key])
          * const mapArray = mapIterable.collect();
          * // mapArray === [['value1',1],['value2',2],['value3',3]]
          * // mapIterable instanceof MapIterable
          * @example <caption>modify just the keys</caption>
          * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
          * // Notice we are passing an array of one function.
-         * const mapIterable = hashmap.map([(value, key) => value]]
+         * const mapIterable = hashmap.map([(value, key) => value])
          * const mapArray = mapIterable.collect();
          * // mapArray === [['value1','value1'],['value2','value2'],['value2','value2']]
          * // mapIterable instanceof MapIterable
          * @example <caption>modify just the values</caption>
          * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
          * // Notice we are passing an array of two, but have only defined the last as a function.
-         * const mapIterable = hashmap.map([undefined,(value, key) => key]]
+         * const mapIterable = hashmap.map([undefined,(value, key) => key])
          * const mapArray = mapIterable.collect();
          * // mapArray === [[1,1],[2,2],[3,3]]
          * // mapIterable instanceof MapIterable
          * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map|Array.map}
-         * @param {MapCallbacks.MapFunction|Array.<MapCallbacks.MapFunction,MapCallbacks.MapFunction>} [mapFunction=(value, key, iterable) => [key, value]] - the function that transforms the key and value.
+         * @param {MapIterable#MapFunction|Array.<MapIterable#MapFunction,MapIterable#MapFunction>} [mapFunction=(value, key, iterable) => [key, value]] - the function that transforms the key and value.
          * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>reduceFunction</code>
          * @returns {SetIterable|MapIterable} an iterable that allows you to iterate single entries in a set, or an iterable that allows you to iterate a map.
          * @throws {TypeError} if at least one function is not provided.
@@ -929,7 +952,7 @@
         }
 
         /**
-         * Return a SetIterable of MapIterable which is a concatination of this and the provided iterable.
+         * Return a SetIterable or MapIterable which is a concatination of this and the provided iterable.
          * - If the provided value is a MapIterable or a Map then the returned iterable is a MapIterable.
          * - Otherwise since we have no idea if it will return key value pairs we return a SetIterable.
          *   - If you know the container stores [key,value] pairs and want to return a MapIterable, use {@link MapIterable#concatMap concatMap}
@@ -1120,18 +1143,6 @@
         }
 
         /**
-         * Test each element of the set to see if it matches and return
-         *  - true if the key and value match.
-         *  - false if it doesn't.
-         * @example <caption>Only match values divisible by 2</caption>
-         * const myMatchPredicate = (value) => value % 2 === 0;
-         * @callback SetCallbacks.MatchesPredicate
-         * @param {*} [value] - the entry value.
-         * @param {SetpIterable} [iterable] - the calling Set Iterable.
-         * @return {boolean} a value that coerces to true if it matches, or to false otherwise.
-         */
-
-        /**
          * Test each element of the set and only include entries where the <code>MatchesPredicate</code> returns true.
          * @example <caption>Only match values which are odd numbered.</caption>
          * const hashmap = SetIterable.from([1,2,3]);
@@ -1140,23 +1151,13 @@
          * // will log to the console:
          * // 1
          * // 3
-         * @param {SetCallbacks.MatchesPredicate} [filterPredicate=(value, setIterable) => true] - if the provided function returns <code>false</code>, that entry is excluded.
+         * @param {MapIterable#MatchesPredicate} [filterPredicate=(value, key, setIterable) => true] - if the provided function returns <code>false</code>, that entry is excluded.
          * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>filterPredicate</code>
          * @returns {SetIterable} - an iterable that allows you to iterate values.
          */
-        filter(filterPredicate = (value, setIterable) => true, ctx = this) {
+        filter(filterPredicate = (value, key, setIterable) => true, ctx = this) {
             return new SetFilter(this, filterPredicate, ctx);
         }
-
-        /**
-         * For Each Function
-         * A callback to execute on every <code>value</code> of this set iterable.=
-         * @example <caption>log values</caption>
-         * const forEachFunction = (value) => console.log(value)
-         * @callback SetCallbacks.ForEachCallback
-         * @param {*} [value] - the entry value.
-         * @param {SetIterable} [iterable] - the calling Set Iterable.
-         */
 
         /**
          * Execute the provided callback on every <code>value</code> of this set iterable.
@@ -1168,14 +1169,14 @@
          * // value1
          * // value2
          * // value3
-         * @param {SetCallbacks.ForEachCallback} [forEachCallback=(value, iterable) => {}]
+         * @param {MapIterable#ForEachCallback} [forEachCallback=(value, key, iterable) => {}]
          * @param {*} [ctx=this] Value to use as <code>this</code> when executing <code>forEachCallback</code>
          * @returns {SetIterable} - an iterable that allows you to iterate on values.
          */
-        forEach(forEachFunc = (value, iterable) => {
+        forEach(forEachFunc = (value, key, iterable) => {
         }, ctx = this) {
             for (const value of this) {
-                forEachFunc.call(ctx, value, this);
+                forEachFunc.call(ctx, value, value, this);
             }
         }
 
@@ -1253,22 +1254,6 @@
         }
 
         /**
-         * Reduce Function
-         * A callback to accumulate values from the Map Iterables <code>[key,value]</code> into a single value.
-         * if initial value is <code>undefined</code> or <code>null</code>, unlike Array.reduce,
-         * no error occurs, and it is imply passed as the accumulator value
-         *
-         * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce|Array.reduce}
-         * @example <caption>add all the values</caption>
-         * const reduceFunction = (accumulator, value) => accumulator+value
-         * @callback SetCallbacks.ReduceFunction
-         * @param {*} [accumulator] - the value from the last execution of this function.
-         * @param {*} [value] - the entry value.
-         * @param {SetIterable} [iterable] - the calling Set Iterable.
-         * @return {*} [accumulator] - the value to pass to the next time this function is called or the final return value.
-         */
-
-        /**
          * Iterate through the set iterable reducing it to a single value.
          * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce|Array.reduce}
          * @example <caption>add all the values</caption>
@@ -1281,14 +1266,14 @@
          * const setIterable = SetIterable.from(set);
          * const reduceResult = setIterable.reduce((accumulator, value) => value+accumulator, '');
          * // reduceResult === 'value3value2value1'
-         * @param {SetCallbacks.ReduceFunction} [reduceFunction=(accumulator, value, iterable) => true] - the predicate to identify if we have a match.
+         * @param {MapIterable#ReduceFunction} [reduceFunction=(accumulator, value, key, iterable) => true] - the predicate to identify if we have a match.
          * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>reduceFunction</code>
          * @returns {*} - the final accumulated value.
          */
-        reduce(reduceFunction = (accumulator, value, iterable) => value, initialValue = undefined, ctx = this) {
+        reduce(reduceFunction = (accumulator, value, key, iterable) => value, initialValue = undefined, ctx = this) {
             let accumulator = initialValue;
             for (const value of this) {
-                accumulator = reduceFunction.call(ctx, accumulator, value, this);
+                accumulator = reduceFunction.call(ctx, accumulator, value, value, this);
             }
             return accumulator;
         }
@@ -1312,13 +1297,13 @@
          * const everyResult = setIterable.every((value) => value.startsWith('value'));
          * // everyResult === false
          * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/every|Array.every}
-         * @param {SetCallbacks.MatchesPredicate} [everyPredicate=(value, iterable) => true] - if the provided function returns <code>false</code>, at any point the <code>every()</code> function returns false.
+         * @param {MapIterable#MatchesPredicate} [everyPredicate=(value, key, iterable) => true] - if the provided function returns <code>false</code>, at any point the <code>every()</code> function returns false.
          * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>everyPredicate</code>
          * @returns {boolean} true if all elements match, false if one or more elements fails to match.
          */
-        every(everyPredicate = (value, iterable) => true, ctx = this) {
+        every(everyPredicate = (value, key, iterable) => true, ctx = this) {
             for (const value of this) {
-                if (!everyPredicate.call(ctx, value, this)) {
+                if (!everyPredicate.call(ctx, value, value, this)) {
                     return false;
                 }
             }
@@ -1344,11 +1329,11 @@
          * const someResult = setIterable.some((value) => value.startsWith('value'));
          * // someResult === true
          * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some|Array.some}
-         * @param {SetCallbacks.MatchesPredicate} [somePredicate=(value, iterable) => true] - the predicate to identify if we have a match.
+         * @param {MapIterable#MatchesPredicate} [somePredicate=(value, key, iterable) => true] - the predicate to identify if we have a match.
          * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>somePredicate</code>
          * @returns {boolean} - true if all values match, false if one or more values fails to match.
          */
-        some(somePredicate = (value, iterable) => true, ctx = this) {
+        some(somePredicate = (value, key, iterable) => true, ctx = this) {
             for (const value of this) {
                 if (somePredicate.call(ctx, value, this)) {
                     return true;
@@ -1366,19 +1351,22 @@
          * - it is legitimate for values to be null or undefined, and if added, will return true
          *
          * Sets typically index values, and so is generally a fast operation. However if it backed by a map, then this will be slow as it will be matching entries not keys.
-         * @example <captiSeon>>Does this contain a key that is there</caption>
-         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
-         * const hasResult = hashmap.has(1);
+         * @example <captiSeon>>Does this contain a value that is there</caption>
+         * const set = new Set().add('value1').add('value2').add('value3');
+         * const setIterable = SetIterable.from(set);
+         * const hasResult = setIterable.has('value2');
          * // hasResult === true
-         * @example <caption>Does this contain a key that isn't there</caption>
-         * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
-         * const hasResult = hashmap.has(4);
+         * @example <caption>Does this contain a value that isn't there</caption>
+         * const set = new Set().add(1).add(2).add(3);
+         * const setIterable = SetIterable.from(set);
+         * const hasResult = setIterable.has(4);
          * // hasResult === false
          * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/has|Map.has}
-         * @param {*} key - the key we use to === against the entries key to identify if we have a match.
+         * @param {*} value - the value we use to === against the entries key to identify if we have a match.
+         * @param {number} [depth=-1] - if using an array, marks how deep we go through to test equality.
          * @returns {boolean} - if it holds the key or not.
          */
-        has(value, depth) {
+        has(value, depth = -1) {
             if (Array.isArray(value)) {
                 return this.some((otherValue) => deepEquals(otherValue, value, depth));
             }
@@ -1387,63 +1375,133 @@
 
 
         /**
-         *
-         * @param findPredicate
-         * @param ctx
-         * @return {any|undefined}
+         * Find the first value in the set which passes the provided <code>MatchesPredicate</code>.
+         * - return the first <code>value</code> that matches
+         * - if no value matches, it returns undefined.
+         * - if no predicate is defined, will return the first value it finds.
+         * @example <caption>Find a value</caption>
+         * const set = new Set().add('value1').add('value2').add('value3');
+         * const setIterable = SetIterable.from(set);
+         * const findResult = setIterable.find((value) => value.endsWith('ue2'));
+         * // findResult === 'value2'
+         * @example <caption>Can't find a value</caption>
+         * const set = new Set().add('value1').add('value2').add('value3');
+         * const setIterable = SetIterable.from(set);
+         * const findResult = setIterable.find((value) => value.startsWith('something'));
+         * // findResult === undefined
+         * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find|Array.find}
+         * @param {MapIterable#MatchesPredicate} [findPredicate=(value, key, iterable) => value] - the predicate to identify if we have a match.
+         * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>findPredicate</code>
+         * @returns {*} - the value that matches.
          */
-        find(findPredicate = (value, iterable) => true, ctx = this) {
+        find(findPredicate = (value, key, iterable) => true, ctx = this) {
             for (const value of this) {
-                if (findPredicate.call(ctx, value, this)) {
+                if (findPredicate.call(ctx, value, value, this)) {
                     return value;
                 }
             }
             return undefined;
         }
 
+
         /**
-         *
-         * @param mapFunction
-         * @param ctx
-         * @return {SetMapper}
+         * For every entry, use the mapFunction to transform the existing value.
+         *   - Will return a {@link SetIterable}
+         * @example <caption>return just values with 'ish' on the end</caption>
+         * const set = new Set().add('value1').add('value2').add('value3');
+         * const setIterable = SetIterable.from(set);
+         * const mapped = setIterable.map((value, key) => value+'ish');
+         * const mapArray = mapped.collect();
+         * // mapArray === ['value1ish','value2ish','value3ish']
+         * // mapped instanceof SetIterable
+         * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map|Array.map}
+         * @param {MapIterable#MapFunction} [mapFunction=(value, key, iterable) =>value] - the function that transforms the value.
+         * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>reduceFunction</code>
+         * @returns {SetIterable} an iterable that allows you to iterate single entries in the mapped set
          */
-        map(mapFunction = (value, map) => value, ctx = this) {
+        map(mapFunction = (value, key, map) => value, ctx = this) {
             return new SetMapper(this, mapFunction, ctx);
         }
 
+
         /**
-         *
-         * @param otherIterable
-         * @return {SetConcat}
+         * Return a SetIterable which is a concatination of this and the provided iterable.
+         * This is based on {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/concat Array.concat} it does not modify the original iterables, and returns a new one.
+         * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/concat|Array.concat}
+         * @example <caption>concatinate 2 sets</caption>
+         * const set1 = new Set(['value1','value2','value3']);
+         * const set2 = new Set(['value1a','value2a','value3a']);
+         * const setIterable = SetIterable.from(set1).concat(set2);
+         * // Notice how any unique constraints are gone.
+         * // setIterable === ['value1','value2','value3','value1a','value2a'],'value3a']
+         * // setIterable instanceof SetIterable
+         * @example <caption>concatinate an array</caption>
+         * const set = new Set(['value1','value2','value3']);
+         * const array = ['hello','world'];
+         * const setIterable = SetIterable.from(set).concat(array);
+         * // setIterable === ['value1','value2','value3','hello','world']
+         * // setIterable instanceof SetIterable
+         * @param {(Array|Set|Map|HashMap|LinkedHashMap)} otherIterable the iterable to concat to this one.
+         * @return {SetIterable} the new iterable to return
          */
         concat(otherIterable = []) {
             return new SetConcat(this, SetIterable.from(otherIterable));
         }
 
         /**
-         *
-         * @return {SetIterable}
+         * Return a SetIterable which is basically this SetIterable.
+         * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/values values}
+         * @return {SetIterable} the values as a set iterable.
          */
         values() {
             return this;
+        }
+
+        /**
+         * Return a SetIterable which is basically this SetIterable.
+         * Behaves the same way as the JS Set Object in that it just returns values
+         * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set/keys keys}
+         * @return {SetIterable} the values as a set iterable.
+         */
+        keys() {
+            return this;
+        }
+
+        /**
+         * Return a MapIterable which are a value pair, returns [value,value]
+         * @example <caption>collect all the entries</caption>
+         * const set = new Set([1,2,3]);
+         * const entriesIterable = SetIterable.from(set).entries();
+         * // entriesIterable instanceof MapIterable
+         * const entries = entriesIterable.collect();
+         * // entries === [[1,1],[2,'2],[3,3]]
+         * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set/entries entries}
+         * @return {MapIterable}
+         */
+        entries() {
+            return MapIterable.from(this.map((value) => [value, value]));
         }
     }
 
     /**
      * to get round the fact gets might be undefined but the value exists,
+     * @private
      */
     class Optional {
-        constructor(has,value){
+        constructor(has, value) {
             this.has = has;
             this.value = value;
         }
+
         static of(value) {
             return new Optional(true, value);
         }
+
         static none() {
             return new Optional(false, undefined);
         }
     }
+
     /**
      * @private
      */
@@ -1537,17 +1595,12 @@
             }
         }
 
-        /**
-         * @return {number|*}
-         */
+
         get size() {
             return this.length;
         }
 
-        /**
-         * @param key
-         * @return {boolean|*}
-         */
+
         has(key) {
             if (this.buckets) {
                 const currHE = hashEquals(key);
@@ -1556,10 +1609,7 @@
             return false;
         }
 
-        /**
-         * @param key
-         * @return {undefined|*}
-         */
+
         get(key) {
             if (this.buckets) {
                 const currHE = hashEquals(key);
@@ -1568,10 +1618,7 @@
             return undefined;
         }
 
-        /**
-         * @param key
-         * @return {boolean|*}
-         */
+
         optionalGet(key) {
             if (this.buckets) {
                 const currHE = hashEquals(key);
@@ -1581,9 +1628,10 @@
         }
 
         /**
+         * Sets a value onto this map, using the key as its reference.
          *
-         * @param key
-         * @param value
+         * @param {*} key - the key we want to key our value to
+         * @param {*} value - the value we are setting
          * @return {HashMap}
          */
         set(key, value) {
@@ -1610,25 +1658,33 @@
 
         /**
          *
-         * @param other
-         * @return {HashMap}
+         * @param {Map|HashMap|LinkedHashMap|MapIterable|SetIterable.<Array.<key,value>>|Iterator.<Array.<key,value>>| <Array.<key,value>} other - the iterable to copy
+         * @return {HashMap} this hashmap, with the values copied to it.
+         * @throws TypeError if the provided object other is null or not iterable.
          */
         copy(other) {
             const map = this;
-            if (Array.isArray(other)) {
-                other.forEach(function (pair) {
-                    map.set(pair[0], pair[1]);
-                });
-            } else {
+            if (isIterable(other)) {
+                for (const [key, value] of other) {
+                    map.set(key, value);
+                }
+                return this;
+            } else if (isFunction(other.entries)) {
+                for (const [key, value] of other.entries()) {
+                    map.set(key, value);
+                }
+                return this;
+            } else if (isFunction(other.forEach)) {
                 other.forEach(function (value, key) {
                     map.set(key, value);
                 });
+                return this;
             }
-            return this;
+            throw new TypeError('HashMap.copy expects an object which is iterable or has a forEach function on it');
         }
 
         /**
-         *
+         * Makes a copy of this hashmap and returns a new one.
          * @return {HashMap}
          */
         clone() {
@@ -1640,7 +1696,7 @@
         }
 
         /**
-         *
+         * Deletes an entry from this hashmap, using the provided key
          * @param key
          * @return {HashMap}
          */
@@ -1658,7 +1714,7 @@
         }
 
         /**
-         *
+         * clears the data from this hashmap.
          * @return {HashMap}
          */
         clear() {
@@ -1668,9 +1724,7 @@
             return this;
         }
 
-        /**
-         * @return {Generator<Array.<key,value>>}
-         */
+
         * [Symbol.iterator]() {
             if (this.buckets) {
                 for (const entry of this.buckets) {
@@ -1711,12 +1765,6 @@
             this.end = undefined;
         }
 
-        /**
-         *
-         * @param key
-         * @param value
-         * @return {LinkedHashMap}
-         */
         set(key, value) {
             const entry = this.addEntry(new LinkedEntry(key, value));
             // if we added at the end, shift forward one.
@@ -1732,11 +1780,6 @@
             return this;
         }
 
-        /**
-         *
-         * @param key
-         * @return {LinkedHashMap}
-         */
         delete(key) {
             super.delete(key);
             if (this.start && this.start.deleted) {
@@ -1748,8 +1791,9 @@
             return this;
         }
 
+
         /**
-         *
+         * Makes a copy of this LinkedHashMap
          * @return {LinkedHashMap}
          */
         clone() {
@@ -1760,9 +1804,6 @@
             });
         }
 
-        /**
-         * @return {Generator<Array.<key,value>>}
-         */
         * [Symbol.iterator]() {
             let entry = this.start;
             while (entry) {
@@ -1858,6 +1899,7 @@
             while (container);
             return undefined;
         }
+
         optionalGet(key, equalTo) {
             let container = this;
             // avoid recursion
@@ -2129,8 +2171,18 @@
             if (isFunction(this.iterable.optionalGet)) {
                 return this.iterable.optionalGet(key);
             }
+            if (isFunction(this.iterable.has)) {
+                if (this.iterable.has(key)) {
+                    if (isFunction(this.iterable.get)) {
+                        Optional.of(this.iterable.get(key));
+                    }
+                    return Optional.of(super.get(key));
+                }
+                return Optional.none();
+            }
             return super.optionalGet(key);
         }
+
         get(key) {
             if (isFunction(this.iterable.optionalGet)) {
                 const val = this.iterable.optionalGet(key).value;
@@ -2222,9 +2274,10 @@
                 yield [key, this.mapFunction.call(this.ctx, value, key, this)];
             }
         }
+
         optionalGet(key) {
             const opt = super.optionalGet(key);
-            if(opt.has){
+            if (opt.has) {
                 return Optional.of(this.mapFunction.call(this.ctx, opt.value, key, this));
             }
             return opt;
@@ -2308,8 +2361,8 @@
             return this.iterable.size + this.otherIterable.size;
         }
 
-        has(value) {
-            return super.has(value) || this.otherIterable.has(value);
+        has(value, depth = -1) {
+            return super.has(value, depth) || this.otherIterable.has(value, depth);
         }
 
 
@@ -2337,8 +2390,8 @@
         }
 
         has(value) {
-            if(Array.isArray(value)){
-                return this.iterable.some((otherValue) => deepEquals(value,otherValue));
+            if (Array.isArray(value)) {
+                return this.iterable.some((otherValue) => deepEquals(value, otherValue));
             } else {
                 return false;
             }
@@ -2358,13 +2411,13 @@
 
         * [Symbol.iterator]() {
             for (let value of this.iterable) {
-                yield this.mapFunction.call(this.ctx, value, this);
+                yield this.mapFunction.call(this.ctx, value, value, this);
             }
         }
 
-        has(value) {
+        has(value, depth = -1) {
             if (Array.isArray(value)) {
-                return this.some((otherValue) => deepEquals(value, otherValue));
+                return this.some((otherValue) => deepEquals(value, otherValue, depth));
             } else {
                 return this.some((otherValue) => defaultEquals(value, otherValue));
             }
@@ -2392,14 +2445,15 @@
 
         * [Symbol.iterator]() {
             for (let value of this.iterable) {
-                if (this.filterPredicate.call(this.ctx, value, this)) {
+                if (this.filterPredicate.call(this.ctx, value, value, this)) {
                     yield value;
                 }
             }
         }
-        has(key) {
-            if (this.iterable.has(key)) {
-                return this.filterPredicate.call(this.ctx, this.iterable.get(key), key, this);
+
+        has(value, depth = -1) {
+            if (this.iterable.has(value, depth)) {
+                return this.filterPredicate.call(this.ctx, value, value, this);
             }
             return false;
         }
