@@ -1,6 +1,6 @@
 {
   "name": "@mootable/hashmap",
-  "version": "0.11.0",
+  "version": "0.11.1",
   "description": "HashMap, LinkedHashMap and Higher Order Functions for all other Iterables, such as Map, Set and Array",
   "keywords": [
     "mootable",
