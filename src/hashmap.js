@@ -1658,9 +1658,9 @@
 
         /**
          *
-         * @param {Map|HashMap|LinkedHashMap|MapIterable|SetIterable.<Array.<key,value>>|Iterator.<Array.<key,value>>| <Array.<key,value>} other - the iterable to copy
+         * @param {Map|HashMap|LinkedHashMap|MapIterable|SetIterable.<Array.<key,value>>|Iterator.<Array.<key,value>>|Array.<Array.<key,value>>} other - the iterable to copy
          * @return {HashMap} this hashmap, with the values copied to it.
-         * @throws TypeError if the provided object other is null or not iterable.
+         * @throws {TypeError} if the provided object other is null or not iterable.
          */
         copy(other) {
             const map = this;
