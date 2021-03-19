@@ -8,7 +8,7 @@ const fs = require('fs');
 const _ = require('lodash');
 const Benchmark = require('benchmark');
 const hashmapImplementations = {
-    'mootable-hashmap': '../hashmap',
+    'mootable-hashmap': '../src/hashmap',
     'map': null,
     'flesler-hashmap': 'flesler-hashmap',
 };

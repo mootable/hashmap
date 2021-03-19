@@ -1,5 +1,10 @@
 {
   "name": "@mootable/hashmap",
+  "source": "src/hashmap.js",
+  "main": "dist/hashmap.js",
+  "exports": "dist/hashmap.modern.js",
+  "module": "dist/hashmap.module.js",
+  "unpkg": "dist/hashmap.umd.js",
   "version": "0.11.1",
   "description": "HashMap, LinkedHashMap and Higher Order Functions for all other Iterables, such as Map, Set and Array",
   "keywords": [
@@ -33,8 +38,10 @@
     "type": "git",
     "url": "git://github.com/mootable/hashmap.git"
   },
-  "main": "src/hashmap.js",
+  "private": true,
   "scripts": {
+    "build": "microbundle",
+    "dev": "microbundle watch",
     "test": "nyc mocha test/",
     "benchmark": "node benchmark/benchmark.js",
     "lint": "jshint src/hashmap.js test/testHashMap.js",
@@ -53,6 +60,7 @@
     "jsdoc": "^3.6.6",
     "jshint": "^2.12.0",
     "lodash": "^4.17.21",
+    "microbundle": "^0.13.0",
     "microtime": "^3.0.0",
     "mocha": "^8.3.0",
     "nyc": "^15.1.0"

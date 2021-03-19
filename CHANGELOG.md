@@ -1,4 +1,7 @@
 # Changelog
+## Current
+- (Breaking Change) Switched from a combined loader, to individual files (located in /dist) using microbundle.
+- Spelling fixes on the documentation.
 ## 0.11.1
 - Finished the core API documentation of the exported classes.
 - Optimized some methods

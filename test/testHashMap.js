@@ -1,6 +1,6 @@
 /*jshint -W030,-W121 */
 const expect = require('chai').expect,
-	{HashMap, Mootable} = require('../src/hashmap');
+	{HashMap, Mootable} = require('../src/hashmap.js');
 let	hashmap;
 
 describe('hashmap', function() {
