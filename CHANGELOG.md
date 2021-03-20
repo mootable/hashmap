@@ -1,6 +1,7 @@
 # Changelog
 ## Current
-- (Breaking Change) Switched from a combined loader, to individual files (located in /dist) using microbundle.
+- (Breaking Change) Switched from a combined loader, to individual files (located in /dist) using roll up and babel.
+- Refactored to pure module exports.
 - Spelling fixes on the documentation.
 ## 0.11.1
 - Finished the core API documentation of the exported classes.

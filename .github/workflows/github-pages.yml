@@ -1,4 +1,4 @@
-name: Deploy to Github Pages
+name: Build Docs and Distributables
 on: [push]
 jobs:
   build-and-deploy:
@@ -10,7 +10,7 @@ jobs:
       - name: Build Documentation 📜 #
         run: |
            npm install
-           npm run generate-docs
+           npm run build
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@4.1.0

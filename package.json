@@ -1,10 +1,11 @@
 {
   "name": "@mootable/hashmap",
   "source": "src/hashmap.js",
-  "main": "dist/hashmap.js",
-  "exports": "dist/hashmap.modern.js",
-  "module": "dist/hashmap.module.js",
-  "unpkg": "dist/hashmap.umd.js",
+  "main": "dist/cjs/hashmap.js",
+  "exports": "dist/modern/hashmap.js",
+  "module": "dist/esm/hashmap.js",
+  "unpkg": "dist/modern/hashmap.min.js",
+  "browser": "dist/hashmap.min.js",
   "version": "0.11.1",
   "description": "HashMap, LinkedHashMap and Higher Order Functions for all other Iterables, such as Map, Set and Array",
   "keywords": [
@@ -40,19 +41,25 @@
   },
   "private": true,
   "scripts": {
-    "build": "microbundle",
-    "dev": "microbundle watch",
+    "build": "npm run build:transpile && npm run build:jsdocs",
+    "build:transpile": "rollup -c",
+    "build:jsdocs": "jsdoc -c jsdoc-config.json",
+    "dev": "rollup -c -w",
     "test": "nyc mocha test/",
     "benchmark": "node benchmark/benchmark.js",
     "lint": "jshint src/hashmap.js test/testHashMap.js",
     "precommit": "npm run lint",
-    "prepush": "npm run test -- --reporter dot",
-    "generate-docs": "jsdoc -c jsdoc-config.json"
+    "prepush": "npm run test -- --reporter dot"
   },
   "engines": {
     "node": "*"
   },
   "devDependencies": {
+    "@babel/core": "^7.13.10",
+    "@babel/plugin-transform-regenerator": "^7.12.13",
+    "@babel/preset-env": "^7.13.10",
+    "@rollup/plugin-babel": "^5.3.0",
+    "@rollup/plugin-node-resolve": "^11.2.0",
     "benchmark": "^2.1.4",
     "chai": "4.1.1",
     "docdash": "^1.2.0",
@@ -60,13 +67,15 @@
     "jsdoc": "^3.6.6",
     "jshint": "^2.12.0",
     "lodash": "^4.17.21",
-    "microbundle": "^0.13.0",
-    "microtime": "^3.0.0",
     "mocha": "^8.3.0",
-    "nyc": "^15.1.0"
+    "nyc": "^15.1.0",
+    "rollup": "^2.42.0",
+    "rollup-plugin-terser": "^7.0.2"
   },
   "directories": {
     "test": "test",
-    "benchmark": "benchmark"
+    "benchmark": "benchmark",
+    "docs": "docs",
+    "dist": "dist"
   }
 }

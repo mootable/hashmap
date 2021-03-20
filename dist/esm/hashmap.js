@@ -73,25 +73,6 @@ const isIterable = function (iterable) {
 };
 
 /**
- * Is the passed value not null and a string
- * @param str
- * @returns {boolean}
- */
-const isString = function (str) { // jshint ignore:line
-    return !!(str && (typeof str === 'string' || str instanceof String));
-};
-
-/**
- * Is the passed value not null and a finite number.
- * NaN and ±Infinity would return false.
- * @param num
- * @returns {boolean}
- */
-const isNumber = function (num) { // jshint ignore:line
-    return !!(num && ((typeof num === 'number' || num instanceof Number) && isFinite(num)));
-};
-
-/**
  * The default Equals method we use this in most cases.
  *
  * @param me
