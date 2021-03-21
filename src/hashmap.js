@@ -16,7 +16,7 @@
  * @param len the max limit on the number of characters to hash
  * @returns {number} the hash
  */
-function hashCode(key, seed = 0, len = 0) {
+export function hashCode(key, seed = 0, len = 0) {
     len = len && len > 0 ? Math.min(len, key.length) : key.length;
     seed = seed | 0;
     const remaining = len & 1;
@@ -258,7 +258,7 @@ const hashEquals = function (key) {
  * const mapIterable = new LinkedHashMap();
  * @abstract
  */
-class MapIterable {
+export class MapIterable {
 
     /**
      * Returns the number of elements returned by this Map Iterable. If filter is used in the method chain, it is forced to iterate over all the elements, and will be slower. Otherwise even with concatenation, it just queries the base collection size.
@@ -1071,7 +1071,7 @@ class MapIterable {
  * const setIterable =  SetIterable.from(new LinkedHashMap());
  * @abstract
  */
-class SetIterable {
+export class SetIterable {
 
     /**
      * Returns the number of elements returned by this Set Iterable. If filter is used in the method chain, it is forced to iterate over all the elements, and will be slower. Otherwise even with concatenation, it just queries the base collection size.
@@ -1533,7 +1533,7 @@ class LinkedEntry extends Entry {
  * This HashMap is backed by a hashtrie, and can be tuned to specific use cases.
  * @extends MapIterable
  */
-class HashMap extends MapIterable {
+export class HashMap extends MapIterable {
     /**
      * @typedef HashMap~ConstructorOptions
      * @property {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>)} [copy] - an object that provides a forEach function with the same signature as`Map.forEach`.
@@ -1724,7 +1724,7 @@ HashMap.uid = 0;
  * This LinkedHashMap is is an extension of {@link HashMap} however LinkedHashMap also maintains insertion order of keys, and guarantees to iterate over them in that order.
  * @extends HashMap
  */
-class LinkedHashMap extends HashMap {
+export class LinkedHashMap extends HashMap {
 
     /**
      * This LinkedHashMap is is an extension of {@link HashMap} however LinkedHashMap also maintains insertion order of keys, and guarantees to iterate over them in that order.
@@ -2443,13 +2443,3 @@ class SetFilter extends SetIterableWrapper {
         return false;
     }
 }
-
-module.exports = {
-    HashMap, LinkedHashMap, Mootable: {
-        HashMap,
-        LinkedHashMap,
-        hashCode,
-        SetIterable,
-        MapIterable
-    }
-};

@@ -1,5 +1,7 @@
 'use strict';
 
+Object.defineProperty(exports, '__esModule', { value: true });
+
 /**
  * HashMap - HashMap Implementation for JavaScript
  * @namespace Mootable
@@ -2427,12 +2429,8 @@ class SetFilter extends SetIterableWrapper {
     }
 }
 
-module.exports = {
-    HashMap, LinkedHashMap, Mootable: {
-        HashMap,
-        LinkedHashMap,
-        hashCode,
-        SetIterable,
-        MapIterable
-    }
-};
+const Mootable = {HashMap, LinkedHashMap,  MapIterable, SetIterable, hashCode};
+
+exports.HashMap = HashMap;
+exports.LinkedHashMap = LinkedHashMap;
+exports.Mootable = Mootable;

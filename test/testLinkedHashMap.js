@@ -1,6 +1,6 @@
 /*jshint -W030,-W121 */
 const expect = require('chai').expect,
-	{LinkedHashMap,Mootable} = require('../src/hashmap');
+	{LinkedHashMap,Mootable} = require('../dist/hashmap.cjs');
 let	linkedHashMap;
 
 describe('linkedHashMap', function() {

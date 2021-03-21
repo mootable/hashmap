@@ -1,6 +1,7 @@
 /*jshint -W030,-W121 */
+let esmRequire = require("esm")(module/*, options*/);
 const expect = require('chai').expect,
-	{HashMap, Mootable} = require('../dist/hashmap.js');
+	{HashMap, Mootable} = esmRequire('../src/index.js');
 let	hashmap;
 
 describe('hashmap', function() {

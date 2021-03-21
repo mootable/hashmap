@@ -1,19 +1,23 @@
 import {nodeResolve} from "@rollup/plugin-node-resolve";
+import commonJs from "@rollup/plugin-commonjs";
 import {terser} from "rollup-plugin-terser";
 import babel from '@rollup/plugin-babel';
 
-const input = ["src/hashmap.js"];
+const input = ["src/index.js"];
 export default [
     {
         // UMD
         input,
         plugins: [
             nodeResolve(),
+            commonJs(),
             babel({
                 babelHelpers: "bundled",
+                exclude: '/node_modules/**',
+                babelrc: false,
                 presets: [["@babel/preset-env", {
+                    corejs: 3,
                     modules: false,
-                    "bugfixes": true,
                     useBuiltIns: "usage",
                     targets: "defaults"
                 }]]
@@ -41,25 +45,28 @@ export default [
         input,
         plugins: [
             nodeResolve(),
+            commonJs(),
             babel({
                 babelHelpers: "bundled",
+                exclude: '/node_modules/**',
+                babelrc: false,
                 presets: [["@babel/preset-env", {
-                    "bugfixes": true,
+                    corejs: 3,
                     useBuiltIns: "usage",
                     targets: "last 2 years and supports es6-module, not dead"
                 }]]
             }),
         ],
         output: [{
-            file: `dist/modern/hashmap.min.js`,
+            file: `dist/hashmap.umd.min.js`,
             format: "umd",
             name: "Mootable", // this is the name of the global object
             exports: "named",
-            sourcemap: true,
             esModule: true,
+            sourcemap: true,
             plugins: [terser()]
         }, {
-            file: `dist/modern/hashmap.js`,
+            file: `dist/hashmap.umd.js`,
             format: "umd",
             name: "Mootable", // this is the name of the global object
             exports: "named",
@@ -73,13 +80,13 @@ export default [
         plugins: [nodeResolve()],
         output: [
             {
-                dir: "dist/esm",
+                file: `dist/hashmap.mjs`,
                 format: "esm",
                 exports: "named",
                 sourcemap: false,
             },
             {
-                dir: "dist/cjs",
+                file: `dist/hashmap.cjs`,
                 format: "cjs",
                 exports: "named",
                 sourcemap: false,
