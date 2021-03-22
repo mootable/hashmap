@@ -1,43 +1,48 @@
 {
-	"tags": {
-		"allowUnknownTags": true
-	},
-	"source": {
-		"include": [
-			"src",
-			"assets"
-		]
-	},
-
-	"plugins": ["plugins/markdown"],
-	"templates": {
-		"cleverLinks": true,
-		"monospaceLinks": true,
-		"default": {
-			"outputSourceFiles": true,
-			"staticFiles" : {
-				"include" : ["assets"]
-			}
-		}
-	},
-	"opts": {
-		"template": "node_modules/docdash",
-		"encoding": "utf8",
-		"destination": "docs",
-		"recurse": true
-	},
-	"markdown": {
-		"hardwrap": true
-	},
-	"metadata": {
-		"title": "Mootable"
-	},
-	"docdash": {
-		"search": true,
-		"collapse": true,
-		"wrap": true,
-		"typedefs": true,
-		"navLevel" : 5,
-		"scripts" : ["docs.css"]
-	}
+  "tags": {
+    "allowUnknownTags": true
+  },
+  "source": {
+    "include": [
+      "src",
+      "assets"
+    ]
+  },
+  "plugins": [
+    "plugins/markdown"
+  ],
+  "templates": {
+    "cleverLinks": true,
+    "monospaceLinks": true,
+    "default": {
+      "outputSourceFiles": true,
+      "staticFiles": {
+        "include": [
+          "assets"
+        ]
+      }
+    }
+  },
+  "opts": {
+    "template": "node_modules/docdash",
+    "encoding": "utf8",
+    "destination": "docs",
+    "recurse": true
+  },
+  "markdown": {
+    "hardwrap": false
+  },
+  "metadata": {
+    "title": "Mootable"
+  },
+  "docdash": {
+    "search": true,
+    "collapse": true,
+    "wrap": true,
+    "typedefs": true,
+    "navLevel": 5,
+    "scripts": [
+      "docs.css"
+    ]
+  }
 }

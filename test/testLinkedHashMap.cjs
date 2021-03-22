@@ -124,6 +124,9 @@ describe('linkedHashMap', function () {
             check(undefined);
             check(false);
             check(NaN);
+            check(Number.POSITIVE_INFINITY);
+            check(Number.NEGATIVE_INFINITY);
+            check(1.5)
             check(1);
             check('Test');
             check(/test/);

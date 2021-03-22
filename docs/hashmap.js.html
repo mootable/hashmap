@@ -1,45 +1,91 @@
-/**
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>hashmap.js - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav class="wrap">
+    
+    <input type="text" id="nav-search" placeholder="Search" />
+    
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="module-@mootable_hashmap.HashMap.html">HashMap</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.HashMap.html#clear">clear</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.HashMap.html#clone">clone</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.HashMap.html#copy">copy</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.HashMap.html#delete">delete</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.HashMap.html#set">set</a></li></ul></li><li><a href="module-@mootable_hashmap.LinkedHashMap.html">LinkedHashMap</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.LinkedHashMap.html#clone">clone</a></li></ul></li><li><a href="module-@mootable_hashmap.MapIterable.html">MapIterable</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.MapIterable.html#.from">from</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.MapIterable.html#collect">collect</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.MapIterable.html#concat">concat</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.MapIterable.html#concatMap">concatMap</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.MapIterable.html#entries">entries</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.MapIterable.html#every">every</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.MapIterable.html#filter">filter</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.MapIterable.html#find">find</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.MapIterable.html#findIndex">findIndex</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.MapIterable.html#forEach">forEach</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.MapIterable.html#get">get</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.MapIterable.html#has">has</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.MapIterable.html#indexOf">indexOf</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.MapIterable.html#keys">keys</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.MapIterable.html#map">map</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.MapIterable.html#mapEntries">mapEntries</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.MapIterable.html#mapKeys">mapKeys</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.MapIterable.html#mapValues">mapValues</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.MapIterable.html#optionalGet">optionalGet</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.MapIterable.html#reduce">reduce</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.MapIterable.html#some">some</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.MapIterable.html#values">values</a></li></ul></li><li><a href="module-@mootable_hashmap.SetIterable.html">SetIterable</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.SetIterable.html#.from">from</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.SetIterable.html#collect">collect</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.SetIterable.html#concat">concat</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.SetIterable.html#entries">entries</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.SetIterable.html#every">every</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.SetIterable.html#filter">filter</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.SetIterable.html#find">find</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.SetIterable.html#forEach">forEach</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.SetIterable.html#has">has</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.SetIterable.html#keys">keys</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.SetIterable.html#map">map</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.SetIterable.html#reduce">reduce</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.SetIterable.html#some">some</a></li><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.SetIterable.html#values">values</a></li></ul></li></ul><h3>Modules</h3><ul><li><a href="module-@mootable_hashmap.html">@mootable/hashmap</a><ul class='methods'><li data-type='method' style='display: none;'><a href="module-@mootable_hashmap.html#.hashCode">hashCode</a></li></ul></li><li></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">hashmap.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
  * HashMap - HashMap Implementation for JavaScript
- * @module mootable/hashmap
- * @author Jack Moxley <https://github.com/jackmoxley>
+ * @module @mootable/hashmap
+ * @author Jack Moxley &lt;https://github.com/jackmoxley>
  * @version 0.12.0
  * Homepage: https://github.com/mootable/hashmap
  */
+
 /**
  * Modified Murmur3 HashCode generator, with capped lengths.
  * This is NOT a cryptographic hash, this hash is designed to create as even a spread across a 32bit integer as is possible.
  * @see {@link https://github.com/aappleby/smhasher|MurmurHash specification on Github}
  * @see {@link https://en.wikipedia.org/wiki/MurmurHash|MurmurHash on Wikipedia}
- * @function Mootable.hashCode
  * @param key the string being hashed
  * @param seed an optional random seed
  * @param len the max limit on the number of characters to hash
  * @returns {number} the hash
  */
-function hashCode(key, seed = 0, len = 0) {
-    len = len && len > 0 ? Math.min(len, key.length) : key.length;
+export function hashCode(key, seed = 0, len = 0) {
+    len = len &amp;&amp; len > 0 ? Math.min(len, key.length) : key.length;
     seed = seed | 0;
-    const remaining = len & 1;
+    const remaining = len &amp; 1;
     const bytes = len - remaining;
     let hash = seed, k = 0, i = 0;
 
-    while (i < bytes) {
-        k = (key.charCodeAt(i++) & 0xffff) |
-            ((key.charCodeAt(i++) & 0xffff) << 16);
+    while (i &lt; bytes) {
+        k = (key.charCodeAt(i++) &amp; 0xffff) |
+            ((key.charCodeAt(i++) &amp; 0xffff) &lt;&lt; 16);
 
         k *= (k * 0xcc9e2d51) | 0;
-        k = (k << 15) | (k >>> 17);
+        k = (k &lt;&lt; 15) | (k >>> 17);
         k = (k * 0x1b873593);
 
         hash ^= k;
-        hash = (hash << 13) | (hash >>> 19);
+        hash = (hash &lt;&lt; 13) | (hash >>> 19);
         hash = (hash * 5 + 0xe6546b64);
     }
     if (remaining) {
-        k ^= (key.charCodeAt(i) & 0xffff);
+        k ^= (key.charCodeAt(i) &amp; 0xffff);
 
         k = k * 0xcc9e2d51;
-        k = (k << 15) | (k >>> 17);
+        k = (k &lt;&lt; 15) | (k >>> 17);
         k = k * 0x1b873593;
         hash ^= k;
     }
@@ -55,35 +101,60 @@ function hashCode(key, seed = 0, len = 0) {
 }
 
 /**
+ * @private
  * Is the passed value not null and a function
  * @param func
  * @returns {boolean}
  */
-const isFunction = function (func) {
-    return !!(func && func.constructor && func.call && func.apply);
-};
+function isFunction(func) {
+    return !!(func &amp;&amp; func.constructor &amp;&amp; func.call &amp;&amp; func.apply);
+}
 
 /**
+ * @private
  * Is the passed object iterable
  * @param iterable
  * @return {boolean}
  */
-const isIterable = function (iterable) {
-    return !!(iterable && isFunction(iterable[Symbol.iterator]));
-};
+function isIterable(iterable) {
+    return !!(iterable &amp;&amp; isFunction(iterable[Symbol.iterator]));
+}
 
 /**
+ * @private
+ * Is the passed value not null and a string
+ * @param str
+ * @returns {boolean}
+ */
+function isString(str) { // jshint ignore:line
+    return !!(str &amp;&amp; (typeof str === 'string' || str instanceof String));
+}
+
+/**
+ * @private
+ * Is the passed value not null and a finite number.
+ * NaN and ±Infinity would return false.
+ * @param num
+ * @returns {boolean}
+ */
+function isNumber(num) { // jshint ignore:line
+    return !!(num &amp;&amp; ((typeof num === 'number' || num instanceof Number) &amp;&amp; isFinite(num)));
+}
+
+/**
+ * @private
  * The default Equals method we use this in most cases.
  *
  * @param me
  * @param them
  * @returns {boolean}
  */
-const defaultEquals = function (me, them) {
+function defaultEquals(me, them) {
     return me === them;
-};
+}
 
 /**
+ * @private
  * Does a wider equals for use with arrays.
  *
  * @param me
@@ -91,21 +162,22 @@ const defaultEquals = function (me, them) {
  * @param depth
  * @return {boolean}
  */
-const deepEquals = function (me, them, depth = -1) {
-    if (depth === 0 || (Array.isArray(me) && Array.isArray(them))) {
-        return me.length === them.length && me.every((el, ix) => deepEquals(el, them[ix], --depth));
+function deepEquals(me, them, depth = -1) {
+    if (depth === 0 || (Array.isArray(me) &amp;&amp; Array.isArray(them))) {
+        return me.length === them.length &amp;&amp; me.every((el, ix) => deepEquals(el, them[ix], --depth));
     }
     return me === them;
-};
+}
 
 
 /**
+ * @private
  * Returns back a pair of equalTo Methods and hash values, for a raft of different objects.
  * TODO: Revisit this at some point.
  * @param key
  * @returns {{equalTo: (function(*, *): boolean), hash: number}}
  */
-const hashEquals = function (key) {
+function hashEquals(key) {
     switch (typeof key) {
         case 'boolean':
             return {
@@ -142,7 +214,7 @@ const hashEquals = function (key) {
             return {
                 equalTo: defaultEquals, hash: 0
             };
-        default:
+        default: {
             // null
             if (!key) {
                 return {
@@ -173,7 +245,7 @@ const hashEquals = function (key) {
             if (key instanceof Array) {
                 let functions = [];
                 let hash_code = key.length;
-                for (let i = 0; i < key.length; i++) {
+                for (let i = 0; i &lt; key.length; i++) {
                     const currHE = hashEquals(key[i]);
                     functions.push(currHE.equalTo);
                     hash_code = hash_code + (currHE.hash * 31);
@@ -181,8 +253,8 @@ const hashEquals = function (key) {
                 Object.freeze(functions);
                 return {
                     equalTo: function (me, them) {
-                        if (them instanceof Array && me.length === them.length) {
-                            for (let i = 0; i < me.length; i++) {
+                        if (them instanceof Array &amp;&amp; me.length === them.length) {
+                            for (let i = 0; i &lt; me.length; i++) {
                                 if (!functions[i](me[i], them[i])) {
                                     return false;
                                 }
@@ -199,27 +271,27 @@ const hashEquals = function (key) {
                 key._hmuid_ = ++HashMap.uid;
                 // hide(key, '_hmuid_');
             }
-
             return hashEquals(key._hmuid_);
+        }
     }
-};
+}
 
 
 /**
  * The base class for the Map Implementations, and the Higher Order Functions for Maps
- * @example <caption>Create a MapIterable from a Map.</caption>
+ * @example &lt;caption>Create a MapIterable from a Map.&lt;/caption>
  * const myMap = new Map();
  * const mapIterable = MapIterable.from(myMap);
- * @example <caption>Create a MapIterable from a Set.</caption>
+ * @example &lt;caption>Create a MapIterable from a Set.&lt;/caption>
  * const mySet = new Set();
  * // sets wrapped in a map iterable must have a value of an Array matching [key,value]
  * mySet.add(["key", "value"]);
  * const mapIterable = MapIterable.from(mySet);
- * @example <caption>Create a MapIterable from an Array.</caption>
+ * @example &lt;caption>Create a MapIterable from an Array.&lt;/caption>
  * // arrays wrapped in a map iterable must have be an array of arrays matching [key,value]
  * const myArray = [["key", "value"]];
  * const mapIterable = MapIterable.from(myArray);
- * @example <caption>Create a MapIterable from an Iterable.</caption>
+ * @example &lt;caption>Create a MapIterable from an Iterable.&lt;/caption>
  * // iterables wrapped in a map iterable must yield arrays matching [key,value],
  * // any object that implements *[Symbol.iterator]() or [Symbol.iterator]()
  * // can be used as long as they follow that contract.
@@ -231,19 +303,19 @@ const hashEquals = function (key) {
  *     }
  * }
  * const mapIterable = MapIterable.from(myIterable);
- * @example <caption>Create a MapIterable from a Mootable HashMap.</caption>
+ * @example &lt;caption>Create a MapIterable from a Mootable HashMap.&lt;/caption>
  * // all Mootable HashMaps extend MapIterable, no need to wrap with the MapIterable.from() function.
  * const mapIterable = new HashMap();
- * @example <caption>Create a MapIterable from a Mootable LinkedHashMap.</caption>
+ * @example &lt;caption>Create a MapIterable from a Mootable LinkedHashMap.&lt;/caption>
  * // all Mootable LinkedHashMaps extend MapIterable, no need to wrap with the MapIterable.from() function.
  * const mapIterable = new LinkedHashMap();
  * @abstract
  */
-class MapIterable {
+export class MapIterable {
 
     /**
      * Returns the number of elements returned by this Map Iterable. If filter is used in the method chain, it is forced to iterate over all the elements, and will be slower. Otherwise even with concatenation, it just queries the base collection size.
-     * @example <caption>Return the size of this mapIterable.</caption>
+     * @example &lt;caption>Return the size of this mapIterable.&lt;/caption>
      * const myMap = new Map();
      * // sets 2 values, and replaces 1 of them
      * myMap.set("key1","val1").set("key2","val2").set("key2","val2a");
@@ -262,21 +334,21 @@ class MapIterable {
     }
 
     /**
-     * Wraps any class that iterates with <code>[key,value]</code> pairs and provides higher order chained functions.
+     * Wraps any class that iterates with &lt;code>[key,value]&lt;/code> pairs and provides higher order chained functions.
      *
-     * @example <caption>Create a MapIterable from a Map.</caption>
+     * @example &lt;caption>Create a MapIterable from a Map.&lt;/caption>
      * const myMap = new Map();
      * const mapIterable = MapIterable.from(myMap);
-     * @example <caption>Create a MapIterable from a Set.</caption>
+     * @example &lt;caption>Create a MapIterable from a Set.&lt;/caption>
      * const mySet = new Set();
      * // sets wrapped in a map iterable must have a value of an Array matching [key,value]
      * mySet.add(["key", "value"]);
      * const mapIterable = MapIterable.from(mySet);
-     * @example <caption>Create a MapIterable from an Array.</caption>
+     * @example &lt;caption>Create a MapIterable from an Array.&lt;/caption>
      * // arrays wrapped in a map iterable must have be an array of arrays matching [key,value]
      * const myArray = [["key", "value"]];
      * const mapIterable = MapIterable.from(myArray);
-     * @example <caption>Create a MapIterable from an Iterable.</caption>
+     * @example &lt;caption>Create a MapIterable from an Iterable.&lt;/caption>
      * // iterables wrapped in a map iterable must yield arrays matching [key,value],
      * // any object that implements *[Symbol.iterator]() or [Symbol.iterator]()
      * // can be used as long as they follow that contract.
@@ -288,13 +360,13 @@ class MapIterable {
      *     }
      * }
      * const mapIterable = MapIterable.from(myIterable);
-     * @example <caption>Create a MapIterable from a Mootable HashMap.</caption>
+     * @example &lt;caption>Create a MapIterable from a Mootable HashMap.&lt;/caption>
      * // all Mootable HashMaps extend MapIterable, no need to wrap with the MapIterable.from function. If you do it will just return it back.
      * const mapIterable = new HashMap();
-     * @example <caption>Create a MapIterable from a Mootable LinkedHashMap.</caption>
+     * @example &lt;caption>Create a MapIterable from a Mootable LinkedHashMap.&lt;/caption>
      * // all Mootable LinkedHashMaps extend MapIterable, no need to wrap with the MapIterable.from() function.If you do it will just return it back.
      * const mapIterable = new LinkedHashMap();
-     * @param {(Set.<Array.<key,value>>|Map|Array.<Array.<key,value>>|Iterator.<Array.<key,value>>|SetIterable.<Array.<key,value>>)} mapIterable the map to wrap
+     * @param {(Set.&lt;Array.&lt;key,value>>|Map|Array.&lt;Array.&lt;key,value>>|Iterator.&lt;Array.&lt;key,value>>|SetIterable.&lt;Array.&lt;key,value>>)} mapIterable the map to wrap
      * @return {MapIterable} the wrapped Map.
      */
     static from(mapIterable) {
@@ -308,11 +380,11 @@ class MapIterable {
      * Test each element of the map to see if it matches and return
      *  - true if the key and value match.
      *  - false if it doesn't.
-     * @example <caption>Only match keys divisible by 2</caption>
+     * @example &lt;caption>Only match keys divisible by 2&lt;/caption>
      * const myMatchPredicate = (value, key) => key % 2 === 0;
-     * @example <caption>Only match values which are equal to another key in the map</caption>
+     * @example &lt;caption>Only match values which are equal to another key in the map&lt;/caption>
      * const myMatchPredicate = (value, key, mapIterable) => mapIterable.has(value);
-     * @example <caption>An alternative implementation, (but potentially slower, and assumes no undefined value)</caption>
+     * @example &lt;caption>An alternative implementation, (but potentially slower, and assumes no undefined value)&lt;/caption>
      * const myMatchPredicate = (value, key, mapIterable) => mapIterable.indexOf(key) !== undefined;
      * @callback MapIterable#MatchesPredicate
      * @param {*} [value] - the entry value.
@@ -322,16 +394,16 @@ class MapIterable {
      */
 
     /**
-     * Test each element of the map and only include entries where the <code>MatchesPredicate</code> returns true.
-     * @example <caption>Only match keys which are odd numbered.</caption>
+     * Test each element of the map and only include entries where the &lt;code>MatchesPredicate&lt;/code> returns true.
+     * @example &lt;caption>Only match keys which are odd numbered.&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const filteredIterable = hashmap.filter((value,key) => key % 2 !== 0);
      * filteredIterable.forEach((value) => console.log(value));
      * // will log to the console:
      * // value1
      * // value3
-     * @param {MapIterable#MatchesPredicate} [filterPredicate=(value, key, iterable) => true] - if the provided function returns <code>false</code>, that entry is excluded.
-     * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>filterPredicate</code>
+     * @param {MapIterable#MatchesPredicate} [filterPredicate=(value, key, iterable) => true] - if the provided function returns &lt;code>false&lt;/code>, that entry is excluded.
+     * @param {*} [ctx=this] - Value to use as &lt;code>this&lt;/code> when executing &lt;code>filterPredicate&lt;/code>
      * @returns {MapIterable} an iterable that allows you to iterate key value pairs.
      */
     filter(filterPredicate = () => true, ctx = this) {
@@ -340,8 +412,8 @@ class MapIterable {
 
     /**
      * For Each Function
-     * A callback to execute on every <code>[key,value]</code> pair of this map iterable.
-     * @example <caption>log the keys and values</caption>
+     * A callback to execute on every &lt;code>[key,value]&lt;/code> pair of this map iterable.
+     * @example &lt;caption>log the keys and values&lt;/caption>
      * const forEachFunction = (value, key) => console.log(key,value)
      * @callback MapIterable#ForEachCallback
      * @param {*} [value] - the entry value.
@@ -350,8 +422,8 @@ class MapIterable {
      */
 
     /**
-     * Execute the provided callback on every <code>[key,value]</code> pair of this map iterable.
-     * @example <caption>Log all the keys and values.</caption>
+     * Execute the provided callback on every &lt;code>[key,value]&lt;/code> pair of this map iterable.
+     * @example &lt;caption>Log all the keys and values.&lt;/caption>
      * const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * mapIterable.forEach((value) => console.log(key, value));
      * // will log to the console:
@@ -359,7 +431,7 @@ class MapIterable {
      * // 2 value2
      * // 3 value3
      * @param {MapIterable#ForEachCallback} [forEachCallback=(value, key, iterable) => {}]
-     * @param {*} [ctx=this] Value to use as <code>this</code> when executing <code>forEachCallback</code>
+     * @param {*} [ctx=this] Value to use as &lt;code>this&lt;/code> when executing &lt;code>forEachCallback&lt;/code>
      * @returns {MapIterable} an iterable that allows you to iterate key value pairs.
      */
     forEach(forEachCallback = () => {
@@ -377,47 +449,47 @@ class MapIterable {
      * A collector will be resolved in this order:
      *  - {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array Array}
      *    - a new array is created and passed back with the filled values, and the original is not changed.
-     *  - Object with a function <code>.set</code>.
+     *  - Object with a function &lt;code>.set&lt;/code>.
      *    - such as {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map Map}, {@link HashMap} or {@link LinkedHashMap}
-     *    - it will call <code>set(key,value)</code> for every entry, if the value already exists for that key it is typically overridden. The original is modified.
-     *  - Object with a function <code>.add</code>
+     *    - it will call &lt;code>set(key,value)&lt;/code> for every entry, if the value already exists for that key it is typically overridden. The original is modified.
+     *  - Object with a function &lt;code>.add&lt;/code>
      *    - such as {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set Set}
-     *    - it will call <code>add([key,value])</code> for every entry, so that a <code>[key,value]</code> pair is added to the collection. The original is modified.
+     *    - it will call &lt;code>add([key,value])&lt;/code> for every entry, so that a &lt;code>[key,value]&lt;/code> pair is added to the collection. The original is modified.
      *  - {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object Object}
-     *    - It will call <code>obj[key] = value</code> for every entry, so that a property of <code>key</code> has a value of <code>value</code> set on it. The original is modified.
+     *    - It will call &lt;code>obj[key] = value&lt;/code> for every entry, so that a property of &lt;code>key&lt;/code> has a value of &lt;code>value&lt;/code> set on it. The original is modified.
      *
-     * @example <caption>Collect to a new {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array Array}</caption>
+     * @example &lt;caption>Collect to a new {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array Array}&lt;/caption>
      * const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const myArray = mapIterable.collect();
      * // myArray === [[1,'value1'],[2,'value2'],[3,'value3']]:
-     * @example <caption>Collect with an empty existing {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array Array}</caption>
+     * @example &lt;caption>Collect with an empty existing {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array Array}&lt;/caption>
      * const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const oldArray = [];
      * const newArray = mapIterable.collect(oldArray);
      * // newArray === [[1,'value1'],[2,'value2'],[3,'value3']]
      * // oldArray === []
-     * @example <caption>Collect with an existing {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array Array} with values</caption>
+     * @example &lt;caption>Collect with an existing {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array Array} with values&lt;/caption>
      * const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const oldArray = [[2,'someOtherValue']];
      * const newArray = mapIterable.collect(oldArray);
      * // newArray === [[2,'someOtherValue'],[1,'value1'],[2,'value2'],[3,'value3']]
      * // oldArray === [[2,'someOtherValue']]
-     * @example <caption>Collect to an existing {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array Array} with values, modifying the old array.</caption>
+     * @example &lt;caption>Collect to an existing {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array Array} with values, modifying the old array.&lt;/caption>
      * const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const array  = [[2,'someOtherValue']];
      * array.push(mapIterable.collect())
      * // array === [[2,'someOtherValue'],[1,'value1'],[2,'value2'],[3,'value3']]
-     * @example <caption>Collect to a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set Set}</caption>
+     * @example &lt;caption>Collect to a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set Set}&lt;/caption>
      * const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const oldSet = new Set().add('willRemain');
      * const newSet = mapIterable.collect(oldSet);
      * // oldSet === newSet === ['willRemain',[1,'value1'],[2,'value2'],[3,'value3']]
-     * @example <caption>Collect to a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map Map}</caption>
+     * @example &lt;caption>Collect to a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map Map}&lt;/caption>
      * const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const oldMap = new Map().set(2,'willBeOverwritten').set(5,'willRemain');
      * const newMap = mapIterable.collect(oldMap);
      * // oldMap === newMap === [[2,'value2'],[5,'willRemain'],[1,'value1'],[3,'value3']]
-     * @example <caption>Collect to a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object Object}</caption>
+     * @example &lt;caption>Collect to a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object Object}&lt;/caption>
      * const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const oldObject = {'1','willBeOverridden'};
      * const newObject = mapIterable.collect(oldObject);
@@ -448,24 +520,24 @@ class MapIterable {
     }
 
     /**
-     * Test to see if ALL elements pass the test implemented by the passed <code>MatchesPredicate</code>.
+     * Test to see if ALL elements pass the test implemented by the passed &lt;code>MatchesPredicate&lt;/code>.
      * - if any element does not match, returns false
      * - if all elements match, returns true.
      * - if no elements match, returns false.
      * - if the iterable is empty, returns true. (irrespective of the predicate)
      * - if no predicate is provided, returns true.
      *
-     * @example <caption>Do all values start with value. (yes)</caption>
+     * @example &lt;caption>Do all values start with value. (yes)&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const everyResult = hashmap.every((value) => value.startsWith('value'));
      * // everyResult === true
-     * @example <caption>Do all values start with value. (no)</caption>
+     * @example &lt;caption>Do all values start with value. (no)&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'doesntStart'],[3,'value3']]);
      * const everyResult = hashmap.every((value) => value.startsWith('value'));
      * // everyResult === false
      * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/every|Array.every}
-     * @param {MapIterable#MatchesPredicate} [everyPredicate=(value, key, iterable) => true] - if the provided function returns <code>false</code>, at any point the <code>every()</code> function returns false.
-     * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>everyPredicate</code>
+     * @param {MapIterable#MatchesPredicate} [everyPredicate=(value, key, iterable) => true] - if the provided function returns &lt;code>false&lt;/code>, at any point the &lt;code>every()&lt;/code> function returns false.
+     * @param {*} [ctx=this] - Value to use as &lt;code>this&lt;/code> when executing &lt;code>everyPredicate&lt;/code>
      * @returns {boolean} true if all elements match, false if one or more elements fails to match.
      */
     every(everyPredicate = () => true, ctx = this) {
@@ -478,24 +550,24 @@ class MapIterable {
     }
 
     /**
-     * Test to see if ANY element pass the test implemented by the passed <code>MatchesPredicate</code>.
+     * Test to see if ANY element pass the test implemented by the passed &lt;code>MatchesPredicate&lt;/code>.
      * - if any element matches, returns true.
      * - if all elements match returns true.
      * - if no elements match returns false.
      * - if the iterable is empty, returns true.
      * - if no predicate is provided, returns true.
      *
-     * @example <caption>Do any values start with value. (yes all of them)</caption>
+     * @example &lt;caption>Do any values start with value. (yes all of them)&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const someResult = hashmap.some((value) => value.startsWith('value'));
      * // someResult === true
-     * @example <caption>Do any values start with value. (yes 2 of them)</caption>
+     * @example &lt;caption>Do any values start with value. (yes 2 of them)&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'doesntStart'],[3,'value3']]);
      * const someResult = hashmap.some((value) => value.startsWith('value'));
      * // someResult === true
      * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some|Array.some}
      * @param {MapIterable#MatchesPredicate} [somePredicate=(value, key, iterable) => true] - the predicate to identify if we have a match.
-     * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>somePredicate</code>
+     * @param {*} [ctx=this] - Value to use as &lt;code>this&lt;/code> when executing &lt;code>somePredicate&lt;/code>
      * @returns {boolean} - true if all elements match, false if one or more elements fails to match.
      */
     some(somePredicate = () => true, ctx = this) {
@@ -508,21 +580,21 @@ class MapIterable {
     }
 
     /**
-     * Find the first value in the map which passes the provided <code>MatchesPredicate</code>.
-     * - return the first <code>value</code> from the <code>[key,value]</code> pair that matches
+     * Find the first value in the map which passes the provided &lt;code>MatchesPredicate&lt;/code>.
+     * - return the first &lt;code>value&lt;/code> from the &lt;code>[key,value]&lt;/code> pair that matches
      * - if no elements match, it returns undefined.
      * - if no predicate is defined, will return the first value it finds.
-     * @example <caption>Find a value</caption>
+     * @example &lt;caption>Find a value&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const findResult = hashmap.find((value) => value.endsWith('ue2'));
      * // findResult === 'value2'
-     * @example <caption>Can't find a value</caption>
+     * @example &lt;caption>Can't find a value&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const findResult = hashmap.find((value) => value.startsWith('something'));
      * // findResult === undefined
      * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find|Array.find}
      * @param {MapIterable#MatchesPredicate} [findPredicate=(value, key, iterable) => value] - the predicate to identify if we have a match.
-     * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>findPredicate</code>
+     * @param {*} [ctx=this] - Value to use as &lt;code>this&lt;/code> when executing &lt;code>findPredicate&lt;/code>
      * @returns {*} - the value of the element that matches.
      */
     find(findPredicate = () => true, ctx = this) {
@@ -535,22 +607,22 @@ class MapIterable {
     }
 
     /**
-     * Find the first value in the key which passes the provided  <code>MatchesPredicate</code>.
-     * - return the first <code>key</code> from the <code>[key,value]</code> pair that matches
+     * Find the first value in the key which passes the provided  &lt;code>MatchesPredicate&lt;/code>.
+     * - return the first &lt;code>key&lt;/code> from the &lt;code>[key,value]&lt;/code> pair that matches
      * - if no elements match, it returns undefined.
      * - if no predicate is defined, will return the first key it finds.
      *
-     * @example <caption>Find a key</caption>
+     * @example &lt;caption>Find a key&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const findIndexResult = hashmap.findIndex((value) => value.endsWith('ue2'));
      * // findIndexResult === 2
-     * @example <caption>Can't find a key</caption>
+     * @example &lt;caption>Can't find a key&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const findIndexResult = hashmap.findIndex((value) => value.startsWith('something'));
      * // findIndexResult === undefined
      * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex|Array.findIndex}
      * @param {MapIterable#MatchesPredicate} [findIndexPredicate=(value, key, iterable) => key] - the predicate to identify if we have a match.
-     * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>findIndexPredicate</code>
+     * @param {*} [ctx=this] - Value to use as &lt;code>this&lt;/code> when executing &lt;code>findIndexPredicate&lt;/code>
      * @returns {*} - the key of the element that matches..
      */
     findIndex(findIndexPredicate = (value, key) => key, ctx = this) {
@@ -563,18 +635,18 @@ class MapIterable {
     }
 
     /**
-     * Find the first key in the map whose value is <code>===</code> to the provided value.
-     * - return the first <code>key</code> from the <code>[key,value]</code> pair that matches
+     * Find the first key in the map whose value is &lt;code>===&lt;/code> to the provided value.
+     * - return the first &lt;code>key&lt;/code> from the &lt;code>[key,value]&lt;/code> pair that matches
      * - if no elements match, it returns undefined.
      * - it is legitimate for values to be null or undefined, and if set, will find a key.
      *
      * Values are not indexed, this is potentially an expensive operation.
      *
-     * @example <caption>Find the key for a value</caption>
+     * @example &lt;caption>Find the key for a value&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const indexOfResult = hashmap.indexOf('value2');
      * // indexOfResult === 2
-     * @example <caption>what is the key of a non existent value</caption>
+     * @example &lt;caption>what is the key of a non existent value&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const indexOfResult = hashmap.indexOf('something');
      * // indexOfResult === undefined
@@ -602,17 +674,17 @@ class MapIterable {
 
     /**
      * Does the map have this key.
-     * If backed by a Map or HashMap, or in fact any collection that implements the <code>.has(key)</code> function, then it will utilize that, otherwise it will iterate across the collection.
-     * - return true if the <code>key</code> matches a <code>[key,value]</code> pair.
+     * If backed by a Map or HashMap, or in fact any collection that implements the &lt;code>.has(key)&lt;/code> function, then it will utilize that, otherwise it will iterate across the collection.
+     * - return true if the &lt;code>key&lt;/code> matches a &lt;code>[key,value]&lt;/code> pair.
      * - if no elements match, it returns false.
      * - it is legitimate for keys to be null or undefined, and if set, will return true
      *
      * Maps typically index keys, and so is generally a fast operation.
-     * @example <caption>>Does this contain a key that is there</caption>
+     * @example &lt;caption>>Does this contain a key that is there&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const hasResult = hashmap.has(1);
      * // hasResult === true
-     * @example <caption>Does this contain a key that isn't there</caption>
+     * @example &lt;caption>Does this contain a key that isn't there&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const hasResult = hashmap.has(4);
      * // hasResult === false
@@ -627,19 +699,19 @@ class MapIterable {
 
     /**
      * Get a value from the map using this key.
-     * If backed by a Map or HashMap, or in fact any collection that implements the <code>.get(key)</code> function, then it will utilize that, otherwise it will iterate across the collection.
-     * - return the first <code>value</code> from the <code>[key,value]</code> pair that matches
+     * If backed by a Map or HashMap, or in fact any collection that implements the &lt;code>.get(key)&lt;/code> function, then it will utilize that, otherwise it will iterate across the collection.
+     * - return the first &lt;code>value&lt;/code> from the &lt;code>[key,value]&lt;/code> pair that matches
      * - if no elements match, it returns undefined.
      * - it is legitimate for keys to be null or undefined, and if set, will find a value.
      * - if a map is earlier on in the chain, the value, will be mapped along the way.
      *   - However there is no way to reverse map the key, as we do the fetch, which means the key has to be the same as the one in the original collection.
      *
      * Maps typically index keys, and so is generally a fast operation.
-     * @example <caption>>What is the value for a key</caption>
+     * @example &lt;caption>>What is the value for a key&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const getResult = hashmap.get(1);
      * // getResult === 'value1'
-     * @example <caption>What is the value for a key that isn't there</caption>
+     * @example &lt;caption>What is the value for a key that isn't there&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const getResult = hashmap.get(4);
      * // getResult === undefined
@@ -654,19 +726,19 @@ class MapIterable {
 
     /**
      * Get a value from the map using this as an optional. This is effectively a combination of calling has and get at the same time.
-     * If backed by a Map or HashMap, or in fact any collection that implements the <code>.optionalGet(key)</code> function, then it will utilize that, otherwise depending on the existence of has and get functions it may iterate across the collection.
-     * - return the first <code>value</code> from the <code>[key,value]</code> pair that matches
+     * If backed by a Map or HashMap, or in fact any collection that implements the &lt;code>.optionalGet(key)&lt;/code> function, then it will utilize that, otherwise depending on the existence of has and get functions it may iterate across the collection.
+     * - return the first &lt;code>value&lt;/code> from the &lt;code>[key,value]&lt;/code> pair that matches
      * - if no elements match, it returns undefined.
      * - it is legitimate for keys to be null or undefined, and if set, will find a value.
      * - if a map is earlier on in the chain, the value, will be mapped along the way.
      *   - However there is no way to reverse map the key, as we do the fetch, which means the key has to be the same as the one in the original collection.
      *
      * Maps typically index keys, and so is generally a fast operation.
-     * @example <caption>>What is the value for a key</caption>
+     * @example &lt;caption>>What is the value for a key&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const getResult = hashmap.get(1);
      * // getResult === 'value1'
-     * @example <caption>What is the value for a key that isn't there</caption>
+     * @example &lt;caption>What is the value for a key that isn't there&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const getResult = hashmap.get(4);
      * // getResult === undefined
@@ -692,12 +764,12 @@ class MapIterable {
 
     /**
      * Reduce Function
-     * A callback to accumulate values from the Map Iterables <code>[key,value]</code> into a single value.
-     * if initial value is <code>undefined</code> or <code>null</code>, unlike Array.reduce,
+     * A callback to accumulate values from the Map Iterables &lt;code>[key,value]&lt;/code> into a single value.
+     * if initial value is &lt;code>undefined&lt;/code> or &lt;code>null&lt;/code>, unlike Array.reduce,
      * no error occurs, and it is imply passed as the accumulator value
      *
      * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce|Array.reduce}
-     * @example <caption>add all the keys</caption>
+     * @example &lt;caption>add all the keys&lt;/caption>
      * const reduceFunction = (accumulator, value, key) => accumulator+key
      * @callback MapIterable#ReduceFunction
      * @param {*} [accumulator] - the value from the last execution of this function.
@@ -710,17 +782,17 @@ class MapIterable {
     /**
      * Iterate through the map iterable reducing it to a single value.
      * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce|Array.reduce}
-     * @example <caption>add all the keys</caption>
+     * @example &lt;caption>add all the keys&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const reduceResult = hashmap.reduce((accumulator, value, key) => accumulator+key, 0);
      * // reduceResult === 6
-     * @example <caption>add all the values into one string in reverse order</caption>
+     * @example &lt;caption>add all the values into one string in reverse order&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const reduceResult = hashmap.reduce((accumulator, value) => value+accumulator, '');
      * // reduceResult === 'value3value2value1'
      * @param {MapIterable#ReduceFunction} [reduceFunction=(accumulator, value, key, iterable) => true] - the predicate to identify if we have a match.
      * @param {*} [initialValue] the initial value to start on the reduce.
-     * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>reduceFunction</code>
+     * @param {*} [ctx=this] - Value to use as &lt;code>this&lt;/code> when executing &lt;code>reduceFunction&lt;/code>
      * @returns {*} - the final accumulated value.
      */
     reduce(reduceFunction = (accumulator, value) => value, initialValue = undefined, ctx = this) {
@@ -733,7 +805,7 @@ class MapIterable {
 
     /**
      * Map Function
-     * A callback that takes a <code>[key,value]</code> and the current iterable, and returns a mapped value.
+     * A callback that takes a &lt;code>[key,value]&lt;/code> and the current iterable, and returns a mapped value.
      * How this mapped value is used depends on the calling function.
      *  - mapKeys the key is transformed to the returned value
      *  - mapValues the value is transformed to the returned value
@@ -741,7 +813,7 @@ class MapIterable {
      *  - map the MapIterable is turned into a SetIterable, and this returned value is the resultant entry.
      *
      * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map|Array.map}
-     * @example <caption>swap key and value</caption>
+     * @example &lt;caption>swap key and value&lt;/caption>
      * const mapEntriesFunction = ( value, key) => [value, key];
      * // the typical response is [key, value]
      * @callback MapIterable#MapFunction
@@ -754,14 +826,14 @@ class MapIterable {
     /**
      * For every entry, use the mapKeyFunction to transform the existing key.
      * This does not modify the original collection, and execution is deferred until it is fetched.
-     * @example <caption>add one to all the keys and turn them into strings</caption>
+     * @example &lt;caption>add one to all the keys and turn them into strings&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const mappedKeysIterable = hashmap.mapKeys((value, key) => 'k'+(key+1));
      * const mappedKeysArray = mappedKeysIterable.collect();
      * // mappedKeysArray === [['k2','value1'],['k3','value2'],['k4','value3']]
      * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map|Array.map}
      * @param {MapIterable#MapFunction} [mapKeyFunction=(value, key, iterable) => key] - the function that transforms the key.
-     * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>reduceFunction</code>
+     * @param {*} [ctx=this] - Value to use as &lt;code>this&lt;/code> when executing &lt;code>reduceFunction&lt;/code>
      * @returns {MapIterable} an iterable that allows you to iterate key value pairs.
      */
     mapKeys(mapKeyFunction = (value, key) => key, ctx = this) {
@@ -771,14 +843,14 @@ class MapIterable {
     /**
      * For every entry, use the mapValueFunction to transform the existing value.
      * This does not modify the original collection, and execution is deferred until it is fetched.
-     * @example <caption>prepend the values with the keys</caption>
+     * @example &lt;caption>prepend the values with the keys&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const mappedValuesIterable = hashmap.mapValues((value, key) => key + value);
      * const mappedValuesArray = mappedValuesIterable.collect();
      * // mappedValuesArray === [['1','1value1'],[2,'2value2'],[3,'3value3']]
      * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map|Array.map}
      * @param {MapIterable#MapFunction} [mapValueFunction=(value, key, iterable) => value] - the function that transforms the value.
-     * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>reduceFunction</code>
+     * @param {*} [ctx=this] - Value to use as &lt;code>this&lt;/code> when executing &lt;code>reduceFunction&lt;/code>
      * @returns {MapIterable} an iterable that allows you to iterate key value pairs.
      */
     mapValues(mapValueFunction = (value) => value, ctx = this) {
@@ -796,38 +868,38 @@ class MapIterable {
      *   - the second function, (if defined), modifies the value. see {@link MapIterable#mapValues mapValues}
      *   - if both the first and second values in the array are not functions a TypeError is thrown.
      * - In both cases will return {@link MapIterable}
-     * @example <caption>swap the keys and the values</caption>
+     * @example &lt;caption>swap the keys and the values&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const mapEntriesIterable = hashmap.mapEntries((value, key) => [value,key])
      * const mapEntriesArray = mapEntriesIterable.collect();
      * // mapEntriesArray === [['value1',1],['value2',2],['value3',3]]
-     * @example <caption>swap the keys and the values with 2 functions</caption>
+     * @example &lt;caption>swap the keys and the values with 2 functions&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const mapEntriesIterable = hashmap.mapEntries([(value) => value,(value, key) => key])
      * const mapEntriesArray = mapEntriesIterable.collect();
      * // mapEntriesArray === [['value1',1],['value2',2],['value3',3]]
-     * @example <caption>modify just the keys</caption>
+     * @example &lt;caption>modify just the keys&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * // Notice we are passing an array of one function.
      * const mapEntriesIterable = hashmap.mapEntries([(value, key) => value])
      * const mapEntriesArray = mapEntriesIterable.collect();
      * // mapEntriesArray === [['value1','value1'],['value2','value2'],['value2','value2']]
-     * @example <caption>modify just the values</caption>
+     * @example &lt;caption>modify just the values&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * // Notice we are passing an array of two, but have only defined the last as a function.
      * const mapEntriesIterable = hashmap.mapEntries([undefined,(value, key) => key])
      * const mapEntriesArray = mapEntriesIterable.collect();
      * // mapEntriesArray === [[1,1],[2,2],[3,3]]
      * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map|Array.map}
-     * @param {MapIterable#MapFunction|Array.<MapIterable#MapFunction,MapIterable#MapFunction>} [mapEntryFunction=(value, key, iterable) => [key, value]] - the function that transforms the key and value.
-     * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>reduceFunction</code>
+     * @param {MapIterable#MapFunction|Array.&lt;MapIterable#MapFunction,MapIterable#MapFunction>} [mapEntryFunction=(value, key, iterable) => [key, value]] - the function that transforms the key and value.
+     * @param {*} [ctx=this] - Value to use as &lt;code>this&lt;/code> when executing &lt;code>reduceFunction&lt;/code>
      * @returns {MapIterable} an iterable that allows you to iterate key value pairs.
      * @throws {TypeError} if at least one function is not provided.
      */
     mapEntries(mapEntryFunction = (value, key) => [key, value], ctx = this) {
 
         if (Array.isArray(mapEntryFunction)) {
-            if (mapEntryFunction.length === 1 && isFunction(mapEntryFunction[0])) {
+            if (mapEntryFunction.length === 1 &amp;&amp; isFunction(mapEntryFunction[0])) {
                 // we are just mapping keys
                 return this.mapKeys(mapEntryFunction[0], ctx);
             } else if (mapEntryFunction.length > 1) {
@@ -863,32 +935,32 @@ class MapIterable {
      *   - the second function, (if defined), modifies the value. see {@link MapIterable#mapKeys mapValues}
      *   - if both the first and second values in the array are not functions a TypeError is thrown.
      *   - Will return a {@link MapIterable}.
-     * @example <caption>return just values</caption>
+     * @example &lt;caption>return just values&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const setIterable = hashmap.map((value, key) => value)
      * const mapArray = setIterable.collect();
      * // mapArray === ['value1','value2','value3']
      * // setIterable instanceof SetIterable
-     * @example <caption>swap the keys and the values</caption>
+     * @example &lt;caption>swap the keys and the values&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const setIterable = hashmap.map((value, key) => [value,key])
      * const mapArray = setIterable.collect();
      * // mapArray === [['value1',1],['value2',2],['value3',3]]
      * // setIterable instanceof SetIterable
-     * @example <caption>swap the keys and the values with 2 functions</caption>
+     * @example &lt;caption>swap the keys and the values with 2 functions&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const mapIterable = hashmap.map([(value) => value,(value, key) => key])
      * const mapArray = mapIterable.collect();
      * // mapArray === [['value1',1],['value2',2],['value3',3]]
      * // mapIterable instanceof MapIterable
-     * @example <caption>modify just the keys</caption>
+     * @example &lt;caption>modify just the keys&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * // Notice we are passing an array of one function.
      * const mapIterable = hashmap.map([(value, key) => value])
      * const mapArray = mapIterable.collect();
      * // mapArray === [['value1','value1'],['value2','value2'],['value2','value2']]
      * // mapIterable instanceof MapIterable
-     * @example <caption>modify just the values</caption>
+     * @example &lt;caption>modify just the values&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * // Notice we are passing an array of two, but have only defined the last as a function.
      * const mapIterable = hashmap.map([undefined,(value, key) => key])
@@ -896,8 +968,8 @@ class MapIterable {
      * // mapArray === [[1,1],[2,2],[3,3]]
      * // mapIterable instanceof MapIterable
      * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map|Array.map}
-     * @param {MapIterable#MapFunction|Array.<MapIterable#MapFunction,MapIterable#MapFunction>} [mapFunction=(value, key, iterable) => [key, value]] - the function that transforms the key and value.
-     * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>reduceFunction</code>
+     * @param {MapIterable#MapFunction|Array.&lt;MapIterable#MapFunction,MapIterable#MapFunction>} [mapFunction=(value, key, iterable) => [key, value]] - the function that transforms the key and value.
+     * @param {*} [ctx=this] - Value to use as &lt;code>this&lt;/code> when executing &lt;code>reduceFunction&lt;/code>
      * @returns {SetIterable|MapIterable} an iterable that allows you to iterate single entries in a set, or an iterable that allows you to iterate a map.
      * @throws {TypeError} if at least one function is not provided.
      */
@@ -920,14 +992,14 @@ class MapIterable {
      *   - If you know the container stores [key,value] pairs and want to return a MapIterable, use {@link MapIterable#concatMap concatMap}
      * This is based on {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/concat Array.concat} it does not modify the original iterables, and returns a new one.
      * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/concat|Array.concat}
-     * @example <caption>concatenate 2 maps</caption>
+     * @example &lt;caption>concatenate 2 maps&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const hashmap2 = new LinkedHashMap([[1,'value1a'],[2,'value2a'],[3,'value3a']]);
      * const mapIterable = hashmap.concat(hashmap2);
      * // Notice how the keys are repeated, any unique constraints are gone.
      * // mapIterable === [[1,'value1'],[2,'value2'],[3,'value3'],[1,'value1a'],[2,'value2a'],[3,'value3a']]
      * // mapIterable instanceof MapIterable
-     * @example <caption>concatenate an array</caption>
+     * @example &lt;caption>concatenate an array&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const array = ['hello','world'];
      * const setIterable = hashmap.concat(array);
@@ -952,21 +1024,21 @@ class MapIterable {
      * - If the provided value is a MapIterable or a Map then the returned iterable is a MapIterable.
      * - Otherwise the iterable MUST return [key,value] pairs
      *
-     * @example <caption>concatenate 2 maps</caption>
+     * @example &lt;caption>concatenate 2 maps&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const hashmap2 = new LinkedHashMap([[1,'value1a'],[2,'value2a'],[3,'value3a']]);
      * const mapIterable = hashmap.concatMap(hashmap2);
      * // Notice how the keys are repeated, any unique constraints are gone.
      * // mapIterable === [[1,'value1'],[2,'value2'],[3,'value3'],[1,'value1a'],[2,'value2a'],[3,'value3a']]
      * // mapIterable instanceof MapIterable
-     * @example <caption>concatenate an array</caption>
+     * @example &lt;caption>concatenate an array&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const array = [[1,'hello'],[3,'world']];
      * const mapIterable = hashmap.concatMap(array);
      * // Notice how everything is a key value pair.
      * // mapIterable === [[1,'value1'],[2,'value2'],[3,'value3'],[1,'hello'],[3,'world']]
      * // mapIterable instanceof MapIterable
-     * @param {(Array.<Array.<key,value>>|Set.<Array.<key,value>>|Map|HashMap|LinkedHashMap)} otherMapIterable the iterable to concat to this one, has to return [key,value] pairs
+     * @param {(Array.&lt;Array.&lt;key,value>>|Set.&lt;Array.&lt;key,value>>|Map|HashMap|LinkedHashMap)} otherMapIterable the iterable to concat to this one, has to return [key,value] pairs
      * @return {MapIterable} the new iterable to return
      */
     concatMap(otherMapIterable) {
@@ -978,7 +1050,7 @@ class MapIterable {
 
     /**
      * Return a SetIterable which is just the keys in this map.
-     * @example <caption>collect all the keys</caption>
+     * @example &lt;caption>collect all the keys&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const keysIterable = hashmap.keys();
      * // keysIterable instanceof SetIterable
@@ -993,7 +1065,7 @@ class MapIterable {
 
     /**
      * Return a SetIterable which is just the values in this map.
-     * @example <caption>collect all the values</caption>
+     * @example &lt;caption>collect all the values&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const valuesIterable = hashmap.values();
      * // valuesIterable instanceof SetIterable
@@ -1008,7 +1080,7 @@ class MapIterable {
 
     /**
      * Return a MapIterable which is the entries in this map, this is just a short hand for the [Symbol.Iterator]() implementation
-     * @example <caption>collect all the entries</caption>
+     * @example &lt;caption>collect all the entries&lt;/caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const entriesIterable = hashmap.entries();
      * // entriesIterable instanceof MapIterable
@@ -1025,16 +1097,16 @@ class MapIterable {
 /**
  * The base class for the Set Implementations, and the Higher Order Functions for Sets, many Map functions result in SetIterables
  *
- * @example <caption>Create a SetIterable from a Map.</caption>
+ * @example &lt;caption>Create a SetIterable from a Map.&lt;/caption>
  * const myMap = new Map();
  * // iterating over a setIterable backed by a map, will yield [key,value] arrays.
  * const setIterable = SetIterable.from(myMap);
- * @example <caption>Create a SetIterable from a Set.</caption>
+ * @example &lt;caption>Create a SetIterable from a Set.&lt;/caption>
  * const mySet = new Set();
  * const setIterable = SetIterable.from(mySet);
- * @example <caption>Create a SetIterable from an Array.</caption>
+ * @example &lt;caption>Create a SetIterable from an Array.&lt;/caption>
  * const setIterable = SetIterable.from([]);
- * @example <caption>Create a SetIterable from an Iterable.</caption>
+ * @example &lt;caption>Create a SetIterable from an Iterable.&lt;/caption>
  * // any object that implements *[Symbol.iterator]() or [Symbol.iterator]() can be used.
  * const myIterable = {
  *     *[Symbol.iterator]() {
@@ -1044,15 +1116,15 @@ class MapIterable {
  *     }
  * }
  * const setIterable = SetIterable.from(myIterable);
- * @example <caption>Create a SetIterable from a Mootable HashMap.</caption>
+ * @example &lt;caption>Create a SetIterable from a Mootable HashMap.&lt;/caption>
  * // iterating over a SetIterable backed by a map, will yield [key,value] arrays.
  * const setIterable =  SetIterable.from(new HashMap());
- * @example <caption>Create a SetIterable from a Mootable LinkedHashMap.</caption>
+ * @example &lt;caption>Create a SetIterable from a Mootable LinkedHashMap.&lt;/caption>
  * // iterating over a SetIterable backed by a map, will yield [key,value] arrays.
  * const setIterable =  SetIterable.from(new LinkedHashMap());
  * @abstract
  */
-class SetIterable {
+export class SetIterable {
 
     /**
      * Returns the number of elements returned by this Set Iterable. If filter is used in the method chain, it is forced to iterate over all the elements, and will be slower. Otherwise even with concatenation, it just queries the base collection size.
@@ -1070,16 +1142,16 @@ class SetIterable {
     /**
      * Wraps any class that iterates any value and provides higher order chained functions.
 
-     * @example <caption>Create a SetIterable from a Map.</caption>
+     * @example &lt;caption>Create a SetIterable from a Map.&lt;/caption>
      * const myMap = new Map();
      * // iterating over a set, will yield [key,value] arrays.
      * const setIterable = SetIterable.from(myMap);
-     * @example <caption>Create a SetIterable from a Set.</caption>
+     * @example &lt;caption>Create a SetIterable from a Set.&lt;/caption>
      * const mySet = new Set();
      * const setIterable = SetIterable.from(mySet);
-     * @example <caption>Create a SetIterable from an Array.</caption>
+     * @example &lt;caption>Create a SetIterable from an Array.&lt;/caption>
      * const setIterable = SetIterable.from([]);
-     * @example <caption>Create a SetIterable from an Iterable.</caption>
+     * @example &lt;caption>Create a SetIterable from an Iterable.&lt;/caption>
      * // any object that implements *[Symbol.iterator]() or [Symbol.iterator]() can be used.
      * const myIterable = {
      *     *[Symbol.iterator]() {
@@ -1089,10 +1161,10 @@ class SetIterable {
      *     }
      * }
      * const setIterable = SetIterable.from(myIterable);
-     * @example <caption>Create a SetIterable from a Mootable HashMap.</caption>
+     * @example &lt;caption>Create a SetIterable from a Mootable HashMap.&lt;/caption>
      * // iterating over a SetIterable backed by a map, will yield [key,value] arrays.
      * const setIterable =  SetIterable.from(new HashMap());
-     * @example <caption>Create a SetIterable from a Mootable LinkedHashMap.</caption>
+     * @example &lt;caption>Create a SetIterable from a Mootable LinkedHashMap.&lt;/caption>
      * // iterating over a SetIterable backed by a map, will yield [key,value] arrays.
      * const setIterable =  SetIterable.from(new LinkedHashMap());
      * @param {(Set|Map|Array|Iterator)} setIterable the set to wrap
@@ -1106,16 +1178,16 @@ class SetIterable {
     }
 
     /**
-     * Test each element of the set and only include entries where the <code>MatchesPredicate</code> returns true.
-     * @example <caption>Only match values which are odd numbered.</caption>
+     * Test each element of the set and only include entries where the &lt;code>MatchesPredicate&lt;/code> returns true.
+     * @example &lt;caption>Only match values which are odd numbered.&lt;/caption>
      * const hashmap = SetIterable.from([1,2,3]);
      * const filteredIterable = hashmap.filter((value) => value % 2 !== 0);
      * filteredIterable.forEach((value) => console.log(value));
      * // will log to the console:
      * // 1
      * // 3
-     * @param {MapIterable#MatchesPredicate} [filterPredicate=(value, key, setIterable) => true] - if the provided function returns <code>false</code>, that entry is excluded.
-     * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>filterPredicate</code>
+     * @param {MapIterable#MatchesPredicate} [filterPredicate=(value, key, setIterable) => true] - if the provided function returns &lt;code>false&lt;/code>, that entry is excluded.
+     * @param {*} [ctx=this] - Value to use as &lt;code>this&lt;/code> when executing &lt;code>filterPredicate&lt;/code>
      * @returns {SetIterable} - an iterable that allows you to iterate values.
      */
     filter(filterPredicate = () => true, ctx = this) {
@@ -1123,8 +1195,8 @@ class SetIterable {
     }
 
     /**
-     * Execute the provided callback on every <code>value</code> of this set iterable.
-     * @example <caption>Log all the  values.</caption>
+     * Execute the provided callback on every &lt;code>value&lt;/code> of this set iterable.
+     * @example &lt;caption>Log all the  values.&lt;/caption>
      * const set = new Set().add('value1').add('value2').add('value3');
      * const setIterable = SetIterable.from(set);
      * mapIterable.forEach((value) => console.log(value));
@@ -1133,7 +1205,7 @@ class SetIterable {
      * // value2
      * // value3
      * @param {MapIterable#ForEachCallback} [forEachCallback=(value, key, iterable) => {}]
-     * @param {*} [ctx=this] Value to use as <code>this</code> when executing <code>forEachCallback</code>
+     * @param {*} [ctx=this] Value to use as &lt;code>this&lt;/code> when executing &lt;code>forEachCallback&lt;/code>
      * @returns {SetIterable} - an iterable that allows you to iterate on values.
      */
     forEach(forEachCallback = () => {
@@ -1150,47 +1222,47 @@ class SetIterable {
      * A collector will be resolved in this order:
      *  - {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array Array}
      *    - a new array is created and passed back with the filled values, and the original is not changed.
-     *  - Object with a function <code>.set</code>.
+     *  - Object with a function &lt;code>.set&lt;/code>.
      *    - such as {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map Map}, {@link HashMap} or {@link LinkedHashMap}
-     *    - it will call <code>set(key,value)</code> for every entry, if the value already exists for that key it is typically overridden. The original is modified.
-     *  - Object with a function <code>.add</code>
+     *    - it will call &lt;code>set(key,value)&lt;/code> for every entry, if the value already exists for that key it is typically overridden. The original is modified.
+     *  - Object with a function &lt;code>.add&lt;/code>
      *    - such as {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set Set}
-     *    - it will call <code>add([key,value])</code> for every entry, so that a <code>[key,value]</code> pair is added to the collection. The original is modified.
+     *    - it will call &lt;code>add([key,value])&lt;/code> for every entry, so that a &lt;code>[key,value]&lt;/code> pair is added to the collection. The original is modified.
      *  - {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object Object}
-     *    - It will call <code>obj[key] = value</code> for every entry, so that a property of <code>key</code> has a value of <code>value</code> set on it. The original is modified.
+     *    - It will call &lt;code>obj[key] = value&lt;/code> for every entry, so that a property of &lt;code>key&lt;/code> has a value of &lt;code>value&lt;/code> set on it. The original is modified.
      *
-     * @example <caption>Collect to a new {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array Array}</caption>
+     * @example &lt;caption>Collect to a new {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array Array}&lt;/caption>
      * const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const myArray = mapIterable.collect();
      * // myArray === [[1,'value1'],[2,'value2'],[3,'value3']]:
-     * @example <caption>Collect with an empty existing {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array Array}</caption>
+     * @example &lt;caption>Collect with an empty existing {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array Array}&lt;/caption>
      * const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const oldArray = [];
      * const newArray = mapIterable.collect(oldArray);
      * // newArray === [[1,'value1'],[2,'value2'],[3,'value3']]
      * // oldArray === []
-     * @example <caption>Collect with an existing {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array Array} with values</caption>
+     * @example &lt;caption>Collect with an existing {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array Array} with values&lt;/caption>
      * const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const oldArray = [[2,'someOtherValue']];
      * const newArray = mapIterable.collect(oldArray);
      * // newArray === [[2,'someOtherValue'],[1,'value1'],[2,'value2'],[3,'value3']]
      * // oldArray === [[2,'someOtherValue']]
-     * @example <caption>Collect to an existing {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array Array} with values, modifying the old array.</caption>
+     * @example &lt;caption>Collect to an existing {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array Array} with values, modifying the old array.&lt;/caption>
      * const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const array  = [[2,'someOtherValue']];
      * array.push(mapIterable.collect())
      * // array === [[2,'someOtherValue'],[1,'value1'],[2,'value2'],[3,'value3']]
-     * @example <caption>Collect to a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set Set}</caption>
+     * @example &lt;caption>Collect to a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set Set}&lt;/caption>
      * const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const oldSet = new Set().add('willRemain');
      * const newSet = mapIterable.collect(oldSet);
      * // oldSet === newSet === ['willRemain',[1,'value1'],[2,'value2'],[3,'value3']]
-     * @example <caption>Collect to a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map Map}</caption>
+     * @example &lt;caption>Collect to a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map Map}&lt;/caption>
      * const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const oldMap = new Map().set(2,'willBeOverwritten').set(5,'willRemain');
      * const newMap = mapIterable.collect(oldMap);
      * // oldMap === newMap === [[2,'value2'],[5,'willRemain'],[1,'value1'],[3,'value3']]
-     * @example <caption>Collect to a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object Object}</caption>
+     * @example &lt;caption>Collect to a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object Object}&lt;/caption>
      * const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const oldObject = {'1','willBeOverridden'};
      * const newObject = mapIterable.collect(oldObject);
@@ -1219,19 +1291,19 @@ class SetIterable {
     /**
      * Iterate through the set iterable reducing it to a single value.
      * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce|Array.reduce}
-     * @example <caption>add all the values</caption>
+     * @example &lt;caption>add all the values&lt;/caption>
      * const set = new Set().add(1).add(2).add(3);
      * const setIterable = SetIterable.from(set);
      * const reduceResult = setIterable.reduce((accumulator, value) => accumulator+value, 0);
      * // reduceResult === 6
-     * @example <caption>add all the values into one string in reverse order</caption>
+     * @example &lt;caption>add all the values into one string in reverse order&lt;/caption>
      * const set = new Set().add('value1').add('value2').add('value3');
      * const setIterable = SetIterable.from(set);
      * const reduceResult = setIterable.reduce((accumulator, value) => value+accumulator, '');
      * // reduceResult === 'value3value2value1'
      * @param {MapIterable#ReduceFunction} [reduceFunction=(accumulator, value, key, iterable) => true] - the predicate to identify if we have a match.
      * @param {*} [initialValue] the initial value to start on the reduce.
-     * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>reduceFunction</code>
+     * @param {*} [ctx=this] - Value to use as &lt;code>this&lt;/code> when executing &lt;code>reduceFunction&lt;/code>
      * @returns {*} - the final accumulated value.
      */
     reduce(reduceFunction = (accumulator, value) => value, initialValue = undefined, ctx = this) {
@@ -1243,26 +1315,26 @@ class SetIterable {
     }
 
     /**
-     * Test to see if ALL values pass the test implemented by the passed <code>MatchesPredicate</code>.
+     * Test to see if ALL values pass the test implemented by the passed &lt;code>MatchesPredicate&lt;/code>.
      * - if any value does not match, returns false
      * - if all values match, returns true.
      * - if no values match, returns false.
      * - if the iterable is empty, returns true. (irrespective of the predicate)
      * - if no predicate is provided, returns true.
      *
-     * @example <caption>Do all values start with value. (yes)</caption>
+     * @example &lt;caption>Do all values start with value. (yes)&lt;/caption>
      * const set = new Set().add('value1').add('value2').add('value3');
      * const setIterable = SetIterable.from(set);
      * const everyResult = setIterable.every((value) => value.startsWith('value'));
      * // everyResult === true
-     * @example <caption>Do all values start with value. (no)</caption>
+     * @example &lt;caption>Do all values start with value. (no)&lt;/caption>
      * const set = new Set().add('value1').add('doesntStart').add('value3');
      * const setIterable = SetIterable.from(set);
      * const everyResult = setIterable.every((value) => value.startsWith('value'));
      * // everyResult === false
      * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/every|Array.every}
-     * @param {MapIterable#MatchesPredicate} [everyPredicate=(value, key, iterable) => true] - if the provided function returns <code>false</code>, at any point the <code>every()</code> function returns false.
-     * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>everyPredicate</code>
+     * @param {MapIterable#MatchesPredicate} [everyPredicate=(value, key, iterable) => true] - if the provided function returns &lt;code>false&lt;/code>, at any point the &lt;code>every()&lt;/code> function returns false.
+     * @param {*} [ctx=this] - Value to use as &lt;code>this&lt;/code> when executing &lt;code>everyPredicate&lt;/code>
      * @returns {boolean} true if all elements match, false if one or more elements fails to match.
      */
     every(everyPredicate = () => true, ctx = this) {
@@ -1275,26 +1347,26 @@ class SetIterable {
     }
 
     /**
-     * Test to see if ANY value pass the test implemented by the passed <code>MatchesPredicate</code>.
+     * Test to see if ANY value pass the test implemented by the passed &lt;code>MatchesPredicate&lt;/code>.
      * - if any value matches, returns true.
      * - if all values match returns true.
      * - if no values match returns false.
      * - if the iterable is empty, returns true.
      * - if no predicate is provided, returns true.
      *
-     * @example <caption>Do any values start with value. (yes all of them)</caption>
+     * @example &lt;caption>Do any values start with value. (yes all of them)&lt;/caption>
      * const set = new Set().add('value1').add('value2').add('value3');
      * const setIterable = SetIterable.from(set);
      * const someResult = setIterable.some((value) => value.startsWith('value'));
      * // someResult === true
-     * @example <caption>Do any values start with value. (yes 2 of them)</caption>
+     * @example &lt;caption>Do any values start with value. (yes 2 of them)&lt;/caption>
      * const set = new Set().add('value1').add('doesntStart').add('value3');
      * const setIterable = SetIterable.from(set);
      * const someResult = setIterable.some((value) => value.startsWith('value'));
      * // someResult === true
      * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some|Array.some}
      * @param {MapIterable#MatchesPredicate} [somePredicate=(value, key, iterable) => true] - the predicate to identify if we have a match.
-     * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>somePredicate</code>
+     * @param {*} [ctx=this] - Value to use as &lt;code>this&lt;/code> when executing &lt;code>somePredicate&lt;/code>
      * @returns {boolean} - true if all values match, false if one or more values fails to match.
      */
     some(somePredicate = () => true, ctx = this) {
@@ -1308,19 +1380,19 @@ class SetIterable {
 
     /**
      * Does the set have this value.
-     * If backed by a Set, or in fact any collection that implements the <code>.has(key)</code> function, then it will utilize that, otherwise it will iterate across the collection.
+     * If backed by a Set, or in fact any collection that implements the &lt;code>.has(key)&lt;/code> function, then it will utilize that, otherwise it will iterate across the collection.
      * If backed by a Map or HashMap, then it will match [key,value] pairs not keys.
-     * - return true if the <code>value</code> matches.
+     * - return true if the &lt;code>value&lt;/code> matches.
      * - if no values match, it returns false.
      * - it is legitimate for values to be null or undefined, and if added, will return true
      *
      * Sets typically index values, and so is generally a fast operation. However if it backed by a map, then this will be slow as it will be matching entries not keys.
-     * @example <caption>Does this contain a value that is there</caption>
+     * @example &lt;caption>Does this contain a value that is there&lt;/caption>
      * const set = new Set().add('value1').add('value2').add('value3');
      * const setIterable = SetIterable.from(set);
      * const hasResult = setIterable.has('value2');
      * // hasResult === true
-     * @example <caption>Does this contain a value that isn't there</caption>
+     * @example &lt;caption>Does this contain a value that isn't there&lt;/caption>
      * const set = new Set().add(1).add(2).add(3);
      * const setIterable = SetIterable.from(set);
      * const hasResult = setIterable.has(4);
@@ -1339,23 +1411,23 @@ class SetIterable {
 
 
     /**
-     * Find the first value in the set which passes the provided <code>MatchesPredicate</code>.
-     * - return the first <code>value</code> that matches
+     * Find the first value in the set which passes the provided &lt;code>MatchesPredicate&lt;/code>.
+     * - return the first &lt;code>value&lt;/code> that matches
      * - if no value matches, it returns undefined.
      * - if no predicate is defined, will return the first value it finds.
-     * @example <caption>Find a value</caption>
+     * @example &lt;caption>Find a value&lt;/caption>
      * const set = new Set().add('value1').add('value2').add('value3');
      * const setIterable = SetIterable.from(set);
      * const findResult = setIterable.find((value) => value.endsWith('ue2'));
      * // findResult === 'value2'
-     * @example <caption>Can't find a value</caption>
+     * @example &lt;caption>Can't find a value&lt;/caption>
      * const set = new Set().add('value1').add('value2').add('value3');
      * const setIterable = SetIterable.from(set);
      * const findResult = setIterable.find((value) => value.startsWith('something'));
      * // findResult === undefined
      * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find|Array.find}
      * @param {MapIterable#MatchesPredicate} [findPredicate=(value, key, iterable) => value] - the predicate to identify if we have a match.
-     * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>findPredicate</code>
+     * @param {*} [ctx=this] - Value to use as &lt;code>this&lt;/code> when executing &lt;code>findPredicate&lt;/code>
      * @returns {*} - the value that matches.
      */
     find(findPredicate = () => true, ctx = this) {
@@ -1371,7 +1443,7 @@ class SetIterable {
     /**
      * For every entry, use the mapFunction to transform the existing value.
      *   - Will return a {@link SetIterable}
-     * @example <caption>return just values with 'ish' on the end</caption>
+     * @example &lt;caption>return just values with 'ish' on the end&lt;/caption>
      * const set = new Set().add('value1').add('value2').add('value3');
      * const setIterable = SetIterable.from(set);
      * const mapped = setIterable.map((value, key) => value+'ish');
@@ -1380,7 +1452,7 @@ class SetIterable {
      * // mapped instanceof SetIterable
      * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map|Array.map}
      * @param {MapIterable#MapFunction} [mapFunction=(value, key, iterable) =>value] - the function that transforms the value.
-     * @param {*} [ctx=this] - Value to use as <code>this</code> when executing <code>reduceFunction</code>
+     * @param {*} [ctx=this] - Value to use as &lt;code>this&lt;/code> when executing &lt;code>reduceFunction&lt;/code>
      * @returns {SetIterable} an iterable that allows you to iterate single entries in the mapped set
      */
     map(mapFunction = (value) => value, ctx = this) {
@@ -1392,14 +1464,14 @@ class SetIterable {
      * Return a SetIterable which is a concatenation of this and the provided iterable.
      * This is based on {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/concat Array.concat} it does not modify the original iterables, and returns a new one.
      * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/concat|Array.concat}
-     * @example <caption>concatenate 2 sets</caption>
+     * @example &lt;caption>concatenate 2 sets&lt;/caption>
      * const set1 = new Set(['value1','value2','value3']);
      * const set2 = new Set(['value1a','value2a','value3a']);
      * const setIterable = SetIterable.from(set1).concat(set2);
      * // Notice how any unique constraints are gone.
      * // setIterable === ['value1','value2','value3','value1a','value2a'],'value3a']
      * // setIterable instanceof SetIterable
-     * @example <caption>concatenate an array</caption>
+     * @example &lt;caption>concatenate an array&lt;/caption>
      * const set = new Set(['value1','value2','value3']);
      * const array = ['hello','world'];
      * const setIterable = SetIterable.from(set).concat(array);
@@ -1433,7 +1505,7 @@ class SetIterable {
 
     /**
      * Return a MapIterable which are a value pair, returns [value,value]
-     * @example <caption>collect all the entries</caption>
+     * @example &lt;caption>collect all the entries&lt;/caption>
      * const set = new Set([1,2,3]);
      * const entriesIterable = SetIterable.from(set).entries();
      * // entriesIterable instanceof MapIterable
@@ -1514,10 +1586,10 @@ class LinkedEntry extends Entry {
  * This HashMap is backed by a hashtrie, and can be tuned to specific use cases.
  * @extends MapIterable
  */
-class HashMap extends MapIterable {
+export class HashMap extends MapIterable {
     /**
      * @typedef HashMap~ConstructorOptions
-     * @property {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>)} [copy] - an object that provides a forEach function with the same signature as`Map.forEach`.
+     * @property {(Map|HashMap|LinkedHashMap|Iterable.&lt;Array.&lt;key,value>>)} [copy] - an object that provides a forEach function with the same signature as`Map.forEach`.
      * such as `Map` or this `HashMap` and `LinkedHashMap`, or any iterable that provides [key,value] pairs such as a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
      * @property {number} [depth] - how many layers deep our hashtrie goes.
      * - Minimum: `1`
@@ -1542,19 +1614,19 @@ class HashMap extends MapIterable {
      *      - Minimum: `1`, Maximum/Default: `(32/widthAs2sExponent)-1`
      *   3) `widthAs2sExponent` is how many buckets in each hashtrie layer we use to the power of 2, for instance a widthAs2sExponent of 4 is 2 ^ 4 = 16 buckets.
      *      - Minimum: `1`, Maximum: `16`, Default: `6` (64 Buckets)
-     * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>|HashMap~ConstructorOptions)} [args]
+     * @param {(Map|HashMap|LinkedHashMap|Iterable.&lt;Array.&lt;key,value>>|HashMap~ConstructorOptions)} [args]
      */
     constructor(args = {copy: undefined, depth: undefined, widthAs2sExponent: 6}) {
         super();
         let {depth, widthAs2sExponent, copy} = args;
         widthAs2sExponent = Math.max(1, Math.min(16, widthAs2sExponent)); // 2^6 = 64 buckets
         const defaultDepth = ((32 / widthAs2sExponent) >> 0) - 1;
-        depth = Math.max(0, Math.min(depth && depth > 0 ? depth - 1 : defaultDepth, defaultDepth)); // 0 indexed so 3 is a depth of 4.
-        const width = 1 << widthAs2sExponent; // 2 ^ widthAs2sExponent
+        depth = Math.max(0, Math.min(depth &amp;&amp; depth > 0 ? depth - 1 : defaultDepth, defaultDepth)); // 0 indexed so 3 is a depth of 4.
+        const width = 1 &lt;&lt; widthAs2sExponent; // 2 ^ widthAs2sExponent
         const mask = width - 1;
         this.options = Object.freeze({widthAs2sExponent, width, mask, depth});
         this.clear();
-        if (args.forEach || (copy && copy.forEach)) {
+        if (args.forEach || (copy &amp;&amp; copy.forEach)) {
             this.copy(args.forEach ? args : copy);
         }
     }
@@ -1623,7 +1695,7 @@ class HashMap extends MapIterable {
 
     /**
      *
-     * @param {Map|HashMap|LinkedHashMap|MapIterable|SetIterable.<Array.<key,value>>|Iterator.<Array.<key,value>>|Array.<Array.<key,value>>} other - the iterable to copy
+     * @param {Map|HashMap|LinkedHashMap|MapIterable|SetIterable.&lt;Array.&lt;key,value>>|Iterator.&lt;Array.&lt;key,value>>|Array.&lt;Array.&lt;key,value>>} other - the iterable to copy
      * @return {HashMap} this hashmap, with the values copied to it.
      * @throws {TypeError} if the provided object other is null or not iterable.
      */
@@ -1705,7 +1777,7 @@ HashMap.uid = 0;
  * This LinkedHashMap is is an extension of {@link HashMap} however LinkedHashMap also maintains insertion order of keys, and guarantees to iterate over them in that order.
  * @extends HashMap
  */
-class LinkedHashMap extends HashMap {
+export class LinkedHashMap extends HashMap {
 
     /**
      * This LinkedHashMap is is an extension of {@link HashMap} however LinkedHashMap also maintains insertion order of keys, and guarantees to iterate over them in that order.
@@ -1722,7 +1794,7 @@ class LinkedHashMap extends HashMap {
      *      - Minimum: `1`, Maximum/Default: `(32/widthAs2sExponent)-1`
      *   3) `widthAs2sExponent` is how many buckets in each hashtrie layer we use to the power of 2, for instance a widthAs2sExponent of 4 is 2 ^ 4 = 16 buckets.
      *      - Minimum: `2`, Maximum: `16`, Default: `6` (64 Buckets)
-     * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>|HashMap~ConstructorOptions)} [args]
+     * @param {(Map|HashMap|LinkedHashMap|Iterable.&lt;Array.&lt;key,value>>|HashMap~ConstructorOptions)} [args]
      */
     constructor(args = {copy: undefined, depth: undefined, widthAs2sExponent: 6}) {
         super(args);
@@ -1747,10 +1819,10 @@ class LinkedHashMap extends HashMap {
 
     delete(key) {
         super.delete(key);
-        if (this.start && this.start.deleted) {
+        if (this.start &amp;&amp; this.start.deleted) {
             this.start = this.start.next;
         }
-        if (this.end && this.end.deleted) {
+        if (this.end &amp;&amp; this.end.deleted) {
             this.end = this.end.previous;
         }
         return this;
@@ -1960,7 +2032,7 @@ class HashContainer extends Container {
     }
 
     set(newEntry, equalTo, hash) {
-        if (hash === this.hash && equalTo(newEntry.key, this.key)) {
+        if (hash === this.hash &amp;&amp; equalTo(newEntry.key, this.key)) {
             newEntry.overwrite(this.entry);
             return this;
         }
@@ -1971,25 +2043,25 @@ class HashContainer extends Container {
     }
 
     get(key, equalTo, hash) {
-        if (hash === this.hash && equalTo(key, this.key)) {
+        if (hash === this.hash &amp;&amp; equalTo(key, this.key)) {
             return this.value;
         }
         return undefined;
     }
 
     optionalGet(key, equalTo, hash) {
-        if (hash === this.hash && equalTo(key, this.key)) {
+        if (hash === this.hash &amp;&amp; equalTo(key, this.key)) {
             return Optional.of(this.value);
         }
         return Optional.none();
     }
 
     has(key, equalTo, hash) {
-        return hash === this.hash && equalTo(key, this.key);
+        return hash === this.hash &amp;&amp; equalTo(key, this.key);
     }
 
     delete(key, equalTo, hash) {
-        if (hash === this.hash && equalTo(key, this.key)) {
+        if (hash === this.hash &amp;&amp; equalTo(key, this.key)) {
             this.entry.delete();
             return undefined;
         }
@@ -2009,7 +2081,7 @@ class HashBuckets {
     }
 
     get(key, equalTo, hash) {
-        const bucket = this.buckets[hash & this.options.mask];
+        const bucket = this.buckets[hash &amp; this.options.mask];
         if (bucket) {
             return bucket.get(key, equalTo, hash >>> this.options.widthAs2sExponent);
         }
@@ -2017,7 +2089,7 @@ class HashBuckets {
     }
 
     optionalGet(key, equalTo, hash) {
-        const bucket = this.buckets[hash & this.options.mask];
+        const bucket = this.buckets[hash &amp; this.options.mask];
         if (bucket) {
             return bucket.optionalGet(key, equalTo, hash >>> this.options.widthAs2sExponent);
         }
@@ -2025,7 +2097,7 @@ class HashBuckets {
     }
 
     set(entry, equalTo, hash) {
-        const idx = hash & this.options.mask;
+        const idx = hash &amp; this.options.mask;
         let bucket = this.buckets[idx];
         if (bucket) {
             const len = bucket.length;
@@ -2044,7 +2116,7 @@ class HashBuckets {
     }
 
     has(key, equalTo, hash) {
-        const bucket = this.buckets[hash & this.options.mask];
+        const bucket = this.buckets[hash &amp; this.options.mask];
         if (bucket) {
             return bucket.has(key, equalTo, hash >>> this.options.widthAs2sExponent);
         }
@@ -2052,7 +2124,7 @@ class HashBuckets {
     }
 
     delete(key, equalTo, hash) {
-        const idx = hash & this.options.mask;
+        const idx = hash &amp; this.options.mask;
         let bucket = this.buckets[idx];
         if (bucket) {
             bucket = bucket.delete(key, equalTo, hash >>> this.options.widthAs2sExponent);
@@ -2190,7 +2262,7 @@ class MapFilter extends MapIterableWrapper {
 
     optionalGet(key) {
         const opt = super.optionalGet(key);
-        if (opt.has && !this.filterPredicate.call(this.ctx, opt.value, key, this)) {
+        if (opt.has &amp;&amp; !this.filterPredicate.call(this.ctx, opt.value, key, this)) {
             return Optional.none();
         }
         return opt;
@@ -2424,11 +2496,34 @@ class SetFilter extends SetIterableWrapper {
         return false;
     }
 }
+</code></pre>
+        </article>
+    </section>
 
-/**
- * @module mootable/hashmap
- */
 
-const Mootable = {HashMap, LinkedHashMap,  MapIterable, SetIterable, hashCode};
 
-export { HashMap, LinkedHashMap, Mootable };
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a> on Mon Mar 22 2021 23:26:49 GMT+0000 (Greenwich Mean Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+<script src="scripts/search.js" defer></script>
+
+
+<script src="scripts/collapse.js" defer></script>
+
+
+    <link type="text/css" rel="stylesheet" href="docs.css">
+    
+</body>
+</html>

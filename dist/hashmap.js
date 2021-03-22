@@ -3722,7 +3722,7 @@
 
   /**
    * HashMap - HashMap Implementation for JavaScript
-   * @namespace Mootable
+   * @module mootable/hashmap
    * @author Jack Moxley <https://github.com/jackmoxley>
    * @version 0.12.0
    * Homepage: https://github.com/mootable/hashmap
@@ -7662,6 +7662,9 @@
     return SetFilter;
   }(SetIterableWrapper);
 
+  /**
+   * @module mootable/hashmap
+   */
   var Mootable = {
     HashMap: HashMap,
     LinkedHashMap: LinkedHashMap,

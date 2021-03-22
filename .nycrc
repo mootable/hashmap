@@ -1,0 +1,12 @@
+{
+  "extension": [
+    ".mjs",
+    ".cjs",
+    ".js"
+  ],
+  "all": true,
+  "check-coverage": true,
+  "include": [
+    "src/**"
+  ]
+}
