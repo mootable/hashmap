@@ -1,7 +1,9 @@
 # Changelog
-## Current
+## 0.12.0
 - (Breaking Change) Switched from a combined loader, to individual files (located in /dist) using roll up and babel.
 - Refactored to pure module exports.
+- Setup tests to test both dist and src files, whilst maintaining the ability to run within the ide.
+- Updated to Node 15.
 - Spelling fixes on the documentation.
 ## 0.11.1
 - Finished the core API documentation of the exported classes.
