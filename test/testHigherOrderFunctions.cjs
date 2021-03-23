@@ -1,4 +1,3 @@
-/*jshint -W030,-W121 */
 const expect = require('chai').expect;
 
 function underTest() {
@@ -1836,6 +1835,19 @@ describe('Higher Order Functions', function () {
             expect(size).to.equal(0);
         });
 
+
+        it('should size on an unsized iterable', function () {
+            const myIterable = {
+                * [Symbol.iterator]() {
+                    yield ["key1", "value1"];
+                    yield ["key2", "value2"];
+                    yield ["key3", "value3"];
+                }
+            };
+            const myMapIterator = Mootable.MapIterable.from(myIterable);
+            const size = myMapIterator.size;
+            expect(size).to.equal(3);
+        });
         it('should not count deleted values', function () {
             hashmap.set('key', 'value');
             hashmap.set('key2', 'value2');
@@ -1885,6 +1897,18 @@ describe('Higher Order Functions', function () {
             expect(size).to.equal(0);
         });
 
+        it('should size on an unsized iterable', function () {
+            const myIterable = {
+                * [Symbol.iterator]() {
+                    yield "value1";
+                    yield "value2";
+                    yield "value3";
+                }
+            };
+            const mySetIterator = Mootable.SetIterable.from(myIterable);
+            const size = mySetIterator.size;
+            expect(size).to.equal(3);
+        });
         it('should not count deleted values', function () {
             hashmap.set('key', 'value');
             hashmap.set('key2', 'value2');

@@ -1,6 +1,6 @@
 /**
  * HashMap - HashMap Implementation for JavaScript
- * @module mootable/hashmap
+ * @module @mootable/hashmap
  * @author Jack Moxley <https://github.com/jackmoxley>
  * @version 0.12.0
  * Homepage: https://github.com/mootable/hashmap
@@ -10,7 +10,6 @@
  * This is NOT a cryptographic hash, this hash is designed to create as even a spread across a 32bit integer as is possible.
  * @see {@link https://github.com/aappleby/smhasher|MurmurHash specification on Github}
  * @see {@link https://en.wikipedia.org/wiki/MurmurHash|MurmurHash on Wikipedia}
- * @function Mootable.hashCode
  * @param key the string being hashed
  * @param seed an optional random seed
  * @param len the max limit on the number of characters to hash
@@ -59,31 +58,52 @@ function hashCode(key, seed = 0, len = 0) {
  * @param func
  * @returns {boolean}
  */
-const isFunction = function (func) {
+function isFunction(func) {
     return !!(func && func.constructor && func.call && func.apply);
-};
+}
 
 /**
  * Is the passed object iterable
  * @param iterable
  * @return {boolean}
  */
-const isIterable = function (iterable) {
+function isIterable(iterable) {
     return !!(iterable && isFunction(iterable[Symbol.iterator]));
-};
+}
 
 /**
+ * Is the passed value not null and a string
+ * @param str
+ * @returns {boolean}
+ */
+function isString(str) { // jshint ignore:line
+    return !!(str && (typeof str === 'string' || str instanceof String));
+}
+
+/**
+ * Is the passed value not null and a finite number.
+ * NaN and ±Infinity would return false.
+ * @param num
+ * @returns {boolean}
+ */
+function isNumber(num) { // jshint ignore:line
+    return !!(num && ((typeof num === 'number' || num instanceof Number) && isFinite(num)));
+}
+
+/**
+ * @private
  * The default Equals method we use this in most cases.
  *
  * @param me
  * @param them
  * @returns {boolean}
  */
-const defaultEquals = function (me, them) {
+function defaultEquals(me, them) {
     return me === them;
-};
+}
 
 /**
+ * @private
  * Does a wider equals for use with arrays.
  *
  * @param me
@@ -91,21 +111,22 @@ const defaultEquals = function (me, them) {
  * @param depth
  * @return {boolean}
  */
-const deepEquals = function (me, them, depth = -1) {
+function deepEquals(me, them, depth = -1) {
     if (depth === 0 || (Array.isArray(me) && Array.isArray(them))) {
         return me.length === them.length && me.every((el, ix) => deepEquals(el, them[ix], --depth));
     }
     return me === them;
-};
+}
 
 
 /**
+ * @private
  * Returns back a pair of equalTo Methods and hash values, for a raft of different objects.
  * TODO: Revisit this at some point.
  * @param key
  * @returns {{equalTo: (function(*, *): boolean), hash: number}}
  */
-const hashEquals = function (key) {
+function hashEquals(key) {
     switch (typeof key) {
         case 'boolean':
             return {
@@ -142,7 +163,7 @@ const hashEquals = function (key) {
             return {
                 equalTo: defaultEquals, hash: 0
             };
-        default:
+        default: {
             // null
             if (!key) {
                 return {
@@ -153,11 +174,11 @@ const hashEquals = function (key) {
             if (key instanceof RegExp) {
                 return {
                     equalTo: function (me, them) {
-                        if (them instanceof RegExp) {
-                            return me + '' === them + '';
+                        if (them && them instanceof RegExp) {
+                            return me.toString() === them.toString();
                         }
                         return false;
-                    }, hash: hashCode(key + '')
+                    }, hash: hashCode(key.toString())
                 };
             }
             if (key instanceof Date) {
@@ -199,10 +220,10 @@ const hashEquals = function (key) {
                 key._hmuid_ = ++HashMap.uid;
                 // hide(key, '_hmuid_');
             }
-
             return hashEquals(key._hmuid_);
+        }
     }
-};
+}
 
 
 /**
@@ -2083,11 +2104,12 @@ class SetIterableWrapper extends SetIterable {
     constructor(iterable, ctx) {
         super();
         this.iterable = iterable;
-        this.ctx = ctx;
+        this.ctx = ctx ? ctx : iterable;
     }
 
     get size() {
-        return this.iterable.length ? this.iterable.length : this.iterable.size;
+        return this.iterable.length ? this.iterable.length
+            : (this.iterable.size ? this.iterable.size : super.size);
     }
 
     has(value, depth) {
@@ -2111,11 +2133,12 @@ class MapIterableWrapper extends MapIterable {
     constructor(iterable, ctx) {
         super();
         this.iterable = iterable;
-        this.ctx = ctx;
+        this.ctx = ctx ? ctx : iterable;
     }
 
     get size() {
-        return this.iterable.length ? this.iterable.length : this.iterable.size;
+        return this.iterable.length ? this.iterable.length
+            : (this.iterable.size ? this.iterable.size : super.size);
     }
 
     * [Symbol.iterator]() {
@@ -2426,9 +2449,22 @@ class SetFilter extends SetIterableWrapper {
 }
 
 /**
- * @module mootable/hashmap
+ * @module @mootable/hashmap
  */
+const Utils = {
+    hashCode,
+    isFunction,
+    isIterable,
+    isString,
+    isNumber
+};
+const Types = {
+    HashMap,
+    LinkedHashMap,
+    MapIterable,
+    SetIterable,
+};
+const Mootable = {...Types, Utils};
 
-const Mootable = {HashMap, LinkedHashMap,  MapIterable, SetIterable, hashCode};
-
-export { HashMap, LinkedHashMap, Mootable };
+export default HashMap;
+export { HashMap, LinkedHashMap, MapIterable, Mootable, SetIterable, hashCode };

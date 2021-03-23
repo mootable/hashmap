@@ -5,7 +5,6 @@
  * @version 0.12.0
  * Homepage: https://github.com/mootable/hashmap
  */
-
 /**
  * Modified Murmur3 HashCode generator, with capped lengths.
  * This is NOT a cryptographic hash, this hash is designed to create as even a spread across a 32bit integer as is possible.
@@ -55,43 +54,39 @@ export function hashCode(key, seed = 0, len = 0) {
 }
 
 /**
- * @private
  * Is the passed value not null and a function
  * @param func
  * @returns {boolean}
  */
-function isFunction(func) {
+export function isFunction(func) {
     return !!(func && func.constructor && func.call && func.apply);
 }
 
 /**
- * @private
  * Is the passed object iterable
  * @param iterable
  * @return {boolean}
  */
-function isIterable(iterable) {
+export function isIterable(iterable) {
     return !!(iterable && isFunction(iterable[Symbol.iterator]));
 }
 
 /**
- * @private
  * Is the passed value not null and a string
  * @param str
  * @returns {boolean}
  */
-function isString(str) { // jshint ignore:line
+export function isString(str) { // jshint ignore:line
     return !!(str && (typeof str === 'string' || str instanceof String));
 }
 
 /**
- * @private
  * Is the passed value not null and a finite number.
  * NaN and ±Infinity would return false.
  * @param num
  * @returns {boolean}
  */
-function isNumber(num) { // jshint ignore:line
+export function isNumber(num) { // jshint ignore:line
     return !!(num && ((typeof num === 'number' || num instanceof Number) && isFinite(num)));
 }
 
@@ -2109,11 +2104,12 @@ class SetIterableWrapper extends SetIterable {
     constructor(iterable, ctx) {
         super();
         this.iterable = iterable;
-        this.ctx = ctx;
+        this.ctx = ctx ? ctx : iterable;
     }
 
     get size() {
-        return this.iterable.length ? this.iterable.length : this.iterable.size;
+        return this.iterable.length ? this.iterable.length
+            : (this.iterable.size ? this.iterable.size : super.size);
     }
 
     has(value, depth) {
@@ -2137,11 +2133,12 @@ class MapIterableWrapper extends MapIterable {
     constructor(iterable, ctx) {
         super();
         this.iterable = iterable;
-        this.ctx = ctx;
+        this.ctx = ctx ? ctx : iterable;
     }
 
     get size() {
-        return this.iterable.length ? this.iterable.length : this.iterable.size;
+        return this.iterable.length ? this.iterable.length
+            : (this.iterable.size ? this.iterable.size : super.size);
     }
 
     * [Symbol.iterator]() {

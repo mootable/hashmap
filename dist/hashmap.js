@@ -42,6 +42,55 @@
     return Constructor;
   }
 
+  function _defineProperty(obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, {
+        value: value,
+        enumerable: true,
+        configurable: true,
+        writable: true
+      });
+    } else {
+      obj[key] = value;
+    }
+
+    return obj;
+  }
+
+  function ownKeys$1(object, enumerableOnly) {
+    var keys = Object.keys(object);
+
+    if (Object.getOwnPropertySymbols) {
+      var symbols = Object.getOwnPropertySymbols(object);
+      if (enumerableOnly) symbols = symbols.filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+      });
+      keys.push.apply(keys, symbols);
+    }
+
+    return keys;
+  }
+
+  function _objectSpread2(target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i] != null ? arguments[i] : {};
+
+      if (i % 2) {
+        ownKeys$1(Object(source), true).forEach(function (key) {
+          _defineProperty(target, key, source[key]);
+        });
+      } else if (Object.getOwnPropertyDescriptors) {
+        Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+      } else {
+        ownKeys$1(Object(source)).forEach(function (key) {
+          Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+        });
+      }
+    }
+
+    return target;
+  }
+
   function _inherits(subClass, superClass) {
     if (typeof superClass !== "function" && superClass !== null) {
       throw new TypeError("Super expression must either be null or a function");
@@ -3722,7 +3771,7 @@
 
   /**
    * HashMap - HashMap Implementation for JavaScript
-   * @module mootable/hashmap
+   * @module @mootable/hashmap
    * @author Jack Moxley <https://github.com/jackmoxley>
    * @version 0.12.0
    * Homepage: https://github.com/mootable/hashmap
@@ -3733,7 +3782,6 @@
    * This is NOT a cryptographic hash, this hash is designed to create as even a spread across a 32bit integer as is possible.
    * @see {@link https://github.com/aappleby/smhasher|MurmurHash specification on Github}
    * @see {@link https://en.wikipedia.org/wiki/MurmurHash|MurmurHash on Wikipedia}
-   * @function Mootable.hashCode
    * @param key the string being hashed
    * @param seed an optional random seed
    * @param len the max limit on the number of characters to hash
@@ -3782,20 +3830,41 @@
    * @returns {boolean}
    */
 
-  var isFunction = function isFunction(func) {
+  function isFunction(func) {
     return !!(func && func.constructor && func.call && func.apply);
-  };
+  }
   /**
    * Is the passed object iterable
    * @param iterable
    * @return {boolean}
    */
 
-
-  var isIterable = function isIterable(iterable) {
+  function isIterable(iterable) {
     return !!(iterable && isFunction(iterable[Symbol.iterator]));
-  };
+  }
   /**
+   * Is the passed value not null and a string
+   * @param str
+   * @returns {boolean}
+   */
+
+  function isString(str) {
+    // jshint ignore:line
+    return !!(str && (typeof str === 'string' || str instanceof String));
+  }
+  /**
+   * Is the passed value not null and a finite number.
+   * NaN and ±Infinity would return false.
+   * @param num
+   * @returns {boolean}
+   */
+
+  function isNumber(num) {
+    // jshint ignore:line
+    return !!(num && (typeof num === 'number' || num instanceof Number) && isFinite(num));
+  }
+  /**
+   * @private
    * The default Equals method we use this in most cases.
    *
    * @param me
@@ -3803,11 +3872,11 @@
    * @returns {boolean}
    */
 
-
-  var defaultEquals = function defaultEquals(me, them) {
+  function defaultEquals(me, them) {
     return me === them;
-  };
+  }
   /**
+   * @private
    * Does a wider equals for use with arrays.
    *
    * @param me
@@ -3817,7 +3886,7 @@
    */
 
 
-  var deepEquals = function deepEquals(me, them) {
+  function deepEquals(me, them) {
     var depth = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : -1;
 
     if (depth === 0 || Array.isArray(me) && Array.isArray(them)) {
@@ -3827,8 +3896,9 @@
     }
 
     return me === them;
-  };
+  }
   /**
+   * @private
    * Returns back a pair of equalTo Methods and hash values, for a raft of different objects.
    * TODO: Revisit this at some point.
    * @param key
@@ -3836,7 +3906,7 @@
    */
 
 
-  var hashEquals = function hashEquals(key) {
+  function hashEquals(key) {
     switch (_typeof(key)) {
       case 'boolean':
         return {
@@ -3886,77 +3956,79 @@
         };
 
       default:
-        // null
-        if (!key) {
-          return {
-            equalTo: defaultEquals,
-            hash: 0
-          };
-        }
-
-        if (key instanceof RegExp) {
-          return {
-            equalTo: function equalTo(me, them) {
-              if (them instanceof RegExp) {
-                return me + '' === them + '';
-              }
-
-              return false;
-            },
-            hash: hashCode(key + '')
-          };
-        }
-
-        if (key instanceof Date) {
-          return {
-            equalTo: function equalTo(me, them) {
-              if (them instanceof Date) {
-                return me.getTime() === them.getTime();
-              }
-
-              return false;
-            },
-            hash: key.getTime() | 0
-          };
-        }
-
-        if (key instanceof Array) {
-          var functions = [];
-          var hash_code = key.length;
-
-          for (var i = 0; i < key.length; i++) {
-            var currHE = hashEquals(key[i]);
-            functions.push(currHE.equalTo);
-            hash_code = hash_code + currHE.hash * 31;
+        {
+          // null
+          if (!key) {
+            return {
+              equalTo: defaultEquals,
+              hash: 0
+            };
           }
 
-          Object.freeze(functions);
-          return {
-            equalTo: function equalTo(me, them) {
-              if (them instanceof Array && me.length === them.length) {
-                for (var _i = 0; _i < me.length; _i++) {
-                  if (!functions[_i](me[_i], them[_i])) {
-                    return false;
-                  }
+          if (key instanceof RegExp) {
+            return {
+              equalTo: function equalTo(me, them) {
+                if (them && them instanceof RegExp) {
+                  return me.toString() === them.toString();
                 }
 
-                return true;
-              }
+                return false;
+              },
+              hash: hashCode(key.toString())
+            };
+          }
 
-              return false;
-            },
-            hash: hash_code | 0
-          };
-        } // Ew get rid of this.
+          if (key instanceof Date) {
+            return {
+              equalTo: function equalTo(me, them) {
+                if (them instanceof Date) {
+                  return me.getTime() === them.getTime();
+                }
+
+                return false;
+              },
+              hash: key.getTime() | 0
+            };
+          }
+
+          if (key instanceof Array) {
+            var functions = [];
+            var hash_code = key.length;
+
+            for (var i = 0; i < key.length; i++) {
+              var currHE = hashEquals(key[i]);
+              functions.push(currHE.equalTo);
+              hash_code = hash_code + currHE.hash * 31;
+            }
+
+            Object.freeze(functions);
+            return {
+              equalTo: function equalTo(me, them) {
+                if (them instanceof Array && me.length === them.length) {
+                  for (var _i = 0; _i < me.length; _i++) {
+                    if (!functions[_i](me[_i], them[_i])) {
+                      return false;
+                    }
+                  }
+
+                  return true;
+                }
+
+                return false;
+              },
+              hash: hash_code | 0
+            };
+          } // Ew get rid of this.
 
 
-        if (!key.hasOwnProperty('_hmuid_')) {
-          key._hmuid_ = ++HashMap.uid; // hide(key, '_hmuid_');
+          if (!key.hasOwnProperty('_hmuid_')) {
+            key._hmuid_ = ++HashMap.uid; // hide(key, '_hmuid_');
+          }
+
+          return hashEquals(key._hmuid_);
         }
-
-        return hashEquals(key._hmuid_);
     }
-  };
+  }
   /**
    * The base class for the Map Implementations, and the Higher Order Functions for Maps
    * @example <caption>Create a MapIterable from a Map.</caption>
@@ -6729,14 +6801,14 @@
 
       _this6 = _super6.call(this);
       _this6.iterable = iterable;
-      _this6.ctx = ctx;
+      _this6.ctx = ctx ? ctx : iterable;
       return _this6;
     }
 
     _createClass(SetIterableWrapper, [{
       key: "size",
       get: function get() {
-        return this.iterable.length ? this.iterable.length : this.iterable.size;
+        return this.iterable.length ? this.iterable.length : this.iterable.size ? this.iterable.size : _get(_getPrototypeOf(SetIterableWrapper.prototype), "size", this);
       }
     }, {
       key: "has",
@@ -6786,14 +6858,14 @@
 
       _this7 = _super7.call(this);
       _this7.iterable = iterable;
-      _this7.ctx = ctx;
+      _this7.ctx = ctx ? ctx : iterable;
       return _this7;
     }
 
     _createClass(MapIterableWrapper, [{
       key: "size",
       get: function get() {
-        return this.iterable.length ? this.iterable.length : this.iterable.size;
+        return this.iterable.length ? this.iterable.length : this.iterable.size ? this.iterable.size : _get(_getPrototypeOf(MapIterableWrapper.prototype), "size", this);
       }
     }, {
       key: Symbol.iterator,
@@ -7663,18 +7735,32 @@
   }(SetIterableWrapper);
 
   /**
-   * @module mootable/hashmap
+   * @module @mootable/hashmap
    */
-  var Mootable = {
+
+  var Utils = {
+    hashCode: hashCode,
+    isFunction: isFunction,
+    isIterable: isIterable,
+    isString: isString,
+    isNumber: isNumber
+  };
+  var Types = {
     HashMap: HashMap,
     LinkedHashMap: LinkedHashMap,
     MapIterable: MapIterable,
-    SetIterable: SetIterable,
-    hashCode: hashCode
+    SetIterable: SetIterable
   };
+  var Mootable = _objectSpread2(_objectSpread2({}, Types), {}, {
+    Utils: Utils
+  });
 
   exports.HashMap = HashMap;
   exports.LinkedHashMap = LinkedHashMap;
+  exports.MapIterable = MapIterable;
   exports.Mootable = Mootable;
+  exports.SetIterable = SetIterable;
+  exports.default = HashMap;
+  exports.hashCode = hashCode;
 
 })));

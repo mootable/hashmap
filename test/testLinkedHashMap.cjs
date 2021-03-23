@@ -1,4 +1,3 @@
-/*jshint -W030,-W121 */
 const expect = require('chai').expect;
 
 function underTest() {
@@ -126,7 +125,7 @@ describe('linkedHashMap', function () {
             check(NaN);
             check(Number.POSITIVE_INFINITY);
             check(Number.NEGATIVE_INFINITY);
-            check(1.5)
+            check(1.5);
             check(1);
             check('Test');
             check(/test/);

@@ -1,4 +1,10 @@
 # Changelog
+## 0.12.1
+- Fixed a problem where size didn't work for unsized iterables
+- made public some of the more helpful utility functions.
+- Made the doc more EJS compliant.
+- added specific code coverage checks.
+- More tests.
 ## 0.12.0
 - (Breaking Change) Switched from a combined loader, to individual files (located in /dist) using roll up and babel.
 - Refactored to pure module exports.

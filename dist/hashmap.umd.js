@@ -1029,7 +1029,7 @@
 
 	/**
 	 * HashMap - HashMap Implementation for JavaScript
-	 * @module mootable/hashmap
+	 * @module @mootable/hashmap
 	 * @author Jack Moxley <https://github.com/jackmoxley>
 	 * @version 0.12.0
 	 * Homepage: https://github.com/mootable/hashmap
@@ -1040,7 +1040,6 @@
 	 * This is NOT a cryptographic hash, this hash is designed to create as even a spread across a 32bit integer as is possible.
 	 * @see {@link https://github.com/aappleby/smhasher|MurmurHash specification on Github}
 	 * @see {@link https://en.wikipedia.org/wiki/MurmurHash|MurmurHash on Wikipedia}
-	 * @function Mootable.hashCode
 	 * @param key the string being hashed
 	 * @param seed an optional random seed
 	 * @param len the max limit on the number of characters to hash
@@ -1087,20 +1086,41 @@
 	 * @returns {boolean}
 	 */
 
-	const isFunction = function (func) {
+	function isFunction(func) {
 	  return !!(func && func.constructor && func.call && func.apply);
-	};
+	}
 	/**
 	 * Is the passed object iterable
 	 * @param iterable
 	 * @return {boolean}
 	 */
 
-
-	const isIterable = function (iterable) {
+	function isIterable(iterable) {
 	  return !!(iterable && isFunction(iterable[Symbol.iterator]));
-	};
+	}
 	/**
+	 * Is the passed value not null and a string
+	 * @param str
+	 * @returns {boolean}
+	 */
+
+	function isString(str) {
+	  // jshint ignore:line
+	  return !!(str && (typeof str === 'string' || str instanceof String));
+	}
+	/**
+	 * Is the passed value not null and a finite number.
+	 * NaN and ±Infinity would return false.
+	 * @param num
+	 * @returns {boolean}
+	 */
+
+	function isNumber(num) {
+	  // jshint ignore:line
+	  return !!(num && (typeof num === 'number' || num instanceof Number) && isFinite(num));
+	}
+	/**
+	 * @private
 	 * The default Equals method we use this in most cases.
 	 *
 	 * @param me
@@ -1108,11 +1128,11 @@
 	 * @returns {boolean}
 	 */
 
-
-	const defaultEquals = function (me, them) {
+	function defaultEquals(me, them) {
 	  return me === them;
-	};
+	}
 	/**
+	 * @private
 	 * Does a wider equals for use with arrays.
 	 *
 	 * @param me
@@ -1122,14 +1142,15 @@
 	 */
 
 
-	const deepEquals = function (me, them, depth = -1) {
+	function deepEquals(me, them, depth = -1) {
 	  if (depth === 0 || Array.isArray(me) && Array.isArray(them)) {
 	    return me.length === them.length && me.every((el, ix) => deepEquals(el, them[ix], --depth));
 	  }
 
 	  return me === them;
-	};
+	}
 	/**
+	 * @private
 	 * Returns back a pair of equalTo Methods and hash values, for a raft of different objects.
 	 * TODO: Revisit this at some point.
 	 * @param key
@@ -1137,7 +1158,7 @@
 	 */
 
 
-	const hashEquals = function (key) {
+	function hashEquals(key) {
 	  switch (typeof key) {
 	    case 'boolean':
 	      return {
@@ -1187,77 +1208,79 @@
 	      };
 
 	    default:
-	      // null
-	      if (!key) {
-	        return {
-	          equalTo: defaultEquals,
-	          hash: 0
-	        };
-	      }
-
-	      if (key instanceof RegExp) {
-	        return {
-	          equalTo: function (me, them) {
-	            if (them instanceof RegExp) {
-	              return me + '' === them + '';
-	            }
-
-	            return false;
-	          },
-	          hash: hashCode(key + '')
-	        };
-	      }
-
-	      if (key instanceof Date) {
-	        return {
-	          equalTo: function (me, them) {
-	            if (them instanceof Date) {
-	              return me.getTime() === them.getTime();
-	            }
-
-	            return false;
-	          },
-	          hash: key.getTime() | 0
-	        };
-	      }
-
-	      if (key instanceof Array) {
-	        let functions = [];
-	        let hash_code = key.length;
-
-	        for (let i = 0; i < key.length; i++) {
-	          const currHE = hashEquals(key[i]);
-	          functions.push(currHE.equalTo);
-	          hash_code = hash_code + currHE.hash * 31;
+	      {
+	        // null
+	        if (!key) {
+	          return {
+	            equalTo: defaultEquals,
+	            hash: 0
+	          };
 	        }
 
-	        Object.freeze(functions);
-	        return {
-	          equalTo: function (me, them) {
-	            if (them instanceof Array && me.length === them.length) {
-	              for (let i = 0; i < me.length; i++) {
-	                if (!functions[i](me[i], them[i])) {
-	                  return false;
-	                }
+	        if (key instanceof RegExp) {
+	          return {
+	            equalTo: function (me, them) {
+	              if (them && them instanceof RegExp) {
+	                return me.toString() === them.toString();
 	              }
 
-	              return true;
-	            }
+	              return false;
+	            },
+	            hash: hashCode(key.toString())
+	          };
+	        }
 
-	            return false;
-	          },
-	          hash: hash_code | 0
-	        };
-	      } // Ew get rid of this.
+	        if (key instanceof Date) {
+	          return {
+	            equalTo: function (me, them) {
+	              if (them instanceof Date) {
+	                return me.getTime() === them.getTime();
+	              }
+
+	              return false;
+	            },
+	            hash: key.getTime() | 0
+	          };
+	        }
+
+	        if (key instanceof Array) {
+	          let functions = [];
+	          let hash_code = key.length;
+
+	          for (let i = 0; i < key.length; i++) {
+	            const currHE = hashEquals(key[i]);
+	            functions.push(currHE.equalTo);
+	            hash_code = hash_code + currHE.hash * 31;
+	          }
+
+	          Object.freeze(functions);
+	          return {
+	            equalTo: function (me, them) {
+	              if (them instanceof Array && me.length === them.length) {
+	                for (let i = 0; i < me.length; i++) {
+	                  if (!functions[i](me[i], them[i])) {
+	                    return false;
+	                  }
+	                }
+
+	                return true;
+	              }
+
+	              return false;
+	            },
+	            hash: hash_code | 0
+	          };
+	        } // Ew get rid of this.
 
 
-	      if (!key.hasOwnProperty('_hmuid_')) {
-	        key._hmuid_ = ++HashMap.uid; // hide(key, '_hmuid_');
+	        if (!key.hasOwnProperty('_hmuid_')) {
+	          key._hmuid_ = ++HashMap.uid; // hide(key, '_hmuid_');
+	        }
+
+	        return hashEquals(key._hmuid_);
 	      }
-
-	      return hashEquals(key._hmuid_);
 	  }
-	};
+	}
 	/**
 	 * The base class for the Map Implementations, and the Higher Order Functions for Maps
 	 * @example <caption>Create a MapIterable from a Map.</caption>
@@ -3285,11 +3308,11 @@
 	  constructor(iterable, ctx) {
 	    super();
 	    this.iterable = iterable;
-	    this.ctx = ctx;
+	    this.ctx = ctx ? ctx : iterable;
 	  }
 
 	  get size() {
-	    return this.iterable.length ? this.iterable.length : this.iterable.size;
+	    return this.iterable.length ? this.iterable.length : this.iterable.size ? this.iterable.size : super.size;
 	  }
 
 	  has(value, depth) {
@@ -3316,11 +3339,11 @@
 	  constructor(iterable, ctx) {
 	    super();
 	    this.iterable = iterable;
-	    this.ctx = ctx;
+	    this.ctx = ctx ? ctx : iterable;
 	  }
 
 	  get size() {
-	    return this.iterable.length ? this.iterable.length : this.iterable.size;
+	    return this.iterable.length ? this.iterable.length : this.iterable.size ? this.iterable.size : super.size;
 	  }
 
 	  *[Symbol.iterator]() {
@@ -3659,19 +3682,33 @@
 	}
 
 	/**
-	 * @module mootable/hashmap
+	 * @module @mootable/hashmap
 	 */
-	const Mootable = {
+
+	const Utils = {
+	  hashCode,
+	  isFunction,
+	  isIterable,
+	  isString,
+	  isNumber
+	};
+	const Types = {
 	  HashMap,
 	  LinkedHashMap,
 	  MapIterable,
-	  SetIterable,
-	  hashCode
+	  SetIterable
+	};
+	const Mootable = { ...Types,
+	  Utils
 	};
 
 	exports.HashMap = HashMap;
 	exports.LinkedHashMap = LinkedHashMap;
+	exports.MapIterable = MapIterable;
 	exports.Mootable = Mootable;
+	exports.SetIterable = SetIterable;
+	exports.default = HashMap;
+	exports.hashCode = hashCode;
 
 	Object.defineProperty(exports, '__esModule', { value: true });
 

@@ -1,4 +1,3 @@
-/*jshint -W030,-W121 */
 const expect = require('chai').expect;
 
 function underTest() {
