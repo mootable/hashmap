@@ -1031,7 +1031,7 @@
 	 * HashMap - HashMap Implementation for JavaScript
 	 * @module @mootable/hashmap
 	 * @author Jack Moxley <https://github.com/jackmoxley>
-	 * @version 0.12.2
+	 * @version 0.12.3
 	 * Homepage: https://github.com/mootable/hashmap
 	 */
 
@@ -1143,8 +1143,8 @@
 
 
 	function deepEquals(me, them, depth = -1) {
-	  if (depth === 0 || Array.isArray(me) && Array.isArray(them)) {
-	    return me.length === them.length && me.every((el, ix) => deepEquals(el, them[ix], --depth));
+	  if (depth !== 0 && Array.isArray(me) && Array.isArray(them)) {
+	    return me.length === them.length && me.every((el, ix) => deepEquals(el, them[ix], depth - 1));
 	  }
 
 	  return me === them;

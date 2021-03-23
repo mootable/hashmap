@@ -1,7 +1,7 @@
 /**
  * HashMap - HashMap Implementation for JavaScript
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.12.2
+ * @version 0.12.3
  * Homepage: https://github.com/mootable/hashmap
  */
 const fs = require('fs');

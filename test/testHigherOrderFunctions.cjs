@@ -659,6 +659,40 @@ describe('Higher Order Functions', function () {
             expect(mapIterator.filter(() => true).collect()).to.be.empty;
         });
 
+
+        it('filter with has infinite depth', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            expect(mapIterator.filter().has('key')).to.be.true;
+        });
+        it('filter with has false ', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            expect(mapIterator.filter().has('other')).to.be.false;
+        });
+        it('filter with key depth 1', function () {
+            hashmap.set(['deeperKey', 'deepishKey'], 'value');
+            hashmap.set('key2', 'value2');
+            expect(mapIterator.filter().has(['deeperKey', 'deepishKey'])).to.be.true;
+        });
+
+        it('filter with value depth 2', function () {
+            hashmap.set(['deeperKey', ['deeper', 'deepish']], ['deeper', 'deepish']);
+            hashmap.set('key2', 'value2');
+            expect(mapIterator.filter().has(['deeperKey', ['deeper', 'deepish']])).to.be.true;
+        });
+        it('filter with key depth 1 false', function () {
+            hashmap.set(['deeperKey', 'deepishKey'], 'value');
+            hashmap.set('key2', 'value2');
+            expect(mapIterator.filter().has(['deeperKey', 'other'])).to.be.false;
+        });
+
+        it('filter with value depth 2 false', function () {
+            hashmap.set(['deeperKey', ['deeper', 'deepish']], ['deeper', 'deepish']);
+            hashmap.set('key2', 'value2');
+            expect(mapIterator.filter().has(['deeperKey', ['deeper', 'other']])).to.be.false;
+        });
+
         it('should remain consistent among calls', function () {
             hashmap.set('key', 'value');
             hashmap.set('key2', 'value2');
@@ -741,9 +775,65 @@ describe('Higher Order Functions', function () {
             expect(setIterator.filter(() => true).collect()).to.deep.equal(setIterator.filter(() => true).collect());
         });
 
+        it('filter with has infinite depth', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            expect(setIterator.filter().has(['key', 'value'])).to.be.true;
+        });
+        it('filter with value depth 1 and has depth 0', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            expect(setIterator.filter().has(['key', 'value'],0)).to.be.false;
+        });
+        it('filter with value depth 1 and has depth 1', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            expect(setIterator.filter().has(['key', 'value'],1)).to.be.true;
+        });
+
+        it('filter with value depth 2 and has depth 1', function () {
+            hashmap.set('key', ['deeper', 'deepish']);
+            hashmap.set('key2', 'value2');
+            expect(setIterator.filter().has(['key', ['deeper', 'deepish']],1)).to.be.false;
+        });
+
+        it('filter with value depth 2 and has depth 2', function () {
+            hashmap.set('key', ['deeper', 'deepish']);
+            hashmap.set('key2', 'value2');
+            expect(setIterator.filter().has(['key', ['deeper', 'deepish']],2)).to.be.true;
+        });
+
+        it('filter with value depth 2 and has infinite depth', function () {
+            hashmap.set('key', ['deeper', 'deepish']);
+            hashmap.set('key2', 'value2');
+            expect(setIterator.filter().has(['key', ['deeper', 'deepish']],-1)).to.be.true;
+        });
+
+        it('filter with value depth 2 and has depth 1 as false', function () {
+            hashmap.set('key', ['deeper', 'deepish']);
+            hashmap.set('key2', 'value2');
+            expect(setIterator.filter().has(['key', ['other', 'deepish']],1)).to.be.false;
+        });
+
+        it('filter with value depth 2 and has depth 2 as false', function () {
+            hashmap.set('key', ['deeper', 'deepish']);
+            hashmap.set('key2', 'value2');
+            expect(setIterator.filter().has(['key', ['deeper', 'other']],2)).to.be.false;
+        });
+
+        it('filter with value depth 2 and has infinite depth as false', function () {
+            hashmap.set('key', ['deeper', 'deepish']);
+            hashmap.set('key2', 'value2');
+            expect(setIterator.filter().has(['key', ['deeper', 'other']],-1)).to.be.false;
+        });
+        it('filter with has false ', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            expect(setIterator.filter().has('other')).to.be.false;
+        });
         it('should respect filter context', function () {
             hashmap.set('key', 'value');
-            let ctx = {};
+            const ctx = {};
             setIterator.filter(function () {
                 expect(this).to.equal(ctx);
             }, ctx).collect();
