@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>Home - Documentation</title>
+    <title>index.js - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -34,31 +34,55 @@
 
 <div id="main">
     
+    <h1 class="page-title">index.js</h1>
+    
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import {
+    HashMap,
+    LinkedHashMap,
+    MapIterable,
+    SetIterable,
+    hashCode,
+    isFunction,
+    isIterable,
+    isString,
+    isNumber
+} from "./hashmap.js";
 
-
-    <section class="package">
-        <h3> </h3>		
+/**
+ * @module @mootable/hashmap
+ */
+const Utils = {
+    hashCode,
+    isFunction,
+    isIterable,
+    isString,
+    isNumber
+};
+const Types = {
+    HashMap,
+    LinkedHashMap,
+    MapIterable,
+    SetIterable,
+};
+export default HashMap;
+export {
+    HashMap,
+    LinkedHashMap,
+    MapIterable,
+    SetIterable,
+    hashCode
+};
+export const Mootable = {...Types, Utils};</code></pre>
+        </article>
     </section>
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
 
 
 
