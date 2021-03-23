@@ -1,3 +1,4 @@
+/* jshint ignore:start */
 const expect = require('chai').expect;
 
 function underTest() {
@@ -112,7 +113,7 @@ describe('linkedHashMap', function () {
             return 'value' + uid++;
         }
 
-        it('should map the same key consistenly to the same hash', function () {
+        it('should map the same key consistently to the same hash', function () {
             function check(key) {
                 var value = val();
                 linkedHashMap.set(key, value);
@@ -219,7 +220,7 @@ describe('linkedHashMap', function () {
         it('should respect forEach context', function () {
             linkedHashMap.set('key', 'value');
             var ctx = {};
-            linkedHashMap.forEach(function (value, key) {
+            linkedHashMap.forEach(function () {
                 expect(this).to.equal(ctx);
             }, ctx);
         });
@@ -480,3 +481,4 @@ describe('linkedHashMap', function () {
         });
     });
 });
+/* jshint ignore:end */

@@ -1,3 +1,4 @@
+/* jshint ignore:start */
 const expect = require('chai').expect;
 
 function underTest() {
@@ -612,7 +613,13 @@ describe('Higher Order Functions', function () {
             expect(called).to.equal(1);
             expect(ret).to.deep.equal([['key', 'value']]);
         });
-
+        it('should default filter to true', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(mapIterator.filter().size).to.equal(2);
+            expect(mapIterator.filter().collect()).to.deep.equal([['key', 'value'], ['key2', 'value2a']]);
+        });
         it('should collect all if filter is true', function () {
             hashmap.set('key', 'value');
             hashmap.set('key2', 'value2');
@@ -682,6 +689,13 @@ describe('Higher Order Functions', function () {
             expect(ret).to.deep.equal([['key', 'value']]);
         });
 
+        it('should default filter to true', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            expect(setIterator.filter().size).to.equal(2);
+            expect(setIterator.filter().collect()).to.deep.equal([['key', 'value'], ['key2', 'value2a']]);
+        });
         it('should collect all if filter is true', function () {
             hashmap.set('key', 'value');
             hashmap.set('key2', 'value2');
@@ -2096,4 +2110,87 @@ describe('Higher Order Functions', function () {
                 .to.deep.equal([['key', 'value'], ['key2', 'value2a'], ['key3', 'value3'], ['key4', 'value4']]);
         });
     });
+
+
+    describe('MapIterable.from', function () {
+
+        it('should work on an iterable', function () {
+            const myIterable = {
+                * [Symbol.iterator]() {
+                    yield ["key1", "value1"];
+                    yield ["key2", "value2"];
+                    yield ["key3", "value3"];
+                }
+            };
+            const myMapIterator = Mootable.MapIterable.from(myIterable);
+            const size = myMapIterator.size;
+            expect(size).to.equal(3);
+        });
+
+        it('should work on a hashmap', function () {
+            hashmap.set("key1", "value1").set("key2", "value2").set("key3", "value3");
+            const myMapIterator = Mootable.MapIterable.from(hashmap);
+            const size = myMapIterator.size;
+            expect(size).to.equal(3);
+        });
+        it('should work on a map', function () {
+            const map = new Map().set("key1", "value1").set("key2", "value2").set("key3", "value3");
+            const myMapIterator = Mootable.MapIterable.from(map);
+            const size = myMapIterator.size;
+            expect(size).to.equal(3);
+        });
+        it('should work on an array', function () {
+            const array = [["key1", "value1"],["key2", "value2"],["key3", "value3"]];
+            const myMapIterator = Mootable.MapIterable.from(array);
+            const size = myMapIterator.size;
+            expect(size).to.equal(3);
+        });
+    });
+
+    describe('SetIterable.from', function () {
+
+        it('should work on an iterable', function () {
+            const myIterable = {
+                * [Symbol.iterator]() {
+                    yield "value1";
+                    yield "value2";
+                    yield "value3";
+                }
+            };
+            const mySetIterator = Mootable.SetIterable.from(myIterable);
+            const size = mySetIterator.size;
+            expect(size).to.equal(3);
+        });
+
+        it('should work on a hashmap', function () {
+            hashmap.set("key1", "value1").set("key2", "value2").set("key3", "value3");
+            const mySetIterator = Mootable.SetIterable.from(hashmap);
+            const size = mySetIterator.size;
+            expect(size).to.equal(3);
+        });it('should work on a set iterable', function () {
+            hashmap.set("key1", "value1").set("key2", "value2").set("key3", "value3");
+            const mySetIterator = Mootable.SetIterable.from(hashmap.values());
+            const size = mySetIterator.size;
+            expect(size).to.equal(3);
+        });
+        it('should work on a map', function () {
+            const map = new Map().set("key1", "value1").set("key2", "value2").set("key3", "value3");
+            const mySetIterator = Mootable.SetIterable.from(map);
+            const size = mySetIterator.size;
+            expect(size).to.equal(3);
+        });
+        it('should work on a set', function () {
+            const set = new Set().add( "value1").add( "value2").add( "value3");
+            const mySetIterator = Mootable.SetIterable.from(set);
+            const size = mySetIterator.size;
+            expect(size).to.equal(3);
+        });
+        it('should work on an array', function () {
+            const array = [ "value1", "value2", "value3"];
+            const mySetIterator = Mootable.SetIterable.from(array);
+            const size = mySetIterator.size;
+            expect(size).to.equal(3);
+        });
+    });
 });
+/* jshint ignore:end */

@@ -1,3 +1,4 @@
+/* jshint ignore:start */
 const expect = require('chai').expect;
 
 function underTest() {
@@ -472,3 +473,4 @@ describe('hashmap', function () {
         });
     });
 });
+/* jshint ignore:end */
