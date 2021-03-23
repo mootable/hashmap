@@ -1,5 +1,5 @@
 # Changelog
-## 0.12.1
+## 0.12.2
 - Fixed a problem where size didn't work for unsized iterables
 - made public some of the more helpful utility functions.
 - Made the doc more EJS compliant.

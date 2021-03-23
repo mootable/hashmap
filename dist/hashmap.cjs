@@ -6,7 +6,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
  * HashMap - HashMap Implementation for JavaScript
  * @module @mootable/hashmap
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.12.1
+ * @version 0.12.2
  * Homepage: https://github.com/mootable/hashmap
  */
 /**
