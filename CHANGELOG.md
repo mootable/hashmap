@@ -1,4 +1,6 @@
 # Changelog
+## 0.12.4
+- Set Documentation links to the rightplace
 ## 0.12.3
 - Fixed a problem where the deep equals method wasn't respecting the deep values.
 - Added tests for has in MapFilter and SetFilter. specifically around array matches.

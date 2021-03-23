@@ -6,7 +6,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
  * HashMap - HashMap Implementation for JavaScript
  * @module @mootable/hashmap
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.12.3
+ * @version 0.12.4
  * Homepage: https://github.com/mootable/hashmap
  */
 
@@ -2382,6 +2382,11 @@ class MapMapper extends SetIterableWrapper {
         }
     }
 
+    /**
+     * Only ever used for MapIterabls of Key Value Door.
+     * @param value
+     * @return {boolean|*}
+     */
     has(value) {
         if (Array.isArray(value)) {
             return this.iterable.some((otherValue) => deepEquals(value, otherValue));

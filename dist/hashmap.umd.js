@@ -1031,7 +1031,7 @@
 	 * HashMap - HashMap Implementation for JavaScript
 	 * @module @mootable/hashmap
 	 * @author Jack Moxley <https://github.com/jackmoxley>
-	 * @version 0.12.3
+	 * @version 0.12.4
 	 * Homepage: https://github.com/mootable/hashmap
 	 */
 
@@ -3603,6 +3603,12 @@
 	      yield this.mapFunction.call(this.ctx, value, key, this);
 	    }
 	  }
+	  /**
+	   * Only ever used for MapIterabls of Key Value Door.
+	   * @param value
+	   * @return {boolean|*}
+	   */
+
 
 	  has(value) {
 	    if (Array.isArray(value)) {

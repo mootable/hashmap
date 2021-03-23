@@ -1,6 +1,6 @@
 ![The Moo Tableau](mootableau_sm.png)
 
-[API Documentation](https://mootable.github.io/hashmap/HashMap)
+[API Documentation](https://mootable.github.io/hashmap/module-@mootable_hashmap.HashMap.html)
 ---
 # HashMap & LinkedHashMap
 ## Description
@@ -39,8 +39,8 @@ To run the benchmarks: (Ensure you have the memory to run them)
 
 ## [API Documentation](https://mootable.github.io/hashmap/)
 
-### [HashMap](https://mootable.github.io/hashmap/HashMap) constructor
-This [HashMap](https://mootable.github.io/hashmap/HashMap) is backed by a hashtrie, and can be tuned to specific use cases.
+### [HashMap](https://mootable.github.io/hashmap/module-@mootable_hashmap.HashMap.html) constructor
+This [HashMap](https://mootable.github.io/hashmap/module-@mootable_hashmap.HashMap.html) is backed by a hashtrie, and can be tuned to specific use cases.
 - `new HashMap()` creates an empty hashmap
 - `new HashMap(copy:Iterable)` creates a hashmap which is a copy of the provided iterable.
   1) `copy` either
@@ -56,8 +56,8 @@ This [HashMap](https://mootable.github.io/hashmap/HashMap) is backed by a hashtr
     - Minimum: `2`, Maximum: `16`, Default: `6` (64 Buckets)
 
 
-### [LinkedHashMap](https://mootable.github.io/hashmap/LinkedHashMap) constructor
-[LinkedHashMap](https://mootable.github.io/hashmap/LinkedHashMap) maintains insertion order of keys, it has a slightly larger memory footprint and is a little slower.
+### [LinkedHashMap](https://mootable.github.io/hashmap/module-@mootable_hashmap.LinkedHashMap.html) constructor
+[LinkedHashMap](https://mootable.github.io/hashmap/module-@mootable_hashmap.LinkedHashMap.html) maintains insertion order of keys, it has a slightly larger memory footprint and is a little slower.
 - `new LinkedHashMap()` creates an empty linked hashmap
 - `new LinkedHashMap(copy:Iterable)` creates a linked hashmap which is a copy of the provided iterable.
   1) `copy` either
@@ -181,7 +181,7 @@ map
     - It must have an identical interface to JS Map
     - It must be fully written in JS. (Transpiling is acceptable) So that we can guarantee it works in the browser, not just node.
 
-### Benchmarks on version 0.12.3
+### Benchmarks on version 0.12.4
 
 <table>
 <thead><tr><th>Entry Size</th><th>Fastest Version</th><th>Percentage Faster</th><th>Times Faster</th></tr></thead>

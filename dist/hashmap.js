@@ -3773,7 +3773,7 @@
    * HashMap - HashMap Implementation for JavaScript
    * @module @mootable/hashmap
    * @author Jack Moxley <https://github.com/jackmoxley>
-   * @version 0.12.3
+   * @version 0.12.4
    * Homepage: https://github.com/mootable/hashmap
    */
 
@@ -7510,6 +7510,12 @@
           }
         }, value, this, [[1, 11, 14, 17]]);
       })
+      /**
+       * Only ever used for MapIterabls of Key Value Door.
+       * @param value
+       * @return {boolean|*}
+       */
+
     }, {
       key: "has",
       value: function has(value) {
