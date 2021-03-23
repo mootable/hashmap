@@ -1031,7 +1031,7 @@
 	 * HashMap - HashMap Implementation for JavaScript
 	 * @module @mootable/hashmap
 	 * @author Jack Moxley <https://github.com/jackmoxley>
-	 * @version 0.12.0
+	 * @version 0.12.1
 	 * Homepage: https://github.com/mootable/hashmap
 	 */
 
