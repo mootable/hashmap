@@ -9,5 +9,9 @@
   "check-coverage": true,
   "include": [
     "src/**"
-  ]
+  ],
+  "branches": 65,
+  "lines": 75,
+  "functions": 70,
+  "statements": 70
 }
