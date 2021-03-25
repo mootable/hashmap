@@ -1,6 +1,6 @@
 /**
  * HashMap - HashMap Implementation for JavaScript
- * @module @mootable/hashmap
+ * @namespace Mootable
  * @author Jack Moxley <https://github.com/jackmoxley>
  * @version 0.12.5
  * Homepage: https://github.com/mootable/hashmap
@@ -1534,7 +1534,7 @@ class LinkedEntry extends Entry {
 
 /**
  * This HashMap is backed by a hashtrie, and can be tuned to specific use cases.
- * @extends MapIterable
+ * @extends {MapIterable}
  */
 class HashMap extends MapIterable {
     /**
