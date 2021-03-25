@@ -3773,7 +3773,7 @@
    * HashMap - HashMap Implementation for JavaScript
    * @module @mootable/hashmap
    * @author Jack Moxley <https://github.com/jackmoxley>
-   * @version 0.12.4
+   * @version 0.12.5
    * Homepage: https://github.com/mootable/hashmap
    */
 
@@ -5080,9 +5080,7 @@
     }, {
       key: "keys",
       value: function keys() {
-        return new MapMapper(this, function (_, key) {
-          return key;
-        }, this);
+        return new EntryToKeyMapper(this);
       }
       /**
        * Return a SetIterable which is just the values in this map.
@@ -5099,9 +5097,7 @@
     }, {
       key: "values",
       value: function values() {
-        return new MapMapper(this, function (value) {
-          return value;
-        }, this);
+        return new EntryToValueMapper(this);
       }
       /**
        * Return a MapIterable which is the entries in this map, this is just a short hand for the [Symbol.Iterator]() implementation
@@ -6886,15 +6882,7 @@
     }, {
       key: "has",
       value: function has(key) {
-        if (isFunction(this.iterable.optionalGet)) {
-          return this.iterable.optionalGet(key).has;
-        }
-
-        if (isFunction(this.iterable.has)) {
-          return this.iterable.has(key);
-        }
-
-        return _get(_getPrototypeOf(MapIterableWrapper.prototype), "has", this).call(this, key);
+        return this.optionalGet(key).has;
       }
     }, {
       key: "optionalGet",
@@ -6920,15 +6908,7 @@
     }, {
       key: "get",
       value: function get(key) {
-        if (isFunction(this.iterable.optionalGet)) {
-          return this.iterable.optionalGet(key).value;
-        }
-
-        if (isFunction(this.iterable.get)) {
-          return this.iterable.get(key);
-        }
-
-        return _get(_getPrototypeOf(MapIterableWrapper.prototype), "get", this).call(this, key);
+        return this.optionalGet(key).value;
       }
     }]);
 
@@ -7369,18 +7349,17 @@
     }, {
       key: "has",
       value: function has(key) {
-        return this.iterable.has(key) || this.otherIterable.has(key);
+        return this.optionalGet(key).has;
       }
     }, {
       key: "get",
       value: function get(key) {
-        return this.iterable.get(key) || this.otherIterable.get(key);
+        return this.optionalGet(key).value;
       }
     }]);
 
     return MapConcat;
-  }(MapIterable); // The following are set iterables.
-
+  }(MapIterable);
   /**
    * @extends SetIterable
    * @private
@@ -7412,7 +7391,7 @@
       key: "has",
       value: function has(value) {
         var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
-        return _get(_getPrototypeOf(SetConcat.prototype), "has", this).call(this, value, depth) || this.otherIterable.has(value, depth);
+        return this.iterable.has(value, depth) || this.otherIterable.has(value, depth);
       }
     }, {
       key: Symbol.iterator,
@@ -7443,25 +7422,21 @@
    */
 
 
-  var MapMapper = /*#__PURE__*/function (_SetIterableWrapper) {
-    _inherits(MapMapper, _SetIterableWrapper);
+  var EntryToValueMapper = /*#__PURE__*/function (_SetIterableWrapper) {
+    _inherits(EntryToValueMapper, _SetIterableWrapper);
 
-    var _super14 = _createSuper(MapMapper);
+    var _super14 = _createSuper(EntryToValueMapper);
 
-    function MapMapper(iterable, mapFunction, ctx) {
-      var _this14;
+    function EntryToValueMapper(iterable) {
+      _classCallCheck(this, EntryToValueMapper);
 
-      _classCallCheck(this, MapMapper);
-
-      _this14 = _super14.call(this, iterable, ctx);
-      _this14.mapFunction = mapFunction;
-      return _this14;
+      return _super14.call(this, iterable);
     }
 
-    _createClass(MapMapper, [{
+    _createClass(EntryToValueMapper, [{
       key: Symbol.iterator,
       value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        var _iterator31, _step31, _step31$value, key, _value9;
+        var _iterator31, _step31, _step31$value, _value9;
 
         return regeneratorRuntime.wrap(function value$(_context14) {
           while (1) {
@@ -7478,9 +7453,9 @@
                   break;
                 }
 
-                _step31$value = _slicedToArray(_step31.value, 2), key = _step31$value[0], _value9 = _step31$value[1];
+                _step31$value = _slicedToArray(_step31.value, 2), _value9 = _step31$value[1];
                 _context14.next = 7;
-                return this.mapFunction.call(this.ctx, _value9, key, this);
+                return _value9;
 
               case 7:
                 _context14.next = 3;
@@ -7510,26 +7485,24 @@
           }
         }, value, this, [[1, 11, 14, 17]]);
       })
-      /**
-       * Only ever used for MapIterabls of Key Value Door.
-       * @param value
-       * @return {boolean|*}
-       */
-
     }, {
       key: "has",
       value: function has(value) {
+        var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
+
         if (Array.isArray(value)) {
           return this.iterable.some(function (otherValue) {
-            return deepEquals(value, otherValue);
+            return deepEquals(value, otherValue, depth);
           });
         } else {
-          return false;
+          return this.iterable.some(function (otherValue) {
+            return defaultEquals(value, otherValue);
+          });
         }
       }
     }]);
 
-    return MapMapper;
+    return EntryToValueMapper;
   }(SetIterableWrapper);
   /**
    * @extends SetIterableWrapper
@@ -7537,25 +7510,21 @@
    */
 
 
-  var SetMapper = /*#__PURE__*/function (_SetIterableWrapper2) {
-    _inherits(SetMapper, _SetIterableWrapper2);
+  var EntryToKeyMapper = /*#__PURE__*/function (_SetIterableWrapper2) {
+    _inherits(EntryToKeyMapper, _SetIterableWrapper2);
 
-    var _super15 = _createSuper(SetMapper);
+    var _super15 = _createSuper(EntryToKeyMapper);
 
-    function SetMapper(iterable, mapFunction, ctx) {
-      var _this15;
+    function EntryToKeyMapper(iterable) {
+      _classCallCheck(this, EntryToKeyMapper);
 
-      _classCallCheck(this, SetMapper);
-
-      _this15 = _super15.call(this, iterable, ctx);
-      _this15.mapFunction = mapFunction;
-      return _this15;
+      return _super15.call(this, iterable);
     }
 
-    _createClass(SetMapper, [{
+    _createClass(EntryToKeyMapper, [{
       key: Symbol.iterator,
       value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        var _iterator32, _step32, _value10;
+        var _iterator32, _step32, _step32$value, key;
 
         return regeneratorRuntime.wrap(function value$(_context15) {
           while (1) {
@@ -7572,9 +7541,9 @@
                   break;
                 }
 
-                _value10 = _step32.value;
+                _step32$value = _slicedToArray(_step32.value, 1), key = _step32$value[0];
                 _context15.next = 7;
-                return this.mapFunction.call(this.ctx, _value10, _value10, this);
+                return key;
 
               case 7:
                 _context15.next = 3;
@@ -7606,6 +7575,187 @@
       })
     }, {
       key: "has",
+      value: function has(key) {
+        return this.iterable.optionalGet(key).has;
+      }
+    }]);
+
+    return EntryToKeyMapper;
+  }(SetIterableWrapper);
+  /**
+   * @extends SetIterableWrapper
+   * @private
+   */
+
+
+  var MapMapper = /*#__PURE__*/function (_SetIterableWrapper3) {
+    _inherits(MapMapper, _SetIterableWrapper3);
+
+    var _super16 = _createSuper(MapMapper);
+
+    function MapMapper(iterable, mapFunction, ctx) {
+      var _this14;
+
+      _classCallCheck(this, MapMapper);
+
+      _this14 = _super16.call(this, iterable, ctx);
+      _this14.mapFunction = mapFunction;
+      return _this14;
+    }
+
+    _createClass(MapMapper, [{
+      key: Symbol.iterator,
+      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
+        var _iterator33, _step33, _step33$value, key, _value10;
+
+        return regeneratorRuntime.wrap(function value$(_context16) {
+          while (1) {
+            switch (_context16.prev = _context16.next) {
+              case 0:
+                _iterator33 = _createForOfIteratorHelper(this.iterable);
+                _context16.prev = 1;
+
+                _iterator33.s();
+
+              case 3:
+                if ((_step33 = _iterator33.n()).done) {
+                  _context16.next = 9;
+                  break;
+                }
+
+                _step33$value = _slicedToArray(_step33.value, 2), key = _step33$value[0], _value10 = _step33$value[1];
+                _context16.next = 7;
+                return this.mapFunction.call(this.ctx, _value10, key, this);
+
+              case 7:
+                _context16.next = 3;
+                break;
+
+              case 9:
+                _context16.next = 14;
+                break;
+
+              case 11:
+                _context16.prev = 11;
+                _context16.t0 = _context16["catch"](1);
+
+                _iterator33.e(_context16.t0);
+
+              case 14:
+                _context16.prev = 14;
+
+                _iterator33.f();
+
+                return _context16.finish(14);
+
+              case 17:
+              case "end":
+                return _context16.stop();
+            }
+          }
+        }, value, this, [[1, 11, 14, 17]]);
+      })
+      /**
+       * Only ever used for the Map function that produces a SetIterable.
+       * @param value
+       * @param depth
+       * @return {boolean}
+       */
+
+    }, {
+      key: "has",
+      value: function has(value) {
+        var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
+
+        if (Array.isArray(value)) {
+          return this.some(function (otherValue) {
+            return deepEquals(value, otherValue, depth);
+          });
+        } else {
+          return this.some(function (otherValue) {
+            return defaultEquals(value, otherValue);
+          });
+        }
+      }
+    }]);
+
+    return MapMapper;
+  }(SetIterableWrapper);
+  /**
+   * @extends SetIterableWrapper
+   * @private
+   */
+
+
+  var SetMapper = /*#__PURE__*/function (_SetIterableWrapper4) {
+    _inherits(SetMapper, _SetIterableWrapper4);
+
+    var _super17 = _createSuper(SetMapper);
+
+    function SetMapper(iterable, mapFunction, ctx) {
+      var _this15;
+
+      _classCallCheck(this, SetMapper);
+
+      _this15 = _super17.call(this, iterable, ctx);
+      _this15.mapFunction = mapFunction;
+      return _this15;
+    }
+
+    _createClass(SetMapper, [{
+      key: Symbol.iterator,
+      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
+        var _iterator34, _step34, _value11;
+
+        return regeneratorRuntime.wrap(function value$(_context17) {
+          while (1) {
+            switch (_context17.prev = _context17.next) {
+              case 0:
+                _iterator34 = _createForOfIteratorHelper(this.iterable);
+                _context17.prev = 1;
+
+                _iterator34.s();
+
+              case 3:
+                if ((_step34 = _iterator34.n()).done) {
+                  _context17.next = 9;
+                  break;
+                }
+
+                _value11 = _step34.value;
+                _context17.next = 7;
+                return this.mapFunction.call(this.ctx, _value11, _value11, this);
+
+              case 7:
+                _context17.next = 3;
+                break;
+
+              case 9:
+                _context17.next = 14;
+                break;
+
+              case 11:
+                _context17.prev = 11;
+                _context17.t0 = _context17["catch"](1);
+
+                _iterator34.e(_context17.t0);
+
+              case 14:
+                _context17.prev = 14;
+
+                _iterator34.f();
+
+                return _context17.finish(14);
+
+              case 17:
+              case "end":
+                return _context17.stop();
+            }
+          }
+        }, value, this, [[1, 11, 14, 17]]);
+      })
+    }, {
+      key: "has",
       value: function has(value) {
         var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
 
@@ -7629,17 +7779,17 @@
    */
 
 
-  var SetFilter = /*#__PURE__*/function (_SetIterableWrapper3) {
-    _inherits(SetFilter, _SetIterableWrapper3);
+  var SetFilter = /*#__PURE__*/function (_SetIterableWrapper5) {
+    _inherits(SetFilter, _SetIterableWrapper5);
 
-    var _super16 = _createSuper(SetFilter);
+    var _super18 = _createSuper(SetFilter);
 
     function SetFilter(iterable, filterPredicate, ctx) {
       var _this16;
 
       _classCallCheck(this, SetFilter);
 
-      _this16 = _super16.call(this, iterable, ctx);
+      _this16 = _super18.call(this, iterable, ctx);
       _this16.filterPredicate = filterPredicate;
       return _this16;
     }
@@ -7649,19 +7799,19 @@
       get: function get() {
         var accumulator = 0;
 
-        var _iterator33 = _createForOfIteratorHelper(this),
-            _step33;
+        var _iterator35 = _createForOfIteratorHelper(this),
+            _step35;
 
         try {
-          for (_iterator33.s(); !(_step33 = _iterator33.n()).done;) // jshint ignore:line
+          for (_iterator35.s(); !(_step35 = _iterator35.n()).done;) // jshint ignore:line
           {
-            var i = _step33.value;
+            var i = _step35.value;
             accumulator++;
           }
         } catch (err) {
-          _iterator33.e(err);
+          _iterator35.e(err);
         } finally {
-          _iterator33.f();
+          _iterator35.f();
         }
 
         return accumulator;
@@ -7669,57 +7819,57 @@
     }, {
       key: Symbol.iterator,
       value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        var _iterator34, _step34, _value11;
+        var _iterator36, _step36, _value12;
 
-        return regeneratorRuntime.wrap(function value$(_context16) {
+        return regeneratorRuntime.wrap(function value$(_context18) {
           while (1) {
-            switch (_context16.prev = _context16.next) {
+            switch (_context18.prev = _context18.next) {
               case 0:
-                _iterator34 = _createForOfIteratorHelper(this.iterable);
-                _context16.prev = 1;
+                _iterator36 = _createForOfIteratorHelper(this.iterable);
+                _context18.prev = 1;
 
-                _iterator34.s();
+                _iterator36.s();
 
               case 3:
-                if ((_step34 = _iterator34.n()).done) {
-                  _context16.next = 10;
+                if ((_step36 = _iterator36.n()).done) {
+                  _context18.next = 10;
                   break;
                 }
 
-                _value11 = _step34.value;
+                _value12 = _step36.value;
 
-                if (!this.filterPredicate.call(this.ctx, _value11, _value11, this)) {
-                  _context16.next = 8;
+                if (!this.filterPredicate.call(this.ctx, _value12, _value12, this)) {
+                  _context18.next = 8;
                   break;
                 }
 
-                _context16.next = 8;
-                return _value11;
+                _context18.next = 8;
+                return _value12;
 
               case 8:
-                _context16.next = 3;
+                _context18.next = 3;
                 break;
 
               case 10:
-                _context16.next = 15;
+                _context18.next = 15;
                 break;
 
               case 12:
-                _context16.prev = 12;
-                _context16.t0 = _context16["catch"](1);
+                _context18.prev = 12;
+                _context18.t0 = _context18["catch"](1);
 
-                _iterator34.e(_context16.t0);
+                _iterator36.e(_context18.t0);
 
               case 15:
-                _context16.prev = 15;
+                _context18.prev = 15;
 
-                _iterator34.f();
+                _iterator36.f();
 
-                return _context16.finish(15);
+                return _context18.finish(15);
 
               case 18:
               case "end":
-                return _context16.stop();
+                return _context18.stop();
             }
           }
         }, value, this, [[1, 12, 15, 18]]);

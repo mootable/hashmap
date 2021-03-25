@@ -10,8 +10,8 @@
   "include": [
     "src/**"
   ],
-  "branches": 72,
-  "lines": 77,
-  "functions": 77,
-  "statements": 76
+  "branches": 80,
+  "lines": 83,
+  "functions": 83,
+  "statements": 83
 }

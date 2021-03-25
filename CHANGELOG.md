@@ -1,4 +1,10 @@
 # Changelog
+## 0.12.5
+- Added keys specific Mapper Class - to make iterating keys faster, with specialised functions.
+- Added values specific Mapper Class - to make iterating values faster, with specialised functions.
+- Fixed has methods, with depth, ensured that the Js Native Map functions retain same has semantics (i.e. don't depth check)
+- Added More Tests and passed 80% Coverage Milestone. Yay!
+- Some basic code simplification and optimisations.
 ## 0.12.4
 - Set Documentation links to the rightplace
 ## 0.12.3

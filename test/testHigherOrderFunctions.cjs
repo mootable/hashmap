@@ -185,6 +185,7 @@ describe('Higher Order Functions', function () {
             }, ctx).collect();
         });
     });
+
     describe('MapIterable.mapKeys()', function () {
         it('should pass the basic test', function () {
             hashmap.set('key', 'value');
@@ -231,8 +232,7 @@ describe('Higher Order Functions', function () {
                 .to.deep.equal([['keyZ', 'value'], ['key2Z', 'value2a']]);
         });
 
-
-        it('should respect map context', function () {
+        it('mapKeys respect map context', function () {
             hashmap.set('key', 'value');
             let ctx = {};
             mapIterator.mapKeys(function (value, key) {
@@ -380,6 +380,7 @@ describe('Higher Order Functions', function () {
             }, ctx).collect();
         });
     });
+
     describe('MapIterable.map()', function () {
         it('should pass the basic test singleFunction', function () {
             hashmap.set('key', 'value');
@@ -478,7 +479,70 @@ describe('Higher Order Functions', function () {
             expect(mapIterator.map.bind(mapIterator, [undefined, undefined])).to.throw('MapIterable.mapEntries expects a function or an array of functions');
         });
 
-        it('should map all to true', function () {
+
+        it('map with has infinite depth', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            expect(mapIterator.map((value, key) => [value, key]).has(['value', 'key'])).to.be.true;
+        });
+        it('map with value depth 1 and has depth 0', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            expect(mapIterator.map((value, key) => [value, key]).has(['value', 'key'], 0)).to.be.false;
+        });
+        it('map with value depth 1 and has depth 1', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            expect(mapIterator.map((value, key) => [value, key]).has(['value', 'key'], 1)).to.be.true;
+        });
+
+        it('map with value depth 2 and has depth 1', function () {
+            hashmap.set('key', ['deeper', 'deepish']);
+            hashmap.set('key2', 'value2');
+            expect(mapIterator.map((value, key) => [value, key]).has([['deeper', 'deepish'], 'key'], 1)).to.be.false;
+        });
+
+        it('map with value depth 2 and has depth 2', function () {
+            hashmap.set('key', ['deeper', 'deepish']);
+            hashmap.set('key2', 'value2');
+            expect(mapIterator.map((value, key) => [value, key]).has([['deeper', 'deepish'], 'key'], 2)).to.be.true;
+        });
+
+        it('map with value depth 2 and has infinite depth', function () {
+            hashmap.set('key', ['deeper', 'deepish']);
+            hashmap.set('key2', 'value2');
+            expect(mapIterator.map((value, key) => [value, key]).has([['deeper', 'deepish'], 'key'], -1)).to.be.true;
+        });
+
+        it('map with value depth 2 and has depth 1 as false', function () {
+            hashmap.set('key', ['deeper', 'deepish']);
+            hashmap.set('key2', 'value2');
+            expect(mapIterator.map((value, key) => [value, key]).has([['other', 'deepish'], 'key'], 1)).to.be.false;
+        });
+
+        it('map with value depth 2 and has depth 2 as false', function () {
+            hashmap.set('key', ['deeper', 'deepish']);
+            hashmap.set('key2', 'value2');
+            expect(mapIterator.map((value, key) => [value, key]).has([['deeper', 'other'], 'key'], 2)).to.be.false;
+        });
+
+        it('map with value depth 2 and has infinite depth as false', function () {
+            hashmap.set('key', ['deeper', 'deepish']);
+            hashmap.set('key2', 'value2');
+            expect(mapIterator.map((value, key) => [value, key]).has([['deeper', 'other'], 'key'], -1)).to.be.false;
+        });
+        it('map with nonarray has false ', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            expect(mapIterator.map((value, key) => [value, key]).has('other')).to.be.false;
+        });
+        it('map with nonarray has true ', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            expect(mapIterator.map((value, key) => value + key).has('valuekey')).to.be.true;
+        });
+
+        it('map should map all to true', function () {
             hashmap.set('key', 'value');
             hashmap.set('key2', 'value2');
             hashmap.set('key2', 'value2a');
@@ -783,48 +847,48 @@ describe('Higher Order Functions', function () {
         it('filter with value depth 1 and has depth 0', function () {
             hashmap.set('key', 'value');
             hashmap.set('key2', 'value2');
-            expect(setIterator.filter().has(['key', 'value'],0)).to.be.false;
+            expect(setIterator.filter().has(['key', 'value'], 0)).to.be.false;
         });
         it('filter with value depth 1 and has depth 1', function () {
             hashmap.set('key', 'value');
             hashmap.set('key2', 'value2');
-            expect(setIterator.filter().has(['key', 'value'],1)).to.be.true;
+            expect(setIterator.filter().has(['key', 'value'], 1)).to.be.true;
         });
 
         it('filter with value depth 2 and has depth 1', function () {
             hashmap.set('key', ['deeper', 'deepish']);
             hashmap.set('key2', 'value2');
-            expect(setIterator.filter().has(['key', ['deeper', 'deepish']],1)).to.be.false;
+            expect(setIterator.filter().has(['key', ['deeper', 'deepish']], 1)).to.be.false;
         });
 
         it('filter with value depth 2 and has depth 2', function () {
             hashmap.set('key', ['deeper', 'deepish']);
             hashmap.set('key2', 'value2');
-            expect(setIterator.filter().has(['key', ['deeper', 'deepish']],2)).to.be.true;
+            expect(setIterator.filter().has(['key', ['deeper', 'deepish']], 2)).to.be.true;
         });
 
         it('filter with value depth 2 and has infinite depth', function () {
             hashmap.set('key', ['deeper', 'deepish']);
             hashmap.set('key2', 'value2');
-            expect(setIterator.filter().has(['key', ['deeper', 'deepish']],-1)).to.be.true;
+            expect(setIterator.filter().has(['key', ['deeper', 'deepish']], -1)).to.be.true;
         });
 
         it('filter with value depth 2 and has depth 1 as false', function () {
             hashmap.set('key', ['deeper', 'deepish']);
             hashmap.set('key2', 'value2');
-            expect(setIterator.filter().has(['key', ['other', 'deepish']],1)).to.be.false;
+            expect(setIterator.filter().has(['key', ['other', 'deepish']], 1)).to.be.false;
         });
 
         it('filter with value depth 2 and has depth 2 as false', function () {
             hashmap.set('key', ['deeper', 'deepish']);
             hashmap.set('key2', 'value2');
-            expect(setIterator.filter().has(['key', ['deeper', 'other']],2)).to.be.false;
+            expect(setIterator.filter().has(['key', ['deeper', 'other']], 2)).to.be.false;
         });
 
         it('filter with value depth 2 and has infinite depth as false', function () {
             hashmap.set('key', ['deeper', 'deepish']);
             hashmap.set('key2', 'value2');
-            expect(setIterator.filter().has(['key', ['deeper', 'other']],-1)).to.be.false;
+            expect(setIterator.filter().has(['key', ['deeper', 'other']], -1)).to.be.false;
         });
         it('filter with has false ', function () {
             hashmap.set('key', 'value');
@@ -1867,6 +1931,107 @@ describe('Higher Order Functions', function () {
             hashmap.set('key2', 'value2');
             expect(Array.from(mapIterator.keys()).sort()).to.deep.equal(['key', 'key2']);
         });
+
+        describe('has', function () {
+
+            describe('hashMap', function () {
+                it('keys with has infinite depth', function () {
+                    hashmap.set('key', 'value');
+                    hashmap.set('key2', 'value2');
+                    expect(mapIterator.keys().has('key')).to.be.true;
+                });
+                it('keys with has false ', function () {
+                    hashmap.set('key', 'value');
+                    hashmap.set('key2', 'value2');
+                    expect(mapIterator.keys().has('other')).to.be.false;
+                });
+                it('keys with key depth 1', function () {
+                    hashmap.set(['deeperKey', 'deepishKey'], 'value');
+                    hashmap.set('key2', 'value2');
+                    expect(mapIterator.keys().has(['deeperKey', 'deepishKey'])).to.be.true;
+                });
+
+                it('keys with value depth 2', function () {
+                    hashmap.set(['deeperKey', ['deeper', 'deepish']], ['deeper', 'deepish']);
+                    hashmap.set('key2', 'value2');
+                    expect(mapIterator.keys().has(['deeperKey', ['deeper', 'deepish']])).to.be.true;
+                });
+                it('keys with key depth 1 false', function () {
+                    hashmap.set(['deeperKey', 'deepishKey'], 'value');
+                    hashmap.set('key2', 'value2');
+                    expect(mapIterator.keys().has(['deeperKey', 'other'])).to.be.false;
+                });
+
+                it('keys with value depth 2 false', function () {
+                    hashmap.set(['deeperKey', ['deeper', 'deepish']], ['deeper', 'deepish']);
+                    hashmap.set('key2', 'value2');
+                    expect(mapIterator.keys().has(['deeperKey', ['deeper', 'other']])).to.be.false;
+                });
+            });
+            describe('map', function () {
+                beforeEach(function () {
+                    hashmap = new Map();
+                    // you don't need the filter or maps, but showing some method chaining is fun.
+                    mapIterator = Mootable.MapIterable.from(hashmap);
+                });
+
+                it('keys with has true', function () {
+                    hashmap.set('key', 'value');
+                    hashmap.set('key2', 'value2');
+                    expect(mapIterator.keys().has('key')).to.be.true;
+                });
+                it('keys with has false ', function () {
+                    hashmap.set('key', 'value');
+                    hashmap.set('key2', 'value2');
+                    expect(mapIterator.keys().has('other')).to.be.false;
+                });
+                it('keys with key depth 1', function () {
+                    hashmap.set(['deeperKey', 'deepishKey'], 'value');
+                    hashmap.set('key2', 'value2');
+                    expect(mapIterator.keys().has(['deeperKey', 'deepishKey'])).to.be.false;
+                });
+            });
+
+            describe('array', function () {
+                beforeEach(function () {
+                    hashmap = [];
+                    // you don't need the filter or maps, but showing some method chaining is fun.
+                    mapIterator = Mootable.MapIterable.from(hashmap);
+                });
+
+                it('keys with has true', function () {
+                    hashmap.push(['key', 'value']);
+                    hashmap.push(['key2', 'value2']);
+                    expect(mapIterator.keys().has('key')).to.be.true;
+                });
+                it('keys with has false ', function () {
+                    hashmap.push(['key', 'value']);
+                    hashmap.push(['key2', 'value2']);
+                    expect(mapIterator.keys().has('other')).to.be.false;
+                });
+                it('keys with key depth 1', function () {
+                    hashmap.push([['deeperKey', 'deepishKey'], 'value']);
+                    hashmap.push(['key2', 'value2']);
+                    expect(mapIterator.keys().has(['deeperKey', 'deepishKey'])).to.be.true;
+                });
+                it('keys with value depth 2', function () {
+                    hashmap.push([['deeperKey', ['deeper', 'deepish']], ['deeper', 'deepish']]);
+                    hashmap.push(['key2', 'value2']);
+                    expect(mapIterator.keys().has(['deeperKey', ['deeper', 'deepish']])).to.be.true;
+                });
+                it('keys with key depth 1 false', function () {
+                    hashmap.push([['deeperKey', 'deepishKey'], 'value']);
+                    hashmap.push(['key2', 'value2']);
+                    expect(mapIterator.keys().has(['deeperKey', 'other'])).to.be.false;
+                });
+
+                it('keys with value depth 2 false', function () {
+                    hashmap.push([['deeperKey', ['deeper', 'deepish']], ['deeper', 'deepish']]);
+                    hashmap.push(['key2', 'value2']);
+                    expect(mapIterator.keys().has(['deeperKey', ['deeper', 'other']])).to.be.false;
+                });
+            });
+        });
     });
 
     describe('MapIterable.values()', function () {
@@ -1883,6 +2048,39 @@ describe('Higher Order Functions', function () {
             hashmap.set('key', 'value');
             hashmap.set('key2', 'value2');
             expect(Array.from(mapIterator.values()).sort()).to.deep.equal(['value', 'value2']);
+        });
+
+        it('values with has infinite depth', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            expect(mapIterator.values().has('value')).to.be.true;
+        });
+        it('values with has false ', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            expect(mapIterator.values().has('other')).to.be.false;
+        });
+        it('values with key depth 1', function () {
+            hashmap.set('value', ['deeperKey', 'deepishKey']);
+            hashmap.set('value2', 'key2');
+            expect(mapIterator.values().has(['deeperKey', 'deepishKey'])).to.be.true;
+        });
+
+        it('values with value depth 2', function () {
+            hashmap.set(['deeper', 'deepish'], ['deeperKey', ['deeper', 'deepish']]);
+            hashmap.set('key2', 'value2');
+            expect(mapIterator.values().has(['deeperKey', ['deeper', 'deepish']])).to.be.true;
+        });
+        it('values with key depth 1 false', function () {
+            hashmap.set('key', ['deeperKey', 'deepishKey']);
+            hashmap.set('key2', 'value2');
+            expect(mapIterator.values().has(['deeperKey', 'other'])).to.be.false;
+        });
+
+        it('values with value depth 2 false', function () {
+            hashmap.set(['deeper', 'deepish'], ['deeperKey', ['deeper', 'deepish']]);
+            hashmap.set('key2', 'value2');
+            expect(mapIterator.values().has(['deeperKey', ['deeper', 'other']])).to.be.false;
         });
     });
 
@@ -2132,6 +2330,33 @@ describe('Higher Order Functions', function () {
                 .to.deep.equal([['key', 'value'], ['key2', 'value2a']]);
         });
 
+        it('concat with has from left', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            const arr = [['key3', 'value3'],['key4', 'value4']];
+            const concatinated = setIterator.concat(arr);
+            expect(concatinated.has(['key','value'])).to.be.true;
+        });
+
+        it('concat with has from right', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            const arr = [['key3', 'value3'],['key4', 'value4']];
+            expect(setIterator.concat(arr).has(['key3','value3'])).to.be.true;
+        });
+
+        it('concat with has from none', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            const arr = [['key3', 'value3'],['key4', 'value4']];
+            expect(setIterator.concat(arr).has(['key8', 'value8'])).to.be.false;
+        });
+        it('concat with has from other', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            const arr = [['key3', 'value3'],['key4', 'value4']];
+            expect(setIterator.concat(arr).has('other')).to.be.false;
+        });
         it('should concat from a map', function () {
             hashmap.set('key', 'value');
             hashmap.set('key2', 'value2');
@@ -2230,7 +2455,7 @@ describe('Higher Order Functions', function () {
             expect(size).to.equal(3);
         });
         it('should work on an array', function () {
-            const array = [["key1", "value1"],["key2", "value2"],["key3", "value3"]];
+            const array = [["key1", "value1"], ["key2", "value2"], ["key3", "value3"]];
             const myMapIterator = Mootable.MapIterable.from(array);
             const size = myMapIterator.size;
             expect(size).to.equal(3);
@@ -2257,7 +2482,8 @@ describe('Higher Order Functions', function () {
             const mySetIterator = Mootable.SetIterable.from(hashmap);
             const size = mySetIterator.size;
             expect(size).to.equal(3);
-        });it('should work on a set iterable', function () {
+        });
+        it('should work on a set iterable', function () {
             hashmap.set("key1", "value1").set("key2", "value2").set("key3", "value3");
             const mySetIterator = Mootable.SetIterable.from(hashmap.values());
             const size = mySetIterator.size;
@@ -2270,13 +2496,13 @@ describe('Higher Order Functions', function () {
             expect(size).to.equal(3);
         });
         it('should work on a set', function () {
-            const set = new Set().add( "value1").add( "value2").add( "value3");
+            const set = new Set().add("value1").add("value2").add("value3");
             const mySetIterator = Mootable.SetIterable.from(set);
             const size = mySetIterator.size;
             expect(size).to.equal(3);
         });
         it('should work on an array', function () {
-            const array = [ "value1", "value2", "value3"];
+            const array = ["value1", "value2", "value3"];
             const mySetIterator = Mootable.SetIterable.from(array);
             const size = mySetIterator.size;
             expect(size).to.equal(3);

@@ -1031,7 +1031,7 @@
 	 * HashMap - HashMap Implementation for JavaScript
 	 * @module @mootable/hashmap
 	 * @author Jack Moxley <https://github.com/jackmoxley>
-	 * @version 0.12.4
+	 * @version 0.12.5
 	 * Homepage: https://github.com/mootable/hashmap
 	 */
 
@@ -2106,7 +2106,7 @@
 
 
 	  keys() {
-	    return new MapMapper(this, (_, key) => key, this);
+	    return new EntryToKeyMapper(this);
 	  }
 	  /**
 	   * Return a SetIterable which is just the values in this map.
@@ -2122,7 +2122,7 @@
 
 
 	  values() {
-	    return new MapMapper(this, value => value, this);
+	    return new EntryToValueMapper(this);
 	  }
 	  /**
 	   * Return a MapIterable which is the entries in this map, this is just a short hand for the [Symbol.Iterator]() implementation
@@ -3351,15 +3351,7 @@
 	  }
 
 	  has(key) {
-	    if (isFunction(this.iterable.optionalGet)) {
-	      return this.iterable.optionalGet(key).has;
-	    }
-
-	    if (isFunction(this.iterable.has)) {
-	      return this.iterable.has(key);
-	    }
-
-	    return super.has(key);
+	    return this.optionalGet(key).has;
 	  }
 
 	  optionalGet(key) {
@@ -3383,15 +3375,7 @@
 	  }
 
 	  get(key) {
-	    if (isFunction(this.iterable.optionalGet)) {
-	      return this.iterable.optionalGet(key).value;
-	    }
-
-	    if (isFunction(this.iterable.get)) {
-	      return this.iterable.get(key);
-	    }
-
-	    return super.get(key);
+	    return this.optionalGet(key).value;
 	  }
 
 	}
@@ -3550,15 +3534,14 @@
 	  }
 
 	  has(key) {
-	    return this.iterable.has(key) || this.otherIterable.has(key);
+	    return this.optionalGet(key).has;
 	  }
 
 	  get(key) {
-	    return this.iterable.get(key) || this.otherIterable.get(key);
+	    return this.optionalGet(key).value;
 	  }
 
-	} // The following are set iterables.
-
+	}
 	/**
 	 * @extends SetIterable
 	 * @private
@@ -3577,12 +3560,60 @@
 	  }
 
 	  has(value, depth = -1) {
-	    return super.has(value, depth) || this.otherIterable.has(value, depth);
+	    return this.iterable.has(value, depth) || this.otherIterable.has(value, depth);
 	  }
 
 	  *[Symbol.iterator]() {
 	    yield* this.iterable;
 	    yield* this.otherIterable;
+	  }
+
+	}
+	/**
+	 * @extends SetIterableWrapper
+	 * @private
+	 */
+
+
+	class EntryToValueMapper extends SetIterableWrapper {
+	  constructor(iterable) {
+	    super(iterable);
+	  }
+
+	  *[Symbol.iterator]() {
+	    for (let [, value] of this.iterable) {
+	      yield value;
+	    }
+	  }
+
+	  has(value, depth = -1) {
+	    if (Array.isArray(value)) {
+	      return this.iterable.some(otherValue => deepEquals(value, otherValue, depth));
+	    } else {
+	      return this.iterable.some(otherValue => defaultEquals(value, otherValue));
+	    }
+	  }
+
+	}
+	/**
+	 * @extends SetIterableWrapper
+	 * @private
+	 */
+
+
+	class EntryToKeyMapper extends SetIterableWrapper {
+	  constructor(iterable) {
+	    super(iterable);
+	  }
+
+	  *[Symbol.iterator]() {
+	    for (let [key] of this.iterable) {
+	      yield key;
+	    }
+	  }
+
+	  has(key) {
+	    return this.iterable.optionalGet(key).has;
 	  }
 
 	}
@@ -3604,17 +3635,18 @@
 	    }
 	  }
 	  /**
-	   * Only ever used for MapIterabls of Key Value Door.
+	   * Only ever used for the Map function that produces a SetIterable.
 	   * @param value
-	   * @return {boolean|*}
+	   * @param depth
+	   * @return {boolean}
 	   */
 
 
-	  has(value) {
+	  has(value, depth = -1) {
 	    if (Array.isArray(value)) {
-	      return this.iterable.some(otherValue => deepEquals(value, otherValue));
+	      return this.some(otherValue => deepEquals(value, otherValue, depth));
 	    } else {
-	      return false;
+	      return this.some(otherValue => defaultEquals(value, otherValue));
 	    }
 	  }
 
