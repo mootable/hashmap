@@ -2248,7 +2248,36 @@ describe('Higher Order Functions', function () {
             expect(called).to.equal(1);
             expect(ret).to.deep.equal([['key', 'value']]);
         });
+        it('concat with has from left', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            const map = new Map([['key3', 'value3'],['key4', 'value4']]);
+            const concatinated = mapIterator.concat(map);
+            expect(concatinated.has('key')).to.be.true;
+        });
 
+        it('concat with has from right', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            const map = new Map([['key3', 'value3'],['key4', 'value4']]);
+            const concatinated = mapIterator.concat(map);
+            expect(concatinated.has('key3')).to.be.true;
+        });
+
+        it('concat with has from none', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            const map = new Map([['key3', 'value3'],['key4', 'value4']]);
+            const concatinated = mapIterator.concat(map);
+            expect(concatinated.has(['key3', 'value3'])).to.be.false;
+        });
+        it('concat with has from other', function () {
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            const map = new Map([['key3', 'value3'],['key4', 'value4']]);
+            const concatinated = mapIterator.concat(map);
+            expect(concatinated.has('other')).to.be.false;
+        });
         it('should concat empty array', function () {
             hashmap.set('key', 'value');
             hashmap.set('key2', 'value2');

@@ -1,4 +1,6 @@
 # Changelog
+## 0.12.6
+- Set Documentation links to the rightplace
 ## 0.12.5
 - Added keys specific Mapper Class - to make iterating keys faster, with specialised functions.
 - Added values specific Mapper Class - to make iterating values faster, with specialised functions.

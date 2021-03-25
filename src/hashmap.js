@@ -2,7 +2,7 @@
  * HashMap - HashMap Implementation for JavaScript
  * @namespace Mootable
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.12.5
+ * @version 0.12.6
  * Homepage: https://github.com/mootable/hashmap
  */
 
@@ -2170,7 +2170,6 @@ class MapIterableWrapper extends MapIterable {
         return this.optionalGet(key).value;
     }
 }
-
 
 /**
  * @extends MapIterableWrapper
