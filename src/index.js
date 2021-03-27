@@ -13,25 +13,23 @@ import {
 /**
  * @module @mootable/hashmap
  */
-const Utils = {
-    hashCode,
-    isFunction,
-    isIterable,
-    isString,
-    isNumber
-};
-const Types = {
+
+export default HashMap;
+const Mootable = {
     HashMap,
     LinkedHashMap,
     MapIterable,
     SetIterable,
+    Utils : {
+        hashCode,
+        isFunction,
+        isIterable,
+        isString,
+        isNumber
+    }
 };
-export default HashMap;
 export {
     HashMap,
     LinkedHashMap,
-    MapIterable,
-    SetIterable,
-    hashCode
+    Mootable
 };
-export const Mootable = {...Types, Utils};

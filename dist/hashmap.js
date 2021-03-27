@@ -42,55 +42,6 @@
     return Constructor;
   }
 
-  function _defineProperty(obj, key, value) {
-    if (key in obj) {
-      Object.defineProperty(obj, key, {
-        value: value,
-        enumerable: true,
-        configurable: true,
-        writable: true
-      });
-    } else {
-      obj[key] = value;
-    }
-
-    return obj;
-  }
-
-  function ownKeys$1(object, enumerableOnly) {
-    var keys = Object.keys(object);
-
-    if (Object.getOwnPropertySymbols) {
-      var symbols = Object.getOwnPropertySymbols(object);
-      if (enumerableOnly) symbols = symbols.filter(function (sym) {
-        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
-      });
-      keys.push.apply(keys, symbols);
-    }
-
-    return keys;
-  }
-
-  function _objectSpread2(target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i] != null ? arguments[i] : {};
-
-      if (i % 2) {
-        ownKeys$1(Object(source), true).forEach(function (key) {
-          _defineProperty(target, key, source[key]);
-        });
-      } else if (Object.getOwnPropertyDescriptors) {
-        Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
-      } else {
-        ownKeys$1(Object(source)).forEach(function (key) {
-          Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
-        });
-      }
-    }
-
-    return target;
-  }
-
   function _inherits(subClass, superClass) {
     if (typeof superClass !== "function" && superClass !== null) {
       throw new TypeError("Super expression must either be null or a function");
@@ -7890,33 +7841,23 @@
     return SetFilter;
   }(SetIterableWrapper);
 
-  /**
-   * @module @mootable/hashmap
-   */
-
-  var Utils = {
-    hashCode: hashCode,
-    isFunction: isFunction,
-    isIterable: isIterable,
-    isString: isString,
-    isNumber: isNumber
-  };
-  var Types = {
+  var Mootable = {
     HashMap: HashMap,
     LinkedHashMap: LinkedHashMap,
     MapIterable: MapIterable,
-    SetIterable: SetIterable
+    SetIterable: SetIterable,
+    Utils: {
+      hashCode: hashCode,
+      isFunction: isFunction,
+      isIterable: isIterable,
+      isString: isString,
+      isNumber: isNumber
+    }
   };
-  var Mootable = _objectSpread2(_objectSpread2({}, Types), {}, {
-    Utils: Utils
-  });
 
   exports.HashMap = HashMap;
   exports.LinkedHashMap = LinkedHashMap;
-  exports.MapIterable = MapIterable;
   exports.Mootable = Mootable;
-  exports.SetIterable = SetIterable;
   exports.default = HashMap;
-  exports.hashCode = hashCode;
 
 })));

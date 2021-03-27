@@ -3719,34 +3719,24 @@
 
 	}
 
-	/**
-	 * @module @mootable/hashmap
-	 */
-
-	const Utils = {
-	  hashCode,
-	  isFunction,
-	  isIterable,
-	  isString,
-	  isNumber
-	};
-	const Types = {
+	const Mootable = {
 	  HashMap,
 	  LinkedHashMap,
 	  MapIterable,
-	  SetIterable
-	};
-	const Mootable = { ...Types,
-	  Utils
+	  SetIterable,
+	  Utils: {
+	    hashCode,
+	    isFunction,
+	    isIterable,
+	    isString,
+	    isNumber
+	  }
 	};
 
 	exports.HashMap = HashMap;
 	exports.LinkedHashMap = LinkedHashMap;
-	exports.MapIterable = MapIterable;
 	exports.Mootable = Mootable;
-	exports.SetIterable = SetIterable;
 	exports.default = HashMap;
-	exports.hashCode = hashCode;
 
 	Object.defineProperty(exports, '__esModule', { value: true });
 

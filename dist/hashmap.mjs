@@ -2486,23 +2486,19 @@ class SetFilter extends SetIterableWrapper {
     }
 }
 
-/**
- * @module @mootable/hashmap
- */
-const Utils = {
-    hashCode,
-    isFunction,
-    isIterable,
-    isString,
-    isNumber
-};
-const Types = {
+const Mootable = {
     HashMap,
     LinkedHashMap,
     MapIterable,
     SetIterable,
+    Utils : {
+        hashCode,
+        isFunction,
+        isIterable,
+        isString,
+        isNumber
+    }
 };
-const Mootable = {...Types, Utils};
 
 export default HashMap;
-export { HashMap, LinkedHashMap, MapIterable, Mootable, SetIterable, hashCode };
+export { HashMap, LinkedHashMap, Mootable };

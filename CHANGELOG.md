@@ -1,4 +1,8 @@
 # Changelog
+## 0.13.0 - Work In Progress
+- Moved hashCode, MapIterable and SetIterable into the Mootable object, out of the standard exports.
+- HashCode collision testing.
+- Utility Function testing.
 ## 0.12.6
 - Set Documentation links to the rightplace
 ## 0.12.5
