@@ -243,6 +243,16 @@ export class Option {
     static get none() {
         return none;
     }
+
+    get size() {
+        return this.has ? 1 : 0;
+    }
+
+    * [Symbol.iterator]() {
+        if (this.has) {
+            yield this.value;
+        }
+    }
 }
 
 export const some = Option.some;
