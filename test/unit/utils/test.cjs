@@ -1,10 +1,8 @@
 /* jshint ignore:start */
 const expect = require('chai').expect;
-const chalk = require('chalk')
 const esmRequire = require("esm")(module/*, options*/);
 const Utils = esmRequire('../../../src/utils')
 const {Mootable} = esmRequire('../../../src')
-const rand = require('random-seed').create();
 
 if (process.env.UNDER_TEST_NAME !== 'unit') {
     return 0;
@@ -305,12 +303,12 @@ describe('Util Functions', function () {
         it('no options', function () {
             expect(Utils.hashCode("helloworld")).to.be.equal(1933063992);
             expect(Utils.hashCode("HelloWorld")).to.be.equal(1601418099);
-            expect(Utils.hashCode("HelloWorle")).to.be.equal(-1863099149);
+            expect(Utils.hashCode("HelloWorl")).to.be.equal(138955848);
         });
         it('with length', function () {
             expect(Utils.hashCode("helloworld", 6)).to.be.equal(-574932549);
             expect(Utils.hashCode("HelloWorld", 6)).to.be.equal(-336088073);
-            expect(Utils.hashCode("HelloWorle", 6)).to.be.equal(-336088073);
+            expect(Utils.hashCode("HelloWorl", 6)).to.be.equal(-336088073);
         });
         it('with seed', function () {
             expect(Utils.hashCode("HelloWorld", 0, 1)).to.be.equal(-484980969);
