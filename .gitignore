@@ -16,3 +16,5 @@ node_modules
 /out/
 /.idea/
 /.nyc_output/
+/coverage/
+/.nyc_cache/

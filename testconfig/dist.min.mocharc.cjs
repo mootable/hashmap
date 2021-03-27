@@ -1,5 +1,5 @@
 process.env.UNDER_TEST_NAME = process.env.UNDER_TEST_NAME ||  'browser-min';
-process.env.UNDER_TEST_LOCATION = process.env.UNDER_TEST_LOCATION ||  '../dist/hashmap.min.js';
+process.env.UNDER_TEST_LOCATION = process.env.UNDER_TEST_LOCATION ||  'dist/hashmap.min.js';
 process.env.UNDER_TEST_ESM = process.env.UNDER_TEST_ESM ||  'false';
 module.exports = {
     reporter: 'spec',

@@ -1,14 +1,7 @@
-import {
-    HashMap,
-    LinkedHashMap,
-    MapIterable,
-    SetIterable,
-    hashCode,
-    isFunction,
-    isIterable,
-    isString,
-    isNumber
-} from "./hashmap.js";
+import {HashMap,} from "./hashmap/";
+import {LinkedHashMap,} from "./linkedhashmap/";
+import {MapIterable, SetIterable,} from "./iterable/";
+import {isFunction, isIterable, hashCode, isString, isNumber,} from './utils/';
 
 /**
  * @module @mootable/hashmap
@@ -20,7 +13,7 @@ const Mootable = {
     LinkedHashMap,
     MapIterable,
     SetIterable,
-    Utils : {
+    Utils: {
         hashCode,
         isFunction,
         isIterable,

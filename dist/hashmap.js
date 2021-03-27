@@ -1035,14 +1035,6 @@
     // eslint-disable-next-line no-new-func -- fallback
     (function () { return this; })() || Function('return this')();
 
-  var path = global$1;
-
-  var hasOwnProperty = {}.hasOwnProperty;
-
-  var has$1 = function (it, key) {
-    return hasOwnProperty.call(it, key);
-  };
-
   var fails = function (exec) {
     try {
       return !!exec();
@@ -1056,8 +1048,85 @@
     return Object.defineProperty({}, 1, { get: function () { return 7; } })[1] != 7;
   });
 
+  var nativePropertyIsEnumerable$1 = {}.propertyIsEnumerable;
+  var getOwnPropertyDescriptor$2 = Object.getOwnPropertyDescriptor;
+
+  // Nashorn ~ JDK8 bug
+  var NASHORN_BUG = getOwnPropertyDescriptor$2 && !nativePropertyIsEnumerable$1.call({ 1: 2 }, 1);
+
+  // `Object.prototype.propertyIsEnumerable` method implementation
+  // https://tc39.es/ecma262/#sec-object.prototype.propertyisenumerable
+  var f$6 = NASHORN_BUG ? function propertyIsEnumerable(V) {
+    var descriptor = getOwnPropertyDescriptor$2(this, V);
+    return !!descriptor && descriptor.enumerable;
+  } : nativePropertyIsEnumerable$1;
+
+  var objectPropertyIsEnumerable = {
+  	f: f$6
+  };
+
+  var createPropertyDescriptor = function (bitmap, value) {
+    return {
+      enumerable: !(bitmap & 1),
+      configurable: !(bitmap & 2),
+      writable: !(bitmap & 4),
+      value: value
+    };
+  };
+
+  var toString$1 = {}.toString;
+
+  var classofRaw = function (it) {
+    return toString$1.call(it).slice(8, -1);
+  };
+
+  var split = ''.split;
+
+  // fallback for non-array-like ES3 and non-enumerable old V8 strings
+  var indexedObject = fails(function () {
+    // throws an error in rhino, see https://github.com/mozilla/rhino/issues/346
+    // eslint-disable-next-line no-prototype-builtins -- safe
+    return !Object('z').propertyIsEnumerable(0);
+  }) ? function (it) {
+    return classofRaw(it) == 'String' ? split.call(it, '') : Object(it);
+  } : Object;
+
+  // `RequireObjectCoercible` abstract operation
+  // https://tc39.es/ecma262/#sec-requireobjectcoercible
+  var requireObjectCoercible = function (it) {
+    if (it == undefined) throw TypeError("Can't call method on " + it);
+    return it;
+  };
+
+  // toObject with fallback for non-array-like ES3 strings
+
+
+
+  var toIndexedObject = function (it) {
+    return indexedObject(requireObjectCoercible(it));
+  };
+
   var isObject = function (it) {
     return typeof it === 'object' ? it !== null : typeof it === 'function';
+  };
+
+  // `ToPrimitive` abstract operation
+  // https://tc39.es/ecma262/#sec-toprimitive
+  // instead of the ES6 spec version, we didn't implement @@toPrimitive case
+  // and the second argument - flag - preferred type is a string
+  var toPrimitive = function (input, PREFERRED_STRING) {
+    if (!isObject(input)) return input;
+    var fn, val;
+    if (PREFERRED_STRING && typeof (fn = input.toString) == 'function' && !isObject(val = fn.call(input))) return val;
+    if (typeof (fn = input.valueOf) == 'function' && !isObject(val = fn.call(input))) return val;
+    if (!PREFERRED_STRING && typeof (fn = input.toString) == 'function' && !isObject(val = fn.call(input))) return val;
+    throw TypeError("Can't convert object to primitive value");
+  };
+
+  var hasOwnProperty = {}.hasOwnProperty;
+
+  var has$1 = function (it, key) {
+    return hasOwnProperty.call(it, key);
   };
 
   var document$1 = global$1.document;
@@ -1075,30 +1144,34 @@
     }).a != 7;
   });
 
+  var nativeGetOwnPropertyDescriptor$1 = Object.getOwnPropertyDescriptor;
+
+  // `Object.getOwnPropertyDescriptor` method
+  // https://tc39.es/ecma262/#sec-object.getownpropertydescriptor
+  var f$5 = descriptors ? nativeGetOwnPropertyDescriptor$1 : function getOwnPropertyDescriptor(O, P) {
+    O = toIndexedObject(O);
+    P = toPrimitive(P, true);
+    if (ie8DomDefine) try {
+      return nativeGetOwnPropertyDescriptor$1(O, P);
+    } catch (error) { /* empty */ }
+    if (has$1(O, P)) return createPropertyDescriptor(!objectPropertyIsEnumerable.f.call(O, P), O[P]);
+  };
+
+  var objectGetOwnPropertyDescriptor = {
+  	f: f$5
+  };
+
   var anObject = function (it) {
     if (!isObject(it)) {
       throw TypeError(String(it) + ' is not an object');
     } return it;
   };
 
-  // `ToPrimitive` abstract operation
-  // https://tc39.es/ecma262/#sec-toprimitive
-  // instead of the ES6 spec version, we didn't implement @@toPrimitive case
-  // and the second argument - flag - preferred type is a string
-  var toPrimitive = function (input, PREFERRED_STRING) {
-    if (!isObject(input)) return input;
-    var fn, val;
-    if (PREFERRED_STRING && typeof (fn = input.toString) == 'function' && !isObject(val = fn.call(input))) return val;
-    if (typeof (fn = input.valueOf) == 'function' && !isObject(val = fn.call(input))) return val;
-    if (!PREFERRED_STRING && typeof (fn = input.toString) == 'function' && !isObject(val = fn.call(input))) return val;
-    throw TypeError("Can't convert object to primitive value");
-  };
-
   var nativeDefineProperty$1 = Object.defineProperty;
 
   // `Object.defineProperty` method
   // https://tc39.es/ecma262/#sec-object.defineproperty
-  var f$6 = descriptors ? nativeDefineProperty$1 : function defineProperty(O, P, Attributes) {
+  var f$4 = descriptors ? nativeDefineProperty$1 : function defineProperty(O, P, Attributes) {
     anObject(O);
     P = toPrimitive(P, true);
     anObject(Attributes);
@@ -1111,16 +1184,7 @@
   };
 
   var objectDefineProperty = {
-  	f: f$6
-  };
-
-  var createPropertyDescriptor = function (bitmap, value) {
-    return {
-      enumerable: !(bitmap & 1),
-      configurable: !(bitmap & 2),
-      writable: !(bitmap & 4),
-      value: value
-    };
+  	f: f$4
   };
 
   var createNonEnumerableProperty = descriptors ? function (object, key, value) {
@@ -1143,113 +1207,6 @@
 
   var sharedStore = store$1;
 
-  var shared = createCommonjsModule(function (module) {
-  (module.exports = function (key, value) {
-    return sharedStore[key] || (sharedStore[key] = value !== undefined ? value : {});
-  })('versions', []).push({
-    version: '3.9.1',
-    mode: 'global',
-    copyright: '© 2021 Denis Pushkarev (zloirock.ru)'
-  });
-  });
-
-  var id = 0;
-  var postfix = Math.random();
-
-  var uid = function (key) {
-    return 'Symbol(' + String(key === undefined ? '' : key) + ')_' + (++id + postfix).toString(36);
-  };
-
-  var toString$1 = {}.toString;
-
-  var classofRaw = function (it) {
-    return toString$1.call(it).slice(8, -1);
-  };
-
-  var engineIsNode = classofRaw(global$1.process) == 'process';
-
-  var aFunction$1 = function (variable) {
-    return typeof variable == 'function' ? variable : undefined;
-  };
-
-  var getBuiltIn = function (namespace, method) {
-    return arguments.length < 2 ? aFunction$1(path[namespace]) || aFunction$1(global$1[namespace])
-      : path[namespace] && path[namespace][method] || global$1[namespace] && global$1[namespace][method];
-  };
-
-  var engineUserAgent = getBuiltIn('navigator', 'userAgent') || '';
-
-  var process = global$1.process;
-  var versions = process && process.versions;
-  var v8 = versions && versions.v8;
-  var match, version;
-
-  if (v8) {
-    match = v8.split('.');
-    version = match[0] + match[1];
-  } else if (engineUserAgent) {
-    match = engineUserAgent.match(/Edge\/(\d+)/);
-    if (!match || match[1] >= 74) {
-      match = engineUserAgent.match(/Chrome\/(\d+)/);
-      if (match) version = match[1];
-    }
-  }
-
-  var engineV8Version = version && +version;
-
-  var nativeSymbol = !!Object.getOwnPropertySymbols && !fails(function () {
-    /* global Symbol -- required for testing */
-    return !Symbol.sham &&
-      // Chrome 38 Symbol has incorrect toString conversion
-      // Chrome 38-40 symbols are not inherited from DOM collections prototypes to instances
-      (engineIsNode ? engineV8Version === 38 : engineV8Version > 37 && engineV8Version < 41);
-  });
-
-  var useSymbolAsUid = nativeSymbol
-    /* global Symbol -- safe */
-    && !Symbol.sham
-    && typeof Symbol.iterator == 'symbol';
-
-  var WellKnownSymbolsStore$1 = shared('wks');
-  var Symbol$1 = global$1.Symbol;
-  var createWellKnownSymbol = useSymbolAsUid ? Symbol$1 : Symbol$1 && Symbol$1.withoutSetter || uid;
-
-  var wellKnownSymbol = function (name) {
-    if (!has$1(WellKnownSymbolsStore$1, name) || !(nativeSymbol || typeof WellKnownSymbolsStore$1[name] == 'string')) {
-      if (nativeSymbol && has$1(Symbol$1, name)) {
-        WellKnownSymbolsStore$1[name] = Symbol$1[name];
-      } else {
-        WellKnownSymbolsStore$1[name] = createWellKnownSymbol('Symbol.' + name);
-      }
-    } return WellKnownSymbolsStore$1[name];
-  };
-
-  var f$5 = wellKnownSymbol;
-
-  var wellKnownSymbolWrapped = {
-  	f: f$5
-  };
-
-  var defineProperty$6 = objectDefineProperty.f;
-
-  var defineWellKnownSymbol = function (NAME) {
-    var Symbol = path.Symbol || (path.Symbol = {});
-    if (!has$1(Symbol, NAME)) defineProperty$6(Symbol, NAME, {
-      value: wellKnownSymbolWrapped.f(NAME)
-    });
-  };
-
-  // `Symbol.iterator` well-known symbol
-  // https://tc39.es/ecma262/#sec-symbol.iterator
-  defineWellKnownSymbol('iterator');
-
-  var TO_STRING_TAG$3 = wellKnownSymbol('toStringTag');
-  var test = {};
-
-  test[TO_STRING_TAG$3] = 'z';
-
-  var toStringTagSupport = String(test) === '[object z]';
-
   var functionToString = Function.toString;
 
   // this helper broken in `3.4.1-3.4.4`, so we can't use `shared` helper
@@ -1265,10 +1222,27 @@
 
   var nativeWeakMap = typeof WeakMap$1 === 'function' && /native code/.test(inspectSource(WeakMap$1));
 
+  var shared = createCommonjsModule(function (module) {
+  (module.exports = function (key, value) {
+    return sharedStore[key] || (sharedStore[key] = value !== undefined ? value : {});
+  })('versions', []).push({
+    version: '3.9.1',
+    mode: 'global',
+    copyright: '© 2021 Denis Pushkarev (zloirock.ru)'
+  });
+  });
+
+  var id = 0;
+  var postfix = Math.random();
+
+  var uid$1 = function (key) {
+    return 'Symbol(' + String(key === undefined ? '' : key) + ')_' + (++id + postfix).toString(36);
+  };
+
   var keys$2 = shared('keys');
 
   var sharedKey = function (key) {
-    return keys$2[key] || (keys$2[key] = uid(key));
+    return keys$2[key] || (keys$2[key] = uid$1(key));
   };
 
   var hiddenKeys$1 = {};
@@ -1365,40 +1339,16 @@
   });
   });
 
-  var TO_STRING_TAG$2 = wellKnownSymbol('toStringTag');
-  // ES3 wrong here
-  var CORRECT_ARGUMENTS = classofRaw(function () { return arguments; }()) == 'Arguments';
+  var path = global$1;
 
-  // fallback for IE11 Script Access Denied error
-  var tryGet = function (it, key) {
-    try {
-      return it[key];
-    } catch (error) { /* empty */ }
+  var aFunction$1 = function (variable) {
+    return typeof variable == 'function' ? variable : undefined;
   };
 
-  // getting tag from ES6+ `Object.prototype.toString`
-  var classof = toStringTagSupport ? classofRaw : function (it) {
-    var O, tag, result;
-    return it === undefined ? 'Undefined' : it === null ? 'Null'
-      // @@toStringTag case
-      : typeof (tag = tryGet(O = Object(it), TO_STRING_TAG$2)) == 'string' ? tag
-      // builtinTag case
-      : CORRECT_ARGUMENTS ? classofRaw(O)
-      // ES3 arguments fallback
-      : (result = classofRaw(O)) == 'Object' && typeof O.callee == 'function' ? 'Arguments' : result;
+  var getBuiltIn = function (namespace, method) {
+    return arguments.length < 2 ? aFunction$1(path[namespace]) || aFunction$1(global$1[namespace])
+      : path[namespace] && path[namespace][method] || global$1[namespace] && global$1[namespace][method];
   };
-
-  // `Object.prototype.toString` method implementation
-  // https://tc39.es/ecma262/#sec-object.prototype.tostring
-  var objectToString = toStringTagSupport ? {}.toString : function toString() {
-    return '[object ' + classof(this) + ']';
-  };
-
-  // `Object.prototype.toString` method
-  // https://tc39.es/ecma262/#sec-object.prototype.tostring
-  if (!toStringTagSupport) {
-    redefine(Object.prototype, 'toString', objectToString, { unsafe: true });
-  }
 
   var ceil = Math.ceil;
   var floor$1 = Math.floor;
@@ -1407,91 +1357,6 @@
   // https://tc39.es/ecma262/#sec-tointeger
   var toInteger = function (argument) {
     return isNaN(argument = +argument) ? 0 : (argument > 0 ? floor$1 : ceil)(argument);
-  };
-
-  // `RequireObjectCoercible` abstract operation
-  // https://tc39.es/ecma262/#sec-requireobjectcoercible
-  var requireObjectCoercible = function (it) {
-    if (it == undefined) throw TypeError("Can't call method on " + it);
-    return it;
-  };
-
-  // `String.prototype.{ codePointAt, at }` methods implementation
-  var createMethod$3 = function (CONVERT_TO_STRING) {
-    return function ($this, pos) {
-      var S = String(requireObjectCoercible($this));
-      var position = toInteger(pos);
-      var size = S.length;
-      var first, second;
-      if (position < 0 || position >= size) return CONVERT_TO_STRING ? '' : undefined;
-      first = S.charCodeAt(position);
-      return first < 0xD800 || first > 0xDBFF || position + 1 === size
-        || (second = S.charCodeAt(position + 1)) < 0xDC00 || second > 0xDFFF
-          ? CONVERT_TO_STRING ? S.charAt(position) : first
-          : CONVERT_TO_STRING ? S.slice(position, position + 2) : (first - 0xD800 << 10) + (second - 0xDC00) + 0x10000;
-    };
-  };
-
-  var stringMultibyte = {
-    // `String.prototype.codePointAt` method
-    // https://tc39.es/ecma262/#sec-string.prototype.codepointat
-    codeAt: createMethod$3(false),
-    // `String.prototype.at` method
-    // https://github.com/mathiasbynens/String.prototype.at
-    charAt: createMethod$3(true)
-  };
-
-  var nativePropertyIsEnumerable$1 = {}.propertyIsEnumerable;
-  var getOwnPropertyDescriptor$2 = Object.getOwnPropertyDescriptor;
-
-  // Nashorn ~ JDK8 bug
-  var NASHORN_BUG = getOwnPropertyDescriptor$2 && !nativePropertyIsEnumerable$1.call({ 1: 2 }, 1);
-
-  // `Object.prototype.propertyIsEnumerable` method implementation
-  // https://tc39.es/ecma262/#sec-object.prototype.propertyisenumerable
-  var f$4 = NASHORN_BUG ? function propertyIsEnumerable(V) {
-    var descriptor = getOwnPropertyDescriptor$2(this, V);
-    return !!descriptor && descriptor.enumerable;
-  } : nativePropertyIsEnumerable$1;
-
-  var objectPropertyIsEnumerable = {
-  	f: f$4
-  };
-
-  var split = ''.split;
-
-  // fallback for non-array-like ES3 and non-enumerable old V8 strings
-  var indexedObject = fails(function () {
-    // throws an error in rhino, see https://github.com/mozilla/rhino/issues/346
-    // eslint-disable-next-line no-prototype-builtins -- safe
-    return !Object('z').propertyIsEnumerable(0);
-  }) ? function (it) {
-    return classofRaw(it) == 'String' ? split.call(it, '') : Object(it);
-  } : Object;
-
-  // toObject with fallback for non-array-like ES3 strings
-
-
-
-  var toIndexedObject = function (it) {
-    return indexedObject(requireObjectCoercible(it));
-  };
-
-  var nativeGetOwnPropertyDescriptor$1 = Object.getOwnPropertyDescriptor;
-
-  // `Object.getOwnPropertyDescriptor` method
-  // https://tc39.es/ecma262/#sec-object.getownpropertydescriptor
-  var f$3 = descriptors ? nativeGetOwnPropertyDescriptor$1 : function getOwnPropertyDescriptor(O, P) {
-    O = toIndexedObject(O);
-    P = toPrimitive(P, true);
-    if (ie8DomDefine) try {
-      return nativeGetOwnPropertyDescriptor$1(O, P);
-    } catch (error) { /* empty */ }
-    if (has$1(O, P)) return createPropertyDescriptor(!objectPropertyIsEnumerable.f.call(O, P), O[P]);
-  };
-
-  var objectGetOwnPropertyDescriptor = {
-  	f: f$3
   };
 
   var min$1 = Math.min;
@@ -1514,7 +1379,7 @@
   };
 
   // `Array.prototype.{ indexOf, includes }` methods implementation
-  var createMethod$2 = function (IS_INCLUDES) {
+  var createMethod$3 = function (IS_INCLUDES) {
     return function ($this, el, fromIndex) {
       var O = toIndexedObject($this);
       var length = toLength(O.length);
@@ -1536,10 +1401,10 @@
   var arrayIncludes = {
     // `Array.prototype.includes` method
     // https://tc39.es/ecma262/#sec-array.prototype.includes
-    includes: createMethod$2(true),
+    includes: createMethod$3(true),
     // `Array.prototype.indexOf` method
     // https://tc39.es/ecma262/#sec-array.prototype.indexof
-    indexOf: createMethod$2(false)
+    indexOf: createMethod$3(false)
   };
 
   var indexOf = arrayIncludes.indexOf;
@@ -1573,18 +1438,18 @@
 
   // `Object.getOwnPropertyNames` method
   // https://tc39.es/ecma262/#sec-object.getownpropertynames
-  var f$2 = Object.getOwnPropertyNames || function getOwnPropertyNames(O) {
+  var f$3 = Object.getOwnPropertyNames || function getOwnPropertyNames(O) {
     return objectKeysInternal(O, hiddenKeys);
   };
 
   var objectGetOwnPropertyNames = {
-  	f: f$2
+  	f: f$3
   };
 
-  var f$1 = Object.getOwnPropertySymbols;
+  var f$2 = Object.getOwnPropertySymbols;
 
   var objectGetOwnPropertySymbols = {
-  	f: f$1
+  	f: f$2
   };
 
   // all object keys, includes non-enumerable and symbols
@@ -1678,73 +1543,421 @@
     }
   };
 
+  var freezing = !fails(function () {
+    return Object.isExtensible(Object.preventExtensions({}));
+  });
+
+  var internalMetadata = createCommonjsModule(function (module) {
+  var defineProperty = objectDefineProperty.f;
+
+
+
+  var METADATA = uid$1('meta');
+  var id = 0;
+
+  var isExtensible = Object.isExtensible || function () {
+    return true;
+  };
+
+  var setMetadata = function (it) {
+    defineProperty(it, METADATA, { value: {
+      objectID: 'O' + ++id, // object ID
+      weakData: {}          // weak collections IDs
+    } });
+  };
+
+  var fastKey = function (it, create) {
+    // return a primitive with prefix
+    if (!isObject(it)) return typeof it == 'symbol' ? it : (typeof it == 'string' ? 'S' : 'P') + it;
+    if (!has$1(it, METADATA)) {
+      // can't set metadata to uncaught frozen object
+      if (!isExtensible(it)) return 'F';
+      // not necessary to add metadata
+      if (!create) return 'E';
+      // add missing metadata
+      setMetadata(it);
+    // return object ID
+    } return it[METADATA].objectID;
+  };
+
+  var getWeakData = function (it, create) {
+    if (!has$1(it, METADATA)) {
+      // can't set metadata to uncaught frozen object
+      if (!isExtensible(it)) return true;
+      // not necessary to add metadata
+      if (!create) return false;
+      // add missing metadata
+      setMetadata(it);
+    // return the store of weak collections IDs
+    } return it[METADATA].weakData;
+  };
+
+  // add metadata on freeze-family methods calling
+  var onFreeze = function (it) {
+    if (freezing && meta.REQUIRED && isExtensible(it) && !has$1(it, METADATA)) setMetadata(it);
+    return it;
+  };
+
+  var meta = module.exports = {
+    REQUIRED: false,
+    fastKey: fastKey,
+    getWeakData: getWeakData,
+    onFreeze: onFreeze
+  };
+
+  hiddenKeys$1[METADATA] = true;
+  });
+
+  var onFreeze = internalMetadata.onFreeze;
+
+  var nativeFreeze = Object.freeze;
+  var FAILS_ON_PRIMITIVES = fails(function () { nativeFreeze(1); });
+
+  // `Object.freeze` method
+  // https://tc39.es/ecma262/#sec-object.freeze
+  _export({ target: 'Object', stat: true, forced: FAILS_ON_PRIMITIVES, sham: !freezing }, {
+    freeze: function freeze(it) {
+      return nativeFreeze && isObject(it) ? nativeFreeze(onFreeze(it)) : it;
+    }
+  });
+
+  // iterable DOM collections
+  // flag - `iterable` interface - 'entries', 'keys', 'values', 'forEach' methods
+  var domIterables = {
+    CSSRuleList: 0,
+    CSSStyleDeclaration: 0,
+    CSSValueList: 0,
+    ClientRectList: 0,
+    DOMRectList: 0,
+    DOMStringList: 0,
+    DOMTokenList: 1,
+    DataTransferItemList: 0,
+    FileList: 0,
+    HTMLAllCollection: 0,
+    HTMLCollection: 0,
+    HTMLFormElement: 0,
+    HTMLSelectElement: 0,
+    MediaList: 0,
+    MimeTypeArray: 0,
+    NamedNodeMap: 0,
+    NodeList: 1,
+    PaintRequestList: 0,
+    Plugin: 0,
+    PluginArray: 0,
+    SVGLengthList: 0,
+    SVGNumberList: 0,
+    SVGPathSegList: 0,
+    SVGPointList: 0,
+    SVGStringList: 0,
+    SVGTransformList: 0,
+    SourceBufferList: 0,
+    StyleSheetList: 0,
+    TextTrackCueList: 0,
+    TextTrackList: 0,
+    TouchList: 0
+  };
+
+  var aFunction = function (it) {
+    if (typeof it != 'function') {
+      throw TypeError(String(it) + ' is not a function');
+    } return it;
+  };
+
+  // optional / simple context binding
+  var functionBindContext = function (fn, that, length) {
+    aFunction(fn);
+    if (that === undefined) return fn;
+    switch (length) {
+      case 0: return function () {
+        return fn.call(that);
+      };
+      case 1: return function (a) {
+        return fn.call(that, a);
+      };
+      case 2: return function (a, b) {
+        return fn.call(that, a, b);
+      };
+      case 3: return function (a, b, c) {
+        return fn.call(that, a, b, c);
+      };
+    }
+    return function (/* ...args */) {
+      return fn.apply(that, arguments);
+    };
+  };
+
   // `ToObject` abstract operation
   // https://tc39.es/ecma262/#sec-toobject
   var toObject = function (argument) {
     return Object(requireObjectCoercible(argument));
   };
 
-  var correctPrototypeGetter = !fails(function () {
-    function F() { /* empty */ }
-    F.prototype.constructor = null;
-    return Object.getPrototypeOf(new F()) !== F.prototype;
-  });
-
-  var IE_PROTO$1 = sharedKey('IE_PROTO');
-  var ObjectPrototype$1 = Object.prototype;
-
-  // `Object.getPrototypeOf` method
-  // https://tc39.es/ecma262/#sec-object.getprototypeof
-  var objectGetPrototypeOf = correctPrototypeGetter ? Object.getPrototypeOf : function (O) {
-    O = toObject(O);
-    if (has$1(O, IE_PROTO$1)) return O[IE_PROTO$1];
-    if (typeof O.constructor == 'function' && O instanceof O.constructor) {
-      return O.constructor.prototype;
-    } return O instanceof Object ? ObjectPrototype$1 : null;
+  // `IsArray` abstract operation
+  // https://tc39.es/ecma262/#sec-isarray
+  var isArray = Array.isArray || function isArray(arg) {
+    return classofRaw(arg) == 'Array';
   };
 
-  var ITERATOR$5 = wellKnownSymbol('iterator');
-  var BUGGY_SAFARI_ITERATORS$1 = false;
+  var engineIsNode = classofRaw(global$1.process) == 'process';
 
-  var returnThis$2 = function () { return this; };
+  var engineUserAgent = getBuiltIn('navigator', 'userAgent') || '';
 
-  // `%IteratorPrototype%` object
-  // https://tc39.es/ecma262/#sec-%iteratorprototype%-object
-  var IteratorPrototype$2, PrototypeOfArrayIteratorPrototype, arrayIterator;
+  var process = global$1.process;
+  var versions = process && process.versions;
+  var v8 = versions && versions.v8;
+  var match, version;
 
-  if ([].keys) {
-    arrayIterator = [].keys();
-    // Safari 8 has buggy iterators w/o `next`
-    if (!('next' in arrayIterator)) BUGGY_SAFARI_ITERATORS$1 = true;
-    else {
-      PrototypeOfArrayIteratorPrototype = objectGetPrototypeOf(objectGetPrototypeOf(arrayIterator));
-      if (PrototypeOfArrayIteratorPrototype !== Object.prototype) IteratorPrototype$2 = PrototypeOfArrayIteratorPrototype;
+  if (v8) {
+    match = v8.split('.');
+    version = match[0] + match[1];
+  } else if (engineUserAgent) {
+    match = engineUserAgent.match(/Edge\/(\d+)/);
+    if (!match || match[1] >= 74) {
+      match = engineUserAgent.match(/Chrome\/(\d+)/);
+      if (match) version = match[1];
     }
   }
 
-  var NEW_ITERATOR_PROTOTYPE = IteratorPrototype$2 == undefined || fails(function () {
-    var test = {};
-    // FF44- legacy iterators case
-    return IteratorPrototype$2[ITERATOR$5].call(test) !== test;
+  var engineV8Version = version && +version;
+
+  var nativeSymbol = !!Object.getOwnPropertySymbols && !fails(function () {
+    /* global Symbol -- required for testing */
+    return !Symbol.sham &&
+      // Chrome 38 Symbol has incorrect toString conversion
+      // Chrome 38-40 symbols are not inherited from DOM collections prototypes to instances
+      (engineIsNode ? engineV8Version === 38 : engineV8Version > 37 && engineV8Version < 41);
   });
 
-  if (NEW_ITERATOR_PROTOTYPE) IteratorPrototype$2 = {};
+  var useSymbolAsUid = nativeSymbol
+    /* global Symbol -- safe */
+    && !Symbol.sham
+    && typeof Symbol.iterator == 'symbol';
 
-  // 25.1.2.1.1 %IteratorPrototype%[@@iterator]()
-  if (!has$1(IteratorPrototype$2, ITERATOR$5)) {
-    createNonEnumerableProperty(IteratorPrototype$2, ITERATOR$5, returnThis$2);
-  }
+  var WellKnownSymbolsStore$1 = shared('wks');
+  var Symbol$1 = global$1.Symbol;
+  var createWellKnownSymbol = useSymbolAsUid ? Symbol$1 : Symbol$1 && Symbol$1.withoutSetter || uid$1;
 
-  var iteratorsCore = {
-    IteratorPrototype: IteratorPrototype$2,
-    BUGGY_SAFARI_ITERATORS: BUGGY_SAFARI_ITERATORS$1
+  var wellKnownSymbol = function (name) {
+    if (!has$1(WellKnownSymbolsStore$1, name) || !(nativeSymbol || typeof WellKnownSymbolsStore$1[name] == 'string')) {
+      if (nativeSymbol && has$1(Symbol$1, name)) {
+        WellKnownSymbolsStore$1[name] = Symbol$1[name];
+      } else {
+        WellKnownSymbolsStore$1[name] = createWellKnownSymbol('Symbol.' + name);
+      }
+    } return WellKnownSymbolsStore$1[name];
   };
+
+  var SPECIES$2 = wellKnownSymbol('species');
+
+  // `ArraySpeciesCreate` abstract operation
+  // https://tc39.es/ecma262/#sec-arrayspeciescreate
+  var arraySpeciesCreate = function (originalArray, length) {
+    var C;
+    if (isArray(originalArray)) {
+      C = originalArray.constructor;
+      // cross-realm fallback
+      if (typeof C == 'function' && (C === Array || isArray(C.prototype))) C = undefined;
+      else if (isObject(C)) {
+        C = C[SPECIES$2];
+        if (C === null) C = undefined;
+      }
+    } return new (C === undefined ? Array : C)(length === 0 ? 0 : length);
+  };
+
+  var push = [].push;
+
+  // `Array.prototype.{ forEach, map, filter, some, every, find, findIndex, filterOut }` methods implementation
+  var createMethod$2 = function (TYPE) {
+    var IS_MAP = TYPE == 1;
+    var IS_FILTER = TYPE == 2;
+    var IS_SOME = TYPE == 3;
+    var IS_EVERY = TYPE == 4;
+    var IS_FIND_INDEX = TYPE == 6;
+    var IS_FILTER_OUT = TYPE == 7;
+    var NO_HOLES = TYPE == 5 || IS_FIND_INDEX;
+    return function ($this, callbackfn, that, specificCreate) {
+      var O = toObject($this);
+      var self = indexedObject(O);
+      var boundFunction = functionBindContext(callbackfn, that, 3);
+      var length = toLength(self.length);
+      var index = 0;
+      var create = specificCreate || arraySpeciesCreate;
+      var target = IS_MAP ? create($this, length) : IS_FILTER || IS_FILTER_OUT ? create($this, 0) : undefined;
+      var value, result;
+      for (;length > index; index++) if (NO_HOLES || index in self) {
+        value = self[index];
+        result = boundFunction(value, index, O);
+        if (TYPE) {
+          if (IS_MAP) target[index] = result; // map
+          else if (result) switch (TYPE) {
+            case 3: return true;              // some
+            case 5: return value;             // find
+            case 6: return index;             // findIndex
+            case 2: push.call(target, value); // filter
+          } else switch (TYPE) {
+            case 4: return false;             // every
+            case 7: push.call(target, value); // filterOut
+          }
+        }
+      }
+      return IS_FIND_INDEX ? -1 : IS_SOME || IS_EVERY ? IS_EVERY : target;
+    };
+  };
+
+  var arrayIteration = {
+    // `Array.prototype.forEach` method
+    // https://tc39.es/ecma262/#sec-array.prototype.foreach
+    forEach: createMethod$2(0),
+    // `Array.prototype.map` method
+    // https://tc39.es/ecma262/#sec-array.prototype.map
+    map: createMethod$2(1),
+    // `Array.prototype.filter` method
+    // https://tc39.es/ecma262/#sec-array.prototype.filter
+    filter: createMethod$2(2),
+    // `Array.prototype.some` method
+    // https://tc39.es/ecma262/#sec-array.prototype.some
+    some: createMethod$2(3),
+    // `Array.prototype.every` method
+    // https://tc39.es/ecma262/#sec-array.prototype.every
+    every: createMethod$2(4),
+    // `Array.prototype.find` method
+    // https://tc39.es/ecma262/#sec-array.prototype.find
+    find: createMethod$2(5),
+    // `Array.prototype.findIndex` method
+    // https://tc39.es/ecma262/#sec-array.prototype.findIndex
+    findIndex: createMethod$2(6),
+    // `Array.prototype.filterOut` method
+    // https://github.com/tc39/proposal-array-filtering
+    filterOut: createMethod$2(7)
+  };
+
+  var arrayMethodIsStrict = function (METHOD_NAME, argument) {
+    var method = [][METHOD_NAME];
+    return !!method && fails(function () {
+      // eslint-disable-next-line no-useless-call,no-throw-literal -- required for testing
+      method.call(null, argument || function () { throw 1; }, 1);
+    });
+  };
+
+  var $forEach$1 = arrayIteration.forEach;
+
+
+  var STRICT_METHOD = arrayMethodIsStrict('forEach');
+
+  // `Array.prototype.forEach` method implementation
+  // https://tc39.es/ecma262/#sec-array.prototype.foreach
+  var arrayForEach = !STRICT_METHOD ? function forEach(callbackfn /* , thisArg */) {
+    return $forEach$1(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
+  } : [].forEach;
+
+  for (var COLLECTION_NAME$1 in domIterables) {
+    var Collection$1 = global$1[COLLECTION_NAME$1];
+    var CollectionPrototype$1 = Collection$1 && Collection$1.prototype;
+    // some Chrome versions have non-configurable methods on DOMTokenList
+    if (CollectionPrototype$1 && CollectionPrototype$1.forEach !== arrayForEach) try {
+      createNonEnumerableProperty(CollectionPrototype$1, 'forEach', arrayForEach);
+    } catch (error) {
+      CollectionPrototype$1.forEach = arrayForEach;
+    }
+  }
 
   // `Object.keys` method
   // https://tc39.es/ecma262/#sec-object.keys
   var objectKeys = Object.keys || function keys(O) {
     return objectKeysInternal(O, enumBugKeys);
   };
+
+  var nativeAssign = Object.assign;
+  var defineProperty$6 = Object.defineProperty;
+
+  // `Object.assign` method
+  // https://tc39.es/ecma262/#sec-object.assign
+  var objectAssign = !nativeAssign || fails(function () {
+    // should have correct order of operations (Edge bug)
+    if (descriptors && nativeAssign({ b: 1 }, nativeAssign(defineProperty$6({}, 'a', {
+      enumerable: true,
+      get: function () {
+        defineProperty$6(this, 'b', {
+          value: 3,
+          enumerable: false
+        });
+      }
+    }), { b: 2 })).b !== 1) return true;
+    // should work with symbols and should have deterministic property order (V8 bug)
+    var A = {};
+    var B = {};
+    /* global Symbol -- required for testing */
+    var symbol = Symbol();
+    var alphabet = 'abcdefghijklmnopqrst';
+    A[symbol] = 7;
+    alphabet.split('').forEach(function (chr) { B[chr] = chr; });
+    return nativeAssign({}, A)[symbol] != 7 || objectKeys(nativeAssign({}, B)).join('') != alphabet;
+  }) ? function assign(target, source) { // eslint-disable-line no-unused-vars -- required for `.length`
+    var T = toObject(target);
+    var argumentsLength = arguments.length;
+    var index = 1;
+    var getOwnPropertySymbols = objectGetOwnPropertySymbols.f;
+    var propertyIsEnumerable = objectPropertyIsEnumerable.f;
+    while (argumentsLength > index) {
+      var S = indexedObject(arguments[index++]);
+      var keys = getOwnPropertySymbols ? objectKeys(S).concat(getOwnPropertySymbols(S)) : objectKeys(S);
+      var length = keys.length;
+      var j = 0;
+      var key;
+      while (length > j) {
+        key = keys[j++];
+        if (!descriptors || propertyIsEnumerable.call(S, key)) T[key] = S[key];
+      }
+    } return T;
+  } : nativeAssign;
+
+  // `Object.assign` method
+  // https://tc39.es/ecma262/#sec-object.assign
+  _export({ target: 'Object', stat: true, forced: Object.assign !== objectAssign }, {
+    assign: objectAssign
+  });
+
+  var TO_STRING_TAG$3 = wellKnownSymbol('toStringTag');
+  var test = {};
+
+  test[TO_STRING_TAG$3] = 'z';
+
+  var toStringTagSupport = String(test) === '[object z]';
+
+  var TO_STRING_TAG$2 = wellKnownSymbol('toStringTag');
+  // ES3 wrong here
+  var CORRECT_ARGUMENTS = classofRaw(function () { return arguments; }()) == 'Arguments';
+
+  // fallback for IE11 Script Access Denied error
+  var tryGet = function (it, key) {
+    try {
+      return it[key];
+    } catch (error) { /* empty */ }
+  };
+
+  // getting tag from ES6+ `Object.prototype.toString`
+  var classof = toStringTagSupport ? classofRaw : function (it) {
+    var O, tag, result;
+    return it === undefined ? 'Undefined' : it === null ? 'Null'
+      // @@toStringTag case
+      : typeof (tag = tryGet(O = Object(it), TO_STRING_TAG$2)) == 'string' ? tag
+      // builtinTag case
+      : CORRECT_ARGUMENTS ? classofRaw(O)
+      // ES3 arguments fallback
+      : (result = classofRaw(O)) == 'Object' && typeof O.callee == 'function' ? 'Arguments' : result;
+  };
+
+  // `Object.prototype.toString` method implementation
+  // https://tc39.es/ecma262/#sec-object.prototype.tostring
+  var objectToString = toStringTagSupport ? {}.toString : function toString() {
+    return '[object ' + classof(this) + ']';
+  };
+
+  // `Object.prototype.toString` method
+  // https://tc39.es/ecma262/#sec-object.prototype.tostring
+  if (!toStringTagSupport) {
+    redefine(Object.prototype, 'toString', objectToString, { unsafe: true });
+  }
 
   // `Object.defineProperties` method
   // https://tc39.es/ecma262/#sec-object.defineproperties
@@ -1764,7 +1977,7 @@
   var LT = '<';
   var PROTOTYPE$1 = 'prototype';
   var SCRIPT = 'script';
-  var IE_PROTO = sharedKey('IE_PROTO');
+  var IE_PROTO$1 = sharedKey('IE_PROTO');
 
   var EmptyConstructor = function () { /* empty */ };
 
@@ -1815,7 +2028,7 @@
     return NullProtoObject();
   };
 
-  hiddenKeys$1[IE_PROTO] = true;
+  hiddenKeys$1[IE_PROTO$1] = true;
 
   // `Object.create` method
   // https://tc39.es/ecma262/#sec-object.create
@@ -1826,9 +2039,84 @@
       result = new EmptyConstructor();
       EmptyConstructor[PROTOTYPE$1] = null;
       // add "__proto__" for Object.getPrototypeOf polyfill
-      result[IE_PROTO] = O;
+      result[IE_PROTO$1] = O;
     } else result = NullProtoObject();
     return Properties === undefined ? result : objectDefineProperties(result, Properties);
+  };
+
+  var UNSCOPABLES = wellKnownSymbol('unscopables');
+  var ArrayPrototype$1 = Array.prototype;
+
+  // Array.prototype[@@unscopables]
+  // https://tc39.es/ecma262/#sec-array.prototype-@@unscopables
+  if (ArrayPrototype$1[UNSCOPABLES] == undefined) {
+    objectDefineProperty.f(ArrayPrototype$1, UNSCOPABLES, {
+      configurable: true,
+      value: objectCreate(null)
+    });
+  }
+
+  // add a key to Array.prototype[@@unscopables]
+  var addToUnscopables = function (key) {
+    ArrayPrototype$1[UNSCOPABLES][key] = true;
+  };
+
+  var iterators = {};
+
+  var correctPrototypeGetter = !fails(function () {
+    function F() { /* empty */ }
+    F.prototype.constructor = null;
+    return Object.getPrototypeOf(new F()) !== F.prototype;
+  });
+
+  var IE_PROTO = sharedKey('IE_PROTO');
+  var ObjectPrototype$1 = Object.prototype;
+
+  // `Object.getPrototypeOf` method
+  // https://tc39.es/ecma262/#sec-object.getprototypeof
+  var objectGetPrototypeOf = correctPrototypeGetter ? Object.getPrototypeOf : function (O) {
+    O = toObject(O);
+    if (has$1(O, IE_PROTO)) return O[IE_PROTO];
+    if (typeof O.constructor == 'function' && O instanceof O.constructor) {
+      return O.constructor.prototype;
+    } return O instanceof Object ? ObjectPrototype$1 : null;
+  };
+
+  var ITERATOR$5 = wellKnownSymbol('iterator');
+  var BUGGY_SAFARI_ITERATORS$1 = false;
+
+  var returnThis$2 = function () { return this; };
+
+  // `%IteratorPrototype%` object
+  // https://tc39.es/ecma262/#sec-%iteratorprototype%-object
+  var IteratorPrototype$2, PrototypeOfArrayIteratorPrototype, arrayIterator;
+
+  if ([].keys) {
+    arrayIterator = [].keys();
+    // Safari 8 has buggy iterators w/o `next`
+    if (!('next' in arrayIterator)) BUGGY_SAFARI_ITERATORS$1 = true;
+    else {
+      PrototypeOfArrayIteratorPrototype = objectGetPrototypeOf(objectGetPrototypeOf(arrayIterator));
+      if (PrototypeOfArrayIteratorPrototype !== Object.prototype) IteratorPrototype$2 = PrototypeOfArrayIteratorPrototype;
+    }
+  }
+
+  var NEW_ITERATOR_PROTOTYPE = IteratorPrototype$2 == undefined || fails(function () {
+    var test = {};
+    // FF44- legacy iterators case
+    return IteratorPrototype$2[ITERATOR$5].call(test) !== test;
+  });
+
+  if (NEW_ITERATOR_PROTOTYPE) IteratorPrototype$2 = {};
+
+  // 25.1.2.1.1 %IteratorPrototype%[@@iterator]()
+  if (!has$1(IteratorPrototype$2, ITERATOR$5)) {
+    createNonEnumerableProperty(IteratorPrototype$2, ITERATOR$5, returnThis$2);
+  }
+
+  var iteratorsCore = {
+    IteratorPrototype: IteratorPrototype$2,
+    BUGGY_SAFARI_ITERATORS: BUGGY_SAFARI_ITERATORS$1
   };
 
   var defineProperty$5 = objectDefineProperty.f;
@@ -1842,8 +2130,6 @@
       defineProperty$5(it, TO_STRING_TAG$1, { configurable: true, value: TAG });
     }
   };
-
-  var iterators = {};
 
   var IteratorPrototype$1 = iteratorsCore.IteratorPrototype;
 
@@ -1967,55 +2253,9 @@
     return methods;
   };
 
-  var charAt = stringMultibyte.charAt;
-
-
-
-  var STRING_ITERATOR = 'String Iterator';
-  var setInternalState$4 = internalState.set;
-  var getInternalState$2 = internalState.getterFor(STRING_ITERATOR);
-
-  // `String.prototype[@@iterator]` method
-  // https://tc39.es/ecma262/#sec-string.prototype-@@iterator
-  defineIterator(String, 'String', function (iterated) {
-    setInternalState$4(this, {
-      type: STRING_ITERATOR,
-      string: String(iterated),
-      index: 0
-    });
-  // `%StringIteratorPrototype%.next` method
-  // https://tc39.es/ecma262/#sec-%stringiteratorprototype%.next
-  }, function next() {
-    var state = getInternalState$2(this);
-    var string = state.string;
-    var index = state.index;
-    var point;
-    if (index >= string.length) return { value: undefined, done: true };
-    point = charAt(string, index);
-    state.index += point.length;
-    return { value: point, done: false };
-  });
-
-  var UNSCOPABLES = wellKnownSymbol('unscopables');
-  var ArrayPrototype$1 = Array.prototype;
-
-  // Array.prototype[@@unscopables]
-  // https://tc39.es/ecma262/#sec-array.prototype-@@unscopables
-  if (ArrayPrototype$1[UNSCOPABLES] == undefined) {
-    objectDefineProperty.f(ArrayPrototype$1, UNSCOPABLES, {
-      configurable: true,
-      value: objectCreate(null)
-    });
-  }
-
-  // add a key to Array.prototype[@@unscopables]
-  var addToUnscopables = function (key) {
-    ArrayPrototype$1[UNSCOPABLES][key] = true;
-  };
-
   var ARRAY_ITERATOR = 'Array Iterator';
-  var setInternalState$3 = internalState.set;
-  var getInternalState$1 = internalState.getterFor(ARRAY_ITERATOR);
+  var setInternalState$4 = internalState.set;
+  var getInternalState$2 = internalState.getterFor(ARRAY_ITERATOR);
 
   // `Array.prototype.entries` method
   // https://tc39.es/ecma262/#sec-array.prototype.entries
@@ -2028,7 +2268,7 @@
   // `CreateArrayIterator` internal method
   // https://tc39.es/ecma262/#sec-createarrayiterator
   var es_array_iterator = defineIterator(Array, 'Array', function (iterated, kind) {
-    setInternalState$3(this, {
+    setInternalState$4(this, {
       type: ARRAY_ITERATOR,
       target: toIndexedObject(iterated), // target
       index: 0,                          // next index
@@ -2037,7 +2277,7 @@
   // `%ArrayIteratorPrototype%.next` method
   // https://tc39.es/ecma262/#sec-%arrayiteratorprototype%.next
   }, function () {
-    var state = getInternalState$1(this);
+    var state = getInternalState$2(this);
     var target = state.target;
     var kind = state.kind;
     var index = state.index++;
@@ -2060,75 +2300,106 @@
   addToUnscopables('values');
   addToUnscopables('entries');
 
-  // iterable DOM collections
-  // flag - `iterable` interface - 'entries', 'keys', 'values', 'forEach' methods
-  var domIterables = {
-    CSSRuleList: 0,
-    CSSStyleDeclaration: 0,
-    CSSValueList: 0,
-    ClientRectList: 0,
-    DOMRectList: 0,
-    DOMStringList: 0,
-    DOMTokenList: 1,
-    DataTransferItemList: 0,
-    FileList: 0,
-    HTMLAllCollection: 0,
-    HTMLCollection: 0,
-    HTMLFormElement: 0,
-    HTMLSelectElement: 0,
-    MediaList: 0,
-    MimeTypeArray: 0,
-    NamedNodeMap: 0,
-    NodeList: 1,
-    PaintRequestList: 0,
-    Plugin: 0,
-    PluginArray: 0,
-    SVGLengthList: 0,
-    SVGNumberList: 0,
-    SVGPathSegList: 0,
-    SVGPointList: 0,
-    SVGStringList: 0,
-    SVGTransformList: 0,
-    SourceBufferList: 0,
-    StyleSheetList: 0,
-    TextTrackCueList: 0,
-    TextTrackList: 0,
-    TouchList: 0
-  };
-
   var ITERATOR$3 = wellKnownSymbol('iterator');
   var TO_STRING_TAG = wellKnownSymbol('toStringTag');
   var ArrayValues = es_array_iterator.values;
 
-  for (var COLLECTION_NAME$1 in domIterables) {
-    var Collection$1 = global$1[COLLECTION_NAME$1];
-    var CollectionPrototype$1 = Collection$1 && Collection$1.prototype;
-    if (CollectionPrototype$1) {
+  for (var COLLECTION_NAME in domIterables) {
+    var Collection = global$1[COLLECTION_NAME];
+    var CollectionPrototype = Collection && Collection.prototype;
+    if (CollectionPrototype) {
       // some Chrome versions have non-configurable methods on DOMTokenList
-      if (CollectionPrototype$1[ITERATOR$3] !== ArrayValues) try {
-        createNonEnumerableProperty(CollectionPrototype$1, ITERATOR$3, ArrayValues);
+      if (CollectionPrototype[ITERATOR$3] !== ArrayValues) try {
+        createNonEnumerableProperty(CollectionPrototype, ITERATOR$3, ArrayValues);
       } catch (error) {
-        CollectionPrototype$1[ITERATOR$3] = ArrayValues;
+        CollectionPrototype[ITERATOR$3] = ArrayValues;
       }
-      if (!CollectionPrototype$1[TO_STRING_TAG]) {
-        createNonEnumerableProperty(CollectionPrototype$1, TO_STRING_TAG, COLLECTION_NAME$1);
+      if (!CollectionPrototype[TO_STRING_TAG]) {
+        createNonEnumerableProperty(CollectionPrototype, TO_STRING_TAG, COLLECTION_NAME);
       }
-      if (domIterables[COLLECTION_NAME$1]) for (var METHOD_NAME in es_array_iterator) {
+      if (domIterables[COLLECTION_NAME]) for (var METHOD_NAME in es_array_iterator) {
         // some Chrome versions have non-configurable methods on DOMTokenList
-        if (CollectionPrototype$1[METHOD_NAME] !== es_array_iterator[METHOD_NAME]) try {
-          createNonEnumerableProperty(CollectionPrototype$1, METHOD_NAME, es_array_iterator[METHOD_NAME]);
+        if (CollectionPrototype[METHOD_NAME] !== es_array_iterator[METHOD_NAME]) try {
+          createNonEnumerableProperty(CollectionPrototype, METHOD_NAME, es_array_iterator[METHOD_NAME]);
         } catch (error) {
-          CollectionPrototype$1[METHOD_NAME] = es_array_iterator[METHOD_NAME];
+          CollectionPrototype[METHOD_NAME] = es_array_iterator[METHOD_NAME];
         }
       }
     }
   }
 
-  // `IsArray` abstract operation
-  // https://tc39.es/ecma262/#sec-isarray
-  var isArray = Array.isArray || function isArray(arg) {
-    return classofRaw(arg) == 'Array';
+  var f$1 = wellKnownSymbol;
+
+  var wellKnownSymbolWrapped = {
+  	f: f$1
   };
+
+  var defineProperty$4 = objectDefineProperty.f;
+
+  var defineWellKnownSymbol = function (NAME) {
+    var Symbol = path.Symbol || (path.Symbol = {});
+    if (!has$1(Symbol, NAME)) defineProperty$4(Symbol, NAME, {
+      value: wellKnownSymbolWrapped.f(NAME)
+    });
+  };
+
+  // `Symbol.iterator` well-known symbol
+  // https://tc39.es/ecma262/#sec-symbol.iterator
+  defineWellKnownSymbol('iterator');
+
+  // `String.prototype.{ codePointAt, at }` methods implementation
+  var createMethod$1 = function (CONVERT_TO_STRING) {
+    return function ($this, pos) {
+      var S = String(requireObjectCoercible($this));
+      var position = toInteger(pos);
+      var size = S.length;
+      var first, second;
+      if (position < 0 || position >= size) return CONVERT_TO_STRING ? '' : undefined;
+      first = S.charCodeAt(position);
+      return first < 0xD800 || first > 0xDBFF || position + 1 === size
+        || (second = S.charCodeAt(position + 1)) < 0xDC00 || second > 0xDFFF
+          ? CONVERT_TO_STRING ? S.charAt(position) : first
+          : CONVERT_TO_STRING ? S.slice(position, position + 2) : (first - 0xD800 << 10) + (second - 0xDC00) + 0x10000;
+    };
+  };
+
+  var stringMultibyte = {
+    // `String.prototype.codePointAt` method
+    // https://tc39.es/ecma262/#sec-string.prototype.codepointat
+    codeAt: createMethod$1(false),
+    // `String.prototype.at` method
+    // https://github.com/mathiasbynens/String.prototype.at
+    charAt: createMethod$1(true)
+  };
+
+  var charAt = stringMultibyte.charAt;
+
+
+
+  var STRING_ITERATOR = 'String Iterator';
+  var setInternalState$3 = internalState.set;
+  var getInternalState$1 = internalState.getterFor(STRING_ITERATOR);
+
+  // `String.prototype[@@iterator]` method
+  // https://tc39.es/ecma262/#sec-string.prototype-@@iterator
+  defineIterator(String, 'String', function (iterated) {
+    setInternalState$3(this, {
+      type: STRING_ITERATOR,
+      string: String(iterated),
+      index: 0
+    });
+  // `%StringIteratorPrototype%.next` method
+  // https://tc39.es/ecma262/#sec-%stringiteratorprototype%.next
+  }, function next() {
+    var state = getInternalState$1(this);
+    var string = state.string;
+    var index = state.index;
+    var point;
+    if (index >= string.length) return { value: undefined, done: true };
+    point = charAt(string, index);
+    state.index += point.length;
+    return { value: point, done: false };
+  });
 
   var nativeGetOwnPropertyNames$1 = objectGetOwnPropertyNames.f;
 
@@ -2156,120 +2427,7 @@
   	f: f
   };
 
-  var aFunction = function (it) {
-    if (typeof it != 'function') {
-      throw TypeError(String(it) + ' is not a function');
-    } return it;
-  };
-
-  // optional / simple context binding
-  var functionBindContext = function (fn, that, length) {
-    aFunction(fn);
-    if (that === undefined) return fn;
-    switch (length) {
-      case 0: return function () {
-        return fn.call(that);
-      };
-      case 1: return function (a) {
-        return fn.call(that, a);
-      };
-      case 2: return function (a, b) {
-        return fn.call(that, a, b);
-      };
-      case 3: return function (a, b, c) {
-        return fn.call(that, a, b, c);
-      };
-    }
-    return function (/* ...args */) {
-      return fn.apply(that, arguments);
-    };
-  };
-
-  var SPECIES$2 = wellKnownSymbol('species');
-
-  // `ArraySpeciesCreate` abstract operation
-  // https://tc39.es/ecma262/#sec-arrayspeciescreate
-  var arraySpeciesCreate = function (originalArray, length) {
-    var C;
-    if (isArray(originalArray)) {
-      C = originalArray.constructor;
-      // cross-realm fallback
-      if (typeof C == 'function' && (C === Array || isArray(C.prototype))) C = undefined;
-      else if (isObject(C)) {
-        C = C[SPECIES$2];
-        if (C === null) C = undefined;
-      }
-    } return new (C === undefined ? Array : C)(length === 0 ? 0 : length);
-  };
-
-  var push = [].push;
-
-  // `Array.prototype.{ forEach, map, filter, some, every, find, findIndex, filterOut }` methods implementation
-  var createMethod$1 = function (TYPE) {
-    var IS_MAP = TYPE == 1;
-    var IS_FILTER = TYPE == 2;
-    var IS_SOME = TYPE == 3;
-    var IS_EVERY = TYPE == 4;
-    var IS_FIND_INDEX = TYPE == 6;
-    var IS_FILTER_OUT = TYPE == 7;
-    var NO_HOLES = TYPE == 5 || IS_FIND_INDEX;
-    return function ($this, callbackfn, that, specificCreate) {
-      var O = toObject($this);
-      var self = indexedObject(O);
-      var boundFunction = functionBindContext(callbackfn, that, 3);
-      var length = toLength(self.length);
-      var index = 0;
-      var create = specificCreate || arraySpeciesCreate;
-      var target = IS_MAP ? create($this, length) : IS_FILTER || IS_FILTER_OUT ? create($this, 0) : undefined;
-      var value, result;
-      for (;length > index; index++) if (NO_HOLES || index in self) {
-        value = self[index];
-        result = boundFunction(value, index, O);
-        if (TYPE) {
-          if (IS_MAP) target[index] = result; // map
-          else if (result) switch (TYPE) {
-            case 3: return true;              // some
-            case 5: return value;             // find
-            case 6: return index;             // findIndex
-            case 2: push.call(target, value); // filter
-          } else switch (TYPE) {
-            case 4: return false;             // every
-            case 7: push.call(target, value); // filterOut
-          }
-        }
-      }
-      return IS_FIND_INDEX ? -1 : IS_SOME || IS_EVERY ? IS_EVERY : target;
-    };
-  };
-
-  var arrayIteration = {
-    // `Array.prototype.forEach` method
-    // https://tc39.es/ecma262/#sec-array.prototype.foreach
-    forEach: createMethod$1(0),
-    // `Array.prototype.map` method
-    // https://tc39.es/ecma262/#sec-array.prototype.map
-    map: createMethod$1(1),
-    // `Array.prototype.filter` method
-    // https://tc39.es/ecma262/#sec-array.prototype.filter
-    filter: createMethod$1(2),
-    // `Array.prototype.some` method
-    // https://tc39.es/ecma262/#sec-array.prototype.some
-    some: createMethod$1(3),
-    // `Array.prototype.every` method
-    // https://tc39.es/ecma262/#sec-array.prototype.every
-    every: createMethod$1(4),
-    // `Array.prototype.find` method
-    // https://tc39.es/ecma262/#sec-array.prototype.find
-    find: createMethod$1(5),
-    // `Array.prototype.findIndex` method
-    // https://tc39.es/ecma262/#sec-array.prototype.findIndex
-    findIndex: createMethod$1(6),
-    // `Array.prototype.filterOut` method
-    // https://github.com/tc39/proposal-array-filtering
-    filterOut: createMethod$1(7)
-  };
-
-  var $forEach$1 = arrayIteration.forEach;
+  var $forEach = arrayIteration.forEach;
 
   var HIDDEN = sharedKey('hidden');
   var SYMBOL = 'Symbol';
@@ -2344,7 +2502,7 @@
     anObject(O);
     var properties = toIndexedObject(Properties);
     var keys = objectKeys(properties).concat($getOwnPropertySymbols(properties));
-    $forEach$1(keys, function (key) {
+    $forEach(keys, function (key) {
       if (!descriptors || $propertyIsEnumerable.call(properties, key)) $defineProperty(O, key, properties[key]);
     });
     return O;
@@ -2375,7 +2533,7 @@
   var $getOwnPropertyNames = function getOwnPropertyNames(O) {
     var names = nativeGetOwnPropertyNames(toIndexedObject(O));
     var result = [];
-    $forEach$1(names, function (key) {
+    $forEach(names, function (key) {
       if (!has$1(AllSymbols, key) && !has$1(hiddenKeys$1, key)) result.push(key);
     });
     return result;
@@ -2385,7 +2543,7 @@
     var IS_OBJECT_PROTOTYPE = O === ObjectPrototype;
     var names = nativeGetOwnPropertyNames(IS_OBJECT_PROTOTYPE ? ObjectPrototypeSymbols : toIndexedObject(O));
     var result = [];
-    $forEach$1(names, function (key) {
+    $forEach(names, function (key) {
       if (has$1(AllSymbols, key) && (!IS_OBJECT_PROTOTYPE || has$1(ObjectPrototype, key))) {
         result.push(AllSymbols[key]);
       }
@@ -2399,7 +2557,7 @@
     $Symbol = function Symbol() {
       if (this instanceof $Symbol) throw TypeError('Symbol is not a constructor');
       var description = !arguments.length || arguments[0] === undefined ? undefined : String(arguments[0]);
-      var tag = uid(description);
+      var tag = uid$1(description);
       var setter = function (value) {
         if (this === ObjectPrototype) setter.call(ObjectPrototypeSymbols, value);
         if (has$1(this, HIDDEN) && has$1(this[HIDDEN], tag)) this[HIDDEN][tag] = false;
@@ -2414,7 +2572,7 @@
     });
 
     redefine($Symbol, 'withoutSetter', function (description) {
-      return wrap(uid(description), description);
+      return wrap(uid$1(description), description);
     });
 
     objectPropertyIsEnumerable.f = $propertyIsEnumerable;
@@ -2445,7 +2603,7 @@
     Symbol: $Symbol
   });
 
-  $forEach$1(objectKeys(WellKnownSymbolsStore), function (name) {
+  $forEach(objectKeys(WellKnownSymbolsStore), function (name) {
     defineWellKnownSymbol(name);
   });
 
@@ -2545,7 +2703,7 @@
 
   hiddenKeys$1[HIDDEN] = true;
 
-  var defineProperty$4 = objectDefineProperty.f;
+  var defineProperty$3 = objectDefineProperty.f;
 
 
   var NativeSymbol = global$1.Symbol;
@@ -2572,7 +2730,7 @@
     var symbolToString = symbolPrototype.toString;
     var native = String(NativeSymbol('test')) == 'Symbol(test)';
     var regexp = /^Symbol\((.*)\)[^)]+$/;
-    defineProperty$4(symbolPrototype, 'description', {
+    defineProperty$3(symbolPrototype, 'description', {
       configurable: true,
       get: function description() {
         var symbol = isObject(this) ? this.valueOf() : this;
@@ -2635,7 +2793,7 @@
 
   var getOwnPropertyNames$1 = objectGetOwnPropertyNames.f;
   var getOwnPropertyDescriptor = objectGetOwnPropertyDescriptor.f;
-  var defineProperty$3 = objectDefineProperty.f;
+  var defineProperty$2 = objectDefineProperty.f;
   var trim = stringTrim.trim;
 
   var NUMBER = 'Number';
@@ -2695,7 +2853,7 @@
       'fromString,range'
     ).split(','), j = 0, key; keys$1.length > j; j++) {
       if (has$1(NativeNumber, key = keys$1[j]) && !has$1(NumberWrapper, key)) {
-        defineProperty$3(NumberWrapper, key, getOwnPropertyDescriptor(NativeNumber, key));
+        defineProperty$2(NumberWrapper, key, getOwnPropertyDescriptor(NativeNumber, key));
       }
     }
     NumberWrapper.prototype = NumberPrototype;
@@ -2820,7 +2978,7 @@
     }
   };
 
-  var defineProperty$2 = objectDefineProperty.f;
+  var defineProperty$1 = objectDefineProperty.f;
   var getOwnPropertyNames = objectGetOwnPropertyNames.f;
 
 
@@ -2884,7 +3042,7 @@
       return result;
     };
     var proxy = function (key) {
-      key in RegExpWrapper || defineProperty$2(RegExpWrapper, key, {
+      key in RegExpWrapper || defineProperty$1(RegExpWrapper, key, {
         configurable: true,
         get: function () { return NativeRegExp[key]; },
         set: function (it) { NativeRegExp[key] = it; }
@@ -2992,83 +3150,294 @@
     exec: regexpExec
   });
 
-  var freezing = !fails(function () {
-    return Object.isExtensible(Object.preventExtensions({}));
-  });
+  /**
+   * Utils - Utility functions
+   * @namespace Mootable
+   * @author Jack Moxley <https://github.com/jackmoxley>
+   * @version 0.12.6
+   * Homepage: https://github.com/mootable/hashmap
+   */
+  var uid = 0;
+  /**
+   * Modified Murmur3 HashCode generator, with capped lengths.
+   * This is NOT a cryptographic hash, this hash is designed to create as even a spread across a 32bit integer as is possible.
+   * @see {@link https://github.com/aappleby/smhasher|MurmurHash specification on Github}
+   * @see {@link https://en.wikipedia.org/wiki/MurmurHash|MurmurHash on Wikipedia}
+   * @param key the string being hashed
+   * @param len the max limit on the number of characters to hash
+   * @param seed an optional random seed
+   * @returns {number} the hash
+   */
 
-  var internalMetadata = createCommonjsModule(function (module) {
-  var defineProperty = objectDefineProperty.f;
+  function hashCode(key) {
+    var len = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+    var seed = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+    len = len && len > 0 ? Math.min(len, key.length) : key.length;
+    seed = seed | 0;
+    var remaining = len & 1;
+    var bytes = len - remaining;
+    var hash = seed,
+        k = 0,
+        i = 0;
 
-
-
-  var METADATA = uid('meta');
-  var id = 0;
-
-  var isExtensible = Object.isExtensible || function () {
-    return true;
-  };
-
-  var setMetadata = function (it) {
-    defineProperty(it, METADATA, { value: {
-      objectID: 'O' + ++id, // object ID
-      weakData: {}          // weak collections IDs
-    } });
-  };
-
-  var fastKey = function (it, create) {
-    // return a primitive with prefix
-    if (!isObject(it)) return typeof it == 'symbol' ? it : (typeof it == 'string' ? 'S' : 'P') + it;
-    if (!has$1(it, METADATA)) {
-      // can't set metadata to uncaught frozen object
-      if (!isExtensible(it)) return 'F';
-      // not necessary to add metadata
-      if (!create) return 'E';
-      // add missing metadata
-      setMetadata(it);
-    // return object ID
-    } return it[METADATA].objectID;
-  };
-
-  var getWeakData = function (it, create) {
-    if (!has$1(it, METADATA)) {
-      // can't set metadata to uncaught frozen object
-      if (!isExtensible(it)) return true;
-      // not necessary to add metadata
-      if (!create) return false;
-      // add missing metadata
-      setMetadata(it);
-    // return the store of weak collections IDs
-    } return it[METADATA].weakData;
-  };
-
-  // add metadata on freeze-family methods calling
-  var onFreeze = function (it) {
-    if (freezing && meta.REQUIRED && isExtensible(it) && !has$1(it, METADATA)) setMetadata(it);
-    return it;
-  };
-
-  var meta = module.exports = {
-    REQUIRED: false,
-    fastKey: fastKey,
-    getWeakData: getWeakData,
-    onFreeze: onFreeze
-  };
-
-  hiddenKeys$1[METADATA] = true;
-  });
-
-  var onFreeze = internalMetadata.onFreeze;
-
-  var nativeFreeze = Object.freeze;
-  var FAILS_ON_PRIMITIVES = fails(function () { nativeFreeze(1); });
-
-  // `Object.freeze` method
-  // https://tc39.es/ecma262/#sec-object.freeze
-  _export({ target: 'Object', stat: true, forced: FAILS_ON_PRIMITIVES, sham: !freezing }, {
-    freeze: function freeze(it) {
-      return nativeFreeze && isObject(it) ? nativeFreeze(onFreeze(it)) : it;
+    while (i < bytes) {
+      k = key.charCodeAt(i++) & 0xffff | (key.charCodeAt(i++) & 0xffff) << 16;
+      k *= k * 0xcc9e2d51 | 0;
+      k = k << 15 | k >>> 17;
+      k = k * 0x1b873593;
+      hash ^= k;
+      hash = hash << 13 | hash >>> 19;
+      hash = hash * 5 + 0xe6546b64;
     }
-  });
+
+    if (remaining) {
+      k ^= key.charCodeAt(i) & 0xffff;
+      k = k * 0xcc9e2d51;
+      k = k << 15 | k >>> 17;
+      k = k * 0x1b873593;
+      hash ^= k;
+    }
+
+    hash ^= len;
+    hash ^= hash >>> 16;
+    hash = hash * 0x85ebca6b;
+    hash ^= hash >>> 13;
+    hash = hash * 0xc2b2ae35;
+    hash ^= hash >>> 16;
+    return hash | 0;
+  }
+  /**
+   * Is the passed value not null and a function
+   * @param func
+   * @returns {boolean}
+   */
+
+  function isFunction(func) {
+    return !!(func && func.constructor && func.call && func.apply);
+  }
+  /**
+   * Is the passed object iterable
+   * @param iterable
+   * @return {boolean}
+   */
+
+  function isIterable(iterable) {
+    return !!(iterable && isFunction(iterable[Symbol.iterator]));
+  }
+  /**
+   * Is the passed value not null and a string
+   * @param str
+   * @returns {boolean}
+   */
+
+  function isString(str) {
+    // jshint ignore:line
+    return !!(str && (typeof str === 'string' || str instanceof String));
+  }
+  /**
+   * Is the passed value not null and a finite number.
+   * NaN and ±Infinity would return false.
+   * @param num
+   * @returns {boolean}
+   */
+
+  function isNumber(num) {
+    // jshint ignore:line
+    return !!(num && (typeof num === 'number' || num instanceof Number) && isFinite(num));
+  }
+  /**
+   * @private
+   * The default Equals method we use this in most cases.
+   *
+   * @param me
+   * @param them
+   * @returns {boolean}
+   */
+
+  function defaultEquals(me, them) {
+    return me === them;
+  }
+  /**
+   * @private
+   * Does a wider equals for use with arrays.
+   *
+   * @param me
+   * @param them
+   * @param depth
+   * @return {boolean}
+   */
+
+  function deepEquals(me, them) {
+    var depth = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : -1;
+
+    if (depth !== 0 && Array.isArray(me) && Array.isArray(them)) {
+      return me.length === them.length && me.every(function (el, ix) {
+        return deepEquals(el, them[ix], depth - 1);
+      });
+    }
+
+    return me === them;
+  }
+  /**
+   * @private
+   * Returns back a pair of equalTo Methods and hash values, for a raft of different objects.
+   * TODO: Revisit this at some point.
+   * @param key
+   * @returns {{equalTo: (function(*, *): boolean), hash: number}}
+   */
+
+  function hashEquals(key) {
+    switch (_typeof(key)) {
+      case 'boolean':
+        return {
+          equalTo: defaultEquals,
+          hash: key ? 0 : 1
+        };
+
+      case 'number':
+        if (Number.isNaN(key)) {
+          return {
+            equalTo: function equalTo(me, them) {
+              return Number.isNaN(them);
+            },
+            hash: 0
+          };
+        }
+
+        if (!Number.isFinite(key)) {
+          return {
+            equalTo: defaultEquals,
+            hash: 0
+          };
+        }
+
+        if (Number.isInteger(key)) {
+          return {
+            equalTo: defaultEquals,
+            hash: key
+          };
+        }
+
+        return {
+          equalTo: defaultEquals,
+          hash: hashCode(key.toString())
+        };
+
+      case 'string':
+        return {
+          equalTo: defaultEquals,
+          hash: hashCode(key)
+        };
+
+      case 'undefined':
+        return {
+          equalTo: defaultEquals,
+          hash: 0
+        };
+
+      default:
+        {
+          // null
+          if (!key) {
+            return {
+              equalTo: defaultEquals,
+              hash: 0
+            };
+          }
+
+          if (key instanceof RegExp) {
+            return {
+              equalTo: function equalTo(me, them) {
+                if (them && them instanceof RegExp) {
+                  return me.toString() === them.toString();
+                }
+
+                return false;
+              },
+              hash: hashCode(key.toString())
+            };
+          }
+
+          if (key instanceof Date) {
+            return {
+              equalTo: function equalTo(me, them) {
+                if (them instanceof Date) {
+                  return me.getTime() === them.getTime();
+                }
+
+                return false;
+              },
+              hash: key.getTime() | 0
+            };
+          }
+
+          if (key instanceof Array) {
+            var functions = [];
+            var hash_code = key.length;
+
+            for (var i = 0; i < key.length; i++) {
+              var currHE = hashEquals(key[i]);
+              functions.push(currHE.equalTo);
+              hash_code = hash_code + currHE.hash * 31;
+            }
+
+            Object.freeze(functions);
+            return {
+              equalTo: function equalTo(me, them) {
+                if (them instanceof Array && me.length === them.length) {
+                  for (var _i = 0; _i < me.length; _i++) {
+                    if (!functions[_i](me[_i], them[_i])) {
+                      return false;
+                    }
+                  }
+
+                  return true;
+                }
+
+                return false;
+              },
+              hash: hash_code | 0
+            };
+          } // Ew get rid of this.
+
+
+          if (!key.hasOwnProperty('_hmuid_')) {
+            key._hmuid_ = ++uid; // hide(key, '_hmuid_');
+          }
+
+          return hashEquals(key._hmuid_);
+        }
+    }
+  }
+  /**
+   * to get round the fact gets might be undefined but the value exists,
+   * @private
+   */
+
+  var Option = /*#__PURE__*/function () {
+    function Option(has, value) {
+      _classCallCheck(this, Option);
+
+      this.has = has;
+      this.value = value;
+    }
+
+    _createClass(Option, null, [{
+      key: "some",
+      value: function some(value) {
+        return new Option(true, value);
+      }
+    }, {
+      key: "none",
+      get: function get() {
+        return none;
+      }
+    }]);
+
+    return Option;
+  }();
+  var some = Option.some;
+  var none = new Option(false, undefined);
 
   var createProperty = function (object, key, value) {
     var propertyKey = toPrimitive(key);
@@ -3428,7 +3797,7 @@
     return target;
   };
 
-  var defineProperty$1 = objectDefineProperty.f;
+  var defineProperty = objectDefineProperty.f;
 
 
 
@@ -3570,7 +3939,7 @@
           return define(this, value = value === 0 ? 0 : value, value);
         }
       });
-      if (descriptors) defineProperty$1(C.prototype, 'size', {
+      if (descriptors) defineProperty(C.prototype, 'size', {
         get: function () {
           return getInternalState(this).size;
         }
@@ -3634,86 +4003,6 @@
     }
   });
 
-  var arrayMethodIsStrict = function (METHOD_NAME, argument) {
-    var method = [][METHOD_NAME];
-    return !!method && fails(function () {
-      // eslint-disable-next-line no-useless-call,no-throw-literal -- required for testing
-      method.call(null, argument || function () { throw 1; }, 1);
-    });
-  };
-
-  var $forEach = arrayIteration.forEach;
-
-
-  var STRICT_METHOD = arrayMethodIsStrict('forEach');
-
-  // `Array.prototype.forEach` method implementation
-  // https://tc39.es/ecma262/#sec-array.prototype.foreach
-  var arrayForEach = !STRICT_METHOD ? function forEach(callbackfn /* , thisArg */) {
-    return $forEach(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
-  } : [].forEach;
-
-  for (var COLLECTION_NAME in domIterables) {
-    var Collection = global$1[COLLECTION_NAME];
-    var CollectionPrototype = Collection && Collection.prototype;
-    // some Chrome versions have non-configurable methods on DOMTokenList
-    if (CollectionPrototype && CollectionPrototype.forEach !== arrayForEach) try {
-      createNonEnumerableProperty(CollectionPrototype, 'forEach', arrayForEach);
-    } catch (error) {
-      CollectionPrototype.forEach = arrayForEach;
-    }
-  }
-
-  var nativeAssign = Object.assign;
-  var defineProperty = Object.defineProperty;
-
-  // `Object.assign` method
-  // https://tc39.es/ecma262/#sec-object.assign
-  var objectAssign = !nativeAssign || fails(function () {
-    // should have correct order of operations (Edge bug)
-    if (descriptors && nativeAssign({ b: 1 }, nativeAssign(defineProperty({}, 'a', {
-      enumerable: true,
-      get: function () {
-        defineProperty(this, 'b', {
-          value: 3,
-          enumerable: false
-        });
-      }
-    }), { b: 2 })).b !== 1) return true;
-    // should work with symbols and should have deterministic property order (V8 bug)
-    var A = {};
-    var B = {};
-    /* global Symbol -- required for testing */
-    var symbol = Symbol();
-    var alphabet = 'abcdefghijklmnopqrst';
-    A[symbol] = 7;
-    alphabet.split('').forEach(function (chr) { B[chr] = chr; });
-    return nativeAssign({}, A)[symbol] != 7 || objectKeys(nativeAssign({}, B)).join('') != alphabet;
-  }) ? function assign(target, source) { // eslint-disable-line no-unused-vars -- required for `.length`
-    var T = toObject(target);
-    var argumentsLength = arguments.length;
-    var index = 1;
-    var getOwnPropertySymbols = objectGetOwnPropertySymbols.f;
-    var propertyIsEnumerable = objectPropertyIsEnumerable.f;
-    while (argumentsLength > index) {
-      var S = indexedObject(arguments[index++]);
-      var keys = getOwnPropertySymbols ? objectKeys(S).concat(getOwnPropertySymbols(S)) : objectKeys(S);
-      var length = keys.length;
-      var j = 0;
-      var key;
-      while (length > j) {
-        key = keys[j++];
-        if (!descriptors || propertyIsEnumerable.call(S, key)) T[key] = S[key];
-      }
-    } return T;
-  } : nativeAssign;
-
-  // `Object.assign` method
-  // https://tc39.es/ecma262/#sec-object.assign
-  _export({ target: 'Object', stat: true, forced: Object.assign !== objectAssign }, {
-    assign: objectAssign
-  });
-
   // `Set` constructor
   // https://tc39.es/ecma262/#sec-set-objects
   collection('Set', function (init) {
@@ -3728,258 +4017,6 @@
    * Homepage: https://github.com/mootable/hashmap
    */
 
-  /**
-   * Modified Murmur3 HashCode generator, with capped lengths.
-   * This is NOT a cryptographic hash, this hash is designed to create as even a spread across a 32bit integer as is possible.
-   * @see {@link https://github.com/aappleby/smhasher|MurmurHash specification on Github}
-   * @see {@link https://en.wikipedia.org/wiki/MurmurHash|MurmurHash on Wikipedia}
-   * @param key the string being hashed
-   * @param seed an optional random seed
-   * @param len the max limit on the number of characters to hash
-   * @returns {number} the hash
-   */
-  function hashCode(key) {
-    var seed = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-    var len = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
-    len = len && len > 0 ? Math.min(len, key.length) : key.length;
-    seed = seed | 0;
-    var remaining = len & 1;
-    var bytes = len - remaining;
-    var hash = seed,
-        k = 0,
-        i = 0;
-
-    while (i < bytes) {
-      k = key.charCodeAt(i++) & 0xffff | (key.charCodeAt(i++) & 0xffff) << 16;
-      k *= k * 0xcc9e2d51 | 0;
-      k = k << 15 | k >>> 17;
-      k = k * 0x1b873593;
-      hash ^= k;
-      hash = hash << 13 | hash >>> 19;
-      hash = hash * 5 + 0xe6546b64;
-    }
-
-    if (remaining) {
-      k ^= key.charCodeAt(i) & 0xffff;
-      k = k * 0xcc9e2d51;
-      k = k << 15 | k >>> 17;
-      k = k * 0x1b873593;
-      hash ^= k;
-    }
-
-    hash ^= len;
-    hash ^= hash >>> 16;
-    hash = hash * 0x85ebca6b;
-    hash ^= hash >>> 13;
-    hash = hash * 0xc2b2ae35;
-    hash ^= hash >>> 16;
-    return hash | 0;
-  }
-  /**
-   * Is the passed value not null and a function
-   * @param func
-   * @returns {boolean}
-   */
-
-  function isFunction(func) {
-    return !!(func && func.constructor && func.call && func.apply);
-  }
-  /**
-   * Is the passed object iterable
-   * @param iterable
-   * @return {boolean}
-   */
-
-  function isIterable(iterable) {
-    return !!(iterable && isFunction(iterable[Symbol.iterator]));
-  }
-  /**
-   * Is the passed value not null and a string
-   * @param str
-   * @returns {boolean}
-   */
-
-  function isString(str) {
-    // jshint ignore:line
-    return !!(str && (typeof str === 'string' || str instanceof String));
-  }
-  /**
-   * Is the passed value not null and a finite number.
-   * NaN and ±Infinity would return false.
-   * @param num
-   * @returns {boolean}
-   */
-
-  function isNumber(num) {
-    // jshint ignore:line
-    return !!(num && (typeof num === 'number' || num instanceof Number) && isFinite(num));
-  }
-  /**
-   * @private
-   * The default Equals method we use this in most cases.
-   *
-   * @param me
-   * @param them
-   * @returns {boolean}
-   */
-
-  function defaultEquals(me, them) {
-    return me === them;
-  }
-  /**
-   * @private
-   * Does a wider equals for use with arrays.
-   *
-   * @param me
-   * @param them
-   * @param depth
-   * @return {boolean}
-   */
-
-
-  function deepEquals(me, them) {
-    var depth = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : -1;
-
-    if (depth !== 0 && Array.isArray(me) && Array.isArray(them)) {
-      return me.length === them.length && me.every(function (el, ix) {
-        return deepEquals(el, them[ix], depth - 1);
-      });
-    }
-
-    return me === them;
-  }
-  /**
-   * @private
-   * Returns back a pair of equalTo Methods and hash values, for a raft of different objects.
-   * TODO: Revisit this at some point.
-   * @param key
-   * @returns {{equalTo: (function(*, *): boolean), hash: number}}
-   */
-
-
-  function hashEquals(key) {
-    switch (_typeof(key)) {
-      case 'boolean':
-        return {
-          equalTo: defaultEquals,
-          hash: key ? 0 : 1
-        };
-
-      case 'number':
-        if (Number.isNaN(key)) {
-          return {
-            equalTo: function equalTo(me, them) {
-              return Number.isNaN(them);
-            },
-            hash: 0
-          };
-        }
-
-        if (!Number.isFinite(key)) {
-          return {
-            equalTo: defaultEquals,
-            hash: 0
-          };
-        }
-
-        if (Number.isInteger(key)) {
-          return {
-            equalTo: defaultEquals,
-            hash: key
-          };
-        }
-
-        return {
-          equalTo: defaultEquals,
-          hash: hashCode(key.toString())
-        };
-
-      case 'string':
-        return {
-          equalTo: defaultEquals,
-          hash: hashCode(key)
-        };
-
-      case 'undefined':
-        return {
-          equalTo: defaultEquals,
-          hash: 0
-        };
-
-      default:
-        {
-          // null
-          if (!key) {
-            return {
-              equalTo: defaultEquals,
-              hash: 0
-            };
-          }
-
-          if (key instanceof RegExp) {
-            return {
-              equalTo: function equalTo(me, them) {
-                if (them && them instanceof RegExp) {
-                  return me.toString() === them.toString();
-                }
-
-                return false;
-              },
-              hash: hashCode(key.toString())
-            };
-          }
-
-          if (key instanceof Date) {
-            return {
-              equalTo: function equalTo(me, them) {
-                if (them instanceof Date) {
-                  return me.getTime() === them.getTime();
-                }
-
-                return false;
-              },
-              hash: key.getTime() | 0
-            };
-          }
-
-          if (key instanceof Array) {
-            var functions = [];
-            var hash_code = key.length;
-
-            for (var i = 0; i < key.length; i++) {
-              var currHE = hashEquals(key[i]);
-              functions.push(currHE.equalTo);
-              hash_code = hash_code + currHE.hash * 31;
-            }
-
-            Object.freeze(functions);
-            return {
-              equalTo: function equalTo(me, them) {
-                if (them instanceof Array && me.length === them.length) {
-                  for (var _i = 0; _i < me.length; _i++) {
-                    if (!functions[_i](me[_i], them[_i])) {
-                      return false;
-                    }
-                  }
-
-                  return true;
-                }
-
-                return false;
-              },
-              hash: hash_code | 0
-            };
-          } // Ew get rid of this.
-
-
-          if (!key.hasOwnProperty('_hmuid_')) {
-            key._hmuid_ = ++HashMap.uid; // hide(key, '_hmuid_');
-          }
-
-          return hashEquals(key._hmuid_);
-        }
-    }
-  }
   /**
    * The base class for the Map Implementations, and the Higher Order Functions for Maps
    * @example <caption>Create a MapIterable from a Map.</caption>
@@ -4014,7 +4051,6 @@
    * const mapIterable = new LinkedHashMap();
    * @abstract
    */
-
 
   var MapIterable = /*#__PURE__*/function () {
     function MapIterable() {
@@ -4667,10 +4703,10 @@
         });
 
         if (found) {
-          return Optional.of(val);
+          return some(val);
         }
 
-        return Optional.none();
+        return none;
       }
       /**
        * Reduce Function
@@ -5674,36 +5710,1126 @@
     return SetIterable;
   }();
   /**
-   * to get round the fact gets might be undefined but the value exists,
+   * @extends SetIterable
    * @private
    */
 
-  var Optional = /*#__PURE__*/function () {
-    function Optional(has, value) {
-      _classCallCheck(this, Optional);
+  var SetIterableWrapper = /*#__PURE__*/function (_SetIterable) {
+    _inherits(SetIterableWrapper, _SetIterable);
 
-      this.has = has;
-      this.value = value;
+    var _super = _createSuper(SetIterableWrapper);
+
+    function SetIterableWrapper(iterable, ctx) {
+      var _this;
+
+      _classCallCheck(this, SetIterableWrapper);
+
+      _this = _super.call(this);
+      _this.iterable = iterable;
+      _this.ctx = ctx ? ctx : iterable;
+      return _this;
     }
 
-    _createClass(Optional, null, [{
-      key: "of",
-      value: function of(value) {
-        return new Optional(true, value);
+    _createClass(SetIterableWrapper, [{
+      key: "size",
+      get: function get() {
+        return this.iterable.length ? this.iterable.length : this.iterable.size ? this.iterable.size : _get(_getPrototypeOf(SetIterableWrapper.prototype), "size", this);
       }
     }, {
-      key: "none",
-      value: function none() {
-        return new Optional(false, undefined);
+      key: "has",
+      value: function has(value, depth) {
+        // if is a map iterable then we want to return the entry not the key. otherwise we can shortcut
+        if (this.iterable instanceof Set || this.iterable instanceof SetIterable) {
+          return this.iterable.has(value, depth);
+        }
+
+        return _get(_getPrototypeOf(SetIterableWrapper.prototype), "has", this).call(this, value, depth);
+      }
+    }, {
+      key: Symbol.iterator,
+      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
+        return regeneratorRuntime.wrap(function value$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                return _context.delegateYield(this.iterable, "t0", 1);
+
+              case 1:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, value, this);
+      })
+    }]);
+
+    return SetIterableWrapper;
+  }(SetIterable);
+  /**
+   * @extends MapIterable
+   * @private
+   */
+
+
+  var MapIterableWrapper = /*#__PURE__*/function (_MapIterable) {
+    _inherits(MapIterableWrapper, _MapIterable);
+
+    var _super2 = _createSuper(MapIterableWrapper);
+
+    function MapIterableWrapper(iterable, ctx) {
+      var _this2;
+
+      _classCallCheck(this, MapIterableWrapper);
+
+      _this2 = _super2.call(this);
+      _this2.iterable = iterable;
+      _this2.ctx = ctx ? ctx : iterable;
+      return _this2;
+    }
+
+    _createClass(MapIterableWrapper, [{
+      key: "size",
+      get: function get() {
+        return this.iterable.length ? this.iterable.length : this.iterable.size ? this.iterable.size : _get(_getPrototypeOf(MapIterableWrapper.prototype), "size", this);
+      }
+    }, {
+      key: Symbol.iterator,
+      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
+        return regeneratorRuntime.wrap(function value$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                return _context2.delegateYield(this.iterable, "t0", 1);
+
+              case 1:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, value, this);
+      })
+    }, {
+      key: "has",
+      value: function has(key) {
+        return this.optionalGet(key).has;
+      }
+    }, {
+      key: "optionalGet",
+      value: function optionalGet(key) {
+        if (isFunction(this.iterable.optionalGet)) {
+          return this.iterable.optionalGet(key);
+        }
+
+        if (isFunction(this.iterable.has)) {
+          if (this.iterable.has(key)) {
+            if (isFunction(this.iterable.get)) {
+              some(this.iterable.get(key));
+            }
+
+            return some(_get(_getPrototypeOf(MapIterableWrapper.prototype), "get", this).call(this, key));
+          }
+
+          return none;
+        }
+
+        return _get(_getPrototypeOf(MapIterableWrapper.prototype), "optionalGet", this).call(this, key);
+      }
+    }, {
+      key: "get",
+      value: function get(key) {
+        return this.optionalGet(key).value;
       }
     }]);
 
-    return Optional;
-  }();
+    return MapIterableWrapper;
+  }(MapIterable);
   /**
+   * @extends MapIterableWrapper
    * @private
    */
 
+
+  var MapFilter = /*#__PURE__*/function (_MapIterableWrapper) {
+    _inherits(MapFilter, _MapIterableWrapper);
+
+    var _super3 = _createSuper(MapFilter);
+
+    function MapFilter(iterable, filterPredicate, ctx) {
+      var _this3;
+
+      _classCallCheck(this, MapFilter);
+
+      _this3 = _super3.call(this, iterable, ctx);
+      _this3.filterPredicate = filterPredicate;
+      return _this3;
+    }
+
+    _createClass(MapFilter, [{
+      key: "size",
+      get: function get() {
+        var accumulator = 0;
+
+        var _iterator21 = _createForOfIteratorHelper(this),
+            _step21;
+
+        try {
+          for (_iterator21.s(); !(_step21 = _iterator21.n()).done;) // jshint ignore:line
+          {
+            var i = _step21.value;
+            accumulator++;
+          }
+        } catch (err) {
+          _iterator21.e(err);
+        } finally {
+          _iterator21.f();
+        }
+
+        return accumulator;
+      }
+    }, {
+      key: Symbol.iterator,
+      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
+        var _iterator22, _step22, _step22$value, key, _value3;
+
+        return regeneratorRuntime.wrap(function value$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                _iterator22 = _createForOfIteratorHelper(this.iterable);
+                _context3.prev = 1;
+
+                _iterator22.s();
+
+              case 3:
+                if ((_step22 = _iterator22.n()).done) {
+                  _context3.next = 10;
+                  break;
+                }
+
+                _step22$value = _slicedToArray(_step22.value, 2), key = _step22$value[0], _value3 = _step22$value[1];
+
+                if (!this.filterPredicate.call(this.ctx, _value3, key, this)) {
+                  _context3.next = 8;
+                  break;
+                }
+
+                _context3.next = 8;
+                return [key, _value3];
+
+              case 8:
+                _context3.next = 3;
+                break;
+
+              case 10:
+                _context3.next = 15;
+                break;
+
+              case 12:
+                _context3.prev = 12;
+                _context3.t0 = _context3["catch"](1);
+
+                _iterator22.e(_context3.t0);
+
+              case 15:
+                _context3.prev = 15;
+
+                _iterator22.f();
+
+                return _context3.finish(15);
+
+              case 18:
+              case "end":
+                return _context3.stop();
+            }
+          }
+        }, value, this, [[1, 12, 15, 18]]);
+      })
+    }, {
+      key: "optionalGet",
+      value: function optionalGet(key) {
+        var opt = _get(_getPrototypeOf(MapFilter.prototype), "optionalGet", this).call(this, key);
+
+        if (opt.has && !this.filterPredicate.call(this.ctx, opt.value, key, this)) {
+          return none;
+        }
+
+        return opt;
+      }
+    }, {
+      key: "has",
+      value: function has(key) {
+        return this.optionalGet(key).has;
+      }
+    }, {
+      key: "get",
+      value: function get(key) {
+        return this.optionalGet(key).value;
+      }
+    }]);
+
+    return MapFilter;
+  }(MapIterableWrapper);
+  /**
+   * @extends MapIterableWrapper
+   * @private
+   */
+
+
+  var MapKeyMapper = /*#__PURE__*/function (_MapIterableWrapper2) {
+    _inherits(MapKeyMapper, _MapIterableWrapper2);
+
+    var _super4 = _createSuper(MapKeyMapper);
+
+    function MapKeyMapper(iterable, mapFunction, ctx) {
+      var _this4;
+
+      _classCallCheck(this, MapKeyMapper);
+
+      _this4 = _super4.call(this, iterable, ctx);
+      _this4.mapFunction = mapFunction;
+      return _this4;
+    }
+
+    _createClass(MapKeyMapper, [{
+      key: Symbol.iterator,
+      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
+        var _iterator23, _step23, _step23$value, key, _value4;
+
+        return regeneratorRuntime.wrap(function value$(_context4) {
+          while (1) {
+            switch (_context4.prev = _context4.next) {
+              case 0:
+                _iterator23 = _createForOfIteratorHelper(this.iterable);
+                _context4.prev = 1;
+
+                _iterator23.s();
+
+              case 3:
+                if ((_step23 = _iterator23.n()).done) {
+                  _context4.next = 9;
+                  break;
+                }
+
+                _step23$value = _slicedToArray(_step23.value, 2), key = _step23$value[0], _value4 = _step23$value[1];
+                _context4.next = 7;
+                return [this.mapFunction.call(this.ctx, _value4, key, this), _value4];
+
+              case 7:
+                _context4.next = 3;
+                break;
+
+              case 9:
+                _context4.next = 14;
+                break;
+
+              case 11:
+                _context4.prev = 11;
+                _context4.t0 = _context4["catch"](1);
+
+                _iterator23.e(_context4.t0);
+
+              case 14:
+                _context4.prev = 14;
+
+                _iterator23.f();
+
+                return _context4.finish(14);
+
+              case 17:
+              case "end":
+                return _context4.stop();
+            }
+          }
+        }, value, this, [[1, 11, 14, 17]]);
+      })
+    }]);
+
+    return MapKeyMapper;
+  }(MapIterableWrapper);
+  /**
+   * @extends MapIterableWrapper
+   * @private
+   */
+
+
+  var MapValueMapper = /*#__PURE__*/function (_MapIterableWrapper3) {
+    _inherits(MapValueMapper, _MapIterableWrapper3);
+
+    var _super5 = _createSuper(MapValueMapper);
+
+    function MapValueMapper(iterable, mapFunction, ctx) {
+      var _this5;
+
+      _classCallCheck(this, MapValueMapper);
+
+      _this5 = _super5.call(this, iterable, ctx);
+      _this5.mapFunction = mapFunction;
+      return _this5;
+    }
+
+    _createClass(MapValueMapper, [{
+      key: Symbol.iterator,
+      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
+        var _iterator24, _step24, _step24$value, key, _value5;
+
+        return regeneratorRuntime.wrap(function value$(_context5) {
+          while (1) {
+            switch (_context5.prev = _context5.next) {
+              case 0:
+                _iterator24 = _createForOfIteratorHelper(this.iterable);
+                _context5.prev = 1;
+
+                _iterator24.s();
+
+              case 3:
+                if ((_step24 = _iterator24.n()).done) {
+                  _context5.next = 9;
+                  break;
+                }
+
+                _step24$value = _slicedToArray(_step24.value, 2), key = _step24$value[0], _value5 = _step24$value[1];
+                _context5.next = 7;
+                return [key, this.mapFunction.call(this.ctx, _value5, key, this)];
+
+              case 7:
+                _context5.next = 3;
+                break;
+
+              case 9:
+                _context5.next = 14;
+                break;
+
+              case 11:
+                _context5.prev = 11;
+                _context5.t0 = _context5["catch"](1);
+
+                _iterator24.e(_context5.t0);
+
+              case 14:
+                _context5.prev = 14;
+
+                _iterator24.f();
+
+                return _context5.finish(14);
+
+              case 17:
+              case "end":
+                return _context5.stop();
+            }
+          }
+        }, value, this, [[1, 11, 14, 17]]);
+      })
+    }, {
+      key: "optionalGet",
+      value: function optionalGet(key) {
+        var opt = _get(_getPrototypeOf(MapValueMapper.prototype), "optionalGet", this).call(this, key);
+
+        if (opt.has) {
+          return some(this.mapFunction.call(this.ctx, opt.value, key, this));
+        }
+
+        return opt;
+      }
+    }]);
+
+    return MapValueMapper;
+  }(MapIterableWrapper);
+  /**
+   * @extends MapIterableWrapper
+   * @private
+   */
+
+
+  var MapEntryMapper = /*#__PURE__*/function (_MapIterableWrapper4) {
+    _inherits(MapEntryMapper, _MapIterableWrapper4);
+
+    var _super6 = _createSuper(MapEntryMapper);
+
+    function MapEntryMapper(iterable, mapFunction, ctx) {
+      var _this6;
+
+      _classCallCheck(this, MapEntryMapper);
+
+      _this6 = _super6.call(this, iterable, ctx);
+      _this6.mapFunction = mapFunction;
+      return _this6;
+    }
+
+    _createClass(MapEntryMapper, [{
+      key: Symbol.iterator,
+      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
+        var _iterator25, _step25, _step25$value, key, _value6, _this$mapFunction$cal, _this$mapFunction$cal2, newKey, newValue;
+
+        return regeneratorRuntime.wrap(function value$(_context6) {
+          while (1) {
+            switch (_context6.prev = _context6.next) {
+              case 0:
+                _iterator25 = _createForOfIteratorHelper(this.iterable);
+                _context6.prev = 1;
+
+                _iterator25.s();
+
+              case 3:
+                if ((_step25 = _iterator25.n()).done) {
+                  _context6.next = 10;
+                  break;
+                }
+
+                _step25$value = _slicedToArray(_step25.value, 2), key = _step25$value[0], _value6 = _step25$value[1];
+                _this$mapFunction$cal = this.mapFunction.call(this.ctx, _value6, key, this), _this$mapFunction$cal2 = _slicedToArray(_this$mapFunction$cal, 2), newKey = _this$mapFunction$cal2[0], newValue = _this$mapFunction$cal2[1];
+                _context6.next = 8;
+                return [newKey, newValue];
+
+              case 8:
+                _context6.next = 3;
+                break;
+
+              case 10:
+                _context6.next = 15;
+                break;
+
+              case 12:
+                _context6.prev = 12;
+                _context6.t0 = _context6["catch"](1);
+
+                _iterator25.e(_context6.t0);
+
+              case 15:
+                _context6.prev = 15;
+
+                _iterator25.f();
+
+                return _context6.finish(15);
+
+              case 18:
+              case "end":
+                return _context6.stop();
+            }
+          }
+        }, value, this, [[1, 12, 15, 18]]);
+      })
+    }, {
+      key: "get",
+      value: function get(key) {
+        if (this.iterable.has(key)) {
+          var _value7 = this.iterable.get(key);
+
+          return this.mapFunction.call(this.ctx, _value7, key, this)[1];
+        }
+
+        return undefined;
+      }
+    }]);
+
+    return MapEntryMapper;
+  }(MapIterableWrapper);
+  /**
+   * @extends MapIterable
+   * @private
+   */
+
+
+  var MapConcat = /*#__PURE__*/function (_MapIterable2) {
+    _inherits(MapConcat, _MapIterable2);
+
+    var _super7 = _createSuper(MapConcat);
+
+    function MapConcat(iterable, otherIterable) {
+      var _this7;
+
+      _classCallCheck(this, MapConcat);
+
+      _this7 = _super7.call(this);
+      _this7.iterable = iterable;
+      _this7.otherIterable = otherIterable;
+      return _this7;
+    }
+
+    _createClass(MapConcat, [{
+      key: "size",
+      get: function get() {
+        return this.iterable.size + this.otherIterable.size;
+      }
+    }, {
+      key: Symbol.iterator,
+      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
+        return regeneratorRuntime.wrap(function value$(_context7) {
+          while (1) {
+            switch (_context7.prev = _context7.next) {
+              case 0:
+                return _context7.delegateYield(this.iterable, "t0", 1);
+
+              case 1:
+                return _context7.delegateYield(this.otherIterable, "t1", 2);
+
+              case 2:
+              case "end":
+                return _context7.stop();
+            }
+          }
+        }, value, this);
+      })
+    }, {
+      key: "optionalGet",
+      value: function optionalGet(key) {
+        var opt = this.iterable.optionalGet(key);
+        return opt.has ? opt : this.otherIterable.optionalGet(key);
+      }
+    }, {
+      key: "has",
+      value: function has(key) {
+        return this.optionalGet(key).has;
+      }
+    }, {
+      key: "get",
+      value: function get(key) {
+        return this.optionalGet(key).value;
+      }
+    }]);
+
+    return MapConcat;
+  }(MapIterable);
+  /**
+   * @extends SetIterable
+   * @private
+   */
+
+
+  var SetConcat = /*#__PURE__*/function (_SetIterable2) {
+    _inherits(SetConcat, _SetIterable2);
+
+    var _super8 = _createSuper(SetConcat);
+
+    function SetConcat(iterable, otherIterable) {
+      var _this8;
+
+      _classCallCheck(this, SetConcat);
+
+      _this8 = _super8.call(this);
+      _this8.iterable = iterable;
+      _this8.otherIterable = otherIterable;
+      return _this8;
+    }
+
+    _createClass(SetConcat, [{
+      key: "size",
+      get: function get() {
+        return this.iterable.size + this.otherIterable.size;
+      }
+    }, {
+      key: "has",
+      value: function has(value) {
+        var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
+        return this.iterable.has(value, depth) || this.otherIterable.has(value, depth);
+      }
+    }, {
+      key: Symbol.iterator,
+      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
+        return regeneratorRuntime.wrap(function value$(_context8) {
+          while (1) {
+            switch (_context8.prev = _context8.next) {
+              case 0:
+                return _context8.delegateYield(this.iterable, "t0", 1);
+
+              case 1:
+                return _context8.delegateYield(this.otherIterable, "t1", 2);
+
+              case 2:
+              case "end":
+                return _context8.stop();
+            }
+          }
+        }, value, this);
+      })
+    }]);
+
+    return SetConcat;
+  }(SetIterable);
+  /**
+   * @extends SetIterableWrapper
+   * @private
+   */
+
+
+  var EntryToValueMapper = /*#__PURE__*/function (_SetIterableWrapper) {
+    _inherits(EntryToValueMapper, _SetIterableWrapper);
+
+    var _super9 = _createSuper(EntryToValueMapper);
+
+    function EntryToValueMapper(iterable) {
+      _classCallCheck(this, EntryToValueMapper);
+
+      return _super9.call(this, iterable);
+    }
+
+    _createClass(EntryToValueMapper, [{
+      key: Symbol.iterator,
+      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
+        var _iterator26, _step26, _step26$value, _value8;
+
+        return regeneratorRuntime.wrap(function value$(_context9) {
+          while (1) {
+            switch (_context9.prev = _context9.next) {
+              case 0:
+                _iterator26 = _createForOfIteratorHelper(this.iterable);
+                _context9.prev = 1;
+
+                _iterator26.s();
+
+              case 3:
+                if ((_step26 = _iterator26.n()).done) {
+                  _context9.next = 9;
+                  break;
+                }
+
+                _step26$value = _slicedToArray(_step26.value, 2), _value8 = _step26$value[1];
+                _context9.next = 7;
+                return _value8;
+
+              case 7:
+                _context9.next = 3;
+                break;
+
+              case 9:
+                _context9.next = 14;
+                break;
+
+              case 11:
+                _context9.prev = 11;
+                _context9.t0 = _context9["catch"](1);
+
+                _iterator26.e(_context9.t0);
+
+              case 14:
+                _context9.prev = 14;
+
+                _iterator26.f();
+
+                return _context9.finish(14);
+
+              case 17:
+              case "end":
+                return _context9.stop();
+            }
+          }
+        }, value, this, [[1, 11, 14, 17]]);
+      })
+    }, {
+      key: "has",
+      value: function has(value) {
+        var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
+
+        if (Array.isArray(value)) {
+          return this.iterable.some(function (otherValue) {
+            return deepEquals(value, otherValue, depth);
+          });
+        } else {
+          return this.iterable.some(function (otherValue) {
+            return defaultEquals(value, otherValue);
+          });
+        }
+      }
+    }]);
+
+    return EntryToValueMapper;
+  }(SetIterableWrapper);
+  /**
+   * @extends SetIterableWrapper
+   * @private
+   */
+
+
+  var EntryToKeyMapper = /*#__PURE__*/function (_SetIterableWrapper2) {
+    _inherits(EntryToKeyMapper, _SetIterableWrapper2);
+
+    var _super10 = _createSuper(EntryToKeyMapper);
+
+    function EntryToKeyMapper(iterable) {
+      _classCallCheck(this, EntryToKeyMapper);
+
+      return _super10.call(this, iterable);
+    }
+
+    _createClass(EntryToKeyMapper, [{
+      key: Symbol.iterator,
+      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
+        var _iterator27, _step27, _step27$value, key;
+
+        return regeneratorRuntime.wrap(function value$(_context10) {
+          while (1) {
+            switch (_context10.prev = _context10.next) {
+              case 0:
+                _iterator27 = _createForOfIteratorHelper(this.iterable);
+                _context10.prev = 1;
+
+                _iterator27.s();
+
+              case 3:
+                if ((_step27 = _iterator27.n()).done) {
+                  _context10.next = 9;
+                  break;
+                }
+
+                _step27$value = _slicedToArray(_step27.value, 1), key = _step27$value[0];
+                _context10.next = 7;
+                return key;
+
+              case 7:
+                _context10.next = 3;
+                break;
+
+              case 9:
+                _context10.next = 14;
+                break;
+
+              case 11:
+                _context10.prev = 11;
+                _context10.t0 = _context10["catch"](1);
+
+                _iterator27.e(_context10.t0);
+
+              case 14:
+                _context10.prev = 14;
+
+                _iterator27.f();
+
+                return _context10.finish(14);
+
+              case 17:
+              case "end":
+                return _context10.stop();
+            }
+          }
+        }, value, this, [[1, 11, 14, 17]]);
+      })
+    }, {
+      key: "has",
+      value: function has(key) {
+        return this.iterable.optionalGet(key).has;
+      }
+    }]);
+
+    return EntryToKeyMapper;
+  }(SetIterableWrapper);
+  /**
+   * @extends SetIterableWrapper
+   * @private
+   */
+
+
+  var MapMapper = /*#__PURE__*/function (_SetIterableWrapper3) {
+    _inherits(MapMapper, _SetIterableWrapper3);
+
+    var _super11 = _createSuper(MapMapper);
+
+    function MapMapper(iterable, mapFunction, ctx) {
+      var _this9;
+
+      _classCallCheck(this, MapMapper);
+
+      _this9 = _super11.call(this, iterable, ctx);
+      _this9.mapFunction = mapFunction;
+      return _this9;
+    }
+
+    _createClass(MapMapper, [{
+      key: Symbol.iterator,
+      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
+        var _iterator28, _step28, _step28$value, key, _value9;
+
+        return regeneratorRuntime.wrap(function value$(_context11) {
+          while (1) {
+            switch (_context11.prev = _context11.next) {
+              case 0:
+                _iterator28 = _createForOfIteratorHelper(this.iterable);
+                _context11.prev = 1;
+
+                _iterator28.s();
+
+              case 3:
+                if ((_step28 = _iterator28.n()).done) {
+                  _context11.next = 9;
+                  break;
+                }
+
+                _step28$value = _slicedToArray(_step28.value, 2), key = _step28$value[0], _value9 = _step28$value[1];
+                _context11.next = 7;
+                return this.mapFunction.call(this.ctx, _value9, key, this);
+
+              case 7:
+                _context11.next = 3;
+                break;
+
+              case 9:
+                _context11.next = 14;
+                break;
+
+              case 11:
+                _context11.prev = 11;
+                _context11.t0 = _context11["catch"](1);
+
+                _iterator28.e(_context11.t0);
+
+              case 14:
+                _context11.prev = 14;
+
+                _iterator28.f();
+
+                return _context11.finish(14);
+
+              case 17:
+              case "end":
+                return _context11.stop();
+            }
+          }
+        }, value, this, [[1, 11, 14, 17]]);
+      })
+      /**
+       * Only ever used for the Map function that produces a SetIterable.
+       * @param value
+       * @param depth
+       * @return {boolean}
+       */
+
+    }, {
+      key: "has",
+      value: function has(value) {
+        var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
+
+        if (Array.isArray(value)) {
+          return this.some(function (otherValue) {
+            return deepEquals(value, otherValue, depth);
+          });
+        } else {
+          return this.some(function (otherValue) {
+            return defaultEquals(value, otherValue);
+          });
+        }
+      }
+    }]);
+
+    return MapMapper;
+  }(SetIterableWrapper);
+  /**
+   * @extends SetIterableWrapper
+   * @private
+   */
+
+
+  var SetMapper = /*#__PURE__*/function (_SetIterableWrapper4) {
+    _inherits(SetMapper, _SetIterableWrapper4);
+
+    var _super12 = _createSuper(SetMapper);
+
+    function SetMapper(iterable, mapFunction, ctx) {
+      var _this10;
+
+      _classCallCheck(this, SetMapper);
+
+      _this10 = _super12.call(this, iterable, ctx);
+      _this10.mapFunction = mapFunction;
+      return _this10;
+    }
+
+    _createClass(SetMapper, [{
+      key: Symbol.iterator,
+      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
+        var _iterator29, _step29, _value10;
+
+        return regeneratorRuntime.wrap(function value$(_context12) {
+          while (1) {
+            switch (_context12.prev = _context12.next) {
+              case 0:
+                _iterator29 = _createForOfIteratorHelper(this.iterable);
+                _context12.prev = 1;
+
+                _iterator29.s();
+
+              case 3:
+                if ((_step29 = _iterator29.n()).done) {
+                  _context12.next = 9;
+                  break;
+                }
+
+                _value10 = _step29.value;
+                _context12.next = 7;
+                return this.mapFunction.call(this.ctx, _value10, _value10, this);
+
+              case 7:
+                _context12.next = 3;
+                break;
+
+              case 9:
+                _context12.next = 14;
+                break;
+
+              case 11:
+                _context12.prev = 11;
+                _context12.t0 = _context12["catch"](1);
+
+                _iterator29.e(_context12.t0);
+
+              case 14:
+                _context12.prev = 14;
+
+                _iterator29.f();
+
+                return _context12.finish(14);
+
+              case 17:
+              case "end":
+                return _context12.stop();
+            }
+          }
+        }, value, this, [[1, 11, 14, 17]]);
+      })
+    }, {
+      key: "has",
+      value: function has(value) {
+        var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
+
+        if (Array.isArray(value)) {
+          return this.some(function (otherValue) {
+            return deepEquals(value, otherValue, depth);
+          });
+        } else {
+          return this.some(function (otherValue) {
+            return defaultEquals(value, otherValue);
+          });
+        }
+      }
+    }]);
+
+    return SetMapper;
+  }(SetIterableWrapper);
+  /**
+   * @extends SetIterableWrapper
+   * @private
+   */
+
+
+  var SetFilter = /*#__PURE__*/function (_SetIterableWrapper5) {
+    _inherits(SetFilter, _SetIterableWrapper5);
+
+    var _super13 = _createSuper(SetFilter);
+
+    function SetFilter(iterable, filterPredicate, ctx) {
+      var _this11;
+
+      _classCallCheck(this, SetFilter);
+
+      _this11 = _super13.call(this, iterable, ctx);
+      _this11.filterPredicate = filterPredicate;
+      return _this11;
+    }
+
+    _createClass(SetFilter, [{
+      key: "size",
+      get: function get() {
+        var accumulator = 0;
+
+        var _iterator30 = _createForOfIteratorHelper(this),
+            _step30;
+
+        try {
+          for (_iterator30.s(); !(_step30 = _iterator30.n()).done;) // jshint ignore:line
+          {
+            var i = _step30.value;
+            accumulator++;
+          }
+        } catch (err) {
+          _iterator30.e(err);
+        } finally {
+          _iterator30.f();
+        }
+
+        return accumulator;
+      }
+    }, {
+      key: Symbol.iterator,
+      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
+        var _iterator31, _step31, _value11;
+
+        return regeneratorRuntime.wrap(function value$(_context13) {
+          while (1) {
+            switch (_context13.prev = _context13.next) {
+              case 0:
+                _iterator31 = _createForOfIteratorHelper(this.iterable);
+                _context13.prev = 1;
+
+                _iterator31.s();
+
+              case 3:
+                if ((_step31 = _iterator31.n()).done) {
+                  _context13.next = 10;
+                  break;
+                }
+
+                _value11 = _step31.value;
+
+                if (!this.filterPredicate.call(this.ctx, _value11, _value11, this)) {
+                  _context13.next = 8;
+                  break;
+                }
+
+                _context13.next = 8;
+                return _value11;
+
+              case 8:
+                _context13.next = 3;
+                break;
+
+              case 10:
+                _context13.next = 15;
+                break;
+
+              case 12:
+                _context13.prev = 12;
+                _context13.t0 = _context13["catch"](1);
+
+                _iterator31.e(_context13.t0);
+
+              case 15:
+                _context13.prev = 15;
+
+                _iterator31.f();
+
+                return _context13.finish(15);
+
+              case 18:
+              case "end":
+                return _context13.stop();
+            }
+          }
+        }, value, this, [[1, 12, 15, 18]]);
+      })
+    }, {
+      key: "has",
+      value: function has(value) {
+        var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
+
+        if (this.iterable.has(value, depth)) {
+          return this.filterPredicate.call(this.ctx, value, value, this);
+        }
+
+        return false;
+      }
+    }]);
+
+    return SetFilter;
+  }(SetIterableWrapper);
+
+  /**
+   * HashMap - HashMap Implementation for JavaScript
+   * @namespace Mootable
+   * @author Jack Moxley <https://github.com/jackmoxley>
+   * @version 0.12.6
+   * Homepage: https://github.com/mootable/hashmap
+   */
+
+  /**
+   * @private
+   */
 
   var Entry = /*#__PURE__*/function () {
     function Entry(key, value) {
@@ -5726,60 +6852,14 @@
     return Entry;
   }();
   /**
-   * @private
-   * @extends Entry
-   */
-
-
-  var LinkedEntry = /*#__PURE__*/function (_Entry) {
-    _inherits(LinkedEntry, _Entry);
-
-    var _super = _createSuper(LinkedEntry);
-
-    function LinkedEntry(key, value) {
-      var _this;
-
-      _classCallCheck(this, LinkedEntry);
-
-      _this = _super.call(this, key, value);
-      _this.previous = undefined;
-      _this.next = undefined;
-      return _this;
-    }
-
-    _createClass(LinkedEntry, [{
-      key: "overwrite",
-      value: function overwrite(oldEntry) {
-        oldEntry.value = this.value;
-        this.deleted = true;
-      }
-    }, {
-      key: "delete",
-      value: function _delete() {
-        if (this.previous) {
-          this.previous.next = this.next;
-        }
-
-        if (this.next) {
-          this.next.previous = this.previous;
-        }
-
-        this.deleted = true;
-      }
-    }]);
-
-    return LinkedEntry;
-  }(Entry);
-  /**
    * This HashMap is backed by a hashtrie, and can be tuned to specific use cases.
    * @extends {MapIterable}
    */
 
-
   var HashMap = /*#__PURE__*/function (_MapIterable) {
     _inherits(HashMap, _MapIterable);
 
-    var _super2 = _createSuper(HashMap);
+    var _super = _createSuper(HashMap);
 
     /**
      * @typedef HashMap~ConstructorOptions
@@ -5812,7 +6892,7 @@
      * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>|HashMap~ConstructorOptions)} [args]
      */
     function HashMap() {
-      var _this2;
+      var _this;
 
       var args = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
         copy: undefined,
@@ -5822,7 +6902,7 @@
 
       _classCallCheck(this, HashMap);
 
-      _this2 = _super2.call(this);
+      _this = _super.call(this);
       var depth = args.depth,
           widthAs2sExponent = args.widthAs2sExponent,
           copy = args.copy;
@@ -5834,20 +6914,20 @@
       var width = 1 << widthAs2sExponent; // 2 ^ widthAs2sExponent
 
       var mask = width - 1;
-      _this2.options = Object.freeze({
+      _this.options = Object.freeze({
         widthAs2sExponent: widthAs2sExponent,
         width: width,
         mask: mask,
         depth: depth
       });
 
-      _this2.clear();
+      _this.clear();
 
       if (args.forEach || copy && copy.forEach) {
-        _this2.copy(args.forEach ? args : copy);
+        _this.copy(args.forEach ? args : copy);
       }
 
-      return _this2;
+      return _this;
     }
 
     _createClass(HashMap, [{
@@ -5884,7 +6964,7 @@
           return this.buckets.optionalGet(key, currHE.equalTo, currHE.hash);
         }
 
-        return Optional.none();
+        return none;
       }
       /**
        * Sets a value onto this map, using the key as its reference.
@@ -5934,40 +7014,40 @@
         var map = this;
 
         if (isIterable(other)) {
-          var _iterator21 = _createForOfIteratorHelper(other),
-              _step21;
+          var _iterator = _createForOfIteratorHelper(other),
+              _step;
 
           try {
-            for (_iterator21.s(); !(_step21 = _iterator21.n()).done;) {
-              var _step21$value = _slicedToArray(_step21.value, 2),
-                  key = _step21$value[0],
-                  value = _step21$value[1];
+            for (_iterator.s(); !(_step = _iterator.n()).done;) {
+              var _step$value = _slicedToArray(_step.value, 2),
+                  key = _step$value[0],
+                  value = _step$value[1];
 
               map.set(key, value);
             }
           } catch (err) {
-            _iterator21.e(err);
+            _iterator.e(err);
           } finally {
-            _iterator21.f();
+            _iterator.f();
           }
 
           return this;
         } else if (isFunction(other.entries)) {
-          var _iterator22 = _createForOfIteratorHelper(other.entries()),
-              _step22;
+          var _iterator2 = _createForOfIteratorHelper(other.entries()),
+              _step2;
 
           try {
-            for (_iterator22.s(); !(_step22 = _iterator22.n()).done;) {
-              var _step22$value = _slicedToArray(_step22.value, 2),
-                  _key3 = _step22$value[0],
-                  _value3 = _step22$value[1];
+            for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+              var _step2$value = _slicedToArray(_step2.value, 2),
+                  _key = _step2$value[0],
+                  _value = _step2$value[1];
 
-              map.set(_key3, _value3);
+              map.set(_key, _value);
             }
           } catch (err) {
-            _iterator22.e(err);
+            _iterator2.e(err);
           } finally {
-            _iterator22.f();
+            _iterator2.f();
           }
 
           return this;
@@ -6032,7 +7112,7 @@
     }, {
       key: Symbol.iterator,
       value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        var _iterator23, _step23, entry;
+        var _iterator3, _step3, entry;
 
         return regeneratorRuntime.wrap(function value$(_context) {
           while (1) {
@@ -6043,18 +7123,18 @@
                   break;
                 }
 
-                _iterator23 = _createForOfIteratorHelper(this.buckets);
+                _iterator3 = _createForOfIteratorHelper(this.buckets);
                 _context.prev = 2;
 
-                _iterator23.s();
+                _iterator3.s();
 
               case 4:
-                if ((_step23 = _iterator23.n()).done) {
+                if ((_step3 = _iterator3.n()).done) {
                   _context.next = 10;
                   break;
                 }
 
-                entry = _step23.value;
+                entry = _step3.value;
                 _context.next = 8;
                 return entry;
 
@@ -6070,12 +7150,12 @@
                 _context.prev = 12;
                 _context.t0 = _context["catch"](2);
 
-                _iterator23.e(_context.t0);
+                _iterator3.e(_context.t0);
 
               case 15:
                 _context.prev = 15;
 
-                _iterator23.f();
+                _iterator3.f();
 
                 return _context.finish(15);
 
@@ -6090,132 +7170,6 @@
 
     return HashMap;
   }(MapIterable);
-  HashMap.uid = 0;
-  /**
-   * This LinkedHashMap is is an extension of {@link HashMap} however LinkedHashMap also maintains insertion order of keys, and guarantees to iterate over them in that order.
-   * @extends HashMap
-   */
-
-  var LinkedHashMap = /*#__PURE__*/function (_HashMap) {
-    _inherits(LinkedHashMap, _HashMap);
-
-    var _super3 = _createSuper(LinkedHashMap);
-
-    /**
-     * This LinkedHashMap is is an extension of {@link HashMap} however LinkedHashMap also maintains insertion order of keys, and guarantees to iterate over them in that order.
-     * - `new LinkedHashMap()` creates an empty linked hashmap
-     * - `new LinkedHashMap(copy:Iterable)` creates a linked hashmap which is a copy of the provided iterable.
-     *   1) `copy` either
-     *      - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
-     *      - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
-     * - `new LinkedHashMap({copy:?Iterable, depth:?int, widthAs2sExponent:?int})` creates a linked hashmap with optional `depth` and `widthAs2sExponent`. If `copy` is provided (map, array or iterable), it's keys and values are inserted into this map.
-     *   1) `copy` either
-     *      - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
-     *      - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
-     *   2) `depth` is how many layers deep our hashtrie goes.
-     *      - Minimum: `1`, Maximum/Default: `(32/widthAs2sExponent)-1`
-     *   3) `widthAs2sExponent` is how many buckets in each hashtrie layer we use to the power of 2, for instance a widthAs2sExponent of 4 is 2 ^ 4 = 16 buckets.
-     *      - Minimum: `2`, Maximum: `16`, Default: `6` (64 Buckets)
-     * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>|HashMap~ConstructorOptions)} [args]
-     */
-    function LinkedHashMap() {
-      var _this3;
-
-      var args = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
-        copy: undefined,
-        depth: undefined,
-        widthAs2sExponent: 6
-      };
-
-      _classCallCheck(this, LinkedHashMap);
-
-      _this3 = _super3.call(this, args);
-      _this3.start = undefined;
-      _this3.end = undefined;
-      return _this3;
-    }
-
-    _createClass(LinkedHashMap, [{
-      key: "set",
-      value: function set(key, value) {
-        var entry = this.addEntry(new LinkedEntry(key, value)); // if we added at the end, shift forward one.
-
-        if (this.end) {
-          if (!entry.deleted) {
-            this.end.next = entry;
-            entry.previous = this.end;
-            this.end = entry;
-          }
-        } else {
-          this.end = this.start = entry;
-        }
-
-        return this;
-      }
-    }, {
-      key: "delete",
-      value: function _delete(key) {
-        _get(_getPrototypeOf(LinkedHashMap.prototype), "delete", this).call(this, key);
-
-        if (this.start && this.start.deleted) {
-          this.start = this.start.next;
-        }
-
-        if (this.end && this.end.deleted) {
-          this.end = this.end.previous;
-        }
-
-        return this;
-      }
-      /**
-       * Makes a copy of this LinkedHashMap
-       * @return {LinkedHashMap}
-       */
-
-    }, {
-      key: "clone",
-      value: function clone() {
-        return new LinkedHashMap({
-          copy: this,
-          depth: this.options.depth,
-          widthAs2sExponent: this.options.widthAs2sExponent
-        });
-      }
-    }, {
-      key: Symbol.iterator,
-      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        var entry;
-        return regeneratorRuntime.wrap(function value$(_context2) {
-          while (1) {
-            switch (_context2.prev = _context2.next) {
-              case 0:
-                entry = this.start;
-
-              case 1:
-                if (!entry) {
-                  _context2.next = 7;
-                  break;
-                }
-
-                _context2.next = 4;
-                return [entry.key, entry.value];
-
-              case 4:
-                entry = entry.next;
-                _context2.next = 1;
-                break;
-
-              case 7:
-              case "end":
-                return _context2.stop();
-            }
-          }
-        }, value, this);
-      })
-    }]);
-
-    return LinkedHashMap;
-  }(HashMap);
   /**
    * @private
    */
@@ -6251,10 +7205,10 @@
       key: "optionalGet",
       value: function optionalGet(key, equalTo) {
         if (equalTo(key, this.key)) {
-          return Optional.of(this.entry.value);
+          return some(this.entry.value);
         }
 
-        return Optional.none();
+        return none;
       }
     }, {
       key: "set",
@@ -6290,21 +7244,21 @@
     }, {
       key: Symbol.iterator,
       value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        return regeneratorRuntime.wrap(function value$(_context3) {
+        return regeneratorRuntime.wrap(function value$(_context2) {
           while (1) {
-            switch (_context3.prev = _context3.next) {
+            switch (_context2.prev = _context2.next) {
               case 0:
                 if (!(this.length !== 0)) {
-                  _context3.next = 3;
+                  _context2.next = 3;
                   break;
                 }
 
-                _context3.next = 3;
+                _context2.next = 3;
                 return [this.key, this.value];
 
               case 3:
               case "end":
-                return _context3.stop();
+                return _context2.stop();
             }
           }
         }, value, this);
@@ -6318,21 +7272,20 @@
    * @extends Container
    */
 
-
   var LinkedStack = /*#__PURE__*/function (_Container) {
     _inherits(LinkedStack, _Container);
 
-    var _super4 = _createSuper(LinkedStack);
+    var _super2 = _createSuper(LinkedStack);
 
     function LinkedStack(entry, next) {
-      var _this4;
+      var _this2;
 
       _classCallCheck(this, LinkedStack);
 
-      _this4 = _super4.call(this, entry);
-      _this4.next = next;
-      _this4.length = next.length + 1;
-      return _this4;
+      _this2 = _super2.call(this, entry);
+      _this2.next = next;
+      _this2.length = next.length + 1;
+      return _this2;
     }
 
     _createClass(LinkedStack, [{
@@ -6357,13 +7310,13 @@
 
         do {
           if (equalTo(key, container.key)) {
-            return Optional.of(container.value);
+            return some(container.value);
           }
 
           container = container.next;
         } while (container);
 
-        return Optional.none();
+        return none;
       }
     }, {
       key: "set",
@@ -6439,29 +7392,29 @@
       key: Symbol.iterator,
       value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
         var container;
-        return regeneratorRuntime.wrap(function value$(_context4) {
+        return regeneratorRuntime.wrap(function value$(_context3) {
           while (1) {
-            switch (_context4.prev = _context4.next) {
+            switch (_context3.prev = _context3.next) {
               case 0:
                 container = this;
 
               case 1:
                 if (!container) {
-                  _context4.next = 7;
+                  _context3.next = 7;
                   break;
                 }
 
-                _context4.next = 4;
+                _context3.next = 4;
                 return [container.key, container.value];
 
               case 4:
                 container = container.next;
-                _context4.next = 1;
+                _context3.next = 1;
                 break;
 
               case 7:
               case "end":
-                return _context4.stop();
+                return _context3.stop();
             }
           }
         }, value, this);
@@ -6475,22 +7428,21 @@
    * @extends Container
    */
 
-
   var HashContainer = /*#__PURE__*/function (_Container2) {
     _inherits(HashContainer, _Container2);
 
-    var _super5 = _createSuper(HashContainer);
+    var _super3 = _createSuper(HashContainer);
 
     function HashContainer(entry, hash, options, depth) {
-      var _this5;
+      var _this3;
 
       _classCallCheck(this, HashContainer);
 
-      _this5 = _super5.call(this, entry);
-      _this5.hash = hash;
-      _this5.options = options;
-      _this5.depth = depth;
-      return _this5;
+      _this3 = _super3.call(this, entry);
+      _this3.hash = hash;
+      _this3.options = options;
+      _this3.depth = depth;
+      return _this3;
     }
 
     _createClass(HashContainer, [{
@@ -6523,10 +7475,10 @@
       key: "optionalGet",
       value: function optionalGet(key, equalTo, hash) {
         if (hash === this.hash && equalTo(key, this.key)) {
-          return Optional.of(this.value);
+          return some(this.value);
         }
 
-        return Optional.none();
+        return none;
       }
     }, {
       key: "has",
@@ -6550,7 +7502,6 @@
   /**
    * @private
    */
-
 
   var HashBuckets = /*#__PURE__*/function () {
     function HashBuckets(options, depth) {
@@ -6582,7 +7533,7 @@
           return bucket.optionalGet(key, equalTo, hash >>> this.options.widthAs2sExponent);
         }
 
-        return Optional.none();
+        return none;
       }
     }, {
       key: "set",
@@ -6638,90 +7589,90 @@
     }, {
       key: Symbol.iterator,
       value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        var _iterator24, _step24, bucket, _iterator25, _step25, entry;
+        var _iterator4, _step4, bucket, _iterator5, _step5, entry;
 
-        return regeneratorRuntime.wrap(function value$(_context5) {
+        return regeneratorRuntime.wrap(function value$(_context4) {
           while (1) {
-            switch (_context5.prev = _context5.next) {
+            switch (_context4.prev = _context4.next) {
               case 0:
-                _iterator24 = _createForOfIteratorHelper(this.buckets);
-                _context5.prev = 1;
+                _iterator4 = _createForOfIteratorHelper(this.buckets);
+                _context4.prev = 1;
 
-                _iterator24.s();
+                _iterator4.s();
 
               case 3:
-                if ((_step24 = _iterator24.n()).done) {
-                  _context5.next = 25;
+                if ((_step4 = _iterator4.n()).done) {
+                  _context4.next = 25;
                   break;
                 }
 
-                bucket = _step24.value;
+                bucket = _step4.value;
 
                 if (!bucket) {
-                  _context5.next = 23;
+                  _context4.next = 23;
                   break;
                 }
 
-                _iterator25 = _createForOfIteratorHelper(bucket);
-                _context5.prev = 7;
+                _iterator5 = _createForOfIteratorHelper(bucket);
+                _context4.prev = 7;
 
-                _iterator25.s();
+                _iterator5.s();
 
               case 9:
-                if ((_step25 = _iterator25.n()).done) {
-                  _context5.next = 15;
+                if ((_step5 = _iterator5.n()).done) {
+                  _context4.next = 15;
                   break;
                 }
 
-                entry = _step25.value;
-                _context5.next = 13;
+                entry = _step5.value;
+                _context4.next = 13;
                 return entry;
 
               case 13:
-                _context5.next = 9;
+                _context4.next = 9;
                 break;
 
               case 15:
-                _context5.next = 20;
+                _context4.next = 20;
                 break;
 
               case 17:
-                _context5.prev = 17;
-                _context5.t0 = _context5["catch"](7);
+                _context4.prev = 17;
+                _context4.t0 = _context4["catch"](7);
 
-                _iterator25.e(_context5.t0);
+                _iterator5.e(_context4.t0);
 
               case 20:
-                _context5.prev = 20;
+                _context4.prev = 20;
 
-                _iterator25.f();
+                _iterator5.f();
 
-                return _context5.finish(20);
+                return _context4.finish(20);
 
               case 23:
-                _context5.next = 3;
+                _context4.next = 3;
                 break;
 
               case 25:
-                _context5.next = 30;
+                _context4.next = 30;
                 break;
 
               case 27:
-                _context5.prev = 27;
-                _context5.t1 = _context5["catch"](1);
+                _context4.prev = 27;
+                _context4.t1 = _context4["catch"](1);
 
-                _iterator24.e(_context5.t1);
+                _iterator4.e(_context4.t1);
 
               case 30:
-                _context5.prev = 30;
+                _context4.prev = 30;
 
-                _iterator24.f();
+                _iterator4.f();
 
-                return _context5.finish(30);
+                return _context4.finish(30);
 
               case 33:
               case "end":
-                return _context5.stop();
+                return _context4.stop();
             }
           }
         }, value, this, [[1, 27, 30, 33], [7, 17, 20, 23]]);
@@ -6730,1116 +7681,184 @@
 
     return HashBuckets;
   }();
+
   /**
-   * @extends SetIterable
-   * @private
+   * HashMap - LinkedHashMap Implementation for JavaScript
+   * @namespace Mootable
+   * @author Jack Moxley <https://github.com/jackmoxley>
+   * @version 0.12.6
+   * Homepage: https://github.com/mootable/hashmap
    */
 
+  /**
+   * @private
+   * @extends Entry
+   */
 
-  var SetIterableWrapper = /*#__PURE__*/function (_SetIterable) {
-    _inherits(SetIterableWrapper, _SetIterable);
+  var LinkedEntry = /*#__PURE__*/function (_Entry) {
+    _inherits(LinkedEntry, _Entry);
 
-    var _super6 = _createSuper(SetIterableWrapper);
+    var _super = _createSuper(LinkedEntry);
 
-    function SetIterableWrapper(iterable, ctx) {
-      var _this6;
+    function LinkedEntry(key, value) {
+      var _this;
 
-      _classCallCheck(this, SetIterableWrapper);
+      _classCallCheck(this, LinkedEntry);
 
-      _this6 = _super6.call(this);
-      _this6.iterable = iterable;
-      _this6.ctx = ctx ? ctx : iterable;
-      return _this6;
+      _this = _super.call(this, key, value);
+      _this.previous = undefined;
+      _this.next = undefined;
+      return _this;
     }
 
-    _createClass(SetIterableWrapper, [{
-      key: "size",
-      get: function get() {
-        return this.iterable.length ? this.iterable.length : this.iterable.size ? this.iterable.size : _get(_getPrototypeOf(SetIterableWrapper.prototype), "size", this);
+    _createClass(LinkedEntry, [{
+      key: "overwrite",
+      value: function overwrite(oldEntry) {
+        oldEntry.value = this.value;
+        this.deleted = true;
       }
     }, {
-      key: "has",
-      value: function has(value, depth) {
-        // if is a map iterable then we want to return the entry not the key. otherwise we can shortcut
-        if (this.iterable instanceof Set || this.iterable instanceof SetIterable) {
-          return this.iterable.has(value, depth);
+      key: "delete",
+      value: function _delete() {
+        if (this.previous) {
+          this.previous.next = this.next;
         }
 
-        return _get(_getPrototypeOf(SetIterableWrapper.prototype), "has", this).call(this, value, depth);
-      }
-    }, {
-      key: Symbol.iterator,
-      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        return regeneratorRuntime.wrap(function value$(_context6) {
-          while (1) {
-            switch (_context6.prev = _context6.next) {
-              case 0:
-                return _context6.delegateYield(this.iterable, "t0", 1);
-
-              case 1:
-              case "end":
-                return _context6.stop();
-            }
-          }
-        }, value, this);
-      })
-    }]);
-
-    return SetIterableWrapper;
-  }(SetIterable);
-  /**
-   * @extends MapIterable
-   * @private
-   */
-
-
-  var MapIterableWrapper = /*#__PURE__*/function (_MapIterable2) {
-    _inherits(MapIterableWrapper, _MapIterable2);
-
-    var _super7 = _createSuper(MapIterableWrapper);
-
-    function MapIterableWrapper(iterable, ctx) {
-      var _this7;
-
-      _classCallCheck(this, MapIterableWrapper);
-
-      _this7 = _super7.call(this);
-      _this7.iterable = iterable;
-      _this7.ctx = ctx ? ctx : iterable;
-      return _this7;
-    }
-
-    _createClass(MapIterableWrapper, [{
-      key: "size",
-      get: function get() {
-        return this.iterable.length ? this.iterable.length : this.iterable.size ? this.iterable.size : _get(_getPrototypeOf(MapIterableWrapper.prototype), "size", this);
-      }
-    }, {
-      key: Symbol.iterator,
-      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        return regeneratorRuntime.wrap(function value$(_context7) {
-          while (1) {
-            switch (_context7.prev = _context7.next) {
-              case 0:
-                return _context7.delegateYield(this.iterable, "t0", 1);
-
-              case 1:
-              case "end":
-                return _context7.stop();
-            }
-          }
-        }, value, this);
-      })
-    }, {
-      key: "has",
-      value: function has(key) {
-        return this.optionalGet(key).has;
-      }
-    }, {
-      key: "optionalGet",
-      value: function optionalGet(key) {
-        if (isFunction(this.iterable.optionalGet)) {
-          return this.iterable.optionalGet(key);
+        if (this.next) {
+          this.next.previous = this.previous;
         }
 
-        if (isFunction(this.iterable.has)) {
-          if (this.iterable.has(key)) {
-            if (isFunction(this.iterable.get)) {
-              Optional.of(this.iterable.get(key));
-            }
-
-            return Optional.of(_get(_getPrototypeOf(MapIterableWrapper.prototype), "get", this).call(this, key));
-          }
-
-          return Optional.none();
-        }
-
-        return _get(_getPrototypeOf(MapIterableWrapper.prototype), "optionalGet", this).call(this, key);
-      }
-    }, {
-      key: "get",
-      value: function get(key) {
-        return this.optionalGet(key).value;
+        this.deleted = true;
       }
     }]);
 
-    return MapIterableWrapper;
-  }(MapIterable);
+    return LinkedEntry;
+  }(Entry);
   /**
-   * @extends MapIterableWrapper
-   * @private
+   * This LinkedHashMap is is an extension of {@link HashMap} however LinkedHashMap also maintains insertion order of keys, and guarantees to iterate over them in that order.
+   * @extends HashMap
    */
 
+  var LinkedHashMap = /*#__PURE__*/function (_HashMap) {
+    _inherits(LinkedHashMap, _HashMap);
 
-  var MapFilter = /*#__PURE__*/function (_MapIterableWrapper) {
-    _inherits(MapFilter, _MapIterableWrapper);
+    var _super2 = _createSuper(LinkedHashMap);
 
-    var _super8 = _createSuper(MapFilter);
+    /**
+     * This LinkedHashMap is is an extension of {@link HashMap} however LinkedHashMap also maintains insertion order of keys, and guarantees to iterate over them in that order.
+     * - `new LinkedHashMap()` creates an empty linked hashmap
+     * - `new LinkedHashMap(copy:Iterable)` creates a linked hashmap which is a copy of the provided iterable.
+     *   1) `copy` either
+     *      - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
+     *      - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
+     * - `new LinkedHashMap({copy:?Iterable, depth:?int, widthAs2sExponent:?int})` creates a linked hashmap with optional `depth` and `widthAs2sExponent`. If `copy` is provided (map, array or iterable), it's keys and values are inserted into this map.
+     *   1) `copy` either
+     *      - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
+     *      - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
+     *   2) `depth` is how many layers deep our hashtrie goes.
+     *      - Minimum: `1`, Maximum/Default: `(32/widthAs2sExponent)-1`
+     *   3) `widthAs2sExponent` is how many buckets in each hashtrie layer we use to the power of 2, for instance a widthAs2sExponent of 4 is 2 ^ 4 = 16 buckets.
+     *      - Minimum: `2`, Maximum: `16`, Default: `6` (64 Buckets)
+     * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>|HashMap~ConstructorOptions)} [args]
+     */
+    function LinkedHashMap() {
+      var _this2;
 
-    function MapFilter(iterable, filterPredicate, ctx) {
-      var _this8;
+      var args = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
+        copy: undefined,
+        depth: undefined,
+        widthAs2sExponent: 6
+      };
 
-      _classCallCheck(this, MapFilter);
+      _classCallCheck(this, LinkedHashMap);
 
-      _this8 = _super8.call(this, iterable, ctx);
-      _this8.filterPredicate = filterPredicate;
-      return _this8;
+      _this2 = _super2.call(this, args);
+      _this2.start = undefined;
+      _this2.end = undefined;
+      return _this2;
     }
 
-    _createClass(MapFilter, [{
-      key: "size",
-      get: function get() {
-        var accumulator = 0;
+    _createClass(LinkedHashMap, [{
+      key: "set",
+      value: function set(key, value) {
+        var entry = this.addEntry(new LinkedEntry(key, value)); // if we added at the end, shift forward one.
 
-        var _iterator26 = _createForOfIteratorHelper(this),
-            _step26;
-
-        try {
-          for (_iterator26.s(); !(_step26 = _iterator26.n()).done;) // jshint ignore:line
-          {
-            var i = _step26.value;
-            accumulator++;
+        if (this.end) {
+          if (!entry.deleted) {
+            this.end.next = entry;
+            entry.previous = this.end;
+            this.end = entry;
           }
-        } catch (err) {
-          _iterator26.e(err);
-        } finally {
-          _iterator26.f();
-        }
-
-        return accumulator;
-      }
-    }, {
-      key: Symbol.iterator,
-      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        var _iterator27, _step27, _step27$value, key, _value4;
-
-        return regeneratorRuntime.wrap(function value$(_context8) {
-          while (1) {
-            switch (_context8.prev = _context8.next) {
-              case 0:
-                _iterator27 = _createForOfIteratorHelper(this.iterable);
-                _context8.prev = 1;
-
-                _iterator27.s();
-
-              case 3:
-                if ((_step27 = _iterator27.n()).done) {
-                  _context8.next = 10;
-                  break;
-                }
-
-                _step27$value = _slicedToArray(_step27.value, 2), key = _step27$value[0], _value4 = _step27$value[1];
-
-                if (!this.filterPredicate.call(this.ctx, _value4, key, this)) {
-                  _context8.next = 8;
-                  break;
-                }
-
-                _context8.next = 8;
-                return [key, _value4];
-
-              case 8:
-                _context8.next = 3;
-                break;
-
-              case 10:
-                _context8.next = 15;
-                break;
-
-              case 12:
-                _context8.prev = 12;
-                _context8.t0 = _context8["catch"](1);
-
-                _iterator27.e(_context8.t0);
-
-              case 15:
-                _context8.prev = 15;
-
-                _iterator27.f();
-
-                return _context8.finish(15);
-
-              case 18:
-              case "end":
-                return _context8.stop();
-            }
-          }
-        }, value, this, [[1, 12, 15, 18]]);
-      })
-    }, {
-      key: "optionalGet",
-      value: function optionalGet(key) {
-        var opt = _get(_getPrototypeOf(MapFilter.prototype), "optionalGet", this).call(this, key);
-
-        if (opt.has && !this.filterPredicate.call(this.ctx, opt.value, key, this)) {
-          return Optional.none();
-        }
-
-        return opt;
-      }
-    }, {
-      key: "has",
-      value: function has(key) {
-        return this.optionalGet(key).has;
-      }
-    }, {
-      key: "get",
-      value: function get(key) {
-        return this.optionalGet(key).value;
-      }
-    }]);
-
-    return MapFilter;
-  }(MapIterableWrapper);
-  /**
-   * @extends MapIterableWrapper
-   * @private
-   */
-
-
-  var MapKeyMapper = /*#__PURE__*/function (_MapIterableWrapper2) {
-    _inherits(MapKeyMapper, _MapIterableWrapper2);
-
-    var _super9 = _createSuper(MapKeyMapper);
-
-    function MapKeyMapper(iterable, mapFunction, ctx) {
-      var _this9;
-
-      _classCallCheck(this, MapKeyMapper);
-
-      _this9 = _super9.call(this, iterable, ctx);
-      _this9.mapFunction = mapFunction;
-      return _this9;
-    }
-
-    _createClass(MapKeyMapper, [{
-      key: Symbol.iterator,
-      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        var _iterator28, _step28, _step28$value, key, _value5;
-
-        return regeneratorRuntime.wrap(function value$(_context9) {
-          while (1) {
-            switch (_context9.prev = _context9.next) {
-              case 0:
-                _iterator28 = _createForOfIteratorHelper(this.iterable);
-                _context9.prev = 1;
-
-                _iterator28.s();
-
-              case 3:
-                if ((_step28 = _iterator28.n()).done) {
-                  _context9.next = 9;
-                  break;
-                }
-
-                _step28$value = _slicedToArray(_step28.value, 2), key = _step28$value[0], _value5 = _step28$value[1];
-                _context9.next = 7;
-                return [this.mapFunction.call(this.ctx, _value5, key, this), _value5];
-
-              case 7:
-                _context9.next = 3;
-                break;
-
-              case 9:
-                _context9.next = 14;
-                break;
-
-              case 11:
-                _context9.prev = 11;
-                _context9.t0 = _context9["catch"](1);
-
-                _iterator28.e(_context9.t0);
-
-              case 14:
-                _context9.prev = 14;
-
-                _iterator28.f();
-
-                return _context9.finish(14);
-
-              case 17:
-              case "end":
-                return _context9.stop();
-            }
-          }
-        }, value, this, [[1, 11, 14, 17]]);
-      })
-    }]);
-
-    return MapKeyMapper;
-  }(MapIterableWrapper);
-  /**
-   * @extends MapIterableWrapper
-   * @private
-   */
-
-
-  var MapValueMapper = /*#__PURE__*/function (_MapIterableWrapper3) {
-    _inherits(MapValueMapper, _MapIterableWrapper3);
-
-    var _super10 = _createSuper(MapValueMapper);
-
-    function MapValueMapper(iterable, mapFunction, ctx) {
-      var _this10;
-
-      _classCallCheck(this, MapValueMapper);
-
-      _this10 = _super10.call(this, iterable, ctx);
-      _this10.mapFunction = mapFunction;
-      return _this10;
-    }
-
-    _createClass(MapValueMapper, [{
-      key: Symbol.iterator,
-      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        var _iterator29, _step29, _step29$value, key, _value6;
-
-        return regeneratorRuntime.wrap(function value$(_context10) {
-          while (1) {
-            switch (_context10.prev = _context10.next) {
-              case 0:
-                _iterator29 = _createForOfIteratorHelper(this.iterable);
-                _context10.prev = 1;
-
-                _iterator29.s();
-
-              case 3:
-                if ((_step29 = _iterator29.n()).done) {
-                  _context10.next = 9;
-                  break;
-                }
-
-                _step29$value = _slicedToArray(_step29.value, 2), key = _step29$value[0], _value6 = _step29$value[1];
-                _context10.next = 7;
-                return [key, this.mapFunction.call(this.ctx, _value6, key, this)];
-
-              case 7:
-                _context10.next = 3;
-                break;
-
-              case 9:
-                _context10.next = 14;
-                break;
-
-              case 11:
-                _context10.prev = 11;
-                _context10.t0 = _context10["catch"](1);
-
-                _iterator29.e(_context10.t0);
-
-              case 14:
-                _context10.prev = 14;
-
-                _iterator29.f();
-
-                return _context10.finish(14);
-
-              case 17:
-              case "end":
-                return _context10.stop();
-            }
-          }
-        }, value, this, [[1, 11, 14, 17]]);
-      })
-    }, {
-      key: "optionalGet",
-      value: function optionalGet(key) {
-        var opt = _get(_getPrototypeOf(MapValueMapper.prototype), "optionalGet", this).call(this, key);
-
-        if (opt.has) {
-          return Optional.of(this.mapFunction.call(this.ctx, opt.value, key, this));
-        }
-
-        return opt;
-      }
-    }]);
-
-    return MapValueMapper;
-  }(MapIterableWrapper);
-  /**
-   * @extends MapIterableWrapper
-   * @private
-   */
-
-
-  var MapEntryMapper = /*#__PURE__*/function (_MapIterableWrapper4) {
-    _inherits(MapEntryMapper, _MapIterableWrapper4);
-
-    var _super11 = _createSuper(MapEntryMapper);
-
-    function MapEntryMapper(iterable, mapFunction, ctx) {
-      var _this11;
-
-      _classCallCheck(this, MapEntryMapper);
-
-      _this11 = _super11.call(this, iterable, ctx);
-      _this11.mapFunction = mapFunction;
-      return _this11;
-    }
-
-    _createClass(MapEntryMapper, [{
-      key: Symbol.iterator,
-      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        var _iterator30, _step30, _step30$value, key, _value7, _this$mapFunction$cal, _this$mapFunction$cal2, newKey, newValue;
-
-        return regeneratorRuntime.wrap(function value$(_context11) {
-          while (1) {
-            switch (_context11.prev = _context11.next) {
-              case 0:
-                _iterator30 = _createForOfIteratorHelper(this.iterable);
-                _context11.prev = 1;
-
-                _iterator30.s();
-
-              case 3:
-                if ((_step30 = _iterator30.n()).done) {
-                  _context11.next = 10;
-                  break;
-                }
-
-                _step30$value = _slicedToArray(_step30.value, 2), key = _step30$value[0], _value7 = _step30$value[1];
-                _this$mapFunction$cal = this.mapFunction.call(this.ctx, _value7, key, this), _this$mapFunction$cal2 = _slicedToArray(_this$mapFunction$cal, 2), newKey = _this$mapFunction$cal2[0], newValue = _this$mapFunction$cal2[1];
-                _context11.next = 8;
-                return [newKey, newValue];
-
-              case 8:
-                _context11.next = 3;
-                break;
-
-              case 10:
-                _context11.next = 15;
-                break;
-
-              case 12:
-                _context11.prev = 12;
-                _context11.t0 = _context11["catch"](1);
-
-                _iterator30.e(_context11.t0);
-
-              case 15:
-                _context11.prev = 15;
-
-                _iterator30.f();
-
-                return _context11.finish(15);
-
-              case 18:
-              case "end":
-                return _context11.stop();
-            }
-          }
-        }, value, this, [[1, 12, 15, 18]]);
-      })
-    }, {
-      key: "get",
-      value: function get(key) {
-        if (this.iterable.has(key)) {
-          var _value8 = this.iterable.get(key);
-
-          return this.mapFunction.call(this.ctx, _value8, key, this)[1];
-        }
-
-        return undefined;
-      }
-    }]);
-
-    return MapEntryMapper;
-  }(MapIterableWrapper);
-  /**
-   * @extends MapIterable
-   * @private
-   */
-
-
-  var MapConcat = /*#__PURE__*/function (_MapIterable3) {
-    _inherits(MapConcat, _MapIterable3);
-
-    var _super12 = _createSuper(MapConcat);
-
-    function MapConcat(iterable, otherIterable) {
-      var _this12;
-
-      _classCallCheck(this, MapConcat);
-
-      _this12 = _super12.call(this);
-      _this12.iterable = iterable;
-      _this12.otherIterable = otherIterable;
-      return _this12;
-    }
-
-    _createClass(MapConcat, [{
-      key: "size",
-      get: function get() {
-        return this.iterable.size + this.otherIterable.size;
-      }
-    }, {
-      key: Symbol.iterator,
-      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        return regeneratorRuntime.wrap(function value$(_context12) {
-          while (1) {
-            switch (_context12.prev = _context12.next) {
-              case 0:
-                return _context12.delegateYield(this.iterable, "t0", 1);
-
-              case 1:
-                return _context12.delegateYield(this.otherIterable, "t1", 2);
-
-              case 2:
-              case "end":
-                return _context12.stop();
-            }
-          }
-        }, value, this);
-      })
-    }, {
-      key: "optionalGet",
-      value: function optionalGet(key) {
-        var opt = this.iterable.optionalGet(key);
-        return opt.has ? opt : this.otherIterable.optionalGet(key);
-      }
-    }, {
-      key: "has",
-      value: function has(key) {
-        return this.optionalGet(key).has;
-      }
-    }, {
-      key: "get",
-      value: function get(key) {
-        return this.optionalGet(key).value;
-      }
-    }]);
-
-    return MapConcat;
-  }(MapIterable);
-  /**
-   * @extends SetIterable
-   * @private
-   */
-
-
-  var SetConcat = /*#__PURE__*/function (_SetIterable2) {
-    _inherits(SetConcat, _SetIterable2);
-
-    var _super13 = _createSuper(SetConcat);
-
-    function SetConcat(iterable, otherIterable) {
-      var _this13;
-
-      _classCallCheck(this, SetConcat);
-
-      _this13 = _super13.call(this);
-      _this13.iterable = iterable;
-      _this13.otherIterable = otherIterable;
-      return _this13;
-    }
-
-    _createClass(SetConcat, [{
-      key: "size",
-      get: function get() {
-        return this.iterable.size + this.otherIterable.size;
-      }
-    }, {
-      key: "has",
-      value: function has(value) {
-        var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
-        return this.iterable.has(value, depth) || this.otherIterable.has(value, depth);
-      }
-    }, {
-      key: Symbol.iterator,
-      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        return regeneratorRuntime.wrap(function value$(_context13) {
-          while (1) {
-            switch (_context13.prev = _context13.next) {
-              case 0:
-                return _context13.delegateYield(this.iterable, "t0", 1);
-
-              case 1:
-                return _context13.delegateYield(this.otherIterable, "t1", 2);
-
-              case 2:
-              case "end":
-                return _context13.stop();
-            }
-          }
-        }, value, this);
-      })
-    }]);
-
-    return SetConcat;
-  }(SetIterable);
-  /**
-   * @extends SetIterableWrapper
-   * @private
-   */
-
-
-  var EntryToValueMapper = /*#__PURE__*/function (_SetIterableWrapper) {
-    _inherits(EntryToValueMapper, _SetIterableWrapper);
-
-    var _super14 = _createSuper(EntryToValueMapper);
-
-    function EntryToValueMapper(iterable) {
-      _classCallCheck(this, EntryToValueMapper);
-
-      return _super14.call(this, iterable);
-    }
-
-    _createClass(EntryToValueMapper, [{
-      key: Symbol.iterator,
-      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        var _iterator31, _step31, _step31$value, _value9;
-
-        return regeneratorRuntime.wrap(function value$(_context14) {
-          while (1) {
-            switch (_context14.prev = _context14.next) {
-              case 0:
-                _iterator31 = _createForOfIteratorHelper(this.iterable);
-                _context14.prev = 1;
-
-                _iterator31.s();
-
-              case 3:
-                if ((_step31 = _iterator31.n()).done) {
-                  _context14.next = 9;
-                  break;
-                }
-
-                _step31$value = _slicedToArray(_step31.value, 2), _value9 = _step31$value[1];
-                _context14.next = 7;
-                return _value9;
-
-              case 7:
-                _context14.next = 3;
-                break;
-
-              case 9:
-                _context14.next = 14;
-                break;
-
-              case 11:
-                _context14.prev = 11;
-                _context14.t0 = _context14["catch"](1);
-
-                _iterator31.e(_context14.t0);
-
-              case 14:
-                _context14.prev = 14;
-
-                _iterator31.f();
-
-                return _context14.finish(14);
-
-              case 17:
-              case "end":
-                return _context14.stop();
-            }
-          }
-        }, value, this, [[1, 11, 14, 17]]);
-      })
-    }, {
-      key: "has",
-      value: function has(value) {
-        var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
-
-        if (Array.isArray(value)) {
-          return this.iterable.some(function (otherValue) {
-            return deepEquals(value, otherValue, depth);
-          });
         } else {
-          return this.iterable.some(function (otherValue) {
-            return defaultEquals(value, otherValue);
-          });
+          this.end = this.start = entry;
         }
+
+        return this;
       }
-    }]);
-
-    return EntryToValueMapper;
-  }(SetIterableWrapper);
-  /**
-   * @extends SetIterableWrapper
-   * @private
-   */
-
-
-  var EntryToKeyMapper = /*#__PURE__*/function (_SetIterableWrapper2) {
-    _inherits(EntryToKeyMapper, _SetIterableWrapper2);
-
-    var _super15 = _createSuper(EntryToKeyMapper);
-
-    function EntryToKeyMapper(iterable) {
-      _classCallCheck(this, EntryToKeyMapper);
-
-      return _super15.call(this, iterable);
-    }
-
-    _createClass(EntryToKeyMapper, [{
-      key: Symbol.iterator,
-      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        var _iterator32, _step32, _step32$value, key;
-
-        return regeneratorRuntime.wrap(function value$(_context15) {
-          while (1) {
-            switch (_context15.prev = _context15.next) {
-              case 0:
-                _iterator32 = _createForOfIteratorHelper(this.iterable);
-                _context15.prev = 1;
-
-                _iterator32.s();
-
-              case 3:
-                if ((_step32 = _iterator32.n()).done) {
-                  _context15.next = 9;
-                  break;
-                }
-
-                _step32$value = _slicedToArray(_step32.value, 1), key = _step32$value[0];
-                _context15.next = 7;
-                return key;
-
-              case 7:
-                _context15.next = 3;
-                break;
-
-              case 9:
-                _context15.next = 14;
-                break;
-
-              case 11:
-                _context15.prev = 11;
-                _context15.t0 = _context15["catch"](1);
-
-                _iterator32.e(_context15.t0);
-
-              case 14:
-                _context15.prev = 14;
-
-                _iterator32.f();
-
-                return _context15.finish(14);
-
-              case 17:
-              case "end":
-                return _context15.stop();
-            }
-          }
-        }, value, this, [[1, 11, 14, 17]]);
-      })
     }, {
-      key: "has",
-      value: function has(key) {
-        return this.iterable.optionalGet(key).has;
+      key: "delete",
+      value: function _delete(key) {
+        _get(_getPrototypeOf(LinkedHashMap.prototype), "delete", this).call(this, key);
+
+        if (this.start && this.start.deleted) {
+          this.start = this.start.next;
+        }
+
+        if (this.end && this.end.deleted) {
+          this.end = this.end.previous;
+        }
+
+        return this;
       }
-    }]);
-
-    return EntryToKeyMapper;
-  }(SetIterableWrapper);
-  /**
-   * @extends SetIterableWrapper
-   * @private
-   */
-
-
-  var MapMapper = /*#__PURE__*/function (_SetIterableWrapper3) {
-    _inherits(MapMapper, _SetIterableWrapper3);
-
-    var _super16 = _createSuper(MapMapper);
-
-    function MapMapper(iterable, mapFunction, ctx) {
-      var _this14;
-
-      _classCallCheck(this, MapMapper);
-
-      _this14 = _super16.call(this, iterable, ctx);
-      _this14.mapFunction = mapFunction;
-      return _this14;
-    }
-
-    _createClass(MapMapper, [{
-      key: Symbol.iterator,
-      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        var _iterator33, _step33, _step33$value, key, _value10;
-
-        return regeneratorRuntime.wrap(function value$(_context16) {
-          while (1) {
-            switch (_context16.prev = _context16.next) {
-              case 0:
-                _iterator33 = _createForOfIteratorHelper(this.iterable);
-                _context16.prev = 1;
-
-                _iterator33.s();
-
-              case 3:
-                if ((_step33 = _iterator33.n()).done) {
-                  _context16.next = 9;
-                  break;
-                }
-
-                _step33$value = _slicedToArray(_step33.value, 2), key = _step33$value[0], _value10 = _step33$value[1];
-                _context16.next = 7;
-                return this.mapFunction.call(this.ctx, _value10, key, this);
-
-              case 7:
-                _context16.next = 3;
-                break;
-
-              case 9:
-                _context16.next = 14;
-                break;
-
-              case 11:
-                _context16.prev = 11;
-                _context16.t0 = _context16["catch"](1);
-
-                _iterator33.e(_context16.t0);
-
-              case 14:
-                _context16.prev = 14;
-
-                _iterator33.f();
-
-                return _context16.finish(14);
-
-              case 17:
-              case "end":
-                return _context16.stop();
-            }
-          }
-        }, value, this, [[1, 11, 14, 17]]);
-      })
       /**
-       * Only ever used for the Map function that produces a SetIterable.
-       * @param value
-       * @param depth
-       * @return {boolean}
+       * Makes a copy of this LinkedHashMap
+       * @return {LinkedHashMap}
        */
 
     }, {
-      key: "has",
-      value: function has(value) {
-        var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
-
-        if (Array.isArray(value)) {
-          return this.some(function (otherValue) {
-            return deepEquals(value, otherValue, depth);
-          });
-        } else {
-          return this.some(function (otherValue) {
-            return defaultEquals(value, otherValue);
-          });
-        }
+      key: "clone",
+      value: function clone() {
+        return new LinkedHashMap({
+          copy: this,
+          depth: this.options.depth,
+          widthAs2sExponent: this.options.widthAs2sExponent
+        });
       }
-    }]);
-
-    return MapMapper;
-  }(SetIterableWrapper);
-  /**
-   * @extends SetIterableWrapper
-   * @private
-   */
-
-
-  var SetMapper = /*#__PURE__*/function (_SetIterableWrapper4) {
-    _inherits(SetMapper, _SetIterableWrapper4);
-
-    var _super17 = _createSuper(SetMapper);
-
-    function SetMapper(iterable, mapFunction, ctx) {
-      var _this15;
-
-      _classCallCheck(this, SetMapper);
-
-      _this15 = _super17.call(this, iterable, ctx);
-      _this15.mapFunction = mapFunction;
-      return _this15;
-    }
-
-    _createClass(SetMapper, [{
+    }, {
       key: Symbol.iterator,
       value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        var _iterator34, _step34, _value11;
-
-        return regeneratorRuntime.wrap(function value$(_context17) {
+        var entry;
+        return regeneratorRuntime.wrap(function value$(_context) {
           while (1) {
-            switch (_context17.prev = _context17.next) {
+            switch (_context.prev = _context.next) {
               case 0:
-                _iterator34 = _createForOfIteratorHelper(this.iterable);
-                _context17.prev = 1;
+                entry = this.start;
 
-                _iterator34.s();
-
-              case 3:
-                if ((_step34 = _iterator34.n()).done) {
-                  _context17.next = 9;
+              case 1:
+                if (!entry) {
+                  _context.next = 7;
                   break;
                 }
 
-                _value11 = _step34.value;
-                _context17.next = 7;
-                return this.mapFunction.call(this.ctx, _value11, _value11, this);
+                _context.next = 4;
+                return [entry.key, entry.value];
+
+              case 4:
+                entry = entry.next;
+                _context.next = 1;
+                break;
 
               case 7:
-                _context17.next = 3;
-                break;
-
-              case 9:
-                _context17.next = 14;
-                break;
-
-              case 11:
-                _context17.prev = 11;
-                _context17.t0 = _context17["catch"](1);
-
-                _iterator34.e(_context17.t0);
-
-              case 14:
-                _context17.prev = 14;
-
-                _iterator34.f();
-
-                return _context17.finish(14);
-
-              case 17:
               case "end":
-                return _context17.stop();
+                return _context.stop();
             }
           }
-        }, value, this, [[1, 11, 14, 17]]);
+        }, value, this);
       })
-    }, {
-      key: "has",
-      value: function has(value) {
-        var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
-
-        if (Array.isArray(value)) {
-          return this.some(function (otherValue) {
-            return deepEquals(value, otherValue, depth);
-          });
-        } else {
-          return this.some(function (otherValue) {
-            return defaultEquals(value, otherValue);
-          });
-        }
-      }
     }]);
 
-    return SetMapper;
-  }(SetIterableWrapper);
-  /**
-   * @extends SetIterableWrapper
-   * @private
-   */
-
-
-  var SetFilter = /*#__PURE__*/function (_SetIterableWrapper5) {
-    _inherits(SetFilter, _SetIterableWrapper5);
-
-    var _super18 = _createSuper(SetFilter);
-
-    function SetFilter(iterable, filterPredicate, ctx) {
-      var _this16;
-
-      _classCallCheck(this, SetFilter);
-
-      _this16 = _super18.call(this, iterable, ctx);
-      _this16.filterPredicate = filterPredicate;
-      return _this16;
-    }
-
-    _createClass(SetFilter, [{
-      key: "size",
-      get: function get() {
-        var accumulator = 0;
-
-        var _iterator35 = _createForOfIteratorHelper(this),
-            _step35;
-
-        try {
-          for (_iterator35.s(); !(_step35 = _iterator35.n()).done;) // jshint ignore:line
-          {
-            var i = _step35.value;
-            accumulator++;
-          }
-        } catch (err) {
-          _iterator35.e(err);
-        } finally {
-          _iterator35.f();
-        }
-
-        return accumulator;
-      }
-    }, {
-      key: Symbol.iterator,
-      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        var _iterator36, _step36, _value12;
-
-        return regeneratorRuntime.wrap(function value$(_context18) {
-          while (1) {
-            switch (_context18.prev = _context18.next) {
-              case 0:
-                _iterator36 = _createForOfIteratorHelper(this.iterable);
-                _context18.prev = 1;
-
-                _iterator36.s();
-
-              case 3:
-                if ((_step36 = _iterator36.n()).done) {
-                  _context18.next = 10;
-                  break;
-                }
-
-                _value12 = _step36.value;
-
-                if (!this.filterPredicate.call(this.ctx, _value12, _value12, this)) {
-                  _context18.next = 8;
-                  break;
-                }
-
-                _context18.next = 8;
-                return _value12;
-
-              case 8:
-                _context18.next = 3;
-                break;
-
-              case 10:
-                _context18.next = 15;
-                break;
-
-              case 12:
-                _context18.prev = 12;
-                _context18.t0 = _context18["catch"](1);
-
-                _iterator36.e(_context18.t0);
-
-              case 15:
-                _context18.prev = 15;
-
-                _iterator36.f();
-
-                return _context18.finish(15);
-
-              case 18:
-              case "end":
-                return _context18.stop();
-            }
-          }
-        }, value, this, [[1, 12, 15, 18]]);
-      })
-    }, {
-      key: "has",
-      value: function has(value) {
-        var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
-
-        if (this.iterable.has(value, depth)) {
-          return this.filterPredicate.call(this.ctx, value, value, this);
-        }
-
-        return false;
-      }
-    }]);
-
-    return SetFilter;
-  }(SetIterableWrapper);
+    return LinkedHashMap;
+  }(HashMap);
 
   var Mootable = {
     HashMap: HashMap,

@@ -1,31 +1,16 @@
 /* jshint ignore:start */
 const expect = require('chai').expect;
 const chalk = require('chalk')
+const esmRequire = require("esm")(module/*, options*/);
+const Utils = esmRequire('../../../src/utils')
+const {Mootable} = esmRequire('../../../src')
+const rand = require('random-seed').create();
 
-function underTest() {
-    const name = process.env.UNDER_TEST_NAME;
-    const location = process.env.UNDER_TEST_LOCATION;
-    const esm = process.env.UNDER_TEST_ESM === 'true';
-    if (esm) {
-        const esmRequire = require("esm")(module/*, options*/);
-        const {LinkedHashMap, Mootable} = esmRequire(location);
-        return {
-            LinkedHashMap,
-            Mootable,
-            name, location, esm
-        };
-    } else {
-        const {LinkedHashMap, Mootable} = require(location);
-        return {
-            LinkedHashMap,
-            Mootable,
-            name, location, esm
-        };
-    }
+if (process.env.UNDER_TEST_NAME !== 'unit') {
+    return 0;
 }
 
 /**
- *
  * hashCode,
  * isFunction,
  * isIterable,
@@ -33,16 +18,59 @@ function underTest() {
  * isNumber
  */
 describe('Util Functions', function () {
-    const rand = require('random-seed').create();
-    let Mootable, Utils;
-    before(function () {
-        const UnderTest = underTest();
-        Mootable = UnderTest.Mootable;
-        Utils = Mootable.Utils;
-        console.info(`Testing '${this.test.parent.title}' as '${UnderTest.name}' from '${UnderTest.location}'`);
-        // runs once before the first test in this block
-    });
+    describe('Option', function () {
 
+        const {Option, some, none} = Utils;
+        it('Option.some', function () {
+            const opt = Option.some("hello");
+            expect(opt.has).to.be.true;
+            expect(opt.value).to.be.equal("hello");
+        });
+        /**
+         * Even undefined is a value
+         */
+        it('Option.some with undefined', function () {
+            const opt = Option.some(undefined);
+            expect(opt.has).to.be.true;
+            expect(opt.value).to.be.undefined;
+        });
+        it('Option.some with null', function () {
+            const opt = Option.some(null);
+            expect(opt.has).to.be.true;
+            expect(opt.value).to.be.null;
+        });
+
+        it('Option.none', function () {
+            const opt = Option.none;
+            expect(opt.has).to.be.false;
+            expect(opt.value).to.be.undefined;
+        });
+
+        it('some', function () {
+            const opt = some("hello");
+            expect(opt.has).to.be.true;
+            expect(opt.value).to.be.equal("hello");
+        });
+        /**
+         * Even undefined is a value
+         */
+        it('some with undefined', function () {
+            const opt = some(undefined);
+            expect(opt.has).to.be.true;
+            expect(opt.value).to.be.undefined;
+        });
+        it('some with null', function () {
+            const opt = some(null);
+            expect(opt.has).to.be.true;
+            expect(opt.value).to.be.null;
+        });
+
+        it('none', function () {
+            const opt = none;
+            expect(opt.has).to.be.false;
+            expect(opt.value).to.be.undefined;
+        });
+    });
     describe('isIterable()', function () {
 
         it('takes an array', function () {
@@ -272,119 +300,28 @@ describe('Util Functions', function () {
             expect(Utils.isFunction("hello test")).to.be.false;
         });
     });
-    /**
-     * we use 32 bit hashes, as numbers go up there is more chance of collision,
-     * so this is a sanity check to make sure the hash function spreads properly
-     */
+
     describe('hashCode()', function () {
-        /*
-         * higher for slow check, do this manually.
-         * Understand that collision percentages go up the more you create,
-         * as there is a limited 32 bit range.
-         */
-        const HASH_AMOUNT = 5000;
-        const TEST_CYCLES = 6;
-        const valueArray = [];
-        const hashArray = [];
-        const metricsArray = [];
-        const hashMetricsArray = [];
-        const HASHED_COUNTS = [0];
-        const VALUE_COUNTS = [0, 0];
-
-        const probabilityAtMax = (TOTAL_SIZE) => {
-            return 1 - (Math.exp((-0.5 * TOTAL_SIZE * (TOTAL_SIZE - 1))
-                / (2 * Math.pow(2, 32))));
-        }
-
-        for (let colCount = 1; colCount <= TEST_CYCLES; colCount++) {
-            describe(`${HASH_AMOUNT * colCount} Hashes`, function () {
-                before(function () {
-                    VALUE_COUNTS[0] = HASH_AMOUNT;
-                    while (VALUE_COUNTS[0] != 0) {
-                        const value = rand.string(64 + rand(64));
-                        const hash = Utils.hashCode(value);
-                        const value_idx = valueArray.indexOf(value);
-                        const hash_idx = hashArray.indexOf(hash);
-                        if (value_idx === -1) {
-                            valueArray.push(value);
-                            metricsArray.push({
-                                value,
-                                hash,
-                                hashIdx: hash_idx === -1 ? hashArray.length : hash_idx,
-                                count: 1
-                            });
-                            VALUE_COUNTS[0]--;
-                            VALUE_COUNTS[1]++;
-                        } else if (hash_idx === -1) {
-                            const metric = metricsArray[value_idx];
-                            VALUE_COUNTS[metric.count]--;
-                            metric.count = metric.count + 1;
-                            if (VALUE_COUNTS[metric.count]) {
-                                VALUE_COUNTS[metric.count]++;
-                            } else {
-                                VALUE_COUNTS[metric.count] = 1;
-                            }
-                        }
-
-                        if (hash_idx === -1) {
-                            hashArray.push(hash);
-                            hashMetricsArray.push({
-                                value,
-                                hash,
-                                valueIdx: value_idx === -1 ? valueArray.length : value_idx,
-                                count: 0
-                            });
-                            HASHED_COUNTS[0]++;
-                        } else {
-                            const metric = hashMetricsArray[hash_idx];
-                            HASHED_COUNTS[metric.count]--;
-                            metric.count = metric.count + 1;
-                            if (HASHED_COUNTS[metric.count]) {
-                                HASHED_COUNTS[metric.count]++;
-                            } else {
-                                HASHED_COUNTS[metric.count] = 1;
-                            }
-                        }
-                    }
-                });
-                it('Values produce the same hash', function () {
-                    expect(VALUE_COUNTS).to.be.deep.equals([0, HASH_AMOUNT * colCount]);
-                });
-
-                it('Collisions in 32bit space are low', function () {
-                    const collisions = [];
-                    for (let i = 0; i < HASHED_COUNTS.length; i++) {
-
-                        const count = HASHED_COUNTS[i] * (i + 1); // if i is 2 we have a collision of 2.
-                        const collision = (count * 100) / (HASH_AMOUNT * colCount);
-                        collisions.push(collision)
-                    }
-                    const probability = probabilityAtMax(HASH_AMOUNT * colCount);
-                    const probabilityAsPercentage = (probability * 100);
-                    // we add 1% to take into account random variance.
-                    let expectedCollisions = probabilityAsPercentage + 0.5;
-
-                    console.log(`${chalk.bold(`${HASH_AMOUNT * colCount}:`)}
-   Collisions: ${chalk.green((HASH_AMOUNT * colCount) - HASHED_COUNTS[0])}
-      ${chalk.gray('-   How many hash collisions did we have.')}
-   Unique Hash Count: ${chalk.green(`[${HASHED_COUNTS}]`)}
-      ${chalk.gray('-   Unique Hash counts, in order of repeats, index 0 is not repeated')}
-   Proportions: ${chalk.green(`[${collisions}]`)}
-      ${chalk.gray('-   What is the percentage portions of those hash counts.')}
-   Precalculated Probability: ${chalk.green(`${probabilityAsPercentage.toFixed(4)}%`)}
-      ${chalk.gray('-   Mathematical likelyhood of an entry colliding, with the perfect hashing algorithim.')}
-   Test Collision Ceiling: ${chalk.green(`${expectedCollisions.toFixed(4)}%`)}
-      ${chalk.gray('-   The value we use for testing to cater for random variation (0.5% higher)')}`);
-
-                    expect(collisions[0]).to.be.greaterThan(100 - expectedCollisions);
-                    for (let i = 1; i < collisions.length; i++) {
-                        expect(collisions[i]).to.be.lessThan(expectedCollisions);
-                        // we only need to include the error once.
-                        expectedCollisions *= probabilityAsPercentage;
-                    }
-                });
-            });
-        }
+        it('no options', function () {
+            expect(Utils.hashCode("helloworld")).to.be.equal(1933063992);
+            expect(Utils.hashCode("HelloWorld")).to.be.equal(1601418099);
+            expect(Utils.hashCode("HelloWorle")).to.be.equal(-1863099149);
+        });
+        it('with length', function () {
+            expect(Utils.hashCode("helloworld", 6)).to.be.equal(-574932549);
+            expect(Utils.hashCode("HelloWorld", 6)).to.be.equal(-336088073);
+            expect(Utils.hashCode("HelloWorle", 6)).to.be.equal(-336088073);
+        });
+        it('with seed', function () {
+            expect(Utils.hashCode("HelloWorld", 0, 1)).to.be.equal(-484980969);
+            expect(Utils.hashCode("HelloWorld", 0, 2)).to.be.equal(187381547);
+            expect(Utils.hashCode("HelloWorld", 0, 3)).to.be.equal(649577143);
+        });
+        it('with seed and length', function () {
+            expect(Utils.hashCode("HelloWorld", 6, 1)).to.be.equal(-1651097962);
+            expect(Utils.hashCode("HelloWorld", 6, 2)).to.be.equal(-1535466246);
+            expect(Utils.hashCode("HelloWorld", 6, 3)).to.be.equal(1961415912);
+        });
     });
 });
 /* jshint ignore:end */
