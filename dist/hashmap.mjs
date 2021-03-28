@@ -1,13 +1,57 @@
 /**
  * Utils - Utility functions
- * @namespace Mootable
+ * @namespace Mootable.Utils
  * @author Jack Moxley <https://github.com/jackmoxley>
  * @version 0.12.6
  * Homepage: https://github.com/mootable/hashmap
  */
 
-let HASH_COUNTER = 0;
+/**
+ * Is the passed value not null and a function
+ * @param func
+ * @returns {boolean}
+ */
+function isFunction(func) {
+    return !!(func && func.constructor && func.call && func.apply);
+}
 
+/**
+ * Is the passed object iterable
+ * @param iterable
+ * @return {boolean}
+ */
+function isIterable(iterable) {
+    return !!(iterable && isFunction(iterable[Symbol.iterator]));
+}
+
+/**
+ * Is the passed value not null and a string
+ * @param str
+ * @returns {boolean}
+ */
+function isString(str) { // jshint ignore:line
+    return !!(str && (typeof str === 'string' || str instanceof String));
+}
+
+/**
+ * sameValueZero is the equality method used by Map, Array, Set etc.
+ * The only difference between === and sameValueZero is that NaN counts as equal on sameValueZero
+ * @see {@link https://262.ecma-international.org/6.0/#sec-samevaluezero saveValueZero}
+ * @param x - the first object to compare
+ * @param y - the second object to compare
+ * @returns {boolean} - if they are equals according to ECMA Spec for Same Value Zero
+ */
+function sameValueZero(x, y) {
+    return x === y || (Number.isNaN(x) && Number.isNaN(y));
+}
+
+/**
+ * Hash - Hash functions
+ * @namespace Mootable.Hash
+ * @author Jack Moxley <https://github.com/jackmoxley>
+ * @version 0.12.6
+ * Homepage: https://github.com/mootable/hashmap
+ */
 /**
  * Modified Murmur3 hash generator, with capped lengths.
  * This is NOT a cryptographic hash, this hash is designed to create as even a spread across a 32bit integer as is possible.
@@ -54,45 +98,6 @@ function hash(key, len = 0, seed = 0) {
     hash = hash * 0xc2b2ae35;
     hash ^= hash >>> 16;
     return hash | 0;
-}
-
-/**
- * Is the passed value not null and a function
- * @param func
- * @returns {boolean}
- */
-function isFunction(func) {
-    return !!(func && func.constructor && func.call && func.apply);
-}
-
-/**
- * Is the passed object iterable
- * @param iterable
- * @return {boolean}
- */
-function isIterable(iterable) {
-    return !!(iterable && isFunction(iterable[Symbol.iterator]));
-}
-
-/**
- * Is the passed value not null and a string
- * @param str
- * @returns {boolean}
- */
-function isString(str) { // jshint ignore:line
-    return !!(str && (typeof str === 'string' || str instanceof String));
-}
-
-/**
- * sameValueZero is the equality method used by Map, Array, Set etc.
- * The only difference between === and sameValueZero is that NaN counts as equal on sameValueZero
- * @see {@link https://262.ecma-international.org/6.0/#sec-samevaluezero saveValueZero}
- * @param x - the first object to compare
- * @param y - the second object to compare
- * @returns {boolean} - if they are equals according to ECMA Spec for Same Value Zero
- */
-function sameValueZero(x, y) {
-    return x === y || (Number.isNaN(x) && Number.isNaN(y));
 }
 
 /**
@@ -146,7 +151,10 @@ function hashCodeFor(key) {
             }
 
             // Regexes and Dates we treat like primitives.
-            if (key instanceof RegExp || key instanceof Date) {
+            if (key instanceof Date) {
+                return key.getTime();
+            }
+            if (key instanceof RegExp) {
                 return hash(key.toString());
             }
 
@@ -165,6 +173,13 @@ function hashCodeFor(key) {
         }
     }
 }
+
+/**
+ * @private
+ * @ignore
+ * @type {number} - an internal counter for managing unhashable objects.
+ */
+let HASH_COUNTER = 0;
 
 /**
  * Given a key, produce an equals method that fits the hashcode contract.
@@ -202,19 +217,40 @@ function equalsFor(key) {
     }
 
     // do we have an equals method, and is it sane.
-    if (key && isFunction(key.equals) && key.equals(key,key)) {
-        return (me, them) => me.equals(them,me);
+    if (key && isFunction(key.equals) && key.equals(key, key)) {
+        return (me, them) => me.equals(them, me);
     }
     return sameValueZero;
 }
 
-function hashEquals(key, hash = hashCodeFor(key), equals = equalsFor(key)){
+/**
+ * A short cut for determining both the equals function and hashcode value for a given key.
+ *
+ * @param {*} key - the key we use to identify values.
+ * @param {(function(*, *): boolean)} [equals = equalsFor(key)] - an optional function for determinging equality
+ * @param {number} [hash = hashCodeFor(key)] - an optional hashcode for the provided key
+ * @return {{equals: (function(*, *): boolean), hash: number}} - a tuple that represents a hash and an equals.
+ */
+function equalsAndHash(key, equals, hash) {
+    if (!(isFunction(equals) && equals(key, key))) {
+        equals = equalsFor(key);
+    }
+    if (!Number.isSafeInteger(hash)) {
+        hash = hashCodeFor(key);
+    }
     return {
         hash,
         equals
     };
 }
 
+/**
+ * Option - a class to get round nullable fields.
+ * @namespace Mootable.Option
+ * @author Jack Moxley <https://github.com/jackmoxley>
+ * @version 0.12.6
+ * Homepage: https://github.com/mootable/hashmap
+ */
 /**
  * A representation of a value, that might be or might not be null.
  */
@@ -233,14 +269,52 @@ class Option {
         return none;
     }
 
+    /**
+     * Return the size of this option.
+     *  - 1 if it has a value
+     *  - 0 if it doesn't
+     * @return {number}
+     */
     get size() {
         return this.has ? 1 : 0;
     }
 
+
+    /**
+     * When called with a value returns an Option object of the form:
+     * <code>{value:value,has:true}</code>
+     * Even if a value is not provided it still counts as existing, this is different from other libraries,
+     * we are effectively saying as null and undefined count as valid values.
+     * @param value - the value
+     * @return {Option} - the option in the form <code>{value:value,has:true}</code>
+     */
     static some(value) {
         return some(value);
     }
 
+    /**
+     * Provides an iterable for the Option
+     * If using a for loop.
+     * - If it has a value the loop will execute just once.
+     * - If it doesn't have a value the loop will not execute
+     * @example iterating over some
+     * const opt = Option.some("hello");
+     * for (value of opt) {
+     *    // loops once.
+     *    console.log(opt);
+     * }
+     * console.log("world");
+     * // logs - hello\nworld
+     * @example iterating over none
+     * const opt = Option.none;
+     * for (value of opt) {
+     *   // does not loop.
+     *    console.log(opt);
+     * }
+     * console.log("world");
+     * // logs - world
+     * @return {Generator<*, void, *>}
+     */
     * [Symbol.iterator]() {
         if (this.has) {
             yield this.value;
@@ -249,7 +323,7 @@ class Option {
 }
 
 /**
- * A function that when called round a value returns an Option object of the form:
+ * A function that when called with a value returns an Option object of the form:
  * <code>{value:value,has:true}</code>
  * @type {function(*=): Option}
  */
@@ -1957,7 +2031,7 @@ class HashMap extends MapIterable {
     }
 
 
-    has(key, hashEq = hashEquals(key)) {
+    has(key, hashEq = equalsAndHash(key)) {
         if (this.buckets) {
             return this.buckets.has(key, hashEq.equals, hashEq.hash);
         }
@@ -1965,7 +2039,7 @@ class HashMap extends MapIterable {
     }
 
 
-    get(key, hashEq = hashEquals(key)) {
+    get(key, hashEq = equalsAndHash(key)) {
         if (this.buckets) {
             return this.buckets.get(key, hashEq.equals, hashEq.hash);
         }
@@ -1974,7 +2048,7 @@ class HashMap extends MapIterable {
 
 
     // noinspection JSCheckFunctionSignatures
-    optionalGet(key, hashEq = hashEquals(key)) {
+    optionalGet(key, hashEq = equalsAndHash(key)) {
         if (this.buckets) {
             return this.buckets.optionalGet(key, hashEq.equals, hashEq.hash);
         }
@@ -1988,7 +2062,7 @@ class HashMap extends MapIterable {
      * @param {*} value - the value we are setting
      * @return {HashMap}
      */
-    set(key, value, hashEq = hashEquals(key)) {
+    set(key, value, hashEq = equalsAndHash(key)) {
         this.addEntry(new Entry(key, value),hashEq);
         return this;
     }
@@ -2053,7 +2127,7 @@ class HashMap extends MapIterable {
      * @param key
      * @return {HashMap}
      */
-    delete(key, hashEq = hashEquals(key)) {
+    delete(key, hashEq = equalsAndHash(key)) {
         if (this.buckets) {
             this.buckets = this.buckets.delete(key, hashEq.equals, hashEq.hash);
             if (this.buckets) {
@@ -2390,6 +2464,7 @@ class HashBuckets {
  * @version 0.12.6
  * Homepage: https://github.com/mootable/hashmap
  */
+
 /**
  * @private
  * @extends Entry
@@ -2446,7 +2521,7 @@ class LinkedHashMap extends HashMap {
         this.end = undefined;
     }
 
-    set(key, value, hashEq = hashEquals(key)) {
+    set(key, value, hashEq = equalsAndHash(key)) {
         const entry = this.addEntry(new LinkedEntry(key, value), hashEq);
         // if we added at the end, shift forward one.
         if (this.end) {
@@ -2461,7 +2536,7 @@ class LinkedHashMap extends HashMap {
         return this;
     }
 
-    delete(key, hashEq = hashEquals(key)) {
+    delete(key, hashEq = equalsAndHash(key)) {
         super.delete(key, hashEq);
         if (this.start && this.start.deleted) {
             this.start = this.start.next;
@@ -2504,7 +2579,7 @@ const Mootable = {
         isFunction,
         isIterable,
         isString,
-        hashEquals,
+        equalsAndHash,
         hashCodeFor,
         equalsFor,
         some,

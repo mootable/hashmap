@@ -2883,6 +2883,54 @@
     redefine(global$1, NUMBER, NumberWrapper);
   }
 
+  /**
+   * Utils - Utility functions
+   * @namespace Mootable.Utils
+   * @author Jack Moxley <https://github.com/jackmoxley>
+   * @version 0.12.6
+   * Homepage: https://github.com/mootable/hashmap
+   */
+
+  /**
+   * Is the passed value not null and a function
+   * @param func
+   * @returns {boolean}
+   */
+  function isFunction(func) {
+    return !!(func && func.constructor && func.call && func.apply);
+  }
+  /**
+   * Is the passed object iterable
+   * @param iterable
+   * @return {boolean}
+   */
+
+  function isIterable(iterable) {
+    return !!(iterable && isFunction(iterable[Symbol.iterator]));
+  }
+  /**
+   * Is the passed value not null and a string
+   * @param str
+   * @returns {boolean}
+   */
+
+  function isString(str) {
+    // jshint ignore:line
+    return !!(str && (typeof str === 'string' || str instanceof String));
+  }
+  /**
+   * sameValueZero is the equality method used by Map, Array, Set etc.
+   * The only difference between === and sameValueZero is that NaN counts as equal on sameValueZero
+   * @see {@link https://262.ecma-international.org/6.0/#sec-samevaluezero saveValueZero}
+   * @param x - the first object to compare
+   * @param y - the second object to compare
+   * @returns {boolean} - if they are equals according to ECMA Spec for Same Value Zero
+   */
+
+  function sameValueZero(x, y) {
+    return x === y || Number.isNaN(x) && Number.isNaN(y);
+  }
+
   var globalIsFinite = global$1.isFinite;
 
   // `Number.isFinite` method
@@ -3168,13 +3216,13 @@
   });
 
   /**
-   * Utils - Utility functions
-   * @namespace Mootable
+   * Hash - Hash functions
+   * @namespace Mootable.Hash
    * @author Jack Moxley <https://github.com/jackmoxley>
    * @version 0.12.6
    * Homepage: https://github.com/mootable/hashmap
    */
-  var HASH_COUNTER = 0;
+
   /**
    * Modified Murmur3 hash generator, with capped lengths.
    * This is NOT a cryptographic hash, this hash is designed to create as even a spread across a 32bit integer as is possible.
@@ -3222,46 +3270,6 @@
     hash = hash * 0xc2b2ae35;
     hash ^= hash >>> 16;
     return hash | 0;
-  }
-  /**
-   * Is the passed value not null and a function
-   * @param func
-   * @returns {boolean}
-   */
-
-  function isFunction(func) {
-    return !!(func && func.constructor && func.call && func.apply);
-  }
-  /**
-   * Is the passed object iterable
-   * @param iterable
-   * @return {boolean}
-   */
-
-  function isIterable(iterable) {
-    return !!(iterable && isFunction(iterable[Symbol.iterator]));
-  }
-  /**
-   * Is the passed value not null and a string
-   * @param str
-   * @returns {boolean}
-   */
-
-  function isString(str) {
-    // jshint ignore:line
-    return !!(str && (typeof str === 'string' || str instanceof String));
-  }
-  /**
-   * sameValueZero is the equality method used by Map, Array, Set etc.
-   * The only difference between === and sameValueZero is that NaN counts as equal on sameValueZero
-   * @see {@link https://262.ecma-international.org/6.0/#sec-samevaluezero saveValueZero}
-   * @param x - the first object to compare
-   * @param y - the second object to compare
-   * @returns {boolean} - if they are equals according to ECMA Spec for Same Value Zero
-   */
-
-  function sameValueZero(x, y) {
-    return x === y || Number.isNaN(x) && Number.isNaN(y);
   }
   /**
    * Given any object return back a hashcode
@@ -3326,7 +3334,11 @@
           } // Regexes and Dates we treat like primitives.
 
 
-          if (key instanceof RegExp || key instanceof Date) {
+          if (key instanceof Date) {
+            return key.getTime();
+          }
+
+          if (key instanceof RegExp) {
             return hash(key.toString());
           } // Hash of Last Resort, ensure we don't consider any objects on the prototype chain.
 
@@ -3346,6 +3358,13 @@
         }
     }
   }
+  /**
+   * @private
+   * @ignore
+   * @type {number} - an internal counter for managing unhashable objects.
+   */
+
+  var HASH_COUNTER = 0;
   /**
    * Given a key, produce an equals method that fits the hashcode contract.
    * - In almost all cases it will return with ECMASpec sameValueZero method. As is the case with native map, set and array.
@@ -3394,18 +3413,41 @@
 
     return sameValueZero;
   }
-  function hashEquals(key) {
-    var hash = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : hashCodeFor(key);
-    var equals = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : equalsFor(key);
+  /**
+   * A short cut for determining both the equals function and hashcode value for a given key.
+   *
+   * @param {*} key - the key we use to identify values.
+   * @param {(function(*, *): boolean)} [equals = equalsFor(key)] - an optional function for determinging equality
+   * @param {number} [hash = hashCodeFor(key)] - an optional hashcode for the provided key
+   * @return {{equals: (function(*, *): boolean), hash: number}} - a tuple that represents a hash and an equals.
+   */
+
+  function equalsAndHash(key, equals, hash) {
+    if (!(isFunction(equals) && equals(key, key))) {
+      equals = equalsFor(key);
+    }
+
+    if (!Number.isSafeInteger(hash)) {
+      hash = hashCodeFor(key);
+    }
+
     return {
       hash: hash,
       equals: equals
     };
   }
+
+  /**
+   * Option - a class to get round nullable fields.
+   * @namespace Mootable.Option
+   * @author Jack Moxley <https://github.com/jackmoxley>
+   * @version 0.12.6
+   * Homepage: https://github.com/mootable/hashmap
+   */
+
   /**
    * A representation of a value, that might be or might not be null.
    */
-
   var Option = /*#__PURE__*/function () {
     function Option(has, value) {
       _classCallCheck(this, Option);
@@ -3422,12 +3464,54 @@
 
     _createClass(Option, [{
       key: "size",
-      get: function get() {
+      get:
+      /**
+       * Return the size of this option.
+       *  - 1 if it has a value
+       *  - 0 if it doesn't
+       * @return {number}
+       */
+      function get() {
         return this.has ? 1 : 0;
       }
+      /**
+       * When called with a value returns an Option object of the form:
+       * <code>{value:value,has:true}</code>
+       * Even if a value is not provided it still counts as existing, this is different from other libraries,
+       * we are effectively saying as null and undefined count as valid values.
+       * @param value - the value
+       * @return {Option} - the option in the form <code>{value:value,has:true}</code>
+       */
+
     }, {
       key: Symbol.iterator,
-      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
+      value:
+      /*#__PURE__*/
+
+      /**
+       * Provides an iterable for the Option
+       * If using a for loop.
+       * - If it has a value the loop will execute just once.
+       * - If it doesn't have a value the loop will not execute
+       * @example iterating over some
+       * const opt = Option.some("hello");
+       * for (value of opt) {
+       *    // loops once.
+       *    console.log(opt);
+       * }
+       * console.log("world");
+       * // logs - hello\nworld
+       * @example iterating over none
+       * const opt = Option.none;
+       * for (value of opt) {
+       *   // does not loop.
+       *    console.log(opt);
+       * }
+       * console.log("world");
+       * // logs - world
+       * @return {Generator<*, void, *>}
+       */
+      regeneratorRuntime.mark(function value() {
         return regeneratorRuntime.wrap(function value$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
@@ -3462,7 +3546,7 @@
     return Option;
   }();
   /**
-   * A function that when called round a value returns an Option object of the form:
+   * A function that when called with a value returns an Option object of the form:
    * <code>{value:value,has:true}</code>
    * @type {function(*=): Option}
    */
@@ -6930,7 +7014,7 @@
     }, {
       key: "has",
       value: function has(key) {
-        var hashEq = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : hashEquals(key);
+        var hashEq = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : equalsAndHash(key);
 
         if (this.buckets) {
           return this.buckets.has(key, hashEq.equals, hashEq.hash);
@@ -6941,7 +7025,7 @@
     }, {
       key: "get",
       value: function get(key) {
-        var hashEq = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : hashEquals(key);
+        var hashEq = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : equalsAndHash(key);
 
         if (this.buckets) {
           return this.buckets.get(key, hashEq.equals, hashEq.hash);
@@ -6953,7 +7037,7 @@
     }, {
       key: "optionalGet",
       value: function optionalGet(key) {
-        var hashEq = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : hashEquals(key);
+        var hashEq = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : equalsAndHash(key);
 
         if (this.buckets) {
           return this.buckets.optionalGet(key, hashEq.equals, hashEq.hash);
@@ -6972,7 +7056,7 @@
     }, {
       key: "set",
       value: function set(key, value) {
-        var hashEq = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : hashEquals(key);
+        var hashEq = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : equalsAndHash(key);
         this.addEntry(new Entry(key, value), hashEq);
         return this;
       }
@@ -7077,7 +7161,7 @@
     }, {
       key: "delete",
       value: function _delete(key) {
-        var hashEq = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : hashEquals(key);
+        var hashEq = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : equalsAndHash(key);
 
         if (this.buckets) {
           this.buckets = this.buckets.delete(key, hashEq.equals, hashEq.hash);
@@ -7776,7 +7860,7 @@
     _createClass(LinkedHashMap, [{
       key: "set",
       value: function set(key, value) {
-        var hashEq = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : hashEquals(key);
+        var hashEq = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : equalsAndHash(key);
         var entry = this.addEntry(new LinkedEntry(key, value), hashEq); // if we added at the end, shift forward one.
 
         if (this.end) {
@@ -7794,7 +7878,7 @@
     }, {
       key: "delete",
       value: function _delete(key) {
-        var hashEq = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : hashEquals(key);
+        var hashEq = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : equalsAndHash(key);
 
         _get(_getPrototypeOf(LinkedHashMap.prototype), "delete", this).call(this, key, hashEq);
 
@@ -7868,7 +7952,7 @@
       isFunction: isFunction,
       isIterable: isIterable,
       isString: isString,
-      hashEquals: hashEquals,
+      equalsAndHash: equalsAndHash,
       hashCodeFor: hashCodeFor,
       equalsFor: equalsFor,
       some: _some,

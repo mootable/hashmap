@@ -1,5 +1,5 @@
 import {HashMap, Entry} from '../hashmap/';
-import {hashEquals} from "../utils";
+import {equalsAndHash} from '../hash';
 /**
  * HashMap - LinkedHashMap Implementation for JavaScript
  * @namespace Mootable
@@ -7,6 +7,7 @@ import {hashEquals} from "../utils";
  * @version 0.12.6
  * Homepage: https://github.com/mootable/hashmap
  */
+
 /**
  * @private
  * @extends Entry
@@ -63,7 +64,7 @@ export class LinkedHashMap extends HashMap {
         this.end = undefined;
     }
 
-    set(key, value, hashEq = hashEquals(key)) {
+    set(key, value, hashEq = equalsAndHash(key)) {
         const entry = this.addEntry(new LinkedEntry(key, value), hashEq);
         // if we added at the end, shift forward one.
         if (this.end) {
@@ -78,7 +79,7 @@ export class LinkedHashMap extends HashMap {
         return this;
     }
 
-    delete(key, hashEq = hashEquals(key)) {
+    delete(key, hashEq = equalsAndHash(key)) {
         super.delete(key, hashEq);
         if (this.start && this.start.deleted) {
             this.start = this.start.next;

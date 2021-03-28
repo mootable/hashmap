@@ -12,9 +12,14 @@
   - Re-added Date and Regex support in hashCodeFor and equalsFor
   - removed depth as an optional parameter, and replaced with equals an optional parameter. on has, get, set, optionalGet and delete.
   - added sameValueZero, sameValue, abstractEquals and strictEquals functions into utils, as helper functions, for defining equality.
+  - Made Option iterable, and added size function.
+  - Moved Option some and none into its own file.
+  - Moved Hash functions into its own file.
 - Testing
   - hash collision testing.
   - Utility Function testing.
+  - Hash Function testing.
+  - Option Function testing.
   - Differentiated between sanity testing and unit testing.
   - improved coverage reporting.
 

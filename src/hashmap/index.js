@@ -1,4 +1,6 @@
-import {isFunction, hashEquals, isIterable, none, some} from '../utils/';
+import {isFunction, isIterable} from '../utils/';
+import {equalsAndHash} from '../hash';
+import {none, some} from '../option/';
 import {MapIterable} from '../iterable/';
 /**
  * HashMap - HashMap Implementation for JavaScript
@@ -79,7 +81,7 @@ export class HashMap extends MapIterable {
     }
 
 
-    has(key, hashEq = hashEquals(key)) {
+    has(key, hashEq = equalsAndHash(key)) {
         if (this.buckets) {
             return this.buckets.has(key, hashEq.equals, hashEq.hash);
         }
@@ -87,7 +89,7 @@ export class HashMap extends MapIterable {
     }
 
 
-    get(key, hashEq = hashEquals(key)) {
+    get(key, hashEq = equalsAndHash(key)) {
         if (this.buckets) {
             return this.buckets.get(key, hashEq.equals, hashEq.hash);
         }
@@ -96,7 +98,7 @@ export class HashMap extends MapIterable {
 
 
     // noinspection JSCheckFunctionSignatures
-    optionalGet(key, hashEq = hashEquals(key)) {
+    optionalGet(key, hashEq = equalsAndHash(key)) {
         if (this.buckets) {
             return this.buckets.optionalGet(key, hashEq.equals, hashEq.hash);
         }
@@ -110,7 +112,7 @@ export class HashMap extends MapIterable {
      * @param {*} value - the value we are setting
      * @return {HashMap}
      */
-    set(key, value, hashEq = hashEquals(key)) {
+    set(key, value, hashEq = equalsAndHash(key)) {
         this.addEntry(new Entry(key, value),hashEq);
         return this;
     }
@@ -175,7 +177,7 @@ export class HashMap extends MapIterable {
      * @param key
      * @return {HashMap}
      */
-    delete(key, hashEq = hashEquals(key)) {
+    delete(key, hashEq = equalsAndHash(key)) {
         if (this.buckets) {
             this.buckets = this.buckets.delete(key, hashEq.equals, hashEq.hash);
             if (this.buckets) {
