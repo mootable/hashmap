@@ -1034,7 +1034,7 @@
 	 * @version 0.12.6
 	 * Homepage: https://github.com/mootable/hashmap
 	 */
-	const HASH_WIDTH = Math.pow(2, 32);
+	let HASH_COUNTER = 0;
 	/**
 	 * Modified Murmur3 hash generator, with capped lengths.
 	 * This is NOT a cryptographic hash, this hash is designed to create as even a spread across a 32bit integer as is possible.
@@ -1193,10 +1193,10 @@
 	          // its our special number, but just in case someone has done something a bit weird with it.
 	          // Object equality at this point means that only this key instance can be used to fetch the value.
 	          return hashCodeFor(key._mootable_hashCode);
-	        } // unenumerable, unwritable, unconfigurable
+	        }
 
+	        const hashCode = HASH_COUNTER++; // unenumerable, unwritable, unconfigurable
 
-	        const hashCode = hash(keyType, 0, Math.floor(Math.random() * HASH_WIDTH));
 	        Object.defineProperty(key, '_mootable_hashCode', {
 	          value: hashCode
 	        });
@@ -1265,6 +1265,12 @@
 	    this.has = has;
 	    this.value = value;
 	  }
+	  /**
+	   * A constant representation of an Option with nothing in it:
+	   * <code>{value:undefined,has:false}</code>
+	   * @type {Option}
+	   */
+
 
 	  static get none() {
 	    return none;
@@ -1275,7 +1281,7 @@
 	  }
 
 	  static some(value) {
-	    return new Option(true, value);
+	    return some(value);
 	  }
 
 	  *[Symbol.iterator]() {
@@ -1291,7 +1297,7 @@
 	 * @type {function(*=): Option}
 	 */
 
-	const some = Option.some;
+	const some = value => new Option(true, value);
 	/**
 	 * A constant representation of an Option with nothing in it:
 	 * <code>{value:undefined,has:false}</code>

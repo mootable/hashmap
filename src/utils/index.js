@@ -6,7 +6,7 @@
  * Homepage: https://github.com/mootable/hashmap
  */
 
-const HASH_WIDTH = Math.pow(2, 32);
+let HASH_COUNTER = 0;
 
 /**
  * Modified Murmur3 hash generator, with capped lengths.
@@ -191,8 +191,8 @@ export function hashCodeFor(key) {
                 // Object equality at this point means that only this key instance can be used to fetch the value.
                 return hashCodeFor(key._mootable_hashCode);
             }
+            const hashCode = HASH_COUNTER++;
             // unenumerable, unwritable, unconfigurable
-            const hashCode = hash(keyType, 0, Math.floor(Math.random() * HASH_WIDTH));
             Object.defineProperty(key, '_mootable_hashCode', {
                 value: hashCode
             });
@@ -259,6 +259,11 @@ export class Option {
         this.value = value;
     }
 
+    /**
+     * A constant representation of an Option with nothing in it:
+     * <code>{value:undefined,has:false}</code>
+     * @type {Option}
+     */
     static get none() {
         return none;
     }
@@ -268,7 +273,7 @@ export class Option {
     }
 
     static some(value) {
-        return new Option(true, value);
+        return some(value);
     }
 
     * [Symbol.iterator]() {
@@ -283,7 +288,7 @@ export class Option {
  * <code>{value:value,has:true}</code>
  * @type {function(*=): Option}
  */
-export const some = Option.some;
+export const some = (value) => new Option(true, value);
 /**
  * A constant representation of an Option with nothing in it:
  * <code>{value:undefined,has:false}</code>

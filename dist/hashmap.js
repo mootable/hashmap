@@ -3174,7 +3174,7 @@
    * @version 0.12.6
    * Homepage: https://github.com/mootable/hashmap
    */
-  var HASH_WIDTH = Math.pow(2, 32);
+  var HASH_COUNTER = 0;
   /**
    * Modified Murmur3 hash generator, with capped lengths.
    * This is NOT a cryptographic hash, this hash is designed to create as even a spread across a 32bit integer as is possible.
@@ -3335,10 +3335,10 @@
             // its our special number, but just in case someone has done something a bit weird with it.
             // Object equality at this point means that only this key instance can be used to fetch the value.
             return hashCodeFor(key._mootable_hashCode);
-          } // unenumerable, unwritable, unconfigurable
+          }
 
+          var hashCode = HASH_COUNTER++; // unenumerable, unwritable, unconfigurable
 
-          var hashCode = hash(keyType, 0, Math.floor(Math.random() * HASH_WIDTH));
           Object.defineProperty(key, '_mootable_hashCode', {
             value: hashCode
           });
@@ -3413,6 +3413,12 @@
       this.has = has;
       this.value = value;
     }
+    /**
+     * A constant representation of an Option with nothing in it:
+     * <code>{value:undefined,has:false}</code>
+     * @type {Option}
+     */
+
 
     _createClass(Option, [{
       key: "size",
@@ -3449,7 +3455,7 @@
     }, {
       key: "some",
       value: function some(value) {
-        return new Option(true, value);
+        return _some(value);
       }
     }]);
 
@@ -3461,13 +3467,9 @@
    * @type {function(*=): Option}
    */
 
-  var some = Option.some;
-  /**
-   * A constant representation of an Option with nothing in it:
-   * <code>{value:undefined,has:false}</code>
-   * @type {Option}
-   */
-
+  var _some = function _some(value) {
+    return new Option(true, value);
+  };
   var none = new Option(false, undefined);
 
   var createProperty = function (object, key, value) {
@@ -4712,7 +4714,7 @@
         });
 
         if (found) {
-          return some(val);
+          return _some(val);
         }
 
         return none;
@@ -5827,10 +5829,10 @@
         if (isFunction(this.iterable.has)) {
           if (this.iterable.has(key)) {
             if (isFunction(this.iterable.get)) {
-              some(this.iterable.get(key));
+              _some(this.iterable.get(key));
             }
 
-            return some(_get(_getPrototypeOf(MapIterableWrapper.prototype), "get", this).call(this, key));
+            return _some(_get(_getPrototypeOf(MapIterableWrapper.prototype), "get", this).call(this, key));
           }
 
           return none;
@@ -6129,7 +6131,7 @@
         var opt = _get(_getPrototypeOf(MapValueMapper.prototype), "optionalGet", this).call(this, key);
 
         if (opt.has) {
-          return some(this.mapFunction.call(this.ctx, opt.value, key, this));
+          return _some(this.mapFunction.call(this.ctx, opt.value, key, this));
         }
 
         return opt;
@@ -7198,7 +7200,7 @@
       key: "optionalGet",
       value: function optionalGet(key, equals) {
         if (equals(key, this.key)) {
-          return some(this.entry.value);
+          return _some(this.entry.value);
         }
 
         return none;
@@ -7303,7 +7305,7 @@
 
         do {
           if (equals(key, container.key)) {
-            return some(container.value);
+            return _some(container.value);
           }
 
           container = container.next;
@@ -7468,7 +7470,7 @@
       key: "optionalGet",
       value: function optionalGet(key, equals, hash) {
         if (hash === this.hash && equals(key, this.key)) {
-          return some(this.value);
+          return _some(this.value);
         }
 
         return none;
@@ -7869,7 +7871,7 @@
       hashEquals: hashEquals,
       hashCodeFor: hashCodeFor,
       equalsFor: equalsFor,
-      some: some,
+      some: _some,
       none: none,
       Option: Option
     }
