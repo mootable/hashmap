@@ -5,10 +5,11 @@
  * @version 0.12.6
  * Homepage: https://github.com/mootable/hashmap
  */
-let uid = 0;
+
+const HASH_WIDTH = Math.pow(2, 32);
 
 /**
- * Modified Murmur3 HashCode generator, with capped lengths.
+ * Modified Murmur3 hash generator, with capped lengths.
  * This is NOT a cryptographic hash, this hash is designed to create as even a spread across a 32bit integer as is possible.
  * @see {@link https://github.com/aappleby/smhasher|MurmurHash specification on Github}
  * @see {@link https://en.wikipedia.org/wiki/MurmurHash|MurmurHash on Wikipedia}
@@ -17,7 +18,7 @@ let uid = 0;
  * @param seed an optional random seed
  * @returns {number} the hash
  */
-export function hashCode(key, len = 0, seed = 0) {
+export function hash(key, len = 0, seed = 0) {
     len = len && len > 0 ? Math.min(len, key.length) : key.length;
     seed = seed | 0;
     const remaining = len & 1;
@@ -82,161 +83,180 @@ export function isString(str) { // jshint ignore:line
     return !!(str && (typeof str === 'string' || str instanceof String));
 }
 
+
 /**
- * Is the passed value not null and a finite number.
- * NaN and ±Infinity would return false.
- * @param num
- * @returns {boolean}
+ * sameValue is the result of Object.is.
+ * The only difference between sameValue and sameValueZero is that +0 and -0 are not the same with sameValue buit is with sameValueZero
+ * @see {@link https://262.ecma-international.org/6.0/#sec-samevalue saveValue}
+ * @param x - the first object to compare
+ * @param y - the second object to compare
+ * @returns {boolean} - if they are equals according to ECMA Spec for Same Value
  */
-export function isNumber(num) { // jshint ignore:line
-    return !!(num && ((typeof num === 'number' || num instanceof Number) && isFinite(num)));
+export const sameValue = Object.is;
+
+/**
+ * sameValueZero is the equality method used by Map, Array, Set etc.
+ * The only difference between === and sameValueZero is that NaN counts as equal on sameValueZero
+ * @see {@link https://262.ecma-international.org/6.0/#sec-samevaluezero saveValueZero}
+ * @param x - the first object to compare
+ * @param y - the second object to compare
+ * @returns {boolean} - if they are equals according to ECMA Spec for Same Value Zero
+ */
+export function sameValueZero(x, y) {
+    return x === y || (Number.isNaN(x) && Number.isNaN(y));
 }
 
 /**
- * @private
- * The default Equals method we use this in most cases.
+ * The strict Equals method <code>===</code>.
+ * Simply does a strict equality comparison <code>===</code> against 2 values
+ * @see {@link https://262.ecma-international.org/6.0/#sec-strict-equality-comparison strictEquals}
+ * @param x - the first object to compare
+ * @param y - the second object to compare
+ * @returns {boolean} - if they are equals according to ECMA Spec for Strict Equality
+ */
+export function strictEquals(x, y) {
+    return x === y;
+}
+
+/**
+ * The abstract Equals method <code>==</code>.
+ * Simply does an abstract equality comparison <code>==</code> against 2 values
+ * @see {@link https://262.ecma-international.org/6.0/#sec-abstract-equality-comparison abstractEquals}
+ * @param x - the first object to compare
+ * @param y - the second object to compare
+ * @returns {boolean} - if they are equals according to ECMA Spec for Abstract Equality
+ */
+export function abstractEquals(x, y) {
+    return x === y;
+}
+
+/**
+ * Given any object return back a hashcode
+ * - If the key is undefined, null, false, NaN, infinite etc then it will be assigned a hash of 0.
+ * - If it is a primitive such as string, number bigint it either take the numeric value, or the string value, and hash that.
+ * - if it is a function, symbol or regex it hashes their string values.
+ * - if it is a date, it uses the time value as the hash.
+ * Otherwise
+ * - If it has a hashCode function it will execute it, passing the key as the first and only argument. It will call this function again on its result.
+ * - If it has a hashCode attribute it will call this function on it.
+ * - If it can't do any of the above, it will assign a randomly generated hashcode, to the key using a hidden property.
  *
- * @param me
- * @param them
- * @returns {boolean}
- */
-export function defaultEquals(me, them) {
-    return me === them;
-}
-
-/**
- * @private
- * Does a wider equals for use with arrays.
+ * As with all hashmaps, there is a contractual equivalence between hashcode and equals methods,
+ * in that any object that equals another, should produce the same hashcode.
  *
- * @param me
- * @param them
- * @param depth
- * @return {boolean}
+ * @param {*} key - the key to get the hash code from
+ * @return {number} - the hash code.
  */
-export function deepEquals(me, them, depth = -1) {
-    if (depth !== 0 && (Array.isArray(me) && Array.isArray(them))) {
-        return me.length === them.length && me.every((el, ix) => deepEquals(el, them[ix], depth - 1));
-    }
-    return me === them;
-}
-
-/**
- * @private
- * Returns back a pair of equalTo Methods and hash values, for a raft of different objects.
- * TODO: Revisit this at some point.
- * @param key
- * @returns {{equalTo: (function(*, *): boolean), hash: number}}
- */
-export function hashEquals(key) {
-    switch (typeof key) {
-        case 'boolean':
-            return {
-                equalTo: defaultEquals, hash: key ? 0 : 1
-            };
-        case 'number':
-            if (Number.isNaN(key)) {
-                return {
-                    equalTo: function (me, them) {
-                        return Number.isNaN(them);
-                    },
-                    hash: 0
-                };
-            }
-            if (!Number.isFinite(key)) {
-                return {
-                    equalTo: defaultEquals, hash: 0
-                };
-            }
-            if (Number.isInteger(key)) {
-                return {
-                    equalTo: defaultEquals, hash: key
-                };
-            }
-            return {
-                equalTo: defaultEquals, hash: hashCode(key.toString())
-            };
-
-        case 'string':
-            return {
-                equalTo: defaultEquals, hash: hashCode(key)
-            };
+export function hashCodeFor(key) {
+    const keyType = typeof key;
+    switch (keyType) {
         case 'undefined':
-            return {
-                equalTo: defaultEquals, hash: 0
-            };
+            return 0;
+        case 'boolean':
+            return key ? 1 : 0;
+        case 'string':
+            return hash(key);
+        case 'number':
+            if (!Number.isFinite(key)) {
+                return 0;
+            }
+            if (Number.isSafeInteger(key)) {
+                return key | 0;
+            }
+            return hash(key.toString());
+        case 'bigint':
+        case 'symbol':
+        case 'function':
+            return hash(key.toString());
+        case 'object':
         default: {
-            // null
-            if (!key) {
-                return {
-                    equalTo: defaultEquals, hash: 0
-                };
+            if (key === null) {
+                return 0;
+            }
+            if (key.hashCode) {
+                if (isFunction(key.hashCode)) {
+                    return key.hashCode(key);
+                }
+                return hashCodeFor(key.hashCode);
             }
 
-            if (key instanceof RegExp) {
-                return {
-                    equalTo: function (me, them) {
-                        if (them && them instanceof RegExp) {
-                            return me.toString() === them.toString();
-                        }
-                        return false;
-                    }, hash: hashCode(key.toString())
-                };
+            // Regexes and Dates we treat like primitives.
+            if (key instanceof RegExp || key instanceof Date) {
+                return hash(key.toString());
             }
-            if (key instanceof Date) {
-                return {
-                    equalTo: function (me, them) {
-                        if (them instanceof Date) {
-                            return me.getTime() === them.getTime();
-                        }
-                        return false;
-                    }, hash: key.getTime() | 0
-                };
+
+            // Hash of Last Resort, ensure we don't consider any objects on the prototype chain.
+            if (key.hasOwnProperty('_mootable_hashCode')) {
+                // its our special number, but just in case someone has done something a bit weird with it.
+                // Object equality at this point means that only this key instance can be used to fetch the value.
+                return hashCodeFor(key._mootable_hashCode);
             }
-            if (key instanceof Array) {
-                let functions = [];
-                let hash_code = key.length;
-                for (let i = 0; i < key.length; i++) {
-                    const currHE = hashEquals(key[i]);
-                    functions.push(currHE.equalTo);
-                    hash_code = hash_code + (currHE.hash * 31);
-                }
-                Object.freeze(functions);
-                return {
-                    equalTo: function (me, them) {
-                        if (them instanceof Array && me.length === them.length) {
-                            for (let i = 0; i < me.length; i++) {
-                                if (!functions[i](me[i], them[i])) {
-                                    return false;
-                                }
-                            }
-                            return true;
-                        }
-                        return false;
-                    },
-                    hash: hash_code | 0
-                };
-            }
-            // Ew get rid of this.
-            if (!key.hasOwnProperty('_hmuid_')) {
-                key._hmuid_ = ++uid;
-                // hide(key, '_hmuid_');
-            }
-            return hashEquals(key._hmuid_);
+            // unenumerable, unwritable, unconfigurable
+            const hashCode = hash(keyType, 0, Math.floor(Math.random() * HASH_WIDTH));
+            Object.defineProperty(key, '_mootable_hashCode', {
+                value: hashCode
+            });
+            return hashCode;
         }
     }
 }
+
 /**
- * to get round the fact gets might be undefined but the value exists,
- * @private
+ * Given a key, produce an equals method that fits the hashcode contract.
+ * - In almost all cases it will return with ECMASpec sameValueZero method. As is the case with native map, set and array.
+ * - If it is a regex, it compares the type, and the string values.
+ * - If it is a date, it compares the type, and the time values.
+ * - If it has an equals function and that equals function when comapring 2 keys, return true. then it will use that.
+ *   - The function can either be in the form <code>key.equals(other)</code>, or <code>key.equals(other,key)</code> in the case of static-like functions.
+ *
+ * As with all hashmaps, there is a contractual equivalence between hashcode and equals methods,
+ * in that any object that equals another, should produce the same hashcode.
+ *
+ * @param {*} key - the key to get the hash code from
+ * @return {(function(*, *): boolean)} - an equals function for 2 keys.
+ */
+export function equalsFor(key) {
+    // Regexes and Dates we treat like primitives.
+    if (typeof key === 'object') {
+        if (key instanceof RegExp) {
+            return (me, them) => {
+                if (them instanceof RegExp) {
+                    return me.toString() === them.toString();
+                }
+                return false;
+            };
+        }
+        if (key instanceof Date) {
+            return (me, them) => {
+                if (them instanceof Date) {
+                    return me.getTime() === them.getTime();
+                }
+                return false;
+            };
+        }
+    }
+
+    // do we have an equals method, and is it sane.
+    if (key && isFunction(key.equals) && key.equals(key,key)) {
+        return (me, them) => me.equals(them,me);
+    }
+    return sameValueZero;
+}
+
+export function hashEquals(key, hash = hashCodeFor(key), equals = equalsFor(key)){
+    return {
+        hash,
+        equals
+    };
+}
+
+/**
+ * A representation of a value, that might be or might not be null.
  */
 export class Option {
     constructor(has, value) {
         this.has = has;
         this.value = value;
-    }
-
-    static some(value) {
-        return new Option(true, value);
     }
 
     static get none() {
@@ -247,6 +267,10 @@ export class Option {
         return this.has ? 1 : 0;
     }
 
+    static some(value) {
+        return new Option(true, value);
+    }
+
     * [Symbol.iterator]() {
         if (this.has) {
             yield this.value;
@@ -254,5 +278,15 @@ export class Option {
     }
 }
 
+/**
+ * A function that when called round a value returns an Option object of the form:
+ * <code>{value:value,has:true}</code>
+ * @type {function(*=): Option}
+ */
 export const some = Option.some;
+/**
+ * A constant representation of an Option with nothing in it:
+ * <code>{value:undefined,has:false}</code>
+ * @type {Option}
+ */
 export const none = new Option(false, undefined);

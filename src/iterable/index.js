@@ -1,4 +1,4 @@
-import {isFunction, hashEquals, deepEquals,defaultEquals, some, none} from '../utils/';
+import {isFunction, equalsFor, some, none} from '../utils/';
 /**
  * HashMap - HashMap Implementation for JavaScript
  * @namespace Mootable
@@ -382,21 +382,12 @@ export class MapIterable {
      * // indexOfResult === undefined
      * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf|Array.indexOf}
      * @param {*} valueToCheck - the value we use to === against the entries value to identify if we have a match.
-     * @param {number} [depth=-1] - if using an array, marks how deep we go through to test equality.
      * @returns {*} - the key of the element that matches..
      */
-    indexOf(valueToCheck, depth = -1) {
-        if (Array.isArray(valueToCheck)) {
-            for (const [key, value] of this) {
-                if (deepEquals(valueToCheck, value, depth)) {
-                    return key;
-                }
-            }
-        } else {
-            for (const [key, value] of this) {
-                if (defaultEquals(valueToCheck, value)) {
-                    return key;
-                }
+    indexOf(valueToCheck, equals = equalsFor(valueToCheck)) {
+        for (const [key, value] of this) {
+            if (equals(valueToCheck, value)) {
+                return key;
             }
         }
         return undefined;
@@ -422,9 +413,8 @@ export class MapIterable {
      * @param {*} key - the key we use to === against the entries key to identify if we have a match.
      * @returns {boolean} - if it holds the key or not.
      */
-    has(key) {
-        const equalTo = hashEquals(key).equalTo;
-        return this.some((_, otherKey) => equalTo(otherKey, key));
+    has(key, equals = equalsFor(key)) {
+        return this.some((_, otherKey) => equals(otherKey, key));
     }
 
     /**
@@ -449,9 +439,8 @@ export class MapIterable {
      * @param {*} key - the key we use to === against the entries key to identify if we have a match.
      * @returns {*} - the value of the element that matches.
      */
-    get(key) {
-        const equalTo = hashEquals(key).equalTo;
-        return this.find((value, otherKey) => equalTo(key, otherKey));
+    get(key, equals = equalsFor(key)) {
+        return this.find((value, otherKey) => equals(key, otherKey));
     }
 
     /**
@@ -476,11 +465,10 @@ export class MapIterable {
      * @param {*} key - the key we use to === against the entries key to identify if we have a match.
      * @returns {{has: boolean, value:*}} - an optional result.
      */
-    optionalGet(key) {
-        const equalTo = hashEquals(key).equalTo;
+    optionalGet(key, equals = equalsFor(key)) {
         let found = false;
         const val = this.find((value, otherKey) => {
-            if (equalTo(key, otherKey)) {
+            if (equals(key, otherKey)) {
                 found = true;
                 return true;
             }
@@ -1129,14 +1117,11 @@ export class SetIterable {
      * // hasResult === false
      * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/has|Map.has}
      * @param {*} value - the value we use to === against the entries key to identify if we have a match.
-     * @param {number} [depth=-1] - if using an array, marks how deep we go through to test equality.
+     * @param {function} [equals] - if using an array, marks how deep we go through to test equality.
      * @returns {boolean} - if it holds the key or not.
      */
-    has(value, depth = -1) {
-        if (Array.isArray(value)) {
-            return this.some((otherValue) => deepEquals(otherValue, value, depth));
-        }
-        return this.some((otherValue) => defaultEquals(otherValue, value));
+    has(value, equals = equalsFor(value)) {
+        return this.some((otherValue) => equals(otherValue, value));
     }
 
 
@@ -1265,12 +1250,12 @@ class SetIterableWrapper extends SetIterable {
             : (this.iterable.size ? this.iterable.size : super.size);
     }
 
-    has(value, depth) {
+    has(value, equals = equalsFor(value)) {
         // if is a map iterable then we want to return the entry not the key. otherwise we can shortcut
         if (this.iterable instanceof Set || this.iterable instanceof SetIterable) {
-            return this.iterable.has(value, depth);
+            return this.iterable.has(value, equals);
         }
-        return super.has(value, depth);
+        return super.has(value, equals);
     }
 
     * [Symbol.iterator]() {
@@ -1488,8 +1473,8 @@ class SetConcat extends SetIterable {
         return this.iterable.size + this.otherIterable.size;
     }
 
-    has(value, depth = -1) {
-        return this.iterable.has(value, depth) || this.otherIterable.has(value, depth);
+    has(value, equals = equalsFor(value)) {
+        return this.iterable.has(value, equals) || this.otherIterable.has(value, equals);
     }
 
     * [Symbol.iterator]() {
@@ -1515,11 +1500,11 @@ class EntryToValueMapper extends SetIterableWrapper {
     }
 
 
-    has(value, depth = -1) {
+    has(value, equals = equalsFor(value)) {
         if (Array.isArray(value)) {
-            return this.iterable.some((otherValue) => deepEquals(value, otherValue, depth));
+            return this.iterable.some((otherValue) => equals(value, otherValue));
         } else {
-            return this.iterable.some((otherValue) => defaultEquals(value, otherValue));
+            return this.iterable.some((otherValue) => equals(value, otherValue));
         }
     }
 }
@@ -1539,6 +1524,7 @@ class EntryToKeyMapper extends SetIterableWrapper {
             yield key;
         }
     }
+
     has(key) {
         return this.iterable.optionalGet(key).has;
     }
@@ -1564,15 +1550,11 @@ class MapMapper extends SetIterableWrapper {
     /**
      * Only ever used for the Map function that produces a SetIterable.
      * @param value
-     * @param depth
+     * @param equals
      * @return {boolean}
      */
-    has(value, depth = -1) {
-        if (Array.isArray(value)) {
-            return this.some((otherValue) => deepEquals(value, otherValue, depth));
-        } else {
-            return this.some((otherValue) => defaultEquals(value, otherValue));
-        }
+    has(value, equals = equalsFor(value)) {
+        return this.some((otherValue) => equals(value, otherValue));
     }
 }
 
@@ -1593,12 +1575,8 @@ class SetMapper extends SetIterableWrapper {
         }
     }
 
-    has(value, depth = -1) {
-        if (Array.isArray(value)) {
-            return this.some((otherValue) => deepEquals(value, otherValue, depth));
-        } else {
-            return this.some((otherValue) => defaultEquals(value, otherValue));
-        }
+    has(value, equals = equalsFor(value)) {
+        return this.some((otherValue) => equals(value, otherValue));
     }
 }
 
@@ -1630,8 +1608,8 @@ class SetFilter extends SetIterableWrapper {
         }
     }
 
-    has(value, depth = -1) {
-        if (this.iterable.has(value, depth)) {
+    has(value, equals = equalsFor(value)) {
+        if (this.iterable.has(value, equals)) {
             return this.filterPredicate.call(this.ctx, value, value, this);
         }
         return false;

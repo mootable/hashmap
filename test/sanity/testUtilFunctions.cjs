@@ -1,7 +1,7 @@
 /* jshint ignore:start */
 const expect = require('chai').expect;
 const chalk = require('chalk')
-if(process.env.UNDER_TEST_NAME === 'unit'){
+if(process.env.UNDER_TEST_SANITY !== 'true'){
     return 0;
 }
 function underTest() {
@@ -29,11 +29,11 @@ function underTest() {
 
 /**
  *
- * hashCode,
+ * hash,
  * isFunction,
  * isIterable,
  * isString,
- * isNumber
+ * isFiniteNumber
  */
 describe('Util Functions', function () {
     const rand = require('random-seed').create();
@@ -153,77 +153,6 @@ describe('Util Functions', function () {
             expect(Utils.isString(myObject)).to.be.false;
         });
     });
-    describe('isNumber()', function () {
-
-        it('takes an integer', function () {
-            expect(Utils.isNumber(5)).to.be.true;
-        });
-        it('takes a float', function () {
-            expect(Utils.isNumber(1.5)).to.be.true;
-        });
-        it('takes an exponential', function () {
-            expect(Utils.isNumber(5e6)).to.be.true;
-        });
-        it('doesnt take infinity', function () {
-            expect(Utils.isNumber(Number.POSITIVE_INFINITY)).to.be.false;
-        });
-        it('doesnt take negative infinity', function () {
-            expect(Utils.isNumber(Number.NEGATIVE_INFINITY)).to.be.false;
-        });
-        it('doesnt take NaN', function () {
-            expect(Utils.isNumber(Math.sqrt(-1))).to.be.false;
-        });
-        it('doesnt take a function', function () {
-            const takeFive = function () {
-                return 5;
-            }
-            expect(Utils.isNumber(takeFive)).to.be.false;
-        });
-        it('doesnt take a function', function () {
-            const takeFive = function () {
-                return 5;
-            }
-            expect(Utils.isNumber(takeFive)).to.be.false;
-        });
-        it('doesnt take an async function', function () {
-            const takeFive = async function () {
-                return 5;
-            }
-            expect(Utils.isNumber(takeFive)).to.be.false;
-        });
-        it('doesnt take a lambda', function () {
-            expect(Utils.isNumber(() => 5)).to.be.false;
-        });
-        it('doesnt take empty', function () {
-            expect(Utils.isNumber()).to.be.false;
-        });
-        it('doesnt take null', function () {
-            expect(Utils.isNumber(null)).to.be.false;
-        });
-        it('doesnt take undefined', function () {
-            expect(Utils.isNumber(undefined)).to.be.false;
-        });
-        it('doesnt take an array', function () {
-            expect(Utils.isNumber([1, 2, 3, 4])).to.be.false;
-        });
-        it('doesnt take a function array', function () {
-            expect(Utils.isNumber([() => {
-                return 5
-            }, () => {
-                return 4
-            }])).to.be.false;
-        });
-        it('doesnt take an empty object', function () {
-            expect(Utils.isNumber({})).to.be.false;
-        });
-        it('doesnt take a filled object', function () {
-            const myObject = {"one": 1, "two": 2};
-            expect(Utils.isNumber(myObject)).to.be.false;
-        });
-        it('doesnt take a string', function () {
-            expect(Utils.isNumber("hello test")).to.be.false;
-        });
-    });
 
     describe('isFunction()', function () {
 
@@ -279,26 +208,26 @@ describe('Util Functions', function () {
      * we use 32 bit hashes, as numbers go up there is more chance of collision,
      * so this is a sanity check to make sure the hash function spreads properly
      */
-    describe('hashCode()', function () {
+    describe('hash()', function () {
         it('no options', function () {
-            expect(Utils.hashCode("helloworld")).to.be.equal(1933063992);
-            expect(Utils.hashCode("HelloWorld")).to.be.equal(1601418099);
-            expect(Utils.hashCode("HelloWorle")).to.be.equal(-1863099149);
+            expect(Utils.hash("helloworld")).to.be.equal(1933063992);
+            expect(Utils.hash("HelloWorld")).to.be.equal(1601418099);
+            expect(Utils.hash("HelloWorle")).to.be.equal(-1863099149);
         });
         it('with length', function () {
-            expect(Utils.hashCode("helloworld", 6)).to.be.equal(-574932549);
-            expect(Utils.hashCode("HelloWorld", 6)).to.be.equal(-336088073);
-            expect(Utils.hashCode("HelloWorle", 6)).to.be.equal(-336088073);
+            expect(Utils.hash("helloworld", 6)).to.be.equal(-574932549);
+            expect(Utils.hash("HelloWorld", 6)).to.be.equal(-336088073);
+            expect(Utils.hash("HelloWorle", 6)).to.be.equal(-336088073);
         });
         it('with seed', function () {
-            expect(Utils.hashCode("HelloWorld", 0, 1)).to.be.equal(-484980969);
-            expect(Utils.hashCode("HelloWorld", 0, 2)).to.be.equal(187381547);
-            expect(Utils.hashCode("HelloWorld", 0, 3)).to.be.equal(649577143);
+            expect(Utils.hash("HelloWorld", 0, 1)).to.be.equal(-484980969);
+            expect(Utils.hash("HelloWorld", 0, 2)).to.be.equal(187381547);
+            expect(Utils.hash("HelloWorld", 0, 3)).to.be.equal(649577143);
         });
         it('with seed and length', function () {
-            expect(Utils.hashCode("HelloWorld", 6, 1)).to.be.equal(-1651097962);
-            expect(Utils.hashCode("HelloWorld", 6, 2)).to.be.equal(-1535466246);
-            expect(Utils.hashCode("HelloWorld", 6, 3)).to.be.equal(1961415912);
+            expect(Utils.hash("HelloWorld", 6, 1)).to.be.equal(-1651097962);
+            expect(Utils.hash("HelloWorld", 6, 2)).to.be.equal(-1535466246);
+            expect(Utils.hash("HelloWorld", 6, 3)).to.be.equal(1961415912);
         });
         /*
          * higher for slow check, do this manually.
@@ -325,7 +254,7 @@ describe('Util Functions', function () {
                     VALUE_COUNTS[0] = HASH_AMOUNT;
                     while (VALUE_COUNTS[0] != 0) {
                         const value = rand.string(64 + rand(64));
-                        const hash = Utils.hashCode(value);
+                        const hash = Utils.hash(value);
                         const value_idx = valueArray.indexOf(value);
                         const hash_idx = hashArray.indexOf(hash);
                         if (value_idx === -1) {

@@ -212,7 +212,7 @@
 	var id = 0;
 	var postfix = Math.random();
 
-	var uid$1 = function (key) {
+	var uid = function (key) {
 	  return 'Symbol(' + String(key === undefined ? '' : key) + ')_' + (++id + postfix).toString(36);
 	};
 
@@ -264,7 +264,7 @@
 
 	var WellKnownSymbolsStore = shared('wks');
 	var Symbol$1 = global$1.Symbol;
-	var createWellKnownSymbol = useSymbolAsUid ? Symbol$1 : Symbol$1 && Symbol$1.withoutSetter || uid$1;
+	var createWellKnownSymbol = useSymbolAsUid ? Symbol$1 : Symbol$1 && Symbol$1.withoutSetter || uid;
 
 	var wellKnownSymbol = function (name) {
 	  if (!has$1(WellKnownSymbolsStore, name) || !(nativeSymbol || typeof WellKnownSymbolsStore[name] == 'string')) {
@@ -385,7 +385,7 @@
 	var keys = shared('keys');
 
 	var sharedKey = function (key) {
-	  return keys[key] || (keys[key] = uid$1(key));
+	  return keys[key] || (keys[key] = uid(key));
 	};
 
 	var GT = '>';
@@ -1034,9 +1034,9 @@
 	 * @version 0.12.6
 	 * Homepage: https://github.com/mootable/hashmap
 	 */
-	let uid = 0;
+	const HASH_WIDTH = Math.pow(2, 32);
 	/**
-	 * Modified Murmur3 HashCode generator, with capped lengths.
+	 * Modified Murmur3 hash generator, with capped lengths.
 	 * This is NOT a cryptographic hash, this hash is designed to create as even a spread across a 32bit integer as is possible.
 	 * @see {@link https://github.com/aappleby/smhasher|MurmurHash specification on Github}
 	 * @see {@link https://en.wikipedia.org/wiki/MurmurHash|MurmurHash on Wikipedia}
@@ -1046,7 +1046,7 @@
 	 * @returns {number} the hash
 	 */
 
-	function hashCode(key, len = 0, seed = 0) {
+	function hash(key, len = 0, seed = 0) {
 	  len = len && len > 0 ? Math.min(len, key.length) : key.length;
 	  seed = seed | 0;
 	  const remaining = len & 1;
@@ -1110,179 +1110,154 @@
 	  return !!(str && (typeof str === 'string' || str instanceof String));
 	}
 	/**
-	 * Is the passed value not null and a finite number.
-	 * NaN and ±Infinity would return false.
-	 * @param num
-	 * @returns {boolean}
+	 * sameValueZero is the equality method used by Map, Array, Set etc.
+	 * The only difference between === and sameValueZero is that NaN counts as equal on sameValueZero
+	 * @see {@link https://262.ecma-international.org/6.0/#sec-samevaluezero saveValueZero}
+	 * @param x - the first object to compare
+	 * @param y - the second object to compare
+	 * @returns {boolean} - if they are equals according to ECMA Spec for Same Value Zero
 	 */
 
-	function isNumber(num) {
-	  // jshint ignore:line
-	  return !!(num && (typeof num === 'number' || num instanceof Number) && isFinite(num));
+	function sameValueZero(x, y) {
+	  return x === y || Number.isNaN(x) && Number.isNaN(y);
 	}
 	/**
-	 * @private
-	 * The default Equals method we use this in most cases.
+	 * Given any object return back a hashcode
+	 * - If the key is undefined, null, false, NaN, infinite etc then it will be assigned a hash of 0.
+	 * - If it is a primitive such as string, number bigint it either take the numeric value, or the string value, and hash that.
+	 * - if it is a function, symbol or regex it hashes their string values.
+	 * - if it is a date, it uses the time value as the hash.
+	 * Otherwise
+	 * - If it has a hashCode function it will execute it, passing the key as the first and only argument. It will call this function again on its result.
+	 * - If it has a hashCode attribute it will call this function on it.
+	 * - If it can't do any of the above, it will assign a randomly generated hashcode, to the key using a hidden property.
 	 *
-	 * @param me
-	 * @param them
-	 * @returns {boolean}
-	 */
-
-	function defaultEquals(me, them) {
-	  return me === them;
-	}
-	/**
-	 * @private
-	 * Does a wider equals for use with arrays.
+	 * As with all hashmaps, there is a contractual equivalence between hashcode and equals methods,
+	 * in that any object that equals another, should produce the same hashcode.
 	 *
-	 * @param me
-	 * @param them
-	 * @param depth
-	 * @return {boolean}
+	 * @param {*} key - the key to get the hash code from
+	 * @return {number} - the hash code.
 	 */
 
-	function deepEquals(me, them, depth = -1) {
-	  if (depth !== 0 && Array.isArray(me) && Array.isArray(them)) {
-	    return me.length === them.length && me.every((el, ix) => deepEquals(el, them[ix], depth - 1));
-	  }
+	function hashCodeFor(key) {
+	  const keyType = typeof key;
 
-	  return me === them;
-	}
-	/**
-	 * @private
-	 * Returns back a pair of equalTo Methods and hash values, for a raft of different objects.
-	 * TODO: Revisit this at some point.
-	 * @param key
-	 * @returns {{equalTo: (function(*, *): boolean), hash: number}}
-	 */
+	  switch (keyType) {
+	    case 'undefined':
+	      return 0;
 
-	function hashEquals(key) {
-	  switch (typeof key) {
 	    case 'boolean':
-	      return {
-	        equalTo: defaultEquals,
-	        hash: key ? 0 : 1
-	      };
-
-	    case 'number':
-	      if (Number.isNaN(key)) {
-	        return {
-	          equalTo: function (me, them) {
-	            return Number.isNaN(them);
-	          },
-	          hash: 0
-	        };
-	      }
-
-	      if (!Number.isFinite(key)) {
-	        return {
-	          equalTo: defaultEquals,
-	          hash: 0
-	        };
-	      }
-
-	      if (Number.isInteger(key)) {
-	        return {
-	          equalTo: defaultEquals,
-	          hash: key
-	        };
-	      }
-
-	      return {
-	        equalTo: defaultEquals,
-	        hash: hashCode(key.toString())
-	      };
+	      return key ? 1 : 0;
 
 	    case 'string':
-	      return {
-	        equalTo: defaultEquals,
-	        hash: hashCode(key)
-	      };
+	      return hash(key);
 
-	    case 'undefined':
-	      return {
-	        equalTo: defaultEquals,
-	        hash: 0
-	      };
+	    case 'number':
+	      if (!Number.isFinite(key)) {
+	        return 0;
+	      }
 
+	      if (Number.isSafeInteger(key)) {
+	        return key | 0;
+	      }
+
+	      return hash(key.toString());
+
+	    case 'bigint':
+	    case 'symbol':
+	    case 'function':
+	      return hash(key.toString());
+
+	    case 'object':
 	    default:
 	      {
-	        // null
-	        if (!key) {
-	          return {
-	            equalTo: defaultEquals,
-	            hash: 0
-	          };
+	        if (key === null) {
+	          return 0;
 	        }
 
-	        if (key instanceof RegExp) {
-	          return {
-	            equalTo: function (me, them) {
-	              if (them && them instanceof RegExp) {
-	                return me.toString() === them.toString();
-	              }
-
-	              return false;
-	            },
-	            hash: hashCode(key.toString())
-	          };
-	        }
-
-	        if (key instanceof Date) {
-	          return {
-	            equalTo: function (me, them) {
-	              if (them instanceof Date) {
-	                return me.getTime() === them.getTime();
-	              }
-
-	              return false;
-	            },
-	            hash: key.getTime() | 0
-	          };
-	        }
-
-	        if (key instanceof Array) {
-	          let functions = [];
-	          let hash_code = key.length;
-
-	          for (let i = 0; i < key.length; i++) {
-	            const currHE = hashEquals(key[i]);
-	            functions.push(currHE.equalTo);
-	            hash_code = hash_code + currHE.hash * 31;
+	        if (key.hashCode) {
+	          if (isFunction(key.hashCode)) {
+	            return key.hashCode(key);
 	          }
 
-	          Object.freeze(functions);
-	          return {
-	            equalTo: function (me, them) {
-	              if (them instanceof Array && me.length === them.length) {
-	                for (let i = 0; i < me.length; i++) {
-	                  if (!functions[i](me[i], them[i])) {
-	                    return false;
-	                  }
-	                }
-
-	                return true;
-	              }
-
-	              return false;
-	            },
-	            hash: hash_code | 0
-	          };
-	        } // Ew get rid of this.
+	          return hashCodeFor(key.hashCode);
+	        } // Regexes and Dates we treat like primitives.
 
 
-	        if (!key.hasOwnProperty('_hmuid_')) {
-	          key._hmuid_ = ++uid; // hide(key, '_hmuid_');
-	        }
+	        if (key instanceof RegExp || key instanceof Date) {
+	          return hash(key.toString());
+	        } // Hash of Last Resort, ensure we don't consider any objects on the prototype chain.
 
-	        return hashEquals(key._hmuid_);
+
+	        if (key.hasOwnProperty('_mootable_hashCode')) {
+	          // its our special number, but just in case someone has done something a bit weird with it.
+	          // Object equality at this point means that only this key instance can be used to fetch the value.
+	          return hashCodeFor(key._mootable_hashCode);
+	        } // unenumerable, unwritable, unconfigurable
+
+
+	        const hashCode = hash(keyType, 0, Math.floor(Math.random() * HASH_WIDTH));
+	        Object.defineProperty(key, '_mootable_hashCode', {
+	          value: hashCode
+	        });
+	        return hashCode;
 	      }
 	  }
 	}
 	/**
-	 * to get round the fact gets might be undefined but the value exists,
-	 * @private
+	 * Given a key, produce an equals method that fits the hashcode contract.
+	 * - In almost all cases it will return with ECMASpec sameValueZero method. As is the case with native map, set and array.
+	 * - If it is a regex, it compares the type, and the string values.
+	 * - If it is a date, it compares the type, and the time values.
+	 * - If it has an equals function and that equals function when comapring 2 keys, return true. then it will use that.
+	 *   - The function can either be in the form <code>key.equals(other)</code>, or <code>key.equals(other,key)</code> in the case of static-like functions.
+	 *
+	 * As with all hashmaps, there is a contractual equivalence between hashcode and equals methods,
+	 * in that any object that equals another, should produce the same hashcode.
+	 *
+	 * @param {*} key - the key to get the hash code from
+	 * @return {(function(*, *): boolean)} - an equals function for 2 keys.
+	 */
+
+	function equalsFor(key) {
+	  // Regexes and Dates we treat like primitives.
+	  if (typeof key === 'object') {
+	    if (key instanceof RegExp) {
+	      return (me, them) => {
+	        if (them instanceof RegExp) {
+	          return me.toString() === them.toString();
+	        }
+
+	        return false;
+	      };
+	    }
+
+	    if (key instanceof Date) {
+	      return (me, them) => {
+	        if (them instanceof Date) {
+	          return me.getTime() === them.getTime();
+	        }
+
+	        return false;
+	      };
+	    }
+	  } // do we have an equals method, and is it sane.
+
+
+	  if (key && isFunction(key.equals) && key.equals(key, key)) {
+	    return (me, them) => me.equals(them, me);
+	  }
+
+	  return sameValueZero;
+	}
+	function hashEquals(key, hash = hashCodeFor(key), equals = equalsFor(key)) {
+	  return {
+	    hash,
+	    equals
+	  };
+	}
+	/**
+	 * A representation of a value, that might be or might not be null.
 	 */
 
 	class Option {
@@ -1291,16 +1266,38 @@
 	    this.value = value;
 	  }
 
-	  static some(value) {
-	    return new Option(true, value);
-	  }
-
 	  static get none() {
 	    return none;
 	  }
 
+	  get size() {
+	    return this.has ? 1 : 0;
+	  }
+
+	  static some(value) {
+	    return new Option(true, value);
+	  }
+
+	  *[Symbol.iterator]() {
+	    if (this.has) {
+	      yield this.value;
+	    }
+	  }
+
 	}
+	/**
+	 * A function that when called round a value returns an Option object of the form:
+	 * <code>{value:value,has:true}</code>
+	 * @type {function(*=): Option}
+	 */
+
 	const some = Option.some;
+	/**
+	 * A constant representation of an Option with nothing in it:
+	 * <code>{value:undefined,has:false}</code>
+	 * @type {Option}
+	 */
+
 	const none = new Option(false, undefined);
 
 	/**
@@ -1702,23 +1699,14 @@
 	   * // indexOfResult === undefined
 	   * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf|Array.indexOf}
 	   * @param {*} valueToCheck - the value we use to === against the entries value to identify if we have a match.
-	   * @param {number} [depth=-1] - if using an array, marks how deep we go through to test equality.
 	   * @returns {*} - the key of the element that matches..
 	   */
 
 
-	  indexOf(valueToCheck, depth = -1) {
-	    if (Array.isArray(valueToCheck)) {
-	      for (const [key, value] of this) {
-	        if (deepEquals(valueToCheck, value, depth)) {
-	          return key;
-	        }
-	      }
-	    } else {
-	      for (const [key, value] of this) {
-	        if (defaultEquals(valueToCheck, value)) {
-	          return key;
-	        }
+	  indexOf(valueToCheck, equals = equalsFor(valueToCheck)) {
+	    for (const [key, value] of this) {
+	      if (equals(valueToCheck, value)) {
+	        return key;
 	      }
 	    }
 
@@ -1746,9 +1734,8 @@
 	   */
 
 
-	  has(key) {
-	    const equalTo = hashEquals(key).equalTo;
-	    return this.some((_, otherKey) => equalTo(otherKey, key));
+	  has(key, equals = equalsFor(key)) {
+	    return this.some((_, otherKey) => equals(otherKey, key));
 	  }
 	  /**
 	   * Get a value from the map using this key.
@@ -1774,9 +1761,8 @@
 	   */
 
 
-	  get(key) {
-	    const equalTo = hashEquals(key).equalTo;
-	    return this.find((value, otherKey) => equalTo(key, otherKey));
+	  get(key, equals = equalsFor(key)) {
+	    return this.find((value, otherKey) => equals(key, otherKey));
 	  }
 	  /**
 	   * Get a value from the map using this as an optional. This is effectively a combination of calling has and get at the same time.
@@ -1802,11 +1788,10 @@
 	   */
 
 
-	  optionalGet(key) {
-	    const equalTo = hashEquals(key).equalTo;
+	  optionalGet(key, equals = equalsFor(key)) {
 	    let found = false;
 	    const val = this.find((value, otherKey) => {
-	      if (equalTo(key, otherKey)) {
+	      if (equals(key, otherKey)) {
 	        found = true;
 	        return true;
 	      }
@@ -2489,17 +2474,13 @@
 	   * // hasResult === false
 	   * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/has|Map.has}
 	   * @param {*} value - the value we use to === against the entries key to identify if we have a match.
-	   * @param {number} [depth=-1] - if using an array, marks how deep we go through to test equality.
+	   * @param {function} [equals] - if using an array, marks how deep we go through to test equality.
 	   * @returns {boolean} - if it holds the key or not.
 	   */
 
 
-	  has(value, depth = -1) {
-	    if (Array.isArray(value)) {
-	      return this.some(otherValue => deepEquals(otherValue, value, depth));
-	    }
-
-	    return this.some(otherValue => defaultEquals(otherValue, value));
+	  has(value, equals = equalsFor(value)) {
+	    return this.some(otherValue => equals(otherValue, value));
 	  }
 	  /**
 	   * Find the first value in the set which passes the provided <code>MatchesPredicate</code>.
@@ -2632,13 +2613,13 @@
 	    return this.iterable.length ? this.iterable.length : this.iterable.size ? this.iterable.size : super.size;
 	  }
 
-	  has(value, depth) {
+	  has(value, equals = equalsFor(value)) {
 	    // if is a map iterable then we want to return the entry not the key. otherwise we can shortcut
 	    if (this.iterable instanceof Set || this.iterable instanceof SetIterable) {
-	      return this.iterable.has(value, depth);
+	      return this.iterable.has(value, equals);
 	    }
 
-	    return super.has(value, depth);
+	    return super.has(value, equals);
 	  }
 
 	  *[Symbol.iterator]() {
@@ -2876,8 +2857,8 @@
 	    return this.iterable.size + this.otherIterable.size;
 	  }
 
-	  has(value, depth = -1) {
-	    return this.iterable.has(value, depth) || this.otherIterable.has(value, depth);
+	  has(value, equals = equalsFor(value)) {
+	    return this.iterable.has(value, equals) || this.otherIterable.has(value, equals);
 	  }
 
 	  *[Symbol.iterator]() {
@@ -2903,11 +2884,11 @@
 	    }
 	  }
 
-	  has(value, depth = -1) {
+	  has(value, equals = equalsFor(value)) {
 	    if (Array.isArray(value)) {
-	      return this.iterable.some(otherValue => deepEquals(value, otherValue, depth));
+	      return this.iterable.some(otherValue => equals(value, otherValue));
 	    } else {
-	      return this.iterable.some(otherValue => defaultEquals(value, otherValue));
+	      return this.iterable.some(otherValue => equals(value, otherValue));
 	    }
 	  }
 
@@ -2954,17 +2935,13 @@
 	  /**
 	   * Only ever used for the Map function that produces a SetIterable.
 	   * @param value
-	   * @param depth
+	   * @param equals
 	   * @return {boolean}
 	   */
 
 
-	  has(value, depth = -1) {
-	    if (Array.isArray(value)) {
-	      return this.some(otherValue => deepEquals(value, otherValue, depth));
-	    } else {
-	      return this.some(otherValue => defaultEquals(value, otherValue));
-	    }
+	  has(value, equals = equalsFor(value)) {
+	    return this.some(otherValue => equals(value, otherValue));
 	  }
 
 	}
@@ -2986,12 +2963,8 @@
 	    }
 	  }
 
-	  has(value, depth = -1) {
-	    if (Array.isArray(value)) {
-	      return this.some(otherValue => deepEquals(value, otherValue, depth));
-	    } else {
-	      return this.some(otherValue => defaultEquals(value, otherValue));
-	    }
+	  has(value, equals = equalsFor(value)) {
+	    return this.some(otherValue => equals(value, otherValue));
 	  }
 
 	}
@@ -3026,8 +2999,8 @@
 	    }
 	  }
 
-	  has(value, depth = -1) {
-	    if (this.iterable.has(value, depth)) {
+	  has(value, equals = equalsFor(value)) {
+	    if (this.iterable.has(value, equals)) {
 	      return this.filterPredicate.call(this.ctx, value, value, this);
 	    }
 
@@ -3133,29 +3106,26 @@
 	    return this.length;
 	  }
 
-	  has(key) {
+	  has(key, hashEq = hashEquals(key)) {
 	    if (this.buckets) {
-	      const currHE = hashEquals(key);
-	      return this.buckets.has(key, currHE.equalTo, currHE.hash);
+	      return this.buckets.has(key, hashEq.equals, hashEq.hash);
 	    }
 
 	    return false;
 	  }
 
-	  get(key) {
+	  get(key, hashEq = hashEquals(key)) {
 	    if (this.buckets) {
-	      const currHE = hashEquals(key);
-	      return this.buckets.get(key, currHE.equalTo, currHE.hash);
+	      return this.buckets.get(key, hashEq.equals, hashEq.hash);
 	    }
 
 	    return undefined;
 	  } // noinspection JSCheckFunctionSignatures
 
 
-	  optionalGet(key) {
+	  optionalGet(key, hashEq = hashEquals(key)) {
 	    if (this.buckets) {
-	      const currHE = hashEquals(key);
-	      return this.buckets.optionalGet(key, currHE.equalTo, currHE.hash);
+	      return this.buckets.optionalGet(key, hashEq.equals, hashEq.hash);
 	    }
 
 	    return none;
@@ -3169,8 +3139,8 @@
 	   */
 
 
-	  set(key, value) {
-	    this.addEntry(new Entry(key, value));
+	  set(key, value, hashEq = hashEquals(key)) {
+	    this.addEntry(new Entry(key, value), hashEq);
 	    return this;
 	  }
 	  /**
@@ -3180,14 +3150,12 @@
 	   */
 
 
-	  addEntry(entry) {
-	    const currHE = hashEquals(entry.key);
-
+	  addEntry(entry, hashEq) {
 	    if (this.buckets) {
-	      this.buckets = this.buckets.set(entry, currHE.equalTo, currHE.hash);
+	      this.buckets = this.buckets.set(entry, hashEq.equals, hashEq.hash);
 	      this.length = this.buckets.length;
 	    } else {
-	      this.buckets = new HashContainer(entry, currHE.hash, Object.assign({}, this.options), this.options.depth);
+	      this.buckets = new HashContainer(entry, hashEq.hash, Object.assign({}, this.options), this.options.depth);
 	      this.length = 1;
 	    }
 
@@ -3245,10 +3213,9 @@
 	   */
 
 
-	  delete(key) {
+	  delete(key, hashEq = hashEquals(key)) {
 	    if (this.buckets) {
-	      const currHE = hashEquals(key);
-	      this.buckets = this.buckets.delete(key, currHE.equalTo, currHE.hash);
+	      this.buckets = this.buckets.delete(key, hashEq.equals, hashEq.hash);
 
 	      if (this.buckets) {
 	        this.length = this.buckets.length;
@@ -3299,24 +3266,24 @@
 	    return this.entry.value;
 	  }
 
-	  get(key, equalTo) {
-	    if (equalTo(key, this.key)) {
+	  get(key, equals) {
+	    if (equals(key, this.key)) {
 	      return this.entry.value;
 	    }
 
 	    return undefined;
 	  }
 
-	  optionalGet(key, equalTo) {
-	    if (equalTo(key, this.key)) {
+	  optionalGet(key, equals) {
+	    if (equals(key, this.key)) {
 	      return some(this.entry.value);
 	    }
 
 	    return none;
 	  }
 
-	  set(newEntry, equalTo) {
-	    if (equalTo(newEntry.key, this.key)) {
+	  set(newEntry, equals) {
+	    if (equals(newEntry.key, this.key)) {
 	      newEntry.overwrite(this.entry);
 	      return this;
 	    }
@@ -3324,12 +3291,12 @@
 	    return new LinkedStack(newEntry, this);
 	  }
 
-	  has(key, equalTo) {
-	    return equalTo(key, this.key);
+	  has(key, equals) {
+	    return equals(key, this.key);
 	  }
 
-	  delete(key, equalTo) {
-	    if (equalTo(key, this.key)) {
+	  delete(key, equals) {
+	    if (equals(key, this.key)) {
 	      this.entry.delete();
 	      return undefined;
 	    }
@@ -3361,11 +3328,11 @@
 	    this.length = next.length + 1;
 	  }
 
-	  get(key, equalTo) {
+	  get(key, equals) {
 	    let container = this; // avoid recursion
 
 	    do {
-	      if (equalTo(key, container.key)) {
+	      if (equals(key, container.key)) {
 	        return container.value;
 	      }
 
@@ -3375,11 +3342,11 @@
 	    return undefined;
 	  }
 
-	  optionalGet(key, equalTo) {
+	  optionalGet(key, equals) {
 	    let container = this; // avoid recursion
 
 	    do {
-	      if (equalTo(key, container.key)) {
+	      if (equals(key, container.key)) {
 	        return some(container.value);
 	      }
 
@@ -3389,11 +3356,11 @@
 	    return none;
 	  }
 
-	  set(newEntry, equalTo) {
+	  set(newEntry, equals) {
 	    let container = this; // avoid recursion
 
 	    while (container) {
-	      if (equalTo(newEntry.key, container.key)) {
+	      if (equals(newEntry.key, container.key)) {
 	        newEntry.overwrite(this.entry);
 	        return this;
 	      }
@@ -3404,11 +3371,11 @@
 	    return new LinkedStack(newEntry, this);
 	  }
 
-	  has(key, equalTo) {
+	  has(key, equals) {
 	    let container = this; // avoid recursion
 
 	    do {
-	      if (equalTo(key, container.key)) {
+	      if (equals(key, container.key)) {
 	        return true;
 	      }
 
@@ -3418,9 +3385,9 @@
 	    return false;
 	  }
 
-	  delete(key, equalTo) {
+	  delete(key, equals) {
 	    // first on the list.
-	    if (equalTo(key, this.key)) {
+	    if (equals(key, this.key)) {
 	      this.entry.delete(); // lengths are not necessarily consistent.
 
 	      if (this.next) {
@@ -3434,7 +3401,7 @@
 	    let prev = this; // avoid recursion
 
 	    while (container) {
-	      if (equalTo(key, container.key)) {
+	      if (equals(key, container.key)) {
 	        container.entry.delete();
 	        const next = container.next;
 
@@ -3479,8 +3446,8 @@
 	    this.depth = depth;
 	  }
 
-	  set(newEntry, equalTo, hash) {
-	    if (hash === this.hash && equalTo(newEntry.key, this.key)) {
+	  set(newEntry, equals, hash) {
+	    if (hash === this.hash && equals(newEntry.key, this.key)) {
 	      newEntry.overwrite(this.entry);
 	      return this;
 	    }
@@ -3491,28 +3458,28 @@
 	    return bucket;
 	  }
 
-	  get(key, equalTo, hash) {
-	    if (hash === this.hash && equalTo(key, this.key)) {
+	  get(key, equals, hash) {
+	    if (hash === this.hash && equals(key, this.key)) {
 	      return this.value;
 	    }
 
 	    return undefined;
 	  }
 
-	  optionalGet(key, equalTo, hash) {
-	    if (hash === this.hash && equalTo(key, this.key)) {
+	  optionalGet(key, equals, hash) {
+	    if (hash === this.hash && equals(key, this.key)) {
 	      return some(this.value);
 	    }
 
 	    return none;
 	  }
 
-	  has(key, equalTo, hash) {
-	    return hash === this.hash && equalTo(key, this.key);
+	  has(key, equals, hash) {
+	    return hash === this.hash && equals(key, this.key);
 	  }
 
-	  delete(key, equalTo, hash) {
-	    if (hash === this.hash && equalTo(key, this.key)) {
+	  delete(key, equals, hash) {
+	    if (hash === this.hash && equals(key, this.key)) {
 	      this.entry.delete();
 	      return undefined;
 	    }
@@ -3533,33 +3500,33 @@
 	    this.buckets = new Array(this.options.width);
 	  }
 
-	  get(key, equalTo, hash) {
+	  get(key, equals, hash) {
 	    const bucket = this.buckets[hash & this.options.mask];
 
 	    if (bucket) {
-	      return bucket.get(key, equalTo, hash >>> this.options.widthAs2sExponent);
+	      return bucket.get(key, equals, hash >>> this.options.widthAs2sExponent);
 	    }
 
 	    return undefined;
 	  }
 
-	  optionalGet(key, equalTo, hash) {
+	  optionalGet(key, equals, hash) {
 	    const bucket = this.buckets[hash & this.options.mask];
 
 	    if (bucket) {
-	      return bucket.optionalGet(key, equalTo, hash >>> this.options.widthAs2sExponent);
+	      return bucket.optionalGet(key, equals, hash >>> this.options.widthAs2sExponent);
 	    }
 
 	    return none;
 	  }
 
-	  set(entry, equalTo, hash) {
+	  set(entry, equals, hash) {
 	    const idx = hash & this.options.mask;
 	    let bucket = this.buckets[idx];
 
 	    if (bucket) {
 	      const len = bucket.length;
-	      this.buckets[idx] = bucket.set(entry, equalTo, hash >>> this.options.widthAs2sExponent);
+	      this.buckets[idx] = bucket.set(entry, equals, hash >>> this.options.widthAs2sExponent);
 
 	      if (this.buckets[idx].length !== len) {
 	        this.length++;
@@ -3575,22 +3542,22 @@
 	    return this;
 	  }
 
-	  has(key, equalTo, hash) {
+	  has(key, equals, hash) {
 	    const bucket = this.buckets[hash & this.options.mask];
 
 	    if (bucket) {
-	      return bucket.has(key, equalTo, hash >>> this.options.widthAs2sExponent);
+	      return bucket.has(key, equals, hash >>> this.options.widthAs2sExponent);
 	    }
 
 	    return false;
 	  }
 
-	  delete(key, equalTo, hash) {
+	  delete(key, equals, hash) {
 	    const idx = hash & this.options.mask;
 	    let bucket = this.buckets[idx];
 
 	    if (bucket) {
-	      bucket = bucket.delete(key, equalTo, hash >>> this.options.widthAs2sExponent);
+	      bucket = bucket.delete(key, equals, hash >>> this.options.widthAs2sExponent);
 
 	      if (!bucket || bucket.length === 0) {
 	        this.buckets[idx] = undefined;
@@ -3684,8 +3651,8 @@
 	    this.end = undefined;
 	  }
 
-	  set(key, value) {
-	    const entry = this.addEntry(new LinkedEntry(key, value)); // if we added at the end, shift forward one.
+	  set(key, value, hashEq = hashEquals(key)) {
+	    const entry = this.addEntry(new LinkedEntry(key, value), hashEq); // if we added at the end, shift forward one.
 
 	    if (this.end) {
 	      if (!entry.deleted) {
@@ -3700,8 +3667,8 @@
 	    return this;
 	  }
 
-	  delete(key) {
-	    super.delete(key);
+	  delete(key, hashEq = hashEquals(key)) {
+	    super.delete(key, hashEq);
 
 	    if (this.start && this.start.deleted) {
 	      this.start = this.start.next;
@@ -3744,11 +3711,16 @@
 	  MapIterable,
 	  SetIterable,
 	  Utils: {
-	    hashCode,
+	    hash,
 	    isFunction,
 	    isIterable,
 	    isString,
-	    isNumber
+	    hashEquals,
+	    hashCodeFor,
+	    equalsFor,
+	    some,
+	    none,
+	    Option
 	  }
 	};
 

@@ -1,12 +1,11 @@
 import {HashMap,} from "./hashmap/";
 import {LinkedHashMap,} from "./linkedhashmap/";
 import {MapIterable, SetIterable,} from "./iterable/";
-import {isFunction, isIterable, hashCode, isString, isNumber,} from './utils/';
+import {isFunction, isIterable, isString, hash, hashEquals, hashCodeFor, equalsFor, some, none, Option} from './utils/';
 
 /**
  * @module @mootable/hashmap
  */
-
 export default HashMap;
 const Mootable = {
     HashMap,
@@ -14,11 +13,16 @@ const Mootable = {
     MapIterable,
     SetIterable,
     Utils: {
-        hashCode,
+        hash,
         isFunction,
         isIterable,
         isString,
-        isNumber
+        hashEquals,
+        hashCodeFor,
+        equalsFor,
+        some,
+        none,
+        Option
     }
 };
 export {

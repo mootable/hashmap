@@ -7,6 +7,7 @@ import {MapIterable} from '../iterable/';
  * @version 0.12.6
  * Homepage: https://github.com/mootable/hashmap
  */
+
 /**
  * @private
  */
@@ -78,29 +79,26 @@ export class HashMap extends MapIterable {
     }
 
 
-    has(key) {
+    has(key, hashEq = hashEquals(key)) {
         if (this.buckets) {
-            const currHE = hashEquals(key);
-            return this.buckets.has(key, currHE.equalTo, currHE.hash);
+            return this.buckets.has(key, hashEq.equals, hashEq.hash);
         }
         return false;
     }
 
 
-    get(key) {
+    get(key, hashEq = hashEquals(key)) {
         if (this.buckets) {
-            const currHE = hashEquals(key);
-            return this.buckets.get(key, currHE.equalTo, currHE.hash);
+            return this.buckets.get(key, hashEq.equals, hashEq.hash);
         }
         return undefined;
     }
 
 
     // noinspection JSCheckFunctionSignatures
-    optionalGet(key) {
+    optionalGet(key, hashEq = hashEquals(key)) {
         if (this.buckets) {
-            const currHE = hashEquals(key);
-            return this.buckets.optionalGet(key, currHE.equalTo, currHE.hash);
+            return this.buckets.optionalGet(key, hashEq.equals, hashEq.hash);
         }
         return none;
     }
@@ -112,8 +110,8 @@ export class HashMap extends MapIterable {
      * @param {*} value - the value we are setting
      * @return {HashMap}
      */
-    set(key, value) {
-        this.addEntry(new Entry(key, value));
+    set(key, value, hashEq = hashEquals(key)) {
+        this.addEntry(new Entry(key, value),hashEq);
         return this;
     }
 
@@ -122,13 +120,12 @@ export class HashMap extends MapIterable {
      * @param entry
      * @return {*}
      */
-    addEntry(entry) {
-        const currHE = hashEquals(entry.key);
+    addEntry(entry, hashEq) {
         if (this.buckets) {
-            this.buckets = this.buckets.set(entry, currHE.equalTo, currHE.hash);
+            this.buckets = this.buckets.set(entry, hashEq.equals, hashEq.hash);
             this.length = this.buckets.length;
         } else {
-            this.buckets = new HashContainer(entry, currHE.hash, Object.assign({}, this.options), this.options.depth);
+            this.buckets = new HashContainer(entry, hashEq.hash, Object.assign({}, this.options), this.options.depth);
             this.length = 1;
         }
         return entry;
@@ -178,10 +175,9 @@ export class HashMap extends MapIterable {
      * @param key
      * @return {HashMap}
      */
-    delete(key) {
+    delete(key, hashEq = hashEquals(key)) {
         if (this.buckets) {
-            const currHE = hashEquals(key);
-            this.buckets = this.buckets.delete(key, currHE.equalTo, currHE.hash);
+            this.buckets = this.buckets.delete(key, hashEq.equals, hashEq.hash);
             if (this.buckets) {
                 this.length = this.buckets.length;
             } else {
@@ -229,34 +225,34 @@ export class Container {
         return this.entry.value;
     }
 
-    get(key, equalTo) {
-        if (equalTo(key, this.key)) {
+    get(key, equals) {
+        if (equals(key, this.key)) {
             return this.entry.value;
         }
         return undefined;
     }
 
-    optionalGet(key, equalTo) {
-        if (equalTo(key, this.key)) {
+    optionalGet(key, equals) {
+        if (equals(key, this.key)) {
             return some(this.entry.value);
         }
         return none;
     }
 
-    set(newEntry, equalTo) {
-        if (equalTo(newEntry.key, this.key)) {
+    set(newEntry, equals) {
+        if (equals(newEntry.key, this.key)) {
             newEntry.overwrite(this.entry);
             return this;
         }
         return new LinkedStack(newEntry, this);
     }
 
-    has(key, equalTo) {
-        return equalTo(key, this.key);
+    has(key, equals) {
+        return equals(key, this.key);
     }
 
-    delete(key, equalTo) {
-        if (equalTo(key, this.key)) {
+    delete(key, equals) {
+        if (equals(key, this.key)) {
             this.entry.delete();
             return undefined;
         }
@@ -286,11 +282,11 @@ export class LinkedStack extends Container {
         this.length = next.length + 1;
     }
 
-    get(key, equalTo) {
+    get(key, equals) {
         let container = this;
         // avoid recursion
         do {
-            if (equalTo(key, container.key)) {
+            if (equals(key, container.key)) {
                 return container.value;
             }
             container = container.next;
@@ -299,11 +295,11 @@ export class LinkedStack extends Container {
         return undefined;
     }
 
-    optionalGet(key, equalTo) {
+    optionalGet(key, equals) {
         let container = this;
         // avoid recursion
         do {
-            if (equalTo(key, container.key)) {
+            if (equals(key, container.key)) {
                 return some(container.value);
             }
             container = container.next;
@@ -312,11 +308,11 @@ export class LinkedStack extends Container {
         return none;
     }
 
-    set(newEntry, equalTo) {
+    set(newEntry, equals) {
         let container = this;
         // avoid recursion
         while (container) {
-            if (equalTo(newEntry.key, container.key)) {
+            if (equals(newEntry.key, container.key)) {
                 newEntry.overwrite(this.entry);
                 return this;
             }
@@ -325,11 +321,11 @@ export class LinkedStack extends Container {
         return new LinkedStack(newEntry, this);
     }
 
-    has(key, equalTo) {
+    has(key, equals) {
         let container = this;
         // avoid recursion
         do {
-            if (equalTo(key, container.key)) {
+            if (equals(key, container.key)) {
                 return true;
             }
             container = container.next;
@@ -338,9 +334,9 @@ export class LinkedStack extends Container {
         return false;
     }
 
-    delete(key, equalTo) {
+    delete(key, equals) {
         // first on the list.
-        if (equalTo(key, this.key)) {
+        if (equals(key, this.key)) {
             this.entry.delete();
             // lengths are not necessarily consistent.
             if (this.next) {
@@ -353,7 +349,7 @@ export class LinkedStack extends Container {
         let prev = this;
         // avoid recursion
         while (container) {
-            if (equalTo(key, container.key)) {
+            if (equals(key, container.key)) {
                 container.entry.delete();
                 const next = container.next;
                 if (next) {
@@ -393,8 +389,8 @@ export class HashContainer extends Container {
         this.depth = depth;
     }
 
-    set(newEntry, equalTo, hash) {
-        if (hash === this.hash && equalTo(newEntry.key, this.key)) {
+    set(newEntry, equals, hash) {
+        if (hash === this.hash && equals(newEntry.key, this.key)) {
             newEntry.overwrite(this.entry);
             return this;
         }
@@ -404,26 +400,26 @@ export class HashContainer extends Container {
         return bucket;
     }
 
-    get(key, equalTo, hash) {
-        if (hash === this.hash && equalTo(key, this.key)) {
+    get(key, equals, hash) {
+        if (hash === this.hash && equals(key, this.key)) {
             return this.value;
         }
         return undefined;
     }
 
-    optionalGet(key, equalTo, hash) {
-        if (hash === this.hash && equalTo(key, this.key)) {
+    optionalGet(key, equals, hash) {
+        if (hash === this.hash && equals(key, this.key)) {
             return some(this.value);
         }
         return none;
     }
 
-    has(key, equalTo, hash) {
-        return hash === this.hash && equalTo(key, this.key);
+    has(key, equals, hash) {
+        return hash === this.hash && equals(key, this.key);
     }
 
-    delete(key, equalTo, hash) {
-        if (hash === this.hash && equalTo(key, this.key)) {
+    delete(key, equals, hash) {
+        if (hash === this.hash && equals(key, this.key)) {
             this.entry.delete();
             return undefined;
         }
@@ -442,28 +438,28 @@ export class HashBuckets {
         this.buckets = new Array(this.options.width);
     }
 
-    get(key, equalTo, hash) {
+    get(key, equals, hash) {
         const bucket = this.buckets[hash & this.options.mask];
         if (bucket) {
-            return bucket.get(key, equalTo, hash >>> this.options.widthAs2sExponent);
+            return bucket.get(key, equals, hash >>> this.options.widthAs2sExponent);
         }
         return undefined;
     }
 
-    optionalGet(key, equalTo, hash) {
+    optionalGet(key, equals, hash) {
         const bucket = this.buckets[hash & this.options.mask];
         if (bucket) {
-            return bucket.optionalGet(key, equalTo, hash >>> this.options.widthAs2sExponent);
+            return bucket.optionalGet(key, equals, hash >>> this.options.widthAs2sExponent);
         }
         return none;
     }
 
-    set(entry, equalTo, hash) {
+    set(entry, equals, hash) {
         const idx = hash & this.options.mask;
         let bucket = this.buckets[idx];
         if (bucket) {
             const len = bucket.length;
-            this.buckets[idx] = bucket.set(entry, equalTo, hash >>> this.options.widthAs2sExponent);
+            this.buckets[idx] = bucket.set(entry, equals, hash >>> this.options.widthAs2sExponent);
             if (this.buckets[idx].length !== len) {
                 this.length++;
             }
@@ -477,19 +473,19 @@ export class HashBuckets {
         return this;
     }
 
-    has(key, equalTo, hash) {
+    has(key, equals, hash) {
         const bucket = this.buckets[hash & this.options.mask];
         if (bucket) {
-            return bucket.has(key, equalTo, hash >>> this.options.widthAs2sExponent);
+            return bucket.has(key, equals, hash >>> this.options.widthAs2sExponent);
         }
         return false;
     }
 
-    delete(key, equalTo, hash) {
+    delete(key, equals, hash) {
         const idx = hash & this.options.mask;
         let bucket = this.buckets[idx];
         if (bucket) {
-            bucket = bucket.delete(key, equalTo, hash >>> this.options.widthAs2sExponent);
+            bucket = bucket.delete(key, equals, hash >>> this.options.widthAs2sExponent);
             if ((!bucket) || bucket.length === 0) {
                 this.buckets[idx] = undefined;
                 this.length--;

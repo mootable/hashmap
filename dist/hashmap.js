@@ -1235,14 +1235,14 @@
   var id = 0;
   var postfix = Math.random();
 
-  var uid$1 = function (key) {
+  var uid = function (key) {
     return 'Symbol(' + String(key === undefined ? '' : key) + ')_' + (++id + postfix).toString(36);
   };
 
   var keys$2 = shared('keys');
 
   var sharedKey = function (key) {
-    return keys$2[key] || (keys$2[key] = uid$1(key));
+    return keys$2[key] || (keys$2[key] = uid(key));
   };
 
   var hiddenKeys$1 = {};
@@ -1552,7 +1552,7 @@
 
 
 
-  var METADATA = uid$1('meta');
+  var METADATA = uid('meta');
   var id = 0;
 
   var isExtensible = Object.isExtensible || function () {
@@ -1735,7 +1735,7 @@
 
   var WellKnownSymbolsStore$1 = shared('wks');
   var Symbol$1 = global$1.Symbol;
-  var createWellKnownSymbol = useSymbolAsUid ? Symbol$1 : Symbol$1 && Symbol$1.withoutSetter || uid$1;
+  var createWellKnownSymbol = useSymbolAsUid ? Symbol$1 : Symbol$1 && Symbol$1.withoutSetter || uid;
 
   var wellKnownSymbol = function (name) {
     if (!has$1(WellKnownSymbolsStore$1, name) || !(nativeSymbol || typeof WellKnownSymbolsStore$1[name] == 'string')) {
@@ -2557,7 +2557,7 @@
     $Symbol = function Symbol() {
       if (this instanceof $Symbol) throw TypeError('Symbol is not a constructor');
       var description = !arguments.length || arguments[0] === undefined ? undefined : String(arguments[0]);
-      var tag = uid$1(description);
+      var tag = uid(description);
       var setter = function (value) {
         if (this === ObjectPrototype) setter.call(ObjectPrototypeSymbols, value);
         if (has$1(this, HIDDEN) && has$1(this[HIDDEN], tag)) this[HIDDEN][tag] = false;
@@ -2572,7 +2572,7 @@
     });
 
     redefine($Symbol, 'withoutSetter', function (description) {
-      return wrap(uid$1(description), description);
+      return wrap(uid(description), description);
     });
 
     objectPropertyIsEnumerable.f = $propertyIsEnumerable;
@@ -2746,6 +2746,28 @@
     });
   }
 
+  // `SameValue` abstract operation
+  // https://tc39.es/ecma262/#sec-samevalue
+  var sameValue = Object.is || function is(x, y) {
+    // eslint-disable-next-line no-self-compare -- NaN check
+    return x === y ? x !== 0 || 1 / x === 1 / y : x != x && y != y;
+  };
+
+  // `Object.is` method
+  // https://tc39.es/ecma262/#sec-object.is
+  _export({ target: 'Object', stat: true }, {
+    is: sameValue
+  });
+
+  // `Number.isNaN` method
+  // https://tc39.es/ecma262/#sec-number.isnan
+  _export({ target: 'Number', stat: true }, {
+    isNaN: function isNaN(number) {
+      // eslint-disable-next-line no-self-compare -- NaN check
+      return number != number;
+    }
+  });
+
   // makes subclassing work correct for wrapped built-ins
   var inheritIfRequired = function ($this, dummy, Wrapper) {
     var NewTarget, NewTargetPrototype;
@@ -2861,15 +2883,6 @@
     redefine(global$1, NUMBER, NumberWrapper);
   }
 
-  // `Number.isNaN` method
-  // https://tc39.es/ecma262/#sec-number.isnan
-  _export({ target: 'Number', stat: true }, {
-    isNaN: function isNaN(number) {
-      // eslint-disable-next-line no-self-compare -- NaN check
-      return number != number;
-    }
-  });
-
   var globalIsFinite = global$1.isFinite;
 
   // `Number.isFinite` method
@@ -2890,10 +2903,14 @@
     return !isObject(it) && isFinite(it) && floor(it) === it;
   };
 
-  // `Number.isInteger` method
-  // https://tc39.es/ecma262/#sec-number.isinteger
+  var abs = Math.abs;
+
+  // `Number.isSafeInteger` method
+  // https://tc39.es/ecma262/#sec-number.issafeinteger
   _export({ target: 'Number', stat: true }, {
-    isInteger: isInteger
+    isSafeInteger: function isSafeInteger(number) {
+      return isInteger(number) && abs(number) <= 0x1FFFFFFFFFFFFF;
+    }
   });
 
   // `RegExp.prototype.flags` getter implementation
@@ -3157,9 +3174,9 @@
    * @version 0.12.6
    * Homepage: https://github.com/mootable/hashmap
    */
-  var uid = 0;
+  var HASH_WIDTH = Math.pow(2, 32);
   /**
-   * Modified Murmur3 HashCode generator, with capped lengths.
+   * Modified Murmur3 hash generator, with capped lengths.
    * This is NOT a cryptographic hash, this hash is designed to create as even a spread across a 32bit integer as is possible.
    * @see {@link https://github.com/aappleby/smhasher|MurmurHash specification on Github}
    * @see {@link https://en.wikipedia.org/wiki/MurmurHash|MurmurHash on Wikipedia}
@@ -3169,7 +3186,7 @@
    * @returns {number} the hash
    */
 
-  function hashCode(key) {
+  function hash(key) {
     var len = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
     var seed = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
     len = len && len > 0 ? Math.min(len, key.length) : key.length;
@@ -3235,183 +3252,158 @@
     return !!(str && (typeof str === 'string' || str instanceof String));
   }
   /**
-   * Is the passed value not null and a finite number.
-   * NaN and ±Infinity would return false.
-   * @param num
-   * @returns {boolean}
+   * sameValueZero is the equality method used by Map, Array, Set etc.
+   * The only difference between === and sameValueZero is that NaN counts as equal on sameValueZero
+   * @see {@link https://262.ecma-international.org/6.0/#sec-samevaluezero saveValueZero}
+   * @param x - the first object to compare
+   * @param y - the second object to compare
+   * @returns {boolean} - if they are equals according to ECMA Spec for Same Value Zero
    */
 
-  function isNumber(num) {
-    // jshint ignore:line
-    return !!(num && (typeof num === 'number' || num instanceof Number) && isFinite(num));
+  function sameValueZero(x, y) {
+    return x === y || Number.isNaN(x) && Number.isNaN(y);
   }
   /**
-   * @private
-   * The default Equals method we use this in most cases.
+   * Given any object return back a hashcode
+   * - If the key is undefined, null, false, NaN, infinite etc then it will be assigned a hash of 0.
+   * - If it is a primitive such as string, number bigint it either take the numeric value, or the string value, and hash that.
+   * - if it is a function, symbol or regex it hashes their string values.
+   * - if it is a date, it uses the time value as the hash.
+   * Otherwise
+   * - If it has a hashCode function it will execute it, passing the key as the first and only argument. It will call this function again on its result.
+   * - If it has a hashCode attribute it will call this function on it.
+   * - If it can't do any of the above, it will assign a randomly generated hashcode, to the key using a hidden property.
    *
-   * @param me
-   * @param them
-   * @returns {boolean}
-   */
-
-  function defaultEquals(me, them) {
-    return me === them;
-  }
-  /**
-   * @private
-   * Does a wider equals for use with arrays.
+   * As with all hashmaps, there is a contractual equivalence between hashcode and equals methods,
+   * in that any object that equals another, should produce the same hashcode.
    *
-   * @param me
-   * @param them
-   * @param depth
-   * @return {boolean}
+   * @param {*} key - the key to get the hash code from
+   * @return {number} - the hash code.
    */
 
-  function deepEquals(me, them) {
-    var depth = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : -1;
+  function hashCodeFor(key) {
+    var keyType = _typeof(key);
 
-    if (depth !== 0 && Array.isArray(me) && Array.isArray(them)) {
-      return me.length === them.length && me.every(function (el, ix) {
-        return deepEquals(el, them[ix], depth - 1);
-      });
-    }
+    switch (keyType) {
+      case 'undefined':
+        return 0;
 
-    return me === them;
-  }
-  /**
-   * @private
-   * Returns back a pair of equalTo Methods and hash values, for a raft of different objects.
-   * TODO: Revisit this at some point.
-   * @param key
-   * @returns {{equalTo: (function(*, *): boolean), hash: number}}
-   */
-
-  function hashEquals(key) {
-    switch (_typeof(key)) {
       case 'boolean':
-        return {
-          equalTo: defaultEquals,
-          hash: key ? 0 : 1
-        };
-
-      case 'number':
-        if (Number.isNaN(key)) {
-          return {
-            equalTo: function equalTo(me, them) {
-              return Number.isNaN(them);
-            },
-            hash: 0
-          };
-        }
-
-        if (!Number.isFinite(key)) {
-          return {
-            equalTo: defaultEquals,
-            hash: 0
-          };
-        }
-
-        if (Number.isInteger(key)) {
-          return {
-            equalTo: defaultEquals,
-            hash: key
-          };
-        }
-
-        return {
-          equalTo: defaultEquals,
-          hash: hashCode(key.toString())
-        };
+        return key ? 1 : 0;
 
       case 'string':
-        return {
-          equalTo: defaultEquals,
-          hash: hashCode(key)
-        };
+        return hash(key);
 
-      case 'undefined':
-        return {
-          equalTo: defaultEquals,
-          hash: 0
-        };
+      case 'number':
+        if (!Number.isFinite(key)) {
+          return 0;
+        }
 
+        if (Number.isSafeInteger(key)) {
+          return key | 0;
+        }
+
+        return hash(key.toString());
+
+      case 'bigint':
+      case 'symbol':
+      case 'function':
+        return hash(key.toString());
+
+      case 'object':
       default:
         {
-          // null
-          if (!key) {
-            return {
-              equalTo: defaultEquals,
-              hash: 0
-            };
+          if (key === null) {
+            return 0;
           }
 
-          if (key instanceof RegExp) {
-            return {
-              equalTo: function equalTo(me, them) {
-                if (them && them instanceof RegExp) {
-                  return me.toString() === them.toString();
-                }
-
-                return false;
-              },
-              hash: hashCode(key.toString())
-            };
-          }
-
-          if (key instanceof Date) {
-            return {
-              equalTo: function equalTo(me, them) {
-                if (them instanceof Date) {
-                  return me.getTime() === them.getTime();
-                }
-
-                return false;
-              },
-              hash: key.getTime() | 0
-            };
-          }
-
-          if (key instanceof Array) {
-            var functions = [];
-            var hash_code = key.length;
-
-            for (var i = 0; i < key.length; i++) {
-              var currHE = hashEquals(key[i]);
-              functions.push(currHE.equalTo);
-              hash_code = hash_code + currHE.hash * 31;
+          if (key.hashCode) {
+            if (isFunction(key.hashCode)) {
+              return key.hashCode(key);
             }
 
-            Object.freeze(functions);
-            return {
-              equalTo: function equalTo(me, them) {
-                if (them instanceof Array && me.length === them.length) {
-                  for (var _i = 0; _i < me.length; _i++) {
-                    if (!functions[_i](me[_i], them[_i])) {
-                      return false;
-                    }
-                  }
-
-                  return true;
-                }
-
-                return false;
-              },
-              hash: hash_code | 0
-            };
-          } // Ew get rid of this.
+            return hashCodeFor(key.hashCode);
+          } // Regexes and Dates we treat like primitives.
 
 
-          if (!key.hasOwnProperty('_hmuid_')) {
-            key._hmuid_ = ++uid; // hide(key, '_hmuid_');
-          }
+          if (key instanceof RegExp || key instanceof Date) {
+            return hash(key.toString());
+          } // Hash of Last Resort, ensure we don't consider any objects on the prototype chain.
 
-          return hashEquals(key._hmuid_);
+
+          if (key.hasOwnProperty('_mootable_hashCode')) {
+            // its our special number, but just in case someone has done something a bit weird with it.
+            // Object equality at this point means that only this key instance can be used to fetch the value.
+            return hashCodeFor(key._mootable_hashCode);
+          } // unenumerable, unwritable, unconfigurable
+
+
+          var hashCode = hash(keyType, 0, Math.floor(Math.random() * HASH_WIDTH));
+          Object.defineProperty(key, '_mootable_hashCode', {
+            value: hashCode
+          });
+          return hashCode;
         }
     }
   }
   /**
-   * to get round the fact gets might be undefined but the value exists,
-   * @private
+   * Given a key, produce an equals method that fits the hashcode contract.
+   * - In almost all cases it will return with ECMASpec sameValueZero method. As is the case with native map, set and array.
+   * - If it is a regex, it compares the type, and the string values.
+   * - If it is a date, it compares the type, and the time values.
+   * - If it has an equals function and that equals function when comapring 2 keys, return true. then it will use that.
+   *   - The function can either be in the form <code>key.equals(other)</code>, or <code>key.equals(other,key)</code> in the case of static-like functions.
+   *
+   * As with all hashmaps, there is a contractual equivalence between hashcode and equals methods,
+   * in that any object that equals another, should produce the same hashcode.
+   *
+   * @param {*} key - the key to get the hash code from
+   * @return {(function(*, *): boolean)} - an equals function for 2 keys.
+   */
+
+  function equalsFor(key) {
+    // Regexes and Dates we treat like primitives.
+    if (_typeof(key) === 'object') {
+      if (key instanceof RegExp) {
+        return function (me, them) {
+          if (them instanceof RegExp) {
+            return me.toString() === them.toString();
+          }
+
+          return false;
+        };
+      }
+
+      if (key instanceof Date) {
+        return function (me, them) {
+          if (them instanceof Date) {
+            return me.getTime() === them.getTime();
+          }
+
+          return false;
+        };
+      }
+    } // do we have an equals method, and is it sane.
+
+
+    if (key && isFunction(key.equals) && key.equals(key, key)) {
+      return function (me, them) {
+        return me.equals(them, me);
+      };
+    }
+
+    return sameValueZero;
+  }
+  function hashEquals(key) {
+    var hash = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : hashCodeFor(key);
+    var equals = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : equalsFor(key);
+    return {
+      hash: hash,
+      equals: equals
+    };
+  }
+  /**
+   * A representation of a value, that might be or might not be null.
    */
 
   var Option = /*#__PURE__*/function () {
@@ -3422,21 +3414,60 @@
       this.value = value;
     }
 
-    _createClass(Option, null, [{
-      key: "some",
-      value: function some(value) {
-        return new Option(true, value);
+    _createClass(Option, [{
+      key: "size",
+      get: function get() {
+        return this.has ? 1 : 0;
       }
     }, {
+      key: Symbol.iterator,
+      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
+        return regeneratorRuntime.wrap(function value$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                if (!this.has) {
+                  _context.next = 3;
+                  break;
+                }
+
+                _context.next = 3;
+                return this.value;
+
+              case 3:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, value, this);
+      })
+    }], [{
       key: "none",
       get: function get() {
         return none;
+      }
+    }, {
+      key: "some",
+      value: function some(value) {
+        return new Option(true, value);
       }
     }]);
 
     return Option;
   }();
+  /**
+   * A function that when called round a value returns an Option object of the form:
+   * <code>{value:value,has:true}</code>
+   * @type {function(*=): Option}
+   */
+
   var some = Option.some;
+  /**
+   * A constant representation of an Option with nothing in it:
+   * <code>{value:undefined,has:false}</code>
+   * @type {Option}
+   */
+
   var none = new Option(false, undefined);
 
   var createProperty = function (object, key, value) {
@@ -4554,53 +4585,31 @@
        * // indexOfResult === undefined
        * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf|Array.indexOf}
        * @param {*} valueToCheck - the value we use to === against the entries value to identify if we have a match.
-       * @param {number} [depth=-1] - if using an array, marks how deep we go through to test equality.
        * @returns {*} - the key of the element that matches..
        */
 
     }, {
       key: "indexOf",
       value: function indexOf(valueToCheck) {
-        var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
+        var equals = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : equalsFor(valueToCheck);
 
-        if (Array.isArray(valueToCheck)) {
-          var _iterator10 = _createForOfIteratorHelper(this),
-              _step10;
+        var _iterator10 = _createForOfIteratorHelper(this),
+            _step10;
 
-          try {
-            for (_iterator10.s(); !(_step10 = _iterator10.n()).done;) {
-              var _step10$value = _slicedToArray(_step10.value, 2),
-                  key = _step10$value[0],
-                  value = _step10$value[1];
+        try {
+          for (_iterator10.s(); !(_step10 = _iterator10.n()).done;) {
+            var _step10$value = _slicedToArray(_step10.value, 2),
+                key = _step10$value[0],
+                value = _step10$value[1];
 
-              if (deepEquals(valueToCheck, value, depth)) {
-                return key;
-              }
+            if (equals(valueToCheck, value)) {
+              return key;
             }
-          } catch (err) {
-            _iterator10.e(err);
-          } finally {
-            _iterator10.f();
           }
-        } else {
-          var _iterator11 = _createForOfIteratorHelper(this),
-              _step11;
-
-          try {
-            for (_iterator11.s(); !(_step11 = _iterator11.n()).done;) {
-              var _step11$value = _slicedToArray(_step11.value, 2),
-                  _key2 = _step11$value[0],
-                  _value2 = _step11$value[1];
-
-              if (defaultEquals(valueToCheck, _value2)) {
-                return _key2;
-              }
-            }
-          } catch (err) {
-            _iterator11.e(err);
-          } finally {
-            _iterator11.f();
-          }
+        } catch (err) {
+          _iterator10.e(err);
+        } finally {
+          _iterator10.f();
         }
 
         return undefined;
@@ -4629,9 +4638,9 @@
     }, {
       key: "has",
       value: function has(key) {
-        var equalTo = hashEquals(key).equalTo;
+        var equals = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : equalsFor(key);
         return this.some(function (_, otherKey) {
-          return equalTo(otherKey, key);
+          return equals(otherKey, key);
         });
       }
       /**
@@ -4660,9 +4669,9 @@
     }, {
       key: "get",
       value: function get(key) {
-        var equalTo = hashEquals(key).equalTo;
+        var equals = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : equalsFor(key);
         return this.find(function (value, otherKey) {
-          return equalTo(key, otherKey);
+          return equals(key, otherKey);
         });
       }
       /**
@@ -4691,10 +4700,10 @@
     }, {
       key: "optionalGet",
       value: function optionalGet(key) {
-        var equalTo = hashEquals(key).equalTo;
+        var equals = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : equalsFor(key);
         var found = false;
         var val = this.find(function (value, otherKey) {
-          if (equalTo(key, otherKey)) {
+          if (equals(key, otherKey)) {
             found = true;
             return true;
           }
@@ -4752,21 +4761,21 @@
         var ctx = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this;
         var accumulator = initialValue;
 
-        var _iterator12 = _createForOfIteratorHelper(this),
-            _step12;
+        var _iterator11 = _createForOfIteratorHelper(this),
+            _step11;
 
         try {
-          for (_iterator12.s(); !(_step12 = _iterator12.n()).done;) {
-            var _step12$value = _slicedToArray(_step12.value, 2),
-                key = _step12$value[0],
-                value = _step12$value[1];
+          for (_iterator11.s(); !(_step11 = _iterator11.n()).done;) {
+            var _step11$value = _slicedToArray(_step11.value, 2),
+                key = _step11$value[0],
+                value = _step11$value[1];
 
             accumulator = reduceFunction.call(ctx, accumulator, value, key, this);
           }
         } catch (err) {
-          _iterator12.e(err);
+          _iterator11.e(err);
         } finally {
-          _iterator12.f();
+          _iterator11.f();
         }
 
         return accumulator;
@@ -5162,19 +5171,19 @@
       function get() {
         var accumulator = 0;
 
-        var _iterator13 = _createForOfIteratorHelper(this),
-            _step13;
+        var _iterator12 = _createForOfIteratorHelper(this),
+            _step12;
 
         try {
-          for (_iterator13.s(); !(_step13 = _iterator13.n()).done;) // jshint ignore:line
+          for (_iterator12.s(); !(_step12 = _iterator12.n()).done;) // jshint ignore:line
           {
-            var i = _step13.value;
+            var i = _step12.value;
             accumulator++;
           }
         } catch (err) {
-          _iterator13.e(err);
+          _iterator12.e(err);
         } finally {
-          _iterator13.f();
+          _iterator12.f();
         }
 
         return accumulator;
@@ -5254,18 +5263,18 @@
         var forEachCallback = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : function () {};
         var ctx = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this;
 
-        var _iterator14 = _createForOfIteratorHelper(this),
-            _step14;
+        var _iterator13 = _createForOfIteratorHelper(this),
+            _step13;
 
         try {
-          for (_iterator14.s(); !(_step14 = _iterator14.n()).done;) {
-            var value = _step14.value;
+          for (_iterator13.s(); !(_step13 = _iterator13.n()).done;) {
+            var value = _step13.value;
             forEachCallback.call(ctx, value, value, this);
           }
         } catch (err) {
-          _iterator14.e(err);
+          _iterator13.e(err);
         } finally {
-          _iterator14.f();
+          _iterator13.f();
         }
       }
       /**
@@ -5336,32 +5345,32 @@
 
           return Array.from(this);
         } else if (isFunction(collector.add)) {
+          var _iterator14 = _createForOfIteratorHelper(this),
+              _step14;
+
+          try {
+            for (_iterator14.s(); !(_step14 = _iterator14.n()).done;) {
+              var entry = _step14.value;
+              collector.add(entry);
+            }
+          } catch (err) {
+            _iterator14.e(err);
+          } finally {
+            _iterator14.f();
+          }
+        } else if (isFunction(collector.set)) {
           var _iterator15 = _createForOfIteratorHelper(this),
               _step15;
 
           try {
             for (_iterator15.s(); !(_step15 = _iterator15.n()).done;) {
-              var entry = _step15.value;
-              collector.add(entry);
+              var _entry = _step15.value;
+              collector.set(_entry);
             }
           } catch (err) {
             _iterator15.e(err);
           } finally {
             _iterator15.f();
-          }
-        } else if (isFunction(collector.set)) {
-          var _iterator16 = _createForOfIteratorHelper(this),
-              _step16;
-
-          try {
-            for (_iterator16.s(); !(_step16 = _iterator16.n()).done;) {
-              var _entry = _step16.value;
-              collector.set(_entry);
-            }
-          } catch (err) {
-            _iterator16.e(err);
-          } finally {
-            _iterator16.f();
           }
         }
 
@@ -5396,18 +5405,18 @@
         var ctx = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this;
         var accumulator = initialValue;
 
-        var _iterator17 = _createForOfIteratorHelper(this),
-            _step17;
+        var _iterator16 = _createForOfIteratorHelper(this),
+            _step16;
 
         try {
-          for (_iterator17.s(); !(_step17 = _iterator17.n()).done;) {
-            var value = _step17.value;
+          for (_iterator16.s(); !(_step16 = _iterator16.n()).done;) {
+            var value = _step16.value;
             accumulator = reduceFunction.call(ctx, accumulator, value, value, this);
           }
         } catch (err) {
-          _iterator17.e(err);
+          _iterator16.e(err);
         } finally {
-          _iterator17.f();
+          _iterator16.f();
         }
 
         return accumulator;
@@ -5444,21 +5453,21 @@
         };
         var ctx = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this;
 
-        var _iterator18 = _createForOfIteratorHelper(this),
-            _step18;
+        var _iterator17 = _createForOfIteratorHelper(this),
+            _step17;
 
         try {
-          for (_iterator18.s(); !(_step18 = _iterator18.n()).done;) {
-            var value = _step18.value;
+          for (_iterator17.s(); !(_step17 = _iterator17.n()).done;) {
+            var value = _step17.value;
 
             if (!everyPredicate.call(ctx, value, value, this)) {
               return false;
             }
           }
         } catch (err) {
-          _iterator18.e(err);
+          _iterator17.e(err);
         } finally {
-          _iterator18.f();
+          _iterator17.f();
         }
 
         return true;
@@ -5495,21 +5504,21 @@
         };
         var ctx = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this;
 
-        var _iterator19 = _createForOfIteratorHelper(this),
-            _step19;
+        var _iterator18 = _createForOfIteratorHelper(this),
+            _step18;
 
         try {
-          for (_iterator19.s(); !(_step19 = _iterator19.n()).done;) {
-            var value = _step19.value;
+          for (_iterator18.s(); !(_step18 = _iterator18.n()).done;) {
+            var value = _step18.value;
 
             if (somePredicate.call(ctx, value, this)) {
               return true;
             }
           }
         } catch (err) {
-          _iterator19.e(err);
+          _iterator18.e(err);
         } finally {
-          _iterator19.f();
+          _iterator18.f();
         }
 
         return false;
@@ -5535,23 +5544,16 @@
        * // hasResult === false
        * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/has|Map.has}
        * @param {*} value - the value we use to === against the entries key to identify if we have a match.
-       * @param {number} [depth=-1] - if using an array, marks how deep we go through to test equality.
+       * @param {function} [equals] - if using an array, marks how deep we go through to test equality.
        * @returns {boolean} - if it holds the key or not.
        */
 
     }, {
       key: "has",
       value: function has(value) {
-        var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
-
-        if (Array.isArray(value)) {
-          return this.some(function (otherValue) {
-            return deepEquals(otherValue, value, depth);
-          });
-        }
-
+        var equals = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : equalsFor(value);
         return this.some(function (otherValue) {
-          return defaultEquals(otherValue, value);
+          return equals(otherValue, value);
         });
       }
       /**
@@ -5583,21 +5585,21 @@
         };
         var ctx = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this;
 
-        var _iterator20 = _createForOfIteratorHelper(this),
-            _step20;
+        var _iterator19 = _createForOfIteratorHelper(this),
+            _step19;
 
         try {
-          for (_iterator20.s(); !(_step20 = _iterator20.n()).done;) {
-            var value = _step20.value;
+          for (_iterator19.s(); !(_step19 = _iterator19.n()).done;) {
+            var value = _step19.value;
 
             if (findPredicate.call(ctx, value, value, this)) {
               return value;
             }
           }
         } catch (err) {
-          _iterator20.e(err);
+          _iterator19.e(err);
         } finally {
-          _iterator20.f();
+          _iterator19.f();
         }
 
         return undefined;
@@ -5737,13 +5739,15 @@
       }
     }, {
       key: "has",
-      value: function has(value, depth) {
+      value: function has(value) {
+        var equals = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : equalsFor(value);
+
         // if is a map iterable then we want to return the entry not the key. otherwise we can shortcut
         if (this.iterable instanceof Set || this.iterable instanceof SetIterable) {
-          return this.iterable.has(value, depth);
+          return this.iterable.has(value, equals);
         }
 
-        return _get(_getPrototypeOf(SetIterableWrapper.prototype), "has", this).call(this, value, depth);
+        return _get(_getPrototypeOf(SetIterableWrapper.prototype), "has", this).call(this, value, equals);
       }
     }, {
       key: Symbol.iterator,
@@ -5869,19 +5873,19 @@
       get: function get() {
         var accumulator = 0;
 
-        var _iterator21 = _createForOfIteratorHelper(this),
-            _step21;
+        var _iterator20 = _createForOfIteratorHelper(this),
+            _step20;
 
         try {
-          for (_iterator21.s(); !(_step21 = _iterator21.n()).done;) // jshint ignore:line
+          for (_iterator20.s(); !(_step20 = _iterator20.n()).done;) // jshint ignore:line
           {
-            var i = _step21.value;
+            var i = _step20.value;
             accumulator++;
           }
         } catch (err) {
-          _iterator21.e(err);
+          _iterator20.e(err);
         } finally {
-          _iterator21.f();
+          _iterator20.f();
         }
 
         return accumulator;
@@ -5889,32 +5893,32 @@
     }, {
       key: Symbol.iterator,
       value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        var _iterator22, _step22, _step22$value, key, _value3;
+        var _iterator21, _step21, _step21$value, key, _value2;
 
         return regeneratorRuntime.wrap(function value$(_context3) {
           while (1) {
             switch (_context3.prev = _context3.next) {
               case 0:
-                _iterator22 = _createForOfIteratorHelper(this.iterable);
+                _iterator21 = _createForOfIteratorHelper(this.iterable);
                 _context3.prev = 1;
 
-                _iterator22.s();
+                _iterator21.s();
 
               case 3:
-                if ((_step22 = _iterator22.n()).done) {
+                if ((_step21 = _iterator21.n()).done) {
                   _context3.next = 10;
                   break;
                 }
 
-                _step22$value = _slicedToArray(_step22.value, 2), key = _step22$value[0], _value3 = _step22$value[1];
+                _step21$value = _slicedToArray(_step21.value, 2), key = _step21$value[0], _value2 = _step21$value[1];
 
-                if (!this.filterPredicate.call(this.ctx, _value3, key, this)) {
+                if (!this.filterPredicate.call(this.ctx, _value2, key, this)) {
                   _context3.next = 8;
                   break;
                 }
 
                 _context3.next = 8;
-                return [key, _value3];
+                return [key, _value2];
 
               case 8:
                 _context3.next = 3;
@@ -5928,12 +5932,12 @@
                 _context3.prev = 12;
                 _context3.t0 = _context3["catch"](1);
 
-                _iterator22.e(_context3.t0);
+                _iterator21.e(_context3.t0);
 
               case 15:
                 _context3.prev = 15;
 
-                _iterator22.f();
+                _iterator21.f();
 
                 return _context3.finish(15);
 
@@ -5993,26 +5997,26 @@
     _createClass(MapKeyMapper, [{
       key: Symbol.iterator,
       value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        var _iterator23, _step23, _step23$value, key, _value4;
+        var _iterator22, _step22, _step22$value, key, _value3;
 
         return regeneratorRuntime.wrap(function value$(_context4) {
           while (1) {
             switch (_context4.prev = _context4.next) {
               case 0:
-                _iterator23 = _createForOfIteratorHelper(this.iterable);
+                _iterator22 = _createForOfIteratorHelper(this.iterable);
                 _context4.prev = 1;
 
-                _iterator23.s();
+                _iterator22.s();
 
               case 3:
-                if ((_step23 = _iterator23.n()).done) {
+                if ((_step22 = _iterator22.n()).done) {
                   _context4.next = 9;
                   break;
                 }
 
-                _step23$value = _slicedToArray(_step23.value, 2), key = _step23$value[0], _value4 = _step23$value[1];
+                _step22$value = _slicedToArray(_step22.value, 2), key = _step22$value[0], _value3 = _step22$value[1];
                 _context4.next = 7;
-                return [this.mapFunction.call(this.ctx, _value4, key, this), _value4];
+                return [this.mapFunction.call(this.ctx, _value3, key, this), _value3];
 
               case 7:
                 _context4.next = 3;
@@ -6026,12 +6030,12 @@
                 _context4.prev = 11;
                 _context4.t0 = _context4["catch"](1);
 
-                _iterator23.e(_context4.t0);
+                _iterator22.e(_context4.t0);
 
               case 14:
                 _context4.prev = 14;
 
-                _iterator23.f();
+                _iterator22.f();
 
                 return _context4.finish(14);
 
@@ -6070,26 +6074,26 @@
     _createClass(MapValueMapper, [{
       key: Symbol.iterator,
       value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        var _iterator24, _step24, _step24$value, key, _value5;
+        var _iterator23, _step23, _step23$value, key, _value4;
 
         return regeneratorRuntime.wrap(function value$(_context5) {
           while (1) {
             switch (_context5.prev = _context5.next) {
               case 0:
-                _iterator24 = _createForOfIteratorHelper(this.iterable);
+                _iterator23 = _createForOfIteratorHelper(this.iterable);
                 _context5.prev = 1;
 
-                _iterator24.s();
+                _iterator23.s();
 
               case 3:
-                if ((_step24 = _iterator24.n()).done) {
+                if ((_step23 = _iterator23.n()).done) {
                   _context5.next = 9;
                   break;
                 }
 
-                _step24$value = _slicedToArray(_step24.value, 2), key = _step24$value[0], _value5 = _step24$value[1];
+                _step23$value = _slicedToArray(_step23.value, 2), key = _step23$value[0], _value4 = _step23$value[1];
                 _context5.next = 7;
-                return [key, this.mapFunction.call(this.ctx, _value5, key, this)];
+                return [key, this.mapFunction.call(this.ctx, _value4, key, this)];
 
               case 7:
                 _context5.next = 3;
@@ -6103,12 +6107,12 @@
                 _context5.prev = 11;
                 _context5.t0 = _context5["catch"](1);
 
-                _iterator24.e(_context5.t0);
+                _iterator23.e(_context5.t0);
 
               case 14:
                 _context5.prev = 14;
 
-                _iterator24.f();
+                _iterator23.f();
 
                 return _context5.finish(14);
 
@@ -6158,25 +6162,25 @@
     _createClass(MapEntryMapper, [{
       key: Symbol.iterator,
       value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        var _iterator25, _step25, _step25$value, key, _value6, _this$mapFunction$cal, _this$mapFunction$cal2, newKey, newValue;
+        var _iterator24, _step24, _step24$value, key, _value5, _this$mapFunction$cal, _this$mapFunction$cal2, newKey, newValue;
 
         return regeneratorRuntime.wrap(function value$(_context6) {
           while (1) {
             switch (_context6.prev = _context6.next) {
               case 0:
-                _iterator25 = _createForOfIteratorHelper(this.iterable);
+                _iterator24 = _createForOfIteratorHelper(this.iterable);
                 _context6.prev = 1;
 
-                _iterator25.s();
+                _iterator24.s();
 
               case 3:
-                if ((_step25 = _iterator25.n()).done) {
+                if ((_step24 = _iterator24.n()).done) {
                   _context6.next = 10;
                   break;
                 }
 
-                _step25$value = _slicedToArray(_step25.value, 2), key = _step25$value[0], _value6 = _step25$value[1];
-                _this$mapFunction$cal = this.mapFunction.call(this.ctx, _value6, key, this), _this$mapFunction$cal2 = _slicedToArray(_this$mapFunction$cal, 2), newKey = _this$mapFunction$cal2[0], newValue = _this$mapFunction$cal2[1];
+                _step24$value = _slicedToArray(_step24.value, 2), key = _step24$value[0], _value5 = _step24$value[1];
+                _this$mapFunction$cal = this.mapFunction.call(this.ctx, _value5, key, this), _this$mapFunction$cal2 = _slicedToArray(_this$mapFunction$cal, 2), newKey = _this$mapFunction$cal2[0], newValue = _this$mapFunction$cal2[1];
                 _context6.next = 8;
                 return [newKey, newValue];
 
@@ -6192,12 +6196,12 @@
                 _context6.prev = 12;
                 _context6.t0 = _context6["catch"](1);
 
-                _iterator25.e(_context6.t0);
+                _iterator24.e(_context6.t0);
 
               case 15:
                 _context6.prev = 15;
 
-                _iterator25.f();
+                _iterator24.f();
 
                 return _context6.finish(15);
 
@@ -6212,9 +6216,9 @@
       key: "get",
       value: function get(key) {
         if (this.iterable.has(key)) {
-          var _value7 = this.iterable.get(key);
+          var _value6 = this.iterable.get(key);
 
-          return this.mapFunction.call(this.ctx, _value7, key, this)[1];
+          return this.mapFunction.call(this.ctx, _value6, key, this)[1];
         }
 
         return undefined;
@@ -6319,8 +6323,8 @@
     }, {
       key: "has",
       value: function has(value) {
-        var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
-        return this.iterable.has(value, depth) || this.otherIterable.has(value, depth);
+        var equals = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : equalsFor(value);
+        return this.iterable.has(value, equals) || this.otherIterable.has(value, equals);
       }
     }, {
       key: Symbol.iterator,
@@ -6365,26 +6369,26 @@
     _createClass(EntryToValueMapper, [{
       key: Symbol.iterator,
       value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        var _iterator26, _step26, _step26$value, _value8;
+        var _iterator25, _step25, _step25$value, _value7;
 
         return regeneratorRuntime.wrap(function value$(_context9) {
           while (1) {
             switch (_context9.prev = _context9.next) {
               case 0:
-                _iterator26 = _createForOfIteratorHelper(this.iterable);
+                _iterator25 = _createForOfIteratorHelper(this.iterable);
                 _context9.prev = 1;
 
-                _iterator26.s();
+                _iterator25.s();
 
               case 3:
-                if ((_step26 = _iterator26.n()).done) {
+                if ((_step25 = _iterator25.n()).done) {
                   _context9.next = 9;
                   break;
                 }
 
-                _step26$value = _slicedToArray(_step26.value, 2), _value8 = _step26$value[1];
+                _step25$value = _slicedToArray(_step25.value, 2), _value7 = _step25$value[1];
                 _context9.next = 7;
-                return _value8;
+                return _value7;
 
               case 7:
                 _context9.next = 3;
@@ -6398,12 +6402,12 @@
                 _context9.prev = 11;
                 _context9.t0 = _context9["catch"](1);
 
-                _iterator26.e(_context9.t0);
+                _iterator25.e(_context9.t0);
 
               case 14:
                 _context9.prev = 14;
 
-                _iterator26.f();
+                _iterator25.f();
 
                 return _context9.finish(14);
 
@@ -6417,15 +6421,15 @@
     }, {
       key: "has",
       value: function has(value) {
-        var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
+        var equals = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : equalsFor(value);
 
         if (Array.isArray(value)) {
           return this.iterable.some(function (otherValue) {
-            return deepEquals(value, otherValue, depth);
+            return equals(value, otherValue);
           });
         } else {
           return this.iterable.some(function (otherValue) {
-            return defaultEquals(value, otherValue);
+            return equals(value, otherValue);
           });
         }
       }
@@ -6453,24 +6457,24 @@
     _createClass(EntryToKeyMapper, [{
       key: Symbol.iterator,
       value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        var _iterator27, _step27, _step27$value, key;
+        var _iterator26, _step26, _step26$value, key;
 
         return regeneratorRuntime.wrap(function value$(_context10) {
           while (1) {
             switch (_context10.prev = _context10.next) {
               case 0:
-                _iterator27 = _createForOfIteratorHelper(this.iterable);
+                _iterator26 = _createForOfIteratorHelper(this.iterable);
                 _context10.prev = 1;
 
-                _iterator27.s();
+                _iterator26.s();
 
               case 3:
-                if ((_step27 = _iterator27.n()).done) {
+                if ((_step26 = _iterator26.n()).done) {
                   _context10.next = 9;
                   break;
                 }
 
-                _step27$value = _slicedToArray(_step27.value, 1), key = _step27$value[0];
+                _step26$value = _slicedToArray(_step26.value, 1), key = _step26$value[0];
                 _context10.next = 7;
                 return key;
 
@@ -6486,12 +6490,12 @@
                 _context10.prev = 11;
                 _context10.t0 = _context10["catch"](1);
 
-                _iterator27.e(_context10.t0);
+                _iterator26.e(_context10.t0);
 
               case 14:
                 _context10.prev = 14;
 
-                _iterator27.f();
+                _iterator26.f();
 
                 return _context10.finish(14);
 
@@ -6535,26 +6539,26 @@
     _createClass(MapMapper, [{
       key: Symbol.iterator,
       value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        var _iterator28, _step28, _step28$value, key, _value9;
+        var _iterator27, _step27, _step27$value, key, _value8;
 
         return regeneratorRuntime.wrap(function value$(_context11) {
           while (1) {
             switch (_context11.prev = _context11.next) {
               case 0:
-                _iterator28 = _createForOfIteratorHelper(this.iterable);
+                _iterator27 = _createForOfIteratorHelper(this.iterable);
                 _context11.prev = 1;
 
-                _iterator28.s();
+                _iterator27.s();
 
               case 3:
-                if ((_step28 = _iterator28.n()).done) {
+                if ((_step27 = _iterator27.n()).done) {
                   _context11.next = 9;
                   break;
                 }
 
-                _step28$value = _slicedToArray(_step28.value, 2), key = _step28$value[0], _value9 = _step28$value[1];
+                _step27$value = _slicedToArray(_step27.value, 2), key = _step27$value[0], _value8 = _step27$value[1];
                 _context11.next = 7;
-                return this.mapFunction.call(this.ctx, _value9, key, this);
+                return this.mapFunction.call(this.ctx, _value8, key, this);
 
               case 7:
                 _context11.next = 3;
@@ -6568,12 +6572,12 @@
                 _context11.prev = 11;
                 _context11.t0 = _context11["catch"](1);
 
-                _iterator28.e(_context11.t0);
+                _iterator27.e(_context11.t0);
 
               case 14:
                 _context11.prev = 14;
 
-                _iterator28.f();
+                _iterator27.f();
 
                 return _context11.finish(14);
 
@@ -6587,24 +6591,17 @@
       /**
        * Only ever used for the Map function that produces a SetIterable.
        * @param value
-       * @param depth
+       * @param equals
        * @return {boolean}
        */
 
     }, {
       key: "has",
       value: function has(value) {
-        var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
-
-        if (Array.isArray(value)) {
-          return this.some(function (otherValue) {
-            return deepEquals(value, otherValue, depth);
-          });
-        } else {
-          return this.some(function (otherValue) {
-            return defaultEquals(value, otherValue);
-          });
-        }
+        var equals = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : equalsFor(value);
+        return this.some(function (otherValue) {
+          return equals(value, otherValue);
+        });
       }
     }]);
 
@@ -6634,26 +6631,26 @@
     _createClass(SetMapper, [{
       key: Symbol.iterator,
       value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        var _iterator29, _step29, _value10;
+        var _iterator28, _step28, _value9;
 
         return regeneratorRuntime.wrap(function value$(_context12) {
           while (1) {
             switch (_context12.prev = _context12.next) {
               case 0:
-                _iterator29 = _createForOfIteratorHelper(this.iterable);
+                _iterator28 = _createForOfIteratorHelper(this.iterable);
                 _context12.prev = 1;
 
-                _iterator29.s();
+                _iterator28.s();
 
               case 3:
-                if ((_step29 = _iterator29.n()).done) {
+                if ((_step28 = _iterator28.n()).done) {
                   _context12.next = 9;
                   break;
                 }
 
-                _value10 = _step29.value;
+                _value9 = _step28.value;
                 _context12.next = 7;
-                return this.mapFunction.call(this.ctx, _value10, _value10, this);
+                return this.mapFunction.call(this.ctx, _value9, _value9, this);
 
               case 7:
                 _context12.next = 3;
@@ -6667,12 +6664,12 @@
                 _context12.prev = 11;
                 _context12.t0 = _context12["catch"](1);
 
-                _iterator29.e(_context12.t0);
+                _iterator28.e(_context12.t0);
 
               case 14:
                 _context12.prev = 14;
 
-                _iterator29.f();
+                _iterator28.f();
 
                 return _context12.finish(14);
 
@@ -6686,17 +6683,10 @@
     }, {
       key: "has",
       value: function has(value) {
-        var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
-
-        if (Array.isArray(value)) {
-          return this.some(function (otherValue) {
-            return deepEquals(value, otherValue, depth);
-          });
-        } else {
-          return this.some(function (otherValue) {
-            return defaultEquals(value, otherValue);
-          });
-        }
+        var equals = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : equalsFor(value);
+        return this.some(function (otherValue) {
+          return equals(value, otherValue);
+        });
       }
     }]);
 
@@ -6728,19 +6718,19 @@
       get: function get() {
         var accumulator = 0;
 
-        var _iterator30 = _createForOfIteratorHelper(this),
-            _step30;
+        var _iterator29 = _createForOfIteratorHelper(this),
+            _step29;
 
         try {
-          for (_iterator30.s(); !(_step30 = _iterator30.n()).done;) // jshint ignore:line
+          for (_iterator29.s(); !(_step29 = _iterator29.n()).done;) // jshint ignore:line
           {
-            var i = _step30.value;
+            var i = _step29.value;
             accumulator++;
           }
         } catch (err) {
-          _iterator30.e(err);
+          _iterator29.e(err);
         } finally {
-          _iterator30.f();
+          _iterator29.f();
         }
 
         return accumulator;
@@ -6748,32 +6738,32 @@
     }, {
       key: Symbol.iterator,
       value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        var _iterator31, _step31, _value11;
+        var _iterator30, _step30, _value10;
 
         return regeneratorRuntime.wrap(function value$(_context13) {
           while (1) {
             switch (_context13.prev = _context13.next) {
               case 0:
-                _iterator31 = _createForOfIteratorHelper(this.iterable);
+                _iterator30 = _createForOfIteratorHelper(this.iterable);
                 _context13.prev = 1;
 
-                _iterator31.s();
+                _iterator30.s();
 
               case 3:
-                if ((_step31 = _iterator31.n()).done) {
+                if ((_step30 = _iterator30.n()).done) {
                   _context13.next = 10;
                   break;
                 }
 
-                _value11 = _step31.value;
+                _value10 = _step30.value;
 
-                if (!this.filterPredicate.call(this.ctx, _value11, _value11, this)) {
+                if (!this.filterPredicate.call(this.ctx, _value10, _value10, this)) {
                   _context13.next = 8;
                   break;
                 }
 
                 _context13.next = 8;
-                return _value11;
+                return _value10;
 
               case 8:
                 _context13.next = 3;
@@ -6787,12 +6777,12 @@
                 _context13.prev = 12;
                 _context13.t0 = _context13["catch"](1);
 
-                _iterator31.e(_context13.t0);
+                _iterator30.e(_context13.t0);
 
               case 15:
                 _context13.prev = 15;
 
-                _iterator31.f();
+                _iterator30.f();
 
                 return _context13.finish(15);
 
@@ -6806,9 +6796,9 @@
     }, {
       key: "has",
       value: function has(value) {
-        var depth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
+        var equals = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : equalsFor(value);
 
-        if (this.iterable.has(value, depth)) {
+        if (this.iterable.has(value, equals)) {
           return this.filterPredicate.call(this.ctx, value, value, this);
         }
 
@@ -6938,9 +6928,10 @@
     }, {
       key: "has",
       value: function has(key) {
+        var hashEq = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : hashEquals(key);
+
         if (this.buckets) {
-          var currHE = hashEquals(key);
-          return this.buckets.has(key, currHE.equalTo, currHE.hash);
+          return this.buckets.has(key, hashEq.equals, hashEq.hash);
         }
 
         return false;
@@ -6948,9 +6939,10 @@
     }, {
       key: "get",
       value: function get(key) {
+        var hashEq = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : hashEquals(key);
+
         if (this.buckets) {
-          var currHE = hashEquals(key);
-          return this.buckets.get(key, currHE.equalTo, currHE.hash);
+          return this.buckets.get(key, hashEq.equals, hashEq.hash);
         }
 
         return undefined;
@@ -6959,9 +6951,10 @@
     }, {
       key: "optionalGet",
       value: function optionalGet(key) {
+        var hashEq = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : hashEquals(key);
+
         if (this.buckets) {
-          var currHE = hashEquals(key);
-          return this.buckets.optionalGet(key, currHE.equalTo, currHE.hash);
+          return this.buckets.optionalGet(key, hashEq.equals, hashEq.hash);
         }
 
         return none;
@@ -6977,7 +6970,8 @@
     }, {
       key: "set",
       value: function set(key, value) {
-        this.addEntry(new Entry(key, value));
+        var hashEq = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : hashEquals(key);
+        this.addEntry(new Entry(key, value), hashEq);
         return this;
       }
       /**
@@ -6988,14 +6982,12 @@
 
     }, {
       key: "addEntry",
-      value: function addEntry(entry) {
-        var currHE = hashEquals(entry.key);
-
+      value: function addEntry(entry, hashEq) {
         if (this.buckets) {
-          this.buckets = this.buckets.set(entry, currHE.equalTo, currHE.hash);
+          this.buckets = this.buckets.set(entry, hashEq.equals, hashEq.hash);
           this.length = this.buckets.length;
         } else {
-          this.buckets = new HashContainer(entry, currHE.hash, Object.assign({}, this.options), this.options.depth);
+          this.buckets = new HashContainer(entry, hashEq.hash, Object.assign({}, this.options), this.options.depth);
           this.length = 1;
         }
 
@@ -7083,9 +7075,10 @@
     }, {
       key: "delete",
       value: function _delete(key) {
+        var hashEq = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : hashEquals(key);
+
         if (this.buckets) {
-          var currHE = hashEquals(key);
-          this.buckets = this.buckets.delete(key, currHE.equalTo, currHE.hash);
+          this.buckets = this.buckets.delete(key, hashEq.equals, hashEq.hash);
 
           if (this.buckets) {
             this.length = this.buckets.length;
@@ -7194,8 +7187,8 @@
       }
     }, {
       key: "get",
-      value: function get(key, equalTo) {
-        if (equalTo(key, this.key)) {
+      value: function get(key, equals) {
+        if (equals(key, this.key)) {
           return this.entry.value;
         }
 
@@ -7203,8 +7196,8 @@
       }
     }, {
       key: "optionalGet",
-      value: function optionalGet(key, equalTo) {
-        if (equalTo(key, this.key)) {
+      value: function optionalGet(key, equals) {
+        if (equals(key, this.key)) {
           return some(this.entry.value);
         }
 
@@ -7212,8 +7205,8 @@
       }
     }, {
       key: "set",
-      value: function set(newEntry, equalTo) {
-        if (equalTo(newEntry.key, this.key)) {
+      value: function set(newEntry, equals) {
+        if (equals(newEntry.key, this.key)) {
           newEntry.overwrite(this.entry);
           return this;
         }
@@ -7222,13 +7215,13 @@
       }
     }, {
       key: "has",
-      value: function has(key, equalTo) {
-        return equalTo(key, this.key);
+      value: function has(key, equals) {
+        return equals(key, this.key);
       }
     }, {
       key: "delete",
-      value: function _delete(key, equalTo) {
-        if (equalTo(key, this.key)) {
+      value: function _delete(key, equals) {
+        if (equals(key, this.key)) {
           this.entry.delete();
           return undefined;
         }
@@ -7290,11 +7283,11 @@
 
     _createClass(LinkedStack, [{
       key: "get",
-      value: function get(key, equalTo) {
+      value: function get(key, equals) {
         var container = this; // avoid recursion
 
         do {
-          if (equalTo(key, container.key)) {
+          if (equals(key, container.key)) {
             return container.value;
           }
 
@@ -7305,11 +7298,11 @@
       }
     }, {
       key: "optionalGet",
-      value: function optionalGet(key, equalTo) {
+      value: function optionalGet(key, equals) {
         var container = this; // avoid recursion
 
         do {
-          if (equalTo(key, container.key)) {
+          if (equals(key, container.key)) {
             return some(container.value);
           }
 
@@ -7320,11 +7313,11 @@
       }
     }, {
       key: "set",
-      value: function set(newEntry, equalTo) {
+      value: function set(newEntry, equals) {
         var container = this; // avoid recursion
 
         while (container) {
-          if (equalTo(newEntry.key, container.key)) {
+          if (equals(newEntry.key, container.key)) {
             newEntry.overwrite(this.entry);
             return this;
           }
@@ -7336,11 +7329,11 @@
       }
     }, {
       key: "has",
-      value: function has(key, equalTo) {
+      value: function has(key, equals) {
         var container = this; // avoid recursion
 
         do {
-          if (equalTo(key, container.key)) {
+          if (equals(key, container.key)) {
             return true;
           }
 
@@ -7351,9 +7344,9 @@
       }
     }, {
       key: "delete",
-      value: function _delete(key, equalTo) {
+      value: function _delete(key, equals) {
         // first on the list.
-        if (equalTo(key, this.key)) {
+        if (equals(key, this.key)) {
           this.entry.delete(); // lengths are not necessarily consistent.
 
           if (this.next) {
@@ -7367,7 +7360,7 @@
         var prev = this; // avoid recursion
 
         while (container) {
-          if (equalTo(key, container.key)) {
+          if (equals(key, container.key)) {
             container.entry.delete();
             var next = container.next;
 
@@ -7447,8 +7440,8 @@
 
     _createClass(HashContainer, [{
       key: "set",
-      value: function set(newEntry, equalTo, hash) {
-        if (hash === this.hash && equalTo(newEntry.key, this.key)) {
+      value: function set(newEntry, equals, hash) {
+        if (hash === this.hash && equals(newEntry.key, this.key)) {
           newEntry.overwrite(this.entry);
           return this;
         }
@@ -7464,8 +7457,8 @@
       }
     }, {
       key: "get",
-      value: function get(key, equalTo, hash) {
-        if (hash === this.hash && equalTo(key, this.key)) {
+      value: function get(key, equals, hash) {
+        if (hash === this.hash && equals(key, this.key)) {
           return this.value;
         }
 
@@ -7473,8 +7466,8 @@
       }
     }, {
       key: "optionalGet",
-      value: function optionalGet(key, equalTo, hash) {
-        if (hash === this.hash && equalTo(key, this.key)) {
+      value: function optionalGet(key, equals, hash) {
+        if (hash === this.hash && equals(key, this.key)) {
           return some(this.value);
         }
 
@@ -7482,13 +7475,13 @@
       }
     }, {
       key: "has",
-      value: function has(key, equalTo, hash) {
-        return hash === this.hash && equalTo(key, this.key);
+      value: function has(key, equals, hash) {
+        return hash === this.hash && equals(key, this.key);
       }
     }, {
       key: "delete",
-      value: function _delete(key, equalTo, hash) {
-        if (hash === this.hash && equalTo(key, this.key)) {
+      value: function _delete(key, equals, hash) {
+        if (hash === this.hash && equals(key, this.key)) {
           this.entry.delete();
           return undefined;
         }
@@ -7515,35 +7508,35 @@
 
     _createClass(HashBuckets, [{
       key: "get",
-      value: function get(key, equalTo, hash) {
+      value: function get(key, equals, hash) {
         var bucket = this.buckets[hash & this.options.mask];
 
         if (bucket) {
-          return bucket.get(key, equalTo, hash >>> this.options.widthAs2sExponent);
+          return bucket.get(key, equals, hash >>> this.options.widthAs2sExponent);
         }
 
         return undefined;
       }
     }, {
       key: "optionalGet",
-      value: function optionalGet(key, equalTo, hash) {
+      value: function optionalGet(key, equals, hash) {
         var bucket = this.buckets[hash & this.options.mask];
 
         if (bucket) {
-          return bucket.optionalGet(key, equalTo, hash >>> this.options.widthAs2sExponent);
+          return bucket.optionalGet(key, equals, hash >>> this.options.widthAs2sExponent);
         }
 
         return none;
       }
     }, {
       key: "set",
-      value: function set(entry, equalTo, hash) {
+      value: function set(entry, equals, hash) {
         var idx = hash & this.options.mask;
         var bucket = this.buckets[idx];
 
         if (bucket) {
           var len = bucket.length;
-          this.buckets[idx] = bucket.set(entry, equalTo, hash >>> this.options.widthAs2sExponent);
+          this.buckets[idx] = bucket.set(entry, equals, hash >>> this.options.widthAs2sExponent);
 
           if (this.buckets[idx].length !== len) {
             this.length++;
@@ -7560,23 +7553,23 @@
       }
     }, {
       key: "has",
-      value: function has(key, equalTo, hash) {
+      value: function has(key, equals, hash) {
         var bucket = this.buckets[hash & this.options.mask];
 
         if (bucket) {
-          return bucket.has(key, equalTo, hash >>> this.options.widthAs2sExponent);
+          return bucket.has(key, equals, hash >>> this.options.widthAs2sExponent);
         }
 
         return false;
       }
     }, {
       key: "delete",
-      value: function _delete(key, equalTo, hash) {
+      value: function _delete(key, equals, hash) {
         var idx = hash & this.options.mask;
         var bucket = this.buckets[idx];
 
         if (bucket) {
-          bucket = bucket.delete(key, equalTo, hash >>> this.options.widthAs2sExponent);
+          bucket = bucket.delete(key, equals, hash >>> this.options.widthAs2sExponent);
 
           if (!bucket || bucket.length === 0) {
             this.buckets[idx] = undefined;
@@ -7781,7 +7774,8 @@
     _createClass(LinkedHashMap, [{
       key: "set",
       value: function set(key, value) {
-        var entry = this.addEntry(new LinkedEntry(key, value)); // if we added at the end, shift forward one.
+        var hashEq = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : hashEquals(key);
+        var entry = this.addEntry(new LinkedEntry(key, value), hashEq); // if we added at the end, shift forward one.
 
         if (this.end) {
           if (!entry.deleted) {
@@ -7798,7 +7792,9 @@
     }, {
       key: "delete",
       value: function _delete(key) {
-        _get(_getPrototypeOf(LinkedHashMap.prototype), "delete", this).call(this, key);
+        var hashEq = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : hashEquals(key);
+
+        _get(_getPrototypeOf(LinkedHashMap.prototype), "delete", this).call(this, key, hashEq);
 
         if (this.start && this.start.deleted) {
           this.start = this.start.next;
@@ -7866,11 +7862,16 @@
     MapIterable: MapIterable,
     SetIterable: SetIterable,
     Utils: {
-      hashCode: hashCode,
+      hash: hash,
       isFunction: isFunction,
       isIterable: isIterable,
       isString: isString,
-      isNumber: isNumber
+      hashEquals: hashEquals,
+      hashCodeFor: hashCodeFor,
+      equalsFor: equalsFor,
+      some: some,
+      none: none,
+      Option: Option
     }
   };
 

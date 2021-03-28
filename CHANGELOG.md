@@ -1,12 +1,22 @@
 # Changelog
 ## 0.13.0 - Work In Progress
 - Breaking Changes
-  - Moved hashCode, MapIterable and SetIterable into the Mootable object, out of the standard exports.
-  - Split classes out into separate functional areas.
+  - Moved hash, MapIterable and SetIterable into the Mootable object, out of the standard exports.
+  - Split classes out into separate functional areas, for my own sanity.
+  - Simplified things drastically, by ensuring we follow sameValueZero, as per map, set and array, but allow people to define their own equals and hashing implementations.
+  - Renamed hashCode to hash
+  - removed isNumber Number.isFinite does the same thing.
+  - split hashcode and equalsTo creation, and renamed to hashCodeFor and equalsFor
+  - simplified hashCodeFor, to match sameValueZero.
+  - simplified equalsFor, to match sameValueZero.
+  - Re-added Date and Regex support in hashCodeFor and equalsFor
+  - removed depth as an optional parameter, and replaced with equals an optional parameter. on has, get, set, optionalGet and delete.
+  - added sameValueZero, sameValue, abstractEquals and strictEquals functions into utils, as helper functions, for defining equality.
 - Testing
-  - HashCode collision testing.
+  - hash collision testing.
   - Utility Function testing.
   - Differentiated between sanity testing and unit testing.
+  - improved coverage reporting.
 
 ## 0.12.6
 - Set Documentation links to the rightplace
@@ -90,7 +100,7 @@
         - Specialist: forEach, collect, every, has, some, find, reduce
         - Set Iterables: values, filter, map, concat
         - Properties: .size
-    - Exposed Mootable.hashCode function
+    - Exposed Mootable.hash function
     - Added functions to allow anyone use the higher order functions by wrapping an ES6 iteratable object (including arrays.
         - Mootable.mapIterator(map)
         - Mootable.setIterator(set)
