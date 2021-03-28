@@ -3449,6 +3449,15 @@
    * A representation of a value, that might be or might not be null.
    */
   var Option = /*#__PURE__*/function () {
+    /**
+     * Usage of this constructor should generally be avoided,
+     * - instead use the some or none method on Option,
+     * - or the some or none exported functions provided with this javascript file.
+     * @see {@link Mootable.Option.none none}
+     * @see {@link Mootable.Option.some some}
+     * @param has - whether it contains a value or not.
+     * @param value - the value to set
+     */
     function Option(has, value) {
       _classCallCheck(this, Option);
 
