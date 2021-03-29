@@ -3,6 +3,7 @@ const expect = require('chai').expect;
 const esmRequire = require("esm")(module/*, options*/);
 const Hash = {hash, hashCodeFor, equalsFor, equalsAndHash} = esmRequire('../../../src/hash')
 const {sameValueZero} = esmRequire('../../../src/utils')
+const {Option,some,none} = esmRequire('../../../src/option')
 
 if (process.env.UNDER_TEST_UNIT !== 'true') {
     return 0;
@@ -115,6 +116,16 @@ describe('Hash Functions', function () {
             // date we get the time since epoch
             expect(Hash.hashCodeFor(date)).to.be.equal(date.getTime());
         });
+        it('option none', function () {
+            const option = none;
+            // if it has nothing we treat it like null
+            expect(Hash.hashCodeFor(option)).to.be.equal(0);
+        });
+        it('option some', function () {
+            const option = some(new Date(2345));
+            // with options we multiply by a prime number. we have to expose it here.
+            expect(Hash.hashCodeFor(option)).to.be.equal(2345*31);
+        });
 
         it('no hash available, _mootable_hashCode preset by internal code', function () {
             const _mootable_hashCode =  39;
@@ -220,6 +231,7 @@ describe('Hash Functions', function () {
             // we can't just expect a basic function as sameValueZero,
             // so we have to do the check for this in the test,
             expect(equalsResult(myObj,myObj)).to.be.true;
+
             expect(equalsResult(myObj, {})).to.be.false;
         });
 
@@ -240,6 +252,7 @@ describe('Hash Functions', function () {
 
             expect(equalsResult(regex,regex)).to.be.true;
             expect(equalsResult(regex, /ab+c/i)).to.be.true;
+
             expect(equalsResult(regex,/xy+z/i)).to.be.false;
             expect(equalsResult(regex, {})).to.be.false;
         });
@@ -249,8 +262,28 @@ describe('Hash Functions', function () {
 
             expect(equalsResult(date,date)).to.be.true;
             expect(equalsResult(date, new Date(123456))).to.be.true;
+
             expect(equalsResult(date,new Date(12))).to.be.false;
             expect(equalsResult(date, {})).to.be.false;
+        });
+
+
+        it('option none', function () {
+            const option = none;
+            const noneResult = Hash.equalsFor(option);
+
+            expect(noneResult(option,option)).to.be.true;
+            expect(noneResult(option,none)).to.be.true;
+
+            expect(noneResult(option,some(1))).to.be.false;
+        });
+        it('option some', function () {
+            const option = some(1);
+            const someResult = Hash.equalsFor(option);
+
+            expect(someResult(option,option)).to.be.true;
+            expect(someResult(option,some(1))).to.be.true;
+            expect(someResult(option,none)).to.be.false;
         });
     });
     describe('equalsAndHash()', function () {

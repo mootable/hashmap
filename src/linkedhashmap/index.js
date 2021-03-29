@@ -1,5 +1,5 @@
 import {HashMap, Entry} from '../hashmap/';
-import {equalsAndHash} from '../hash';
+import {equalsAndHash} from '../hash'
 /**
  * HashMap - LinkedHashMap Implementation for JavaScript
  * @namespace Mootable

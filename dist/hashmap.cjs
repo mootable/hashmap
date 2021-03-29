@@ -263,8 +263,8 @@ class Option {
      * Usage of this constructor should generally be avoided,
      * - instead use the some or none method on Option,
      * - or the some or none exported functions provided with this javascript file.
-     * @see {@link Mootable.Option.none none}
-     * @see {@link Mootable.Option.some some}
+     * @see none
+     * @see some
      * @param has - whether it contains a value or not.
      * @param value - the value to set
      */
@@ -276,6 +276,11 @@ class Option {
     /**
      * A constant representation of an Option with nothing in it:
      * <code>{value:undefined,has:false}</code>
+     * @example create an option using none
+     * const option = Option.none;
+     * // option.has === false
+     * // option.value === undefined
+     * // option.size === 0
      * @type {Option}
      */
     static get none() {
@@ -298,6 +303,12 @@ class Option {
      * <code>{value:value,has:true}</code>
      * Even if a value is not provided it still counts as existing, this is different from other libraries,
      * we are effectively saying as null and undefined count as valid values.
+     * @example create an option using some
+     * const myValue = 'hello';
+     * const option = Option.some(myValue);
+     * // option.has === true
+     * // option.value === 'hello'
+     * // option.size === 1
      * @param value - the value
      * @return {Option} - the option in the form <code>{value:value,has:true}</code>
      */
@@ -338,12 +349,26 @@ class Option {
 /**
  * A function that when called with a value returns an Option object of the form:
  * <code>{value:value,has:true}</code>
+ * Even if a value is not provided it still counts as existing, this is different from other libraries,
+ * we are effectively saying as null and undefined count as valid values.
+ * @example create an option using some
+ * const myValue = 'hello';
+ * const option = some(myValue);
+ * // option.has === true
+ * // option.value === 'hello'
+ * // option.size === 1
  * @type {function(*=): Option}
  */
 const some = (value) => new Option(true, value);
+
 /**
  * A constant representation of an Option with nothing in it:
  * <code>{value:undefined,has:false}</code>
+ * @example create an option using none
+ * const option = none;
+ * // option.has === false
+ * // option.value === undefined
+ * // option.size === 0
  * @type {Option}
  */
 const none = new Option(false, undefined);

@@ -2,6 +2,7 @@ import {isFunction, isIterable} from '../utils/';
 import {equalsAndHash} from '../hash';
 import {none, some} from '../option/';
 import {MapIterable} from '../iterable/';
+
 /**
  * HashMap - HashMap Implementation for JavaScript
  * @namespace Mootable

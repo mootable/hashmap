@@ -1,4 +1,6 @@
 import {sameValueZero, isFunction} from '../utils';
+import {Option} from "../option";
+
 /**
  * Hash - Hash functions
  * @namespace Mootable.Hash
@@ -99,10 +101,11 @@ export function hashCodeFor(key) {
             }
             if (key.hashCode) {
                 if (isFunction(key.hashCode)) {
-                    return key.hashCode(key);
+                    return hashCodeFor(key.hashCode(key));
                 }
                 return hashCodeFor(key.hashCode);
             }
+
 
             // Regexes and Dates we treat like primitives.
             if (key instanceof Date) {
@@ -110,6 +113,14 @@ export function hashCodeFor(key) {
             }
             if (key instanceof RegExp) {
                 return hash(key.toString());
+            }
+
+            // Options we work on the values.
+            if(key instanceof Option) {
+                if(key.has) {
+                    return 31 * hashCodeFor(key.value);
+                }
+                return 0;
             }
 
             // Hash of Last Resort, ensure we don't consider any objects on the prototype chain.
@@ -140,8 +151,11 @@ let HASH_COUNTER = 0;
  * - In almost all cases it will return with ECMASpec sameValueZero method. As is the case with native map, set and array.
  * - If it is a regex, it compares the type, and the string values.
  * - If it is a date, it compares the type, and the time values.
+ * - If it is an option, it compares if they both have values, and then the values.
  * - If it has an equals function and that equals function when comapring 2 keys, return true. then it will use that.
  *   - The function can either be in the form <code>key.equals(other)</code>, or <code>key.equals(other,key)</code> in the case of static-like functions.
+ *
+ * The expectation and requirement is this key will always be the first argument to the method, the behaviour maybe unexpected if parameters are reversed.
  *
  * As with all hashmaps, there is a contractual equivalence between hashcode and equals methods,
  * in that any object that equals another, should produce the same hashcode.
@@ -151,7 +165,7 @@ let HASH_COUNTER = 0;
  */
 export function equalsFor(key) {
     // Regexes and Dates we treat like primitives.
-    if (typeof key === 'object') {
+    if (key && typeof key === 'object') {
         if (key instanceof RegExp) {
             return (me, them) => {
                 if (them instanceof RegExp) {
@@ -168,11 +182,23 @@ export function equalsFor(key) {
                 return false;
             };
         }
-    }
-
-    // do we have an equals method, and is it sane.
-    if (key && isFunction(key.equals) && key.equals(key, key)) {
-        return (me, them) => me.equals(them, me);
+        if(key instanceof Option) {
+            if(key.has) {
+                const valueEquals = equalsFor(key.value);
+                return (me, them) => {
+                    if(them.has){
+                        return valueEquals(them.value,me.value);
+                    }
+                    return false;
+                };
+            } else {
+                return (me, them) => !them.has;
+            }
+        }
+        // do we have an equals method, and is it sane.
+        if (isFunction(key.equals) && key.equals(key, key)) {
+            return (me, them) => me.equals(them, me);
+        }
     }
     return sameValueZero;
 }
