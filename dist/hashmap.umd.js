@@ -1076,6 +1076,139 @@
 	}
 
 	/**
+	 * Option - a class to get round nullable fields.
+	 * @namespace Mootable.Option
+	 * @author Jack Moxley <https://github.com/jackmoxley>
+	 * @version 0.12.6
+	 * Homepage: https://github.com/mootable/hashmap
+	 */
+
+	/**
+	 * A representation of a value, that might be or might not be null.
+	 * Options are immutable, once set, it can't be changed.
+	 */
+	class Option {
+	  /**
+	   * Usage of this constructor should generally be avoided,
+	   * - instead use the some or none method on Option,
+	   * - or the some or none exported functions provided with this javascript file.
+	   * This constructor makes the Option immutable and inextensible.
+	   * @see none
+	   * @see some
+	   * @param has - whether it contains a value or not.
+	   * @param value - the value to set
+	   */
+	  constructor(has, value) {
+	    this.has = has;
+	    this.value = value;
+	    Object.freeze(this);
+	  }
+	  /**
+	   * A constant representation of an Option with nothing in it:
+	   * <code>{value:undefined,has:false}</code>
+	   * @example create an option using none
+	   * const option = Option.none;
+	   * // option.has === false
+	   * // option.value === undefined
+	   * // option.size === 0
+	   * @type {Option}
+	   */
+
+
+	  static get none() {
+	    return none;
+	  }
+	  /**
+	   * Return the size of this option.
+	   *  - 1 if it has a value
+	   *  - 0 if it doesn't
+	   * @return {number}
+	   */
+
+
+	  get size() {
+	    return this.has ? 1 : 0;
+	  }
+	  /**
+	   * When called with a value returns an Option object of the form:
+	   * <code>{value:value,has:true}</code>
+	   * Even if a value is not provided it still counts as existing, this is different from other libraries,
+	   * we are effectively saying as null and undefined count as valid values.
+	   * @example create an option using some
+	   * const myValue = 'hello';
+	   * const option = Option.some(myValue);
+	   * // option.has === true
+	   * // option.value === 'hello'
+	   * // option.size === 1
+	   * @param value - the value
+	   * @return {Option} - the option in the form <code>{value:value,has:true}</code>
+	   */
+
+
+	  static some(value) {
+	    return some(value);
+	  }
+	  /**
+	   * Provides an iterable for the Option
+	   * If using a for loop.
+	   * - If it has a value the loop will execute just once.
+	   * - If it doesn't have a value the loop will not execute
+	   * @example iterating over some
+	   * const opt = Option.some("hello");
+	   * for (value of opt) {
+	   *    // loops once.
+	   *    console.log(opt);
+	   * }
+	   * console.log("world");
+	   * // logs - hello\nworld
+	   * @example iterating over none
+	   * const opt = Option.none;
+	   * for (value of opt) {
+	   *   // does not loop.
+	   *    console.log(opt);
+	   * }
+	   * console.log("world");
+	   * // logs - world
+	   * @return {Generator<*, void, *>}
+	   */
+
+
+	  *[Symbol.iterator]() {
+	    if (this.has) {
+	      yield this.value;
+	    }
+	  }
+
+	}
+	/**
+	 * A function that when called with a value returns an Option object of the form:
+	 * <code>{value:value,has:true}</code>
+	 * Even if a value is not provided it still counts as existing, this is different from other libraries,
+	 * we are effectively saying as null and undefined count as valid values.
+	 * @example create an option using some
+	 * const myValue = 'hello';
+	 * const option = some(myValue);
+	 * // option.has === true
+	 * // option.value === 'hello'
+	 * // option.size === 1
+	 * @type {function(*=): Option}
+	 */
+
+	const some = value => new Option(true, value);
+	/**
+	 * A constant representation of an Option with nothing in it:
+	 * <code>{value:undefined,has:false}</code>
+	 * @example create an option using none
+	 * const option = none;
+	 * // option.has === false
+	 * // option.value === undefined
+	 * // option.size === 0
+	 * @type {Option}
+	 */
+
+	const none = new Option(false, undefined);
+
+	/**
 	 * Hash - Hash functions
 	 * @namespace Mootable.Hash
 	 * @author Jack Moxley <https://github.com/jackmoxley>
@@ -1185,7 +1318,7 @@
 
 	        if (key.hashCode) {
 	          if (isFunction(key.hashCode)) {
-	            return key.hashCode(key);
+	            return hashCodeFor(key.hashCode(key));
 	          }
 
 	          return hashCodeFor(key.hashCode);
@@ -1198,6 +1331,15 @@
 
 	        if (key instanceof RegExp) {
 	          return hash(key.toString());
+	        } // Options we work on the values.
+
+
+	        if (key instanceof Option) {
+	          if (key.has) {
+	            return 31 * hashCodeFor(key.value);
+	          }
+
+	          return 0;
 	        } // Hash of Last Resort, ensure we don't consider any objects on the prototype chain.
 
 
@@ -1217,9 +1359,10 @@
 	  }
 	}
 	/**
+	 * an internal counter for managing unhashable objects.
 	 * @private
 	 * @ignore
-	 * @type {number} - an internal counter for managing unhashable objects.
+	 * @type {number}
 	 */
 
 	let HASH_COUNTER = 0;
@@ -1228,8 +1371,11 @@
 	 * - In almost all cases it will return with ECMASpec sameValueZero method. As is the case with native map, set and array.
 	 * - If it is a regex, it compares the type, and the string values.
 	 * - If it is a date, it compares the type, and the time values.
+	 * - If it is an option, it compares if they both have values, and then the values.
 	 * - If it has an equals function and that equals function when comapring 2 keys, return true. then it will use that.
 	 *   - The function can either be in the form <code>key.equals(other)</code>, or <code>key.equals(other,key)</code> in the case of static-like functions.
+	 *
+	 * The expectation and requirement is this key will always be the first argument to the method, the behaviour maybe unexpected if parameters are reversed.
 	 *
 	 * As with all hashmaps, there is a contractual equivalence between hashcode and equals methods,
 	 * in that any object that equals another, should produce the same hashcode.
@@ -1240,7 +1386,7 @@
 
 	function equalsFor(key) {
 	  // Regexes and Dates we treat like primitives.
-	  if (typeof key === 'object') {
+	  if (key && typeof key === 'object') {
 	    if (key instanceof RegExp) {
 	      return (me, them) => {
 	        if (them instanceof RegExp) {
@@ -1260,11 +1406,26 @@
 	        return false;
 	      };
 	    }
-	  } // do we have an equals method, and is it sane.
+
+	    if (key instanceof Option) {
+	      if (key.has) {
+	        const valueEquals = equalsFor(key.value);
+	        return (me, them) => {
+	          if (them.has) {
+	            return valueEquals(them.value, me.value);
+	          }
+
+	          return false;
+	        };
+	      } else {
+	        return (me, them) => !them.has;
+	      }
+	    } // do we have an equals method, and is it sane.
 
 
-	  if (key && isFunction(key.equals) && key.equals(key, key)) {
-	    return (me, them) => me.equals(them, me);
+	    if (isFunction(key.equals) && key.equals(key, key)) {
+	      return (me, them) => me.equals(them, me);
+	    }
 	  }
 
 	  return sameValueZero;
@@ -1292,136 +1453,6 @@
 	    equals
 	  };
 	}
-
-	/**
-	 * Option - a class to get round nullable fields.
-	 * @namespace Mootable.Option
-	 * @author Jack Moxley <https://github.com/jackmoxley>
-	 * @version 0.12.6
-	 * Homepage: https://github.com/mootable/hashmap
-	 */
-
-	/**
-	 * A representation of a value, that might be or might not be null.
-	 */
-	class Option {
-	  /**
-	   * Usage of this constructor should generally be avoided,
-	   * - instead use the some or none method on Option,
-	   * - or the some or none exported functions provided with this javascript file.
-	   * @see none
-	   * @see some
-	   * @param has - whether it contains a value or not.
-	   * @param value - the value to set
-	   */
-	  constructor(has, value) {
-	    this.has = has;
-	    this.value = value;
-	  }
-	  /**
-	   * A constant representation of an Option with nothing in it:
-	   * <code>{value:undefined,has:false}</code>
-	   * @example create an option using none
-	   * const option = Option.none;
-	   * // option.has === false
-	   * // option.value === undefined
-	   * // option.size === 0
-	   * @type {Option}
-	   */
-
-
-	  static get none() {
-	    return none;
-	  }
-	  /**
-	   * Return the size of this option.
-	   *  - 1 if it has a value
-	   *  - 0 if it doesn't
-	   * @return {number}
-	   */
-
-
-	  get size() {
-	    return this.has ? 1 : 0;
-	  }
-	  /**
-	   * When called with a value returns an Option object of the form:
-	   * <code>{value:value,has:true}</code>
-	   * Even if a value is not provided it still counts as existing, this is different from other libraries,
-	   * we are effectively saying as null and undefined count as valid values.
-	   * @example create an option using some
-	   * const myValue = 'hello';
-	   * const option = Option.some(myValue);
-	   * // option.has === true
-	   * // option.value === 'hello'
-	   * // option.size === 1
-	   * @param value - the value
-	   * @return {Option} - the option in the form <code>{value:value,has:true}</code>
-	   */
-
-
-	  static some(value) {
-	    return some(value);
-	  }
-	  /**
-	   * Provides an iterable for the Option
-	   * If using a for loop.
-	   * - If it has a value the loop will execute just once.
-	   * - If it doesn't have a value the loop will not execute
-	   * @example iterating over some
-	   * const opt = Option.some("hello");
-	   * for (value of opt) {
-	   *    // loops once.
-	   *    console.log(opt);
-	   * }
-	   * console.log("world");
-	   * // logs - hello\nworld
-	   * @example iterating over none
-	   * const opt = Option.none;
-	   * for (value of opt) {
-	   *   // does not loop.
-	   *    console.log(opt);
-	   * }
-	   * console.log("world");
-	   * // logs - world
-	   * @return {Generator<*, void, *>}
-	   */
-
-
-	  *[Symbol.iterator]() {
-	    if (this.has) {
-	      yield this.value;
-	    }
-	  }
-
-	}
-	/**
-	 * A function that when called with a value returns an Option object of the form:
-	 * <code>{value:value,has:true}</code>
-	 * Even if a value is not provided it still counts as existing, this is different from other libraries,
-	 * we are effectively saying as null and undefined count as valid values.
-	 * @example create an option using some
-	 * const myValue = 'hello';
-	 * const option = some(myValue);
-	 * // option.has === true
-	 * // option.value === 'hello'
-	 * // option.size === 1
-	 * @type {function(*=): Option}
-	 */
-
-	const some = value => new Option(true, value);
-	/**
-	 * A constant representation of an Option with nothing in it:
-	 * <code>{value:undefined,has:false}</code>
-	 * @example create an option using none
-	 * const option = none;
-	 * // option.has === false
-	 * // option.value === undefined
-	 * // option.size === 0
-	 * @type {Option}
-	 */
-
-	const none = new Option(false, undefined);
 
 	/**
 	 * HashMap - HashMap Implementation for JavaScript

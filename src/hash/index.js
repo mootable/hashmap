@@ -140,9 +140,10 @@ export function hashCodeFor(key) {
 }
 
 /**
+ * an internal counter for managing unhashable objects.
  * @private
  * @ignore
- * @type {number} - an internal counter for managing unhashable objects.
+ * @type {number}
  */
 let HASH_COUNTER = 0;
 
