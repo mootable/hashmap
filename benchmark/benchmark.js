@@ -7,10 +7,11 @@
 const fs = require('fs');
 const _ = require('lodash');
 const Benchmark = require('benchmark');
+const esmRequire = require("esm")(module/*, options*/);
 const hashmapImplementations = {
-    'mootable-hashmap': '../src/hashmap',
-    'map': null,
-    'flesler-hashmap': 'flesler-hashmap',
+    'mootable-hashmap': {location: '../src/hashmap', esm: true},
+    'map': {location: null, esm: false},
+    'flesler-hashmap': {location: 'flesler-hashmap', esm: false},
 };
 
 const metrics = {benchmarks: {}, fastest: {}, slowest: {}};
@@ -56,7 +57,7 @@ function memoryUsage(preText) {
 memoryUsage("Start");
 resetMemoryUsed();
 const HASHMAP_SIZES = [0, 64, 256, 512, 768, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304];
-const LARGEST_HASHMAP = HASHMAP_SIZES.sort((left, right) => left-right)[HASHMAP_SIZES.length-1];
+const LARGEST_HASHMAP = HASHMAP_SIZES.sort((left, right) => left - right)[HASHMAP_SIZES.length - 1];
 
 const ALL_KV = new Array(LARGEST_HASHMAP);
 for (let i = 0; i < LARGEST_HASHMAP; i++) {
@@ -76,9 +77,9 @@ let theSuite = new Benchmark.Suite('hashmap benchmarks');
 const hashmapsTested = [];
 Object.entries(hashmapImplementations)
     .forEach(
-        ([version, location]) => {
+        ([version, {location, esm}]) => {
             if (location) {
-                const required = require(location);
+                const required = esm ? esmRequire(location) : require(location);
                 if (required.LinkedHashMap) {
                     const required = require(location);
                     console.info("Benchmarking:", version + ".LinkedHashMap", "from:", location);
@@ -110,12 +111,12 @@ function writeToFile() {
         table = table + `<tr><td rowspan="${Object.entries(benchmark).length}">${version}</td>`;
         let first = true;
         Object.entries(benchmark).forEach(([size, metrics]) => {
-            if(first) {
+            if (first) {
                 first = false;
             } else {
                 table = table + "<tr>";
             }
-            if(!metrics.memory){
+            if (!metrics.memory) {
                 metrics.memory = '';
                 metrics.memoryRaw = '';
             }
@@ -153,7 +154,7 @@ theSuite = theSuite.on('cycle', function (event) {
 }).on('complete', function () {
     hashmapsTested.forEach(version => {
         const sorted = _.sortBy(this.filter({'version': version}), 'hashmap-size');
-        const versionMetrics = metrics.benchmarks[version]  ? metrics.benchmarks[version] : {};
+        const versionMetrics = metrics.benchmarks[version] ? metrics.benchmarks[version] : {};
         metrics.benchmarks[version] = versionMetrics;
         sorted.forEach(value => {
             const size = value['hashmap-size'];
