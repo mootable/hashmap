@@ -8,7 +8,27 @@
 
 /**
  * A representation of a value, that might be or might not be null.
- * Options are immutable, once set, it can't be changed.
+ * - Options are immutable, once set, it can't be changed.
+ * - Options are iterable
+ *   - If using a for loop.
+ *     - If it has a value the loop will execute just once.
+ *     - If it doesn't have a value the loop will not execute
+ * @example <caption>iterating over some</caption>
+ * const opt = Option.some("hello");
+ * for (value of opt) {
+ *    // loops once.
+ *    console.log(opt);
+ * }
+ * console.log("world");
+ * // logs - hello\nworld
+ * @example <caption>iterating over none</caption>
+ * const opt = Option.none;
+ * for (value of opt) {
+ *   // does not loop.
+ *    console.log(opt);
+ * }
+ * console.log("world");
+ * // logs - world
  */
 export class Option {
     /**
@@ -83,7 +103,7 @@ export class Option {
      * }
      * console.log("world");
      * // logs - hello\nworld
-     * @example iterating over none
+     * @example <caption>iterating over none</caption>
      * const opt = Option.none;
      * for (value of opt) {
      *   // does not loop.
