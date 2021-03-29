@@ -1106,7 +1106,7 @@
 	  /**
 	   * A constant representation of an Option with nothing in it:
 	   * <code>{value:undefined,has:false}</code>
-	   * @example create an option using none
+	   * @example <caption>create an option using none</caption>
 	   * const option = Option.none;
 	   * // option.has === false
 	   * // option.value === undefined
@@ -1134,7 +1134,7 @@
 	   * <code>{value:value,has:true}</code>
 	   * Even if a value is not provided it still counts as existing, this is different from other libraries,
 	   * we are effectively saying as null and undefined count as valid values.
-	   * @example create an option using some
+	   * @example <caption>create an option using some</caption>
 	   * const myValue = 'hello';
 	   * const option = Option.some(myValue);
 	   * // option.has === true
@@ -1153,7 +1153,7 @@
 	   * If using a for loop.
 	   * - If it has a value the loop will execute just once.
 	   * - If it doesn't have a value the loop will not execute
-	   * @example iterating over some
+	   * @example <caption>iterating over some</caption>
 	   * const opt = Option.some("hello");
 	   * for (value of opt) {
 	   *    // loops once.
@@ -1185,7 +1185,7 @@
 	 * <code>{value:value,has:true}</code>
 	 * Even if a value is not provided it still counts as existing, this is different from other libraries,
 	 * we are effectively saying as null and undefined count as valid values.
-	 * @example create an option using some
+	 * @example  <caption>create an option using some</caption>
 	 * const myValue = 'hello';
 	 * const option = some(myValue);
 	 * // option.has === true
@@ -1198,7 +1198,7 @@
 	/**
 	 * A constant representation of an Option with nothing in it:
 	 * <code>{value:undefined,has:false}</code>
-	 * @example create an option using none
+	 * @example <caption>create an option using none</caption>
 	 * const option = none;
 	 * // option.has === false
 	 * // option.value === undefined
