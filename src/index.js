@@ -4,6 +4,7 @@ import {MapIterable, SetIterable} from "./iterable/";
 import {isFunction, isIterable, isString} from './utils/';
 import {hash, equalsAndHash, hashCodeFor, equalsFor} from './hash';
 import {none, some, Option} from './option/';
+
 /**
  * @module @mootable/hashmap
  */

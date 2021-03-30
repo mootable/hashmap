@@ -89,7 +89,6 @@ export class Option {
     static some(value) {
         return some(value);
     }
-
     /**
      * Provides an iterable for the Option
      * If using a for loop.

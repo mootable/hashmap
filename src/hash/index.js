@@ -1,6 +1,5 @@
 import {sameValueZero, isFunction} from '../utils';
 import {Option} from "../option";
-
 /**
  * Hash - Hash functions
  * @namespace Mootable.Hash
@@ -15,7 +14,7 @@ import {Option} from "../option";
  * @see {@link https://en.wikipedia.org/wiki/MurmurHash|MurmurHash on Wikipedia}
  * @param key the string being hashed
  * @param len the max limit on the number of characters to hash
- * @param seed an optional random seed
+ * @param seed an optional random seed, or previous hash value to continue hashing against.
  * @returns {number} the hash
  */
 export function hash(key, len = 0, seed = 0) {

@@ -8,7 +8,6 @@ import {some, none} from '../option/'
  * @version 0.12.6
  * Homepage: https://github.com/mootable/hashmap
  */
-
 /**
  * The base class for the Map Implementations, and the Higher Order Functions for Maps
  * @example <caption>Create a MapIterable from a Map.</caption>

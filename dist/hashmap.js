@@ -1359,23 +1359,23 @@
     return isNaN(argument = +argument) ? 0 : (argument > 0 ? floor$1 : ceil)(argument);
   };
 
-  var min$1 = Math.min;
+  var min$2 = Math.min;
 
   // `ToLength` abstract operation
   // https://tc39.es/ecma262/#sec-tolength
   var toLength = function (argument) {
-    return argument > 0 ? min$1(toInteger(argument), 0x1FFFFFFFFFFFFF) : 0; // 2 ** 53 - 1 == 9007199254740991
+    return argument > 0 ? min$2(toInteger(argument), 0x1FFFFFFFFFFFFF) : 0; // 2 ** 53 - 1 == 9007199254740991
   };
 
-  var max = Math.max;
-  var min = Math.min;
+  var max$1 = Math.max;
+  var min$1 = Math.min;
 
   // Helper for a popular repeating case of the spec:
   // Let integer be ? ToInteger(index).
   // If integer < 0, let result be max((length + integer), 0); else let result be min(integer, length).
   var toAbsoluteIndex = function (index, length) {
     var integer = toInteger(index);
-    return integer < 0 ? max(integer + length, 0) : min(integer, length);
+    return integer < 0 ? max$1(integer + length, 0) : min$1(integer, length);
   };
 
   // `Array.prototype.{ indexOf, includes }` methods implementation
@@ -3293,7 +3293,7 @@
        * When called with a value returns an Option object of the form:
        * <code>{value:value,has:true}</code>
        * Even if a value is not provided it still counts as existing, this is different from other libraries,
-       * we are effectively saying as null and undefined count as valid values.
+       * we are effectively saying, null and undefined count as valid values.
        * @example <caption>create an option using some</caption>
        * const myValue = 'hello';
        * const option = Option.some(myValue);
@@ -3400,7 +3400,7 @@
    * @see {@link https://en.wikipedia.org/wiki/MurmurHash|MurmurHash on Wikipedia}
    * @param key the string being hashed
    * @param len the max limit on the number of characters to hash
-   * @param seed an optional random seed
+   * @param seed an optional random seed, or previous hash value to continue hashing against.
    * @returns {number} the hash
    */
 
@@ -3660,7 +3660,7 @@
   };
 
   var IS_CONCAT_SPREADABLE = wellKnownSymbol('isConcatSpreadable');
-  var MAX_SAFE_INTEGER = 0x1FFFFFFFFFFFFF;
+  var MAX_SAFE_INTEGER$1 = 0x1FFFFFFFFFFFFF;
   var MAXIMUM_ALLOWED_INDEX_EXCEEDED = 'Maximum allowed index exceeded';
 
   // We can't use this feature detection in V8 since it causes
@@ -3696,10 +3696,10 @@
         E = i === -1 ? O : arguments[i];
         if (isConcatSpreadable(E)) {
           len = toLength(E.length);
-          if (n + len > MAX_SAFE_INTEGER) throw TypeError(MAXIMUM_ALLOWED_INDEX_EXCEEDED);
+          if (n + len > MAX_SAFE_INTEGER$1) throw TypeError(MAXIMUM_ALLOWED_INDEX_EXCEEDED);
           for (k = 0; k < len; k++, n++) if (k in E) createProperty(A, n, E[k]);
         } else {
-          if (n >= MAX_SAFE_INTEGER) throw TypeError(MAXIMUM_ALLOWED_INDEX_EXCEEDED);
+          if (n >= MAX_SAFE_INTEGER$1) throw TypeError(MAXIMUM_ALLOWED_INDEX_EXCEEDED);
           createProperty(A, n++, E);
         }
       }
@@ -3826,14 +3826,14 @@
 
 
   var FIND = 'find';
-  var SKIPS_HOLES = true;
+  var SKIPS_HOLES$1 = true;
 
   // Shouldn't skip holes
-  if (FIND in []) Array(1)[FIND](function () { SKIPS_HOLES = false; });
+  if (FIND in []) Array(1)[FIND](function () { SKIPS_HOLES$1 = false; });
 
   // `Array.prototype.find` method
   // https://tc39.es/ecma262/#sec-array.prototype.find
-  _export({ target: 'Array', proto: true, forced: SKIPS_HOLES }, {
+  _export({ target: 'Array', proto: true, forced: SKIPS_HOLES$1 }, {
     find: function find(callbackfn /* , that = undefined */) {
       return $find(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
     }
@@ -4190,12 +4190,12 @@
   var $map = arrayIteration.map;
 
 
-  var HAS_SPECIES_SUPPORT = arrayMethodHasSpeciesSupport('map');
+  var HAS_SPECIES_SUPPORT$1 = arrayMethodHasSpeciesSupport('map');
 
   // `Array.prototype.map` method
   // https://tc39.es/ecma262/#sec-array.prototype.map
   // with adding support of @@species
-  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT }, {
+  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$1 }, {
     map: function map(callbackfn /* , thisArg */) {
       return $map(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
     }
@@ -6978,7 +6978,7 @@
 
   /**
    * HashMap - HashMap Implementation for JavaScript
-   * @namespace Mootable
+   * @namespace Mootable.hashmap.entry
    * @author Jack Moxley <https://github.com/jackmoxley>
    * @version 0.12.6
    * Homepage: https://github.com/mootable/hashmap
@@ -6987,7 +6987,6 @@
   /**
    * @private
    */
-
   var Entry = /*#__PURE__*/function () {
     function Entry(key, value) {
       _classCallCheck(this, Entry);
@@ -7008,6 +7007,379 @@
 
     return Entry;
   }();
+
+  var $findIndex = arrayIteration.findIndex;
+
+
+  var FIND_INDEX = 'findIndex';
+  var SKIPS_HOLES = true;
+
+  // Shouldn't skip holes
+  if (FIND_INDEX in []) Array(1)[FIND_INDEX](function () { SKIPS_HOLES = false; });
+
+  // `Array.prototype.findIndex` method
+  // https://tc39.es/ecma262/#sec-array.prototype.findindex
+  _export({ target: 'Array', proto: true, forced: SKIPS_HOLES }, {
+    findIndex: function findIndex(callbackfn /* , that = undefined */) {
+      return $findIndex(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
+    }
+  });
+
+  // https://tc39.es/ecma262/#sec-array.prototype-@@unscopables
+  addToUnscopables(FIND_INDEX);
+
+  var HAS_SPECIES_SUPPORT = arrayMethodHasSpeciesSupport('splice');
+
+  var max = Math.max;
+  var min = Math.min;
+  var MAX_SAFE_INTEGER = 0x1FFFFFFFFFFFFF;
+  var MAXIMUM_ALLOWED_LENGTH_EXCEEDED = 'Maximum allowed length exceeded';
+
+  // `Array.prototype.splice` method
+  // https://tc39.es/ecma262/#sec-array.prototype.splice
+  // with adding support of @@species
+  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT }, {
+    splice: function splice(start, deleteCount /* , ...items */) {
+      var O = toObject(this);
+      var len = toLength(O.length);
+      var actualStart = toAbsoluteIndex(start, len);
+      var argumentsLength = arguments.length;
+      var insertCount, actualDeleteCount, A, k, from, to;
+      if (argumentsLength === 0) {
+        insertCount = actualDeleteCount = 0;
+      } else if (argumentsLength === 1) {
+        insertCount = 0;
+        actualDeleteCount = len - actualStart;
+      } else {
+        insertCount = argumentsLength - 2;
+        actualDeleteCount = min(max(toInteger(deleteCount), 0), len - actualStart);
+      }
+      if (len + insertCount - actualDeleteCount > MAX_SAFE_INTEGER) {
+        throw TypeError(MAXIMUM_ALLOWED_LENGTH_EXCEEDED);
+      }
+      A = arraySpeciesCreate(O, actualDeleteCount);
+      for (k = 0; k < actualDeleteCount; k++) {
+        from = actualStart + k;
+        if (from in O) createProperty(A, k, O[from]);
+      }
+      A.length = actualDeleteCount;
+      if (insertCount < actualDeleteCount) {
+        for (k = actualStart; k < len - actualDeleteCount; k++) {
+          from = k + actualDeleteCount;
+          to = k + insertCount;
+          if (from in O) O[to] = O[from];
+          else delete O[to];
+        }
+        for (k = len; k > len - actualDeleteCount + insertCount; k--) delete O[k - 1];
+      } else if (insertCount > actualDeleteCount) {
+        for (k = len - actualDeleteCount; k > actualStart; k--) {
+          from = k + actualDeleteCount - 1;
+          to = k + insertCount - 1;
+          if (from in O) O[to] = O[from];
+          else delete O[to];
+        }
+      }
+      for (k = 0; k < insertCount; k++) {
+        O[k + actualStart] = arguments[k + 2];
+      }
+      O.length = len - actualDeleteCount + insertCount;
+      return A;
+    }
+  });
+
+  /**
+   * HashMap - HashMap Implementation for JavaScript
+   * @namespace Mootable.hashmap.container
+   * @author Jack Moxley <https://github.com/jackmoxley>
+   * @version 0.12.6
+   * Homepage: https://github.com/mootable/hashmap
+   */
+
+  var SingleContainer = /*#__PURE__*/function () {
+    function SingleContainer(entry) {
+      _classCallCheck(this, SingleContainer);
+
+      this.entry = entry;
+      this.size = 1;
+    }
+
+    _createClass(SingleContainer, [{
+      key: "key",
+      get: function get() {
+        return this.entry.key;
+      }
+    }, {
+      key: "value",
+      get: function get() {
+        return this.entry.value;
+      }
+    }, {
+      key: "get",
+      value: function get(key, equals) {
+        if (equals(key, this.key)) {
+          return this.entry.value;
+        }
+
+        return undefined;
+      }
+    }, {
+      key: "optionalGet",
+      value: function optionalGet(key, equals) {
+        if (equals(key, this.key)) {
+          return _some(this.entry.value);
+        }
+
+        return none;
+      }
+    }, {
+      key: "set",
+      value: function set(newEntry, equals) {
+        if (equals(newEntry.key, this.key)) {
+          newEntry.overwrite(this.entry);
+          return this;
+        }
+
+        return new ArrayContainer(newEntry, this);
+      }
+    }, {
+      key: "has",
+      value: function has(key, equals) {
+        return equals(key, this.key);
+      }
+    }, {
+      key: "delete",
+      value: function _delete(key, equals) {
+        if (equals(key, this.key)) {
+          this.entry.delete();
+          return undefined;
+        }
+
+        return this;
+      }
+    }, {
+      key: Symbol.iterator,
+      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
+        return regeneratorRuntime.wrap(function value$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                if (!(this.size !== 0)) {
+                  _context.next = 3;
+                  break;
+                }
+
+                _context.next = 3;
+                return [this.key, this.value];
+
+              case 3:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, value, this);
+      })
+    }]);
+
+    return SingleContainer;
+  }();
+  /**
+   * @private
+   * @extends Container
+   */
+
+  var ArrayContainer = /*#__PURE__*/function () {
+    function ArrayContainer(entry, next) {
+      _classCallCheck(this, ArrayContainer);
+
+      this.contents = [entry, next];
+    }
+
+    _createClass(ArrayContainer, [{
+      key: "size",
+      get: function get() {
+        return this.contents.length;
+      }
+    }, {
+      key: "get",
+      value: function get(key, equals) {
+        var _iterator = _createForOfIteratorHelper(this.contents),
+            _step;
+
+        try {
+          for (_iterator.s(); !(_step = _iterator.n()).done;) {
+            var entry = _step.value;
+
+            if (equals(key, entry.key)) {
+              return entry.value;
+            }
+          }
+        } catch (err) {
+          _iterator.e(err);
+        } finally {
+          _iterator.f();
+        }
+
+        return undefined;
+      }
+    }, {
+      key: "optionalGet",
+      value: function optionalGet(key, equals) {
+
+        var _iterator2 = _createForOfIteratorHelper(this.contents),
+            _step2;
+
+        try {
+          for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+            var entry = _step2.value;
+
+            if (equals(key, entry.key)) {
+              return _some(entry.value);
+            }
+          }
+        } catch (err) {
+          _iterator2.e(err);
+        } finally {
+          _iterator2.f();
+        }
+
+        return none;
+      }
+    }, {
+      key: "set",
+      value: function set(newEntry, equals) {
+        var _iterator3 = _createForOfIteratorHelper(this.contents),
+            _step3;
+
+        try {
+          for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+            var entry = _step3.value;
+
+            if (equals(newEntry.key, entry.key)) {
+              newEntry.overwrite(entry);
+              return this;
+            }
+          }
+        } catch (err) {
+          _iterator3.e(err);
+        } finally {
+          _iterator3.f();
+        }
+
+        this.contents.push(newEntry);
+        return this;
+      }
+    }, {
+      key: "has",
+      value: function has(key, equals) {
+        var _iterator4 = _createForOfIteratorHelper(this.contents),
+            _step4;
+
+        try {
+          for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+            var entry = _step4.value;
+
+            if (equals(key, entry.key)) {
+              return true;
+            }
+          }
+        } catch (err) {
+          _iterator4.e(err);
+        } finally {
+          _iterator4.f();
+        }
+
+        return false;
+      }
+    }, {
+      key: "delete",
+      value: function _delete(key, equals) {
+        var findPredicate = function findPredicate(entry) {
+          return equals(key, entry.key);
+        };
+
+        if (this.contents.length === 2) {
+          var newEntry = this.contents.find(findPredicate);
+
+          if (newEntry) {
+            return new SingleContainer(newEntry);
+          }
+        } else {
+          var idx = this.contents.findIndex(function (entry) {
+            return equals(key, entry.key);
+          });
+
+          if (idx >= 0) {
+            this.contents = this.contents.splice(idx, 1);
+          }
+        }
+
+        return this;
+      }
+    }, {
+      key: Symbol.iterator,
+      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
+        var _iterator5, _step5, entry;
+
+        return regeneratorRuntime.wrap(function value$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                _iterator5 = _createForOfIteratorHelper(this.contents);
+                _context2.prev = 1;
+
+                _iterator5.s();
+
+              case 3:
+                if ((_step5 = _iterator5.n()).done) {
+                  _context2.next = 9;
+                  break;
+                }
+
+                entry = _step5.value;
+                _context2.next = 7;
+                return [entry.key, entry.value];
+
+              case 7:
+                _context2.next = 3;
+                break;
+
+              case 9:
+                _context2.next = 14;
+                break;
+
+              case 11:
+                _context2.prev = 11;
+                _context2.t0 = _context2["catch"](1);
+
+                _iterator5.e(_context2.t0);
+
+              case 14:
+                _context2.prev = 14;
+
+                _iterator5.f();
+
+                return _context2.finish(14);
+
+              case 17:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, value, this, [[1, 11, 14, 17]]);
+      })
+    }]);
+
+    return ArrayContainer;
+  }();
+
+  /**
+   * HashMap - HashMap Implementation for JavaScript
+   * @namespace Mootable
+   * @author Jack Moxley <https://github.com/jackmoxley>
+   * @version 0.12.6
+   * Homepage: https://github.com/mootable/hashmap
+   */
+
   /**
    * This HashMap is backed by a hashtrie, and can be tuned to specific use cases.
    * @extends {MapIterable}
@@ -7152,7 +7524,7 @@
       value: function addEntry(entry, hashEq) {
         if (this.buckets) {
           this.buckets = this.buckets.set(entry, hashEq.equals, hashEq.hash);
-          this.length = this.buckets.length;
+          this.length = this.buckets.size;
         } else {
           this.buckets = new HashContainer(entry, hashEq.hash, Object.assign({}, this.options), this.options.depth);
           this.length = 1;
@@ -7248,7 +7620,7 @@
           this.buckets = this.buckets.delete(key, hashEq.equals, hashEq.hash);
 
           if (this.buckets) {
-            this.length = this.buckets.length;
+            this.length = this.buckets.size;
           } else {
             this.length = 0;
           }
@@ -7332,277 +7704,24 @@
   }(MapIterable);
   /**
    * @private
-   */
-
-  var Container = /*#__PURE__*/function () {
-    function Container(entry) {
-      _classCallCheck(this, Container);
-
-      this.entry = entry;
-      this.length = 1;
-    }
-
-    _createClass(Container, [{
-      key: "key",
-      get: function get() {
-        return this.entry.key;
-      }
-    }, {
-      key: "value",
-      get: function get() {
-        return this.entry.value;
-      }
-    }, {
-      key: "get",
-      value: function get(key, equals) {
-        if (equals(key, this.key)) {
-          return this.entry.value;
-        }
-
-        return undefined;
-      }
-    }, {
-      key: "optionalGet",
-      value: function optionalGet(key, equals) {
-        if (equals(key, this.key)) {
-          return _some(this.entry.value);
-        }
-
-        return none;
-      }
-    }, {
-      key: "set",
-      value: function set(newEntry, equals) {
-        if (equals(newEntry.key, this.key)) {
-          newEntry.overwrite(this.entry);
-          return this;
-        }
-
-        return new LinkedStack(newEntry, this);
-      }
-    }, {
-      key: "has",
-      value: function has(key, equals) {
-        return equals(key, this.key);
-      }
-    }, {
-      key: "delete",
-      value: function _delete(key, equals) {
-        if (equals(key, this.key)) {
-          this.entry.delete();
-          return undefined;
-        }
-
-        return this;
-      }
-    }, {
-      key: "forEach",
-      value: function forEach(func, ctx) {
-        func.call(ctx, this.value, this.key);
-        return this;
-      }
-    }, {
-      key: Symbol.iterator,
-      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        return regeneratorRuntime.wrap(function value$(_context2) {
-          while (1) {
-            switch (_context2.prev = _context2.next) {
-              case 0:
-                if (!(this.length !== 0)) {
-                  _context2.next = 3;
-                  break;
-                }
-
-                _context2.next = 3;
-                return [this.key, this.value];
-
-              case 3:
-              case "end":
-                return _context2.stop();
-            }
-          }
-        }, value, this);
-      })
-    }]);
-
-    return Container;
-  }();
-  /**
-   * @private
    * @extends Container
    */
 
-  var LinkedStack = /*#__PURE__*/function (_Container) {
-    _inherits(LinkedStack, _Container);
+  var HashContainer = /*#__PURE__*/function (_SingleContainer) {
+    _inherits(HashContainer, _SingleContainer);
 
-    var _super2 = _createSuper(LinkedStack);
-
-    function LinkedStack(entry, next) {
-      var _this2;
-
-      _classCallCheck(this, LinkedStack);
-
-      _this2 = _super2.call(this, entry);
-      _this2.next = next;
-      _this2.length = next.length + 1;
-      return _this2;
-    }
-
-    _createClass(LinkedStack, [{
-      key: "get",
-      value: function get(key, equals) {
-        var container = this; // avoid recursion
-
-        do {
-          if (equals(key, container.key)) {
-            return container.value;
-          }
-
-          container = container.next;
-        } while (container);
-
-        return undefined;
-      }
-    }, {
-      key: "optionalGet",
-      value: function optionalGet(key, equals) {
-        var container = this; // avoid recursion
-
-        do {
-          if (equals(key, container.key)) {
-            return _some(container.value);
-          }
-
-          container = container.next;
-        } while (container);
-
-        return none;
-      }
-    }, {
-      key: "set",
-      value: function set(newEntry, equals) {
-        var container = this; // avoid recursion
-
-        while (container) {
-          if (equals(newEntry.key, container.key)) {
-            newEntry.overwrite(this.entry);
-            return this;
-          }
-
-          container = container.next;
-        }
-
-        return new LinkedStack(newEntry, this);
-      }
-    }, {
-      key: "has",
-      value: function has(key, equals) {
-        var container = this; // avoid recursion
-
-        do {
-          if (equals(key, container.key)) {
-            return true;
-          }
-
-          container = container.next;
-        } while (container);
-
-        return false;
-      }
-    }, {
-      key: "delete",
-      value: function _delete(key, equals) {
-        // first on the list.
-        if (equals(key, this.key)) {
-          this.entry.delete(); // lengths are not necessarily consistent.
-
-          if (this.next) {
-            this.next.length = this.length - 1;
-          }
-
-          return this.next;
-        }
-
-        var container = this.next;
-        var prev = this; // avoid recursion
-
-        while (container) {
-          if (equals(key, container.key)) {
-            container.entry.delete();
-            var next = container.next;
-
-            if (next) {
-              container.entry = next.entry;
-              container.next = next.next;
-            } else {
-              prev.next = undefined;
-            }
-
-            this.length--;
-            return this;
-          }
-
-          prev = container;
-          container = container.next;
-        }
-
-        return this;
-      }
-    }, {
-      key: Symbol.iterator,
-      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        var container;
-        return regeneratorRuntime.wrap(function value$(_context3) {
-          while (1) {
-            switch (_context3.prev = _context3.next) {
-              case 0:
-                container = this;
-
-              case 1:
-                if (!container) {
-                  _context3.next = 7;
-                  break;
-                }
-
-                _context3.next = 4;
-                return [container.key, container.value];
-
-              case 4:
-                container = container.next;
-                _context3.next = 1;
-                break;
-
-              case 7:
-              case "end":
-                return _context3.stop();
-            }
-          }
-        }, value, this);
-      })
-    }]);
-
-    return LinkedStack;
-  }(Container);
-  /**
-   * @private
-   * @extends Container
-   */
-
-  var HashContainer = /*#__PURE__*/function (_Container2) {
-    _inherits(HashContainer, _Container2);
-
-    var _super3 = _createSuper(HashContainer);
+    var _super2 = _createSuper(HashContainer);
 
     function HashContainer(entry, hash, options, depth) {
-      var _this3;
+      var _this2;
 
       _classCallCheck(this, HashContainer);
 
-      _this3 = _super3.call(this, entry);
-      _this3.hash = hash;
-      _this3.options = options;
-      _this3.depth = depth;
-      return _this3;
+      _this2 = _super2.call(this, entry);
+      _this2.hash = hash;
+      _this2.options = options;
+      _this2.depth = depth;
+      return _this2;
     }
 
     _createClass(HashContainer, [{
@@ -7614,12 +7733,7 @@
         }
 
         var bucket = new HashBuckets(this.options, this.depth);
-        bucket.set(this.entry, function () {
-          return false;
-        }, this.hash);
-        bucket.set(newEntry, function () {
-          return false;
-        }, hash);
+        bucket.prefill(this.entry, this.hash, newEntry, hash);
         return bucket;
       }
     }, {
@@ -7658,7 +7772,7 @@
     }]);
 
     return HashContainer;
-  }(Container);
+  }(SingleContainer);
   /**
    * @private
    */
@@ -7668,7 +7782,7 @@
       _classCallCheck(this, HashBuckets);
 
       this.options = options;
-      this.length = 0;
+      this.size = 0;
       this.depth = depth;
       this.buckets = new Array(this.options.width);
     }
@@ -7695,6 +7809,38 @@
 
         return none;
       }
+      /**
+       * A much faster set, of 2 items.
+       * @param entry1
+       * @param hash1
+       * @param entry2
+       * @param hash2
+       */
+
+    }, {
+      key: "prefill",
+      value: function prefill(entry1, hash1, entry2, hash2) {
+        var idx1 = hash1 & this.options.mask;
+        var idx2 = hash2 & this.options.mask;
+
+        if (idx1 === idx2) {
+          if (this.depth) {
+            var bucket = new HashBuckets(this.options, this.depth - 1);
+            this.buckets[idx1] = bucket;
+            bucket.prefill(entry1, hash1 >>> this.options.widthAs2sExponent, entry2, hash2 >>> this.options.widthAs2sExponent);
+          } else {
+            this.buckets[idx1] = new ArrayContainer(entry1, entry2);
+          }
+        } else if (this.depth) {
+          this.buckets[idx1] = new HashContainer(entry1, hash1 >>> this.options.widthAs2sExponent, this.options, this.depth - 1);
+          this.buckets[idx2] = new HashContainer(entry2, hash2 >>> this.options.widthAs2sExponent, this.options, this.depth - 1);
+        } else {
+          this.buckets[idx1] = new SingleContainer(entry1);
+          this.buckets[idx2] = new SingleContainer(entry2);
+        }
+
+        this.size += 2;
+      }
     }, {
       key: "set",
       value: function set(entry, equals, hash) {
@@ -7702,18 +7848,18 @@
         var bucket = this.buckets[idx];
 
         if (bucket) {
-          var len = bucket.length;
+          var len = bucket.size;
           this.buckets[idx] = bucket.set(entry, equals, hash >>> this.options.widthAs2sExponent);
 
-          if (this.buckets[idx].length !== len) {
-            this.length++;
+          if (this.buckets[idx].size !== len) {
+            this.size++;
           }
         } else if (this.depth) {
           this.buckets[idx] = new HashContainer(entry, hash >>> this.options.widthAs2sExponent, this.options, this.depth - 1);
-          this.length++;
+          this.size++;
         } else {
-          this.buckets[idx] = new Container(entry);
-          this.length++;
+          this.buckets[idx] = new SingleContainer(entry);
+          this.size++;
         }
 
         return this;
@@ -7738,9 +7884,9 @@
         if (bucket) {
           bucket = bucket.delete(key, equals, hash >>> this.options.widthAs2sExponent);
 
-          if (!bucket || bucket.length === 0) {
+          if (!bucket || bucket.size === 0) {
             this.buckets[idx] = undefined;
-            this.length--;
+            this.size--;
           }
         }
 
@@ -7751,88 +7897,88 @@
       value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
         var _iterator4, _step4, bucket, _iterator5, _step5, entry;
 
-        return regeneratorRuntime.wrap(function value$(_context4) {
+        return regeneratorRuntime.wrap(function value$(_context2) {
           while (1) {
-            switch (_context4.prev = _context4.next) {
+            switch (_context2.prev = _context2.next) {
               case 0:
                 _iterator4 = _createForOfIteratorHelper(this.buckets);
-                _context4.prev = 1;
+                _context2.prev = 1;
 
                 _iterator4.s();
 
               case 3:
                 if ((_step4 = _iterator4.n()).done) {
-                  _context4.next = 25;
+                  _context2.next = 25;
                   break;
                 }
 
                 bucket = _step4.value;
 
                 if (!bucket) {
-                  _context4.next = 23;
+                  _context2.next = 23;
                   break;
                 }
 
                 _iterator5 = _createForOfIteratorHelper(bucket);
-                _context4.prev = 7;
+                _context2.prev = 7;
 
                 _iterator5.s();
 
               case 9:
                 if ((_step5 = _iterator5.n()).done) {
-                  _context4.next = 15;
+                  _context2.next = 15;
                   break;
                 }
 
                 entry = _step5.value;
-                _context4.next = 13;
+                _context2.next = 13;
                 return entry;
 
               case 13:
-                _context4.next = 9;
+                _context2.next = 9;
                 break;
 
               case 15:
-                _context4.next = 20;
+                _context2.next = 20;
                 break;
 
               case 17:
-                _context4.prev = 17;
-                _context4.t0 = _context4["catch"](7);
+                _context2.prev = 17;
+                _context2.t0 = _context2["catch"](7);
 
-                _iterator5.e(_context4.t0);
+                _iterator5.e(_context2.t0);
 
               case 20:
-                _context4.prev = 20;
+                _context2.prev = 20;
 
                 _iterator5.f();
 
-                return _context4.finish(20);
+                return _context2.finish(20);
 
               case 23:
-                _context4.next = 3;
+                _context2.next = 3;
                 break;
 
               case 25:
-                _context4.next = 30;
+                _context2.next = 30;
                 break;
 
               case 27:
-                _context4.prev = 27;
-                _context4.t1 = _context4["catch"](1);
+                _context2.prev = 27;
+                _context2.t1 = _context2["catch"](1);
 
-                _iterator4.e(_context4.t1);
+                _iterator4.e(_context2.t1);
 
               case 30:
-                _context4.prev = 30;
+                _context2.prev = 30;
 
                 _iterator4.f();
 
-                return _context4.finish(30);
+                return _context2.finish(30);
 
               case 33:
               case "end":
-                return _context4.stop();
+                return _context2.stop();
             }
           }
         }, value, this, [[1, 27, 30, 33], [7, 17, 20, 23]]);

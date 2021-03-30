@@ -15,6 +15,9 @@
   - Made Option iterable, and added size function.
   - Moved Option some and none into its own file.
   - Moved Hash functions into its own file.
+  - Switched to a simpler array store over a linked store. This can be optimised later.
+  - Split out Hashmap Further.
+  - renamed internal length property to size
 - Testing
   - hash collision testing.
   - Utility Function testing.

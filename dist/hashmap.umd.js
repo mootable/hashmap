@@ -1153,7 +1153,7 @@
 	   * When called with a value returns an Option object of the form:
 	   * <code>{value:value,has:true}</code>
 	   * Even if a value is not provided it still counts as existing, this is different from other libraries,
-	   * we are effectively saying as null and undefined count as valid values.
+	   * we are effectively saying, null and undefined count as valid values.
 	   * @example <caption>create an option using some</caption>
 	   * const myValue = 'hello';
 	   * const option = Option.some(myValue);
@@ -1243,7 +1243,7 @@
 	 * @see {@link https://en.wikipedia.org/wiki/MurmurHash|MurmurHash on Wikipedia}
 	 * @param key the string being hashed
 	 * @param len the max limit on the number of characters to hash
-	 * @param seed an optional random seed
+	 * @param seed an optional random seed, or previous hash value to continue hashing against.
 	 * @returns {number} the hash
 	 */
 
@@ -3185,7 +3185,7 @@
 
 	/**
 	 * HashMap - HashMap Implementation for JavaScript
-	 * @namespace Mootable
+	 * @namespace Mootable.hashmap.entry
 	 * @author Jack Moxley <https://github.com/jackmoxley>
 	 * @version 0.12.6
 	 * Homepage: https://github.com/mootable/hashmap
@@ -3194,7 +3194,6 @@
 	/**
 	 * @private
 	 */
-
 	class Entry {
 	  constructor(key, value) {
 	    this.key = key;
@@ -3208,6 +3207,167 @@
 	  delete() {}
 
 	}
+
+	/**
+	 * HashMap - HashMap Implementation for JavaScript
+	 * @namespace Mootable.hashmap.container
+	 * @author Jack Moxley <https://github.com/jackmoxley>
+	 * @version 0.12.6
+	 * Homepage: https://github.com/mootable/hashmap
+	 */
+
+	class SingleContainer {
+	  constructor(entry) {
+	    this.entry = entry;
+	    this.size = 1;
+	  }
+
+	  get key() {
+	    return this.entry.key;
+	  }
+
+	  get value() {
+	    return this.entry.value;
+	  }
+
+	  get(key, equals) {
+	    if (equals(key, this.key)) {
+	      return this.entry.value;
+	    }
+
+	    return undefined;
+	  }
+
+	  optionalGet(key, equals) {
+	    if (equals(key, this.key)) {
+	      return some(this.entry.value);
+	    }
+
+	    return none;
+	  }
+
+	  set(newEntry, equals) {
+	    if (equals(newEntry.key, this.key)) {
+	      newEntry.overwrite(this.entry);
+	      return this;
+	    }
+
+	    return new ArrayContainer(newEntry, this);
+	  }
+
+	  has(key, equals) {
+	    return equals(key, this.key);
+	  }
+
+	  delete(key, equals) {
+	    if (equals(key, this.key)) {
+	      this.entry.delete();
+	      return undefined;
+	    }
+
+	    return this;
+	  }
+
+	  *[Symbol.iterator]() {
+	    if (this.size !== 0) {
+	      yield [this.key, this.value];
+	    }
+	  }
+
+	}
+	/**
+	 * @private
+	 * @extends Container
+	 */
+
+	class ArrayContainer {
+	  constructor(entry, next) {
+	    this.contents = [entry, next];
+	  }
+
+	  get size() {
+	    return this.contents.length;
+	  }
+
+	  get(key, equals) {
+	    for (const entry of this.contents) {
+	      if (equals(key, entry.key)) {
+	        return entry.value;
+	      }
+	    }
+
+	    return undefined;
+	  }
+
+	  optionalGet(key, equals) {
+
+	    for (const entry of this.contents) {
+	      if (equals(key, entry.key)) {
+	        return some(entry.value);
+	      }
+	    }
+
+	    return none;
+	  }
+
+	  set(newEntry, equals) {
+	    for (const entry of this.contents) {
+	      if (equals(newEntry.key, entry.key)) {
+	        newEntry.overwrite(entry);
+	        return this;
+	      }
+	    }
+
+	    this.contents.push(newEntry);
+	    return this;
+	  }
+
+	  has(key, equals) {
+	    for (const entry of this.contents) {
+	      if (equals(key, entry.key)) {
+	        return true;
+	      }
+	    }
+
+	    return false;
+	  }
+
+	  delete(key, equals) {
+	    const findPredicate = entry => equals(key, entry.key);
+
+	    if (this.contents.length === 2) {
+	      const newEntry = this.contents.find(findPredicate);
+
+	      if (newEntry) {
+	        return new SingleContainer(newEntry);
+	      }
+	    } else {
+	      const idx = this.contents.findIndex(entry => equals(key, entry.key));
+
+	      if (idx >= 0) {
+	        this.contents = this.contents.splice(idx, 1);
+	      }
+	    }
+
+	    return this;
+	  }
+
+	  *[Symbol.iterator]() {
+	    for (const entry of this.contents) {
+	      yield [entry.key, entry.value];
+	    }
+	  }
+
+	}
+
+	/**
+	 * HashMap - HashMap Implementation for JavaScript
+	 * @namespace Mootable
+	 * @author Jack Moxley <https://github.com/jackmoxley>
+	 * @version 0.12.6
+	 * Homepage: https://github.com/mootable/hashmap
+	 */
+
 	/**
 	 * This HashMap is backed by a hashtrie, and can be tuned to specific use cases.
 	 * @extends {MapIterable}
@@ -3327,7 +3487,7 @@
 	  addEntry(entry, hashEq) {
 	    if (this.buckets) {
 	      this.buckets = this.buckets.set(entry, hashEq.equals, hashEq.hash);
-	      this.length = this.buckets.length;
+	      this.length = this.buckets.size;
 	    } else {
 	      this.buckets = new HashContainer(entry, hashEq.hash, Object.assign({}, this.options), this.options.depth);
 	      this.length = 1;
@@ -3392,7 +3552,7 @@
 	      this.buckets = this.buckets.delete(key, hashEq.equals, hashEq.hash);
 
 	      if (this.buckets) {
-	        this.length = this.buckets.length;
+	        this.length = this.buckets.size;
 	      } else {
 	        this.length = 0;
 	      }
@@ -3424,195 +3584,10 @@
 	}
 	/**
 	 * @private
-	 */
-
-	class Container {
-	  constructor(entry) {
-	    this.entry = entry;
-	    this.length = 1;
-	  }
-
-	  get key() {
-	    return this.entry.key;
-	  }
-
-	  get value() {
-	    return this.entry.value;
-	  }
-
-	  get(key, equals) {
-	    if (equals(key, this.key)) {
-	      return this.entry.value;
-	    }
-
-	    return undefined;
-	  }
-
-	  optionalGet(key, equals) {
-	    if (equals(key, this.key)) {
-	      return some(this.entry.value);
-	    }
-
-	    return none;
-	  }
-
-	  set(newEntry, equals) {
-	    if (equals(newEntry.key, this.key)) {
-	      newEntry.overwrite(this.entry);
-	      return this;
-	    }
-
-	    return new LinkedStack(newEntry, this);
-	  }
-
-	  has(key, equals) {
-	    return equals(key, this.key);
-	  }
-
-	  delete(key, equals) {
-	    if (equals(key, this.key)) {
-	      this.entry.delete();
-	      return undefined;
-	    }
-
-	    return this;
-	  }
-
-	  forEach(func, ctx) {
-	    func.call(ctx, this.value, this.key);
-	    return this;
-	  }
-
-	  *[Symbol.iterator]() {
-	    if (this.length !== 0) {
-	      yield [this.key, this.value];
-	    }
-	  }
-
-	}
-	/**
-	 * @private
 	 * @extends Container
 	 */
 
-	class LinkedStack extends Container {
-	  constructor(entry, next) {
-	    super(entry);
-	    this.next = next;
-	    this.length = next.length + 1;
-	  }
-
-	  get(key, equals) {
-	    let container = this; // avoid recursion
-
-	    do {
-	      if (equals(key, container.key)) {
-	        return container.value;
-	      }
-
-	      container = container.next;
-	    } while (container);
-
-	    return undefined;
-	  }
-
-	  optionalGet(key, equals) {
-	    let container = this; // avoid recursion
-
-	    do {
-	      if (equals(key, container.key)) {
-	        return some(container.value);
-	      }
-
-	      container = container.next;
-	    } while (container);
-
-	    return none;
-	  }
-
-	  set(newEntry, equals) {
-	    let container = this; // avoid recursion
-
-	    while (container) {
-	      if (equals(newEntry.key, container.key)) {
-	        newEntry.overwrite(this.entry);
-	        return this;
-	      }
-
-	      container = container.next;
-	    }
-
-	    return new LinkedStack(newEntry, this);
-	  }
-
-	  has(key, equals) {
-	    let container = this; // avoid recursion
-
-	    do {
-	      if (equals(key, container.key)) {
-	        return true;
-	      }
-
-	      container = container.next;
-	    } while (container);
-
-	    return false;
-	  }
-
-	  delete(key, equals) {
-	    // first on the list.
-	    if (equals(key, this.key)) {
-	      this.entry.delete(); // lengths are not necessarily consistent.
-
-	      if (this.next) {
-	        this.next.length = this.length - 1;
-	      }
-
-	      return this.next;
-	    }
-
-	    let container = this.next;
-	    let prev = this; // avoid recursion
-
-	    while (container) {
-	      if (equals(key, container.key)) {
-	        container.entry.delete();
-	        const next = container.next;
-
-	        if (next) {
-	          container.entry = next.entry;
-	          container.next = next.next;
-	        } else {
-	          prev.next = undefined;
-	        }
-
-	        this.length--;
-	        return this;
-	      }
-
-	      prev = container;
-	      container = container.next;
-	    }
-
-	    return this;
-	  }
-
-	  *[Symbol.iterator]() {
-	    let container = this;
-
-	    while (container) {
-	      yield [container.key, container.value];
-	      container = container.next;
-	    }
-	  }
-
-	}
-	/**
-	 * @private
-	 * @extends Container
-	 */
-
-	class HashContainer extends Container {
+	class HashContainer extends SingleContainer {
 	  constructor(entry, hash, options, depth) {
 	    super(entry);
 	    this.hash = hash;
@@ -3627,8 +3602,7 @@
 	    }
 
 	    const bucket = new HashBuckets(this.options, this.depth);
-	    bucket.set(this.entry, () => false, this.hash);
-	    bucket.set(newEntry, () => false, hash);
+	    bucket.prefill(this.entry, this.hash, newEntry, hash);
 	    return bucket;
 	  }
 
@@ -3669,7 +3643,7 @@
 	class HashBuckets {
 	  constructor(options, depth) {
 	    this.options = options;
-	    this.length = 0;
+	    this.size = 0;
 	    this.depth = depth;
 	    this.buckets = new Array(this.options.width);
 	  }
@@ -3693,24 +3667,55 @@
 
 	    return none;
 	  }
+	  /**
+	   * A much faster set, of 2 items.
+	   * @param entry1
+	   * @param hash1
+	   * @param entry2
+	   * @param hash2
+	   */
+
+
+	  prefill(entry1, hash1, entry2, hash2) {
+	    const idx1 = hash1 & this.options.mask;
+	    const idx2 = hash2 & this.options.mask;
+
+	    if (idx1 === idx2) {
+	      if (this.depth) {
+	        const bucket = new HashBuckets(this.options, this.depth - 1);
+	        this.buckets[idx1] = bucket;
+	        bucket.prefill(entry1, hash1 >>> this.options.widthAs2sExponent, entry2, hash2 >>> this.options.widthAs2sExponent);
+	      } else {
+	        this.buckets[idx1] = new ArrayContainer(entry1, entry2);
+	      }
+	    } else if (this.depth) {
+	      this.buckets[idx1] = new HashContainer(entry1, hash1 >>> this.options.widthAs2sExponent, this.options, this.depth - 1);
+	      this.buckets[idx2] = new HashContainer(entry2, hash2 >>> this.options.widthAs2sExponent, this.options, this.depth - 1);
+	    } else {
+	      this.buckets[idx1] = new SingleContainer(entry1);
+	      this.buckets[idx2] = new SingleContainer(entry2);
+	    }
+
+	    this.size += 2;
+	  }
 
 	  set(entry, equals, hash) {
 	    const idx = hash & this.options.mask;
-	    let bucket = this.buckets[idx];
+	    const bucket = this.buckets[idx];
 
 	    if (bucket) {
-	      const len = bucket.length;
+	      const len = bucket.size;
 	      this.buckets[idx] = bucket.set(entry, equals, hash >>> this.options.widthAs2sExponent);
 
-	      if (this.buckets[idx].length !== len) {
-	        this.length++;
+	      if (this.buckets[idx].size !== len) {
+	        this.size++;
 	      }
 	    } else if (this.depth) {
 	      this.buckets[idx] = new HashContainer(entry, hash >>> this.options.widthAs2sExponent, this.options, this.depth - 1);
-	      this.length++;
+	      this.size++;
 	    } else {
-	      this.buckets[idx] = new Container(entry);
-	      this.length++;
+	      this.buckets[idx] = new SingleContainer(entry);
+	      this.size++;
 	    }
 
 	    return this;
@@ -3733,9 +3738,9 @@
 	    if (bucket) {
 	      bucket = bucket.delete(key, equals, hash >>> this.options.widthAs2sExponent);
 
-	      if (!bucket || bucket.length === 0) {
+	      if (!bucket || bucket.size === 0) {
 	        this.buckets[idx] = undefined;
-	        this.length--;
+	        this.size--;
 	      }
 	    }
 

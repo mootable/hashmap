@@ -5,7 +5,6 @@
  * @version 0.12.6
  * Homepage: https://github.com/mootable/hashmap
  */
-
 /**
  * Is the passed value not null and a function
  * @param func
