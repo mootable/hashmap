@@ -2924,7 +2924,7 @@
    * @see {@link https://262.ecma-international.org/6.0/#sec-samevaluezero saveValueZero}
    * @param x - the first object to compare
    * @param y - the second object to compare
-   * @returns {boolean} - if they are equals according to ECMA Spec for Same Value Zero
+   * @returns {boolean} - if they are equals according to {@link https://262.ecma-international.org/6.0/#sec-samevaluezero ECMA Spec for Same Value Zero}
    */
 
   function sameValueZero(x, y) {
@@ -6977,36 +6977,102 @@
   }(SetIterableWrapper);
 
   /**
-   * HashMap - HashMap Implementation for JavaScript
-   * @namespace Mootable.hashmap.entry
+   * Entry - internal keyvalue storage for Mapping Collections
+   * @namespace Mootable.Entry
    * @author Jack Moxley <https://github.com/jackmoxley>
    * @version 0.12.6
    * Homepage: https://github.com/mootable/hashmap
    */
 
   /**
-   * @private
+   * A Key value pair store.
    */
   var Entry = /*#__PURE__*/function () {
+    /**
+     * Entry constructor takes a key and a value
+     * @param {*} key
+     * @param {*} value
+     */
     function Entry(key, value) {
       _classCallCheck(this, Entry);
 
       this.key = key;
       this.value = value;
     }
+    /**
+     * replaces this key and value with the entry provided
+     * @param overwritingEntry
+     */
+
 
     _createClass(Entry, [{
       key: "overwrite",
-      value: function overwrite(oldEntry) {
-        oldEntry.value = this.value;
+      value: function overwrite(overwritingEntry) {
+        this.key = overwritingEntry.key;
+        this.value = overwritingEntry.value;
+        overwritingEntry.deleted = true;
       }
+      /**
+       * Marks this entry as deleted
+       */
+
     }, {
       key: "delete",
-      value: function _delete() {}
+      value: function _delete() {
+        this.deleted = true;
+      }
     }]);
 
     return Entry;
   }();
+  /**
+   * A Key value pair store, linked to other entries.
+   * @extends Entry
+   */
+
+  var LinkedEntry = /*#__PURE__*/function (_Entry) {
+    _inherits(LinkedEntry, _Entry);
+
+    var _super = _createSuper(LinkedEntry);
+
+    /**
+     * Entry constructor takes a key and a value
+     * @param {*} key
+     * @param {*} value
+     */
+    function LinkedEntry(key, value) {
+      var _this;
+
+      _classCallCheck(this, LinkedEntry);
+
+      _this = _super.call(this, key, value);
+      _this.previous = undefined;
+      _this.next = undefined;
+      return _this;
+    }
+    /**
+     * Marks this entry as deleted,
+     * it will also ensure any or previous and next values point to each other rather than this.
+     */
+
+
+    _createClass(LinkedEntry, [{
+      key: "delete",
+      value: function _delete() {
+        _get(_getPrototypeOf(LinkedEntry.prototype), "delete", this).call(this);
+
+        if (this.previous) {
+          this.previous.next = this.next;
+        }
+
+        if (this.next) {
+          this.next.previous = this.previous;
+        }
+      }
+    }]);
+
+    return LinkedEntry;
+  }(Entry);
 
   var $findIndex = arrayIteration.findIndex;
 
@@ -7135,7 +7201,7 @@
       key: "set",
       value: function set(newEntry, equals) {
         if (equals(newEntry.key, this.key)) {
-          newEntry.overwrite(this.entry);
+          this.entry.overwrite(newEntry);
           return this;
         }
 
@@ -7255,7 +7321,7 @@
             var entry = _step3.value;
 
             if (equals(newEntry.key, entry.key)) {
-              newEntry.overwrite(entry);
+              entry.overwrite(newEntry);
               return this;
             }
           }
@@ -7728,7 +7794,7 @@
       key: "set",
       value: function set(newEntry, equals, hash) {
         if (hash === this.hash && equals(newEntry.key, this.key)) {
-          newEntry.overwrite(this.entry);
+          this.entry.overwrite(newEntry);
           return this;
         }
 
@@ -7997,50 +8063,6 @@
    */
 
   /**
-   * @private
-   * @extends Entry
-   */
-
-  var LinkedEntry = /*#__PURE__*/function (_Entry) {
-    _inherits(LinkedEntry, _Entry);
-
-    var _super = _createSuper(LinkedEntry);
-
-    function LinkedEntry(key, value) {
-      var _this;
-
-      _classCallCheck(this, LinkedEntry);
-
-      _this = _super.call(this, key, value);
-      _this.previous = undefined;
-      _this.next = undefined;
-      return _this;
-    }
-
-    _createClass(LinkedEntry, [{
-      key: "overwrite",
-      value: function overwrite(oldEntry) {
-        oldEntry.value = this.value;
-        this.deleted = true;
-      }
-    }, {
-      key: "delete",
-      value: function _delete() {
-        if (this.previous) {
-          this.previous.next = this.next;
-        }
-
-        if (this.next) {
-          this.next.previous = this.previous;
-        }
-
-        this.deleted = true;
-      }
-    }]);
-
-    return LinkedEntry;
-  }(Entry);
-  /**
    * This LinkedHashMap is is an extension of {@link HashMap} however LinkedHashMap also maintains insertion order of keys, and guarantees to iterate over them in that order.
    * @extends HashMap
    */
@@ -8048,7 +8070,7 @@
   var LinkedHashMap = /*#__PURE__*/function (_HashMap) {
     _inherits(LinkedHashMap, _HashMap);
 
-    var _super2 = _createSuper(LinkedHashMap);
+    var _super = _createSuper(LinkedHashMap);
 
     /**
      * This LinkedHashMap is is an extension of {@link HashMap} however LinkedHashMap also maintains insertion order of keys, and guarantees to iterate over them in that order.
@@ -8068,7 +8090,7 @@
      * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>|HashMap~ConstructorOptions)} [args]
      */
     function LinkedHashMap() {
-      var _this2;
+      var _this;
 
       var args = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
         copy: undefined,
@@ -8078,10 +8100,10 @@
 
       _classCallCheck(this, LinkedHashMap);
 
-      _this2 = _super2.call(this, args);
-      _this2.start = undefined;
-      _this2.end = undefined;
-      return _this2;
+      _this = _super.call(this, args);
+      _this.start = undefined;
+      _this.end = undefined;
+      return _this;
     }
 
     _createClass(LinkedHashMap, [{

@@ -2,7 +2,7 @@ import {isFunction, isIterable} from '../utils/';
 import {equalsAndHash} from '../hash';
 import {none, some} from '../option/';
 import {MapIterable} from '../iterable/';
-import {Entry} from './entry/';
+import {Entry} from '../entry/';
 import {SingleContainer, ArrayContainer} from './container/';
 /**
  * HashMap - HashMap Implementation for JavaScript
@@ -11,7 +11,6 @@ import {SingleContainer, ArrayContainer} from './container/';
  * @version 0.12.6
  * Homepage: https://github.com/mootable/hashmap
  */
-
 /**
  * This HashMap is backed by a hashtrie, and can be tuned to specific use cases.
  * @extends {MapIterable}
@@ -209,7 +208,7 @@ export class HashContainer extends SingleContainer {
 
     set(newEntry, equals, hash) {
         if (hash === this.hash && equals(newEntry.key, this.key)) {
-            newEntry.overwrite(this.entry);
+            this.entry.overwrite(newEntry);
             return this;
         }
         const bucket = new HashBuckets(this.options, this.depth);

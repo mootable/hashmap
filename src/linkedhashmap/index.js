@@ -1,5 +1,5 @@
 import {HashMap} from '../hashmap/';
-import {Entry} from '../hashmap/entry/';
+import {LinkedEntry} from '../entry/';
 import {equalsAndHash} from '../hash';
 /**
  * HashMap - LinkedHashMap Implementation for JavaScript
@@ -8,32 +8,6 @@ import {equalsAndHash} from '../hash';
  * @version 0.12.6
  * Homepage: https://github.com/mootable/hashmap
  */
-/**
- * @private
- * @extends Entry
- */
-export class LinkedEntry extends Entry {
-    constructor(key, value) {
-        super(key, value);
-        this.previous = undefined;
-        this.next = undefined;
-    }
-
-    overwrite(oldEntry) {
-        oldEntry.value = this.value;
-        this.deleted = true;
-    }
-
-    delete() {
-        if (this.previous) {
-            this.previous.next = this.next;
-        }
-        if (this.next) {
-            this.next.previous = this.previous;
-        }
-        this.deleted = true;
-    }
-}
 
 /**
  * This LinkedHashMap is is an extension of {@link HashMap} however LinkedHashMap also maintains insertion order of keys, and guarantees to iterate over them in that order.

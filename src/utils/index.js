@@ -35,11 +35,12 @@ export function isString(str) { // jshint ignore:line
 
 /**
  * sameValue is the result of Object.is.
- * The only difference between sameValue and sameValueZero is that +0 and -0 are not the same with sameValue buit is with sameValueZero
- * @see {@link https://262.ecma-international.org/6.0/#sec-samevalue saveValue}
+ * The only difference between sameValue and sameValueZero is that +0 and -0 are considered different with sameValue.
+ * @see {@link https://262.ecma-international.org/6.0/#sec-samevalue sameValue}
+ * @function
  * @param x - the first object to compare
  * @param y - the second object to compare
- * @returns {boolean} - if they are equals according to ECMA Spec for Same Value
+ * @returns {boolean} - if they are equals according to {@link https://262.ecma-international.org/6.0/#sec-samevalue ECMA Spec for Same Value}
  */
 export const sameValue = Object.is;
 
@@ -49,7 +50,7 @@ export const sameValue = Object.is;
  * @see {@link https://262.ecma-international.org/6.0/#sec-samevaluezero saveValueZero}
  * @param x - the first object to compare
  * @param y - the second object to compare
- * @returns {boolean} - if they are equals according to ECMA Spec for Same Value Zero
+ * @returns {boolean} - if they are equals according to {@link https://262.ecma-international.org/6.0/#sec-samevaluezero ECMA Spec for Same Value Zero}
  */
 export function sameValueZero(x, y) {
     return x === y || (Number.isNaN(x) && Number.isNaN(y));
@@ -61,7 +62,7 @@ export function sameValueZero(x, y) {
  * @see {@link https://262.ecma-international.org/6.0/#sec-abstract-equality-comparison abstractEquals}
  * @param x - the first object to compare
  * @param y - the second object to compare
- * @returns {boolean} - if they are equals according to ECMA Spec for Abstract Equality
+ * @returns {boolean} - if they are equals according to {@link https://262.ecma-international.org/6.0/#sec-abstract-equality-comparison ECMA Spec for Abstract Equality}
  */
 export function abstractEquals(x, y) {
     return x == y; // jshint ignore:line
@@ -73,7 +74,7 @@ export function abstractEquals(x, y) {
  * @see {@link https://262.ecma-international.org/6.0/#sec-strict-equality-comparison strictEquals}
  * @param x - the first object to compare
  * @param y - the second object to compare
- * @returns {boolean} - if they are equals according to ECMA Spec for Strict Equality
+ * @returns {boolean} - if they are equals according to {@link https://262.ecma-international.org/6.0/#sec-strict-equality-comparison ECMA Spec for Strict Equality}
  */
 export function strictEquals(x, y) {
     return x === y;

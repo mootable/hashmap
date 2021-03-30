@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>@mootable/hashmap - Documentation</title>
+    <title>entry/index.js - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -34,55 +34,88 @@
 
 <div id="main">
     
-    <h1 class="page-title">@mootable/hashmap</h1>
+    <h1 class="page-title">entry/index.js</h1>
     
 
     
 
 
 
-
-<section>
-
-<header>
     
-        
-    
-</header>
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Entry - internal keyvalue storage for Mapping Collections
+ * @namespace Mootable.Entry
+ * @author Jack Moxley &lt;https://github.com/jackmoxley>
+ * @version 0.12.6
+ * Homepage: https://github.com/mootable/hashmap
+ */
+/**
+ * A Key value pair store.
+ */
+export class Entry {
+    /**
+     * Entry constructor takes a key and a value
+     * @param {*} key
+     * @param {*} value
+     */
+    constructor(key, value) {
+        this.key = key;
+        this.value = value;
+    }
 
-<article>
-    
-        <div class="container-overview">
-        
-            
+    /**
+     * replaces this key and value with the entry provided
+     * @param overwritingEntry
+     */
+    overwrite(overwritingEntry) {
+        this.key = overwritingEntry.key;
+        this.value = overwritingEntry.value;
+        overwritingEntry.deleted = true;
+    }
 
-            
-        
-        </div>
-    
+    /**
+     * Marks this entry as deleted
+     */
+    delete() {
+        this.deleted = true;
+    }
+}
 
-    
+/**
+ * A Key value pair store, linked to other entries.
+ * @extends Entry
+ */
+export class LinkedEntry extends Entry{
 
-    
+    /**
+     * Entry constructor takes a key and a value
+     * @param {*} key
+     * @param {*} value
+     */
+    constructor(key, value) {
+        super(key, value);
+        this.previous = undefined;
+        this.next = undefined;
+    }
 
-    
-    
-    
-
-     
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
+    /**
+     * Marks this entry as deleted,
+     * it will also ensure any or previous and next values point to each other rather than this.
+     */
+    delete() {
+        super.delete();
+        if (this.previous) {
+            this.previous.next = this.next;
+        }
+        if (this.next) {
+            this.next.previous = this.previous;
+        }
+    }
+}</code></pre>
+        </article>
+    </section>
 
 
 

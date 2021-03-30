@@ -1068,7 +1068,7 @@
 	 * @see {@link https://262.ecma-international.org/6.0/#sec-samevaluezero saveValueZero}
 	 * @param x - the first object to compare
 	 * @param y - the second object to compare
-	 * @returns {boolean} - if they are equals according to ECMA Spec for Same Value Zero
+	 * @returns {boolean} - if they are equals according to {@link https://262.ecma-international.org/6.0/#sec-samevaluezero ECMA Spec for Same Value Zero}
 	 */
 
 	function sameValueZero(x, y) {
@@ -3184,27 +3184,80 @@
 	}
 
 	/**
-	 * HashMap - HashMap Implementation for JavaScript
-	 * @namespace Mootable.hashmap.entry
+	 * Entry - internal keyvalue storage for Mapping Collections
+	 * @namespace Mootable.Entry
 	 * @author Jack Moxley <https://github.com/jackmoxley>
 	 * @version 0.12.6
 	 * Homepage: https://github.com/mootable/hashmap
 	 */
 
 	/**
-	 * @private
+	 * A Key value pair store.
 	 */
 	class Entry {
+	  /**
+	   * Entry constructor takes a key and a value
+	   * @param {*} key
+	   * @param {*} value
+	   */
 	  constructor(key, value) {
 	    this.key = key;
 	    this.value = value;
 	  }
+	  /**
+	   * replaces this key and value with the entry provided
+	   * @param overwritingEntry
+	   */
 
-	  overwrite(oldEntry) {
-	    oldEntry.value = this.value;
+
+	  overwrite(overwritingEntry) {
+	    this.key = overwritingEntry.key;
+	    this.value = overwritingEntry.value;
+	    overwritingEntry.deleted = true;
+	  }
+	  /**
+	   * Marks this entry as deleted
+	   */
+
+
+	  delete() {
+	    this.deleted = true;
 	  }
 
-	  delete() {}
+	}
+	/**
+	 * A Key value pair store, linked to other entries.
+	 * @extends Entry
+	 */
+
+	class LinkedEntry extends Entry {
+	  /**
+	   * Entry constructor takes a key and a value
+	   * @param {*} key
+	   * @param {*} value
+	   */
+	  constructor(key, value) {
+	    super(key, value);
+	    this.previous = undefined;
+	    this.next = undefined;
+	  }
+	  /**
+	   * Marks this entry as deleted,
+	   * it will also ensure any or previous and next values point to each other rather than this.
+	   */
+
+
+	  delete() {
+	    super.delete();
+
+	    if (this.previous) {
+	      this.previous.next = this.next;
+	    }
+
+	    if (this.next) {
+	      this.next.previous = this.previous;
+	    }
+	  }
 
 	}
 
@@ -3248,7 +3301,7 @@
 
 	  set(newEntry, equals) {
 	    if (equals(newEntry.key, this.key)) {
-	      newEntry.overwrite(this.entry);
+	      this.entry.overwrite(newEntry);
 	      return this;
 	    }
 
@@ -3313,7 +3366,7 @@
 	  set(newEntry, equals) {
 	    for (const entry of this.contents) {
 	      if (equals(newEntry.key, entry.key)) {
-	        newEntry.overwrite(entry);
+	        entry.overwrite(newEntry);
 	        return this;
 	      }
 	    }
@@ -3597,7 +3650,7 @@
 
 	  set(newEntry, equals, hash) {
 	    if (hash === this.hash && equals(newEntry.key, this.key)) {
-	      newEntry.overwrite(this.entry);
+	      this.entry.overwrite(newEntry);
 	      return this;
 	    }
 
@@ -3767,36 +3820,6 @@
 	 * Homepage: https://github.com/mootable/hashmap
 	 */
 
-	/**
-	 * @private
-	 * @extends Entry
-	 */
-
-	class LinkedEntry extends Entry {
-	  constructor(key, value) {
-	    super(key, value);
-	    this.previous = undefined;
-	    this.next = undefined;
-	  }
-
-	  overwrite(oldEntry) {
-	    oldEntry.value = this.value;
-	    this.deleted = true;
-	  }
-
-	  delete() {
-	    if (this.previous) {
-	      this.previous.next = this.next;
-	    }
-
-	    if (this.next) {
-	      this.next.previous = this.previous;
-	    }
-
-	    this.deleted = true;
-	  }
-
-	}
 	/**
 	 * This LinkedHashMap is is an extension of {@link HashMap} however LinkedHashMap also maintains insertion order of keys, and guarantees to iterate over them in that order.
 	 * @extends HashMap

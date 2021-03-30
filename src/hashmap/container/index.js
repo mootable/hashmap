@@ -7,7 +7,6 @@ import {none, some} from '../../option/';
  * @version 0.12.6
  * Homepage: https://github.com/mootable/hashmap
  */
-
 export class SingleContainer {
     constructor(entry) {
         this.entry = entry;
@@ -38,7 +37,7 @@ export class SingleContainer {
 
     set(newEntry, equals) {
         if (equals(newEntry.key, this.key)) {
-            newEntry.overwrite(this.entry);
+            this.entry.overwrite(newEntry);
             return this;
         }
         return new ArrayContainer(newEntry, this);
@@ -69,16 +68,16 @@ export class SingleContainer {
  */
 export class ArrayContainer {
     constructor(entry, next) {
-        this.contents = [entry,next];
+        this.contents = [entry, next];
     }
 
-    get size(){
+    get size() {
         return this.contents.length;
     }
 
     get(key, equals) {
-        for(const entry of this.contents){
-            if(equals(key, entry.key)){
+        for (const entry of this.contents) {
+            if (equals(key, entry.key)) {
                 return entry.value;
             }
         }
@@ -87,8 +86,8 @@ export class ArrayContainer {
 
     optionalGet(key, equals) {
         let container = this;
-        for(const entry of this.contents){
-            if(equals(key, entry.key)){
+        for (const entry of this.contents) {
+            if (equals(key, entry.key)) {
                 return some(entry.value);
             }
         }
@@ -97,9 +96,9 @@ export class ArrayContainer {
 
     set(newEntry, equals) {
 
-        for(const entry of this.contents){
-            if(equals(newEntry.key, entry.key)){
-                newEntry.overwrite(entry);
+        for (const entry of this.contents) {
+            if (equals(newEntry.key, entry.key)) {
+                entry.overwrite(newEntry);
                 return this;
             }
         }
@@ -108,8 +107,8 @@ export class ArrayContainer {
     }
 
     has(key, equals) {
-        for(const entry of this.contents){
-            if(equals(key, entry.key)){
+        for (const entry of this.contents) {
+            if (equals(key, entry.key)) {
                 return true;
             }
         }
@@ -119,22 +118,22 @@ export class ArrayContainer {
     delete(key, equals) {
         const findPredicate = entry => equals(key, entry.key);
 
-        if(this.contents.length === 2) {
+        if (this.contents.length === 2) {
             const newEntry = this.contents.find(findPredicate);
-            if(newEntry){
+            if (newEntry) {
                 return new SingleContainer(newEntry);
             }
         } else {
             const idx = this.contents.findIndex(entry => equals(key, entry.key));
-            if(idx >= 0){
-                this.contents = this.contents.splice(idx,1);
+            if (idx >= 0) {
+                this.contents = this.contents.splice(idx, 1);
             }
         }
         return this;
     }
 
     * [Symbol.iterator]() {
-        for(const entry of this.contents){
+        for (const entry of this.contents) {
             yield [entry.key, entry.value];
         }
     }

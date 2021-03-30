@@ -42,7 +42,7 @@ function isString(str) { // jshint ignore:line
  * @see {@link https://262.ecma-international.org/6.0/#sec-samevaluezero saveValueZero}
  * @param x - the first object to compare
  * @param y - the second object to compare
- * @returns {boolean} - if they are equals according to ECMA Spec for Same Value Zero
+ * @returns {boolean} - if they are equals according to {@link https://262.ecma-international.org/6.0/#sec-samevaluezero ECMA Spec for Same Value Zero}
  */
 function sameValueZero(x, y) {
     return x === y || (Number.isNaN(x) && Number.isNaN(y));
@@ -2037,26 +2037,73 @@ class SetFilter extends SetIterableWrapper {
 }
 
 /**
- * HashMap - HashMap Implementation for JavaScript
- * @namespace Mootable.hashmap.entry
+ * Entry - internal keyvalue storage for Mapping Collections
+ * @namespace Mootable.Entry
  * @author Jack Moxley <https://github.com/jackmoxley>
  * @version 0.12.6
  * Homepage: https://github.com/mootable/hashmap
  */
 /**
- * @private
+ * A Key value pair store.
  */
 class Entry {
+    /**
+     * Entry constructor takes a key and a value
+     * @param {*} key
+     * @param {*} value
+     */
     constructor(key, value) {
         this.key = key;
         this.value = value;
     }
 
-    overwrite(oldEntry) {
-        oldEntry.value = this.value;
+    /**
+     * replaces this key and value with the entry provided
+     * @param overwritingEntry
+     */
+    overwrite(overwritingEntry) {
+        this.key = overwritingEntry.key;
+        this.value = overwritingEntry.value;
+        overwritingEntry.deleted = true;
     }
 
+    /**
+     * Marks this entry as deleted
+     */
     delete() {
+        this.deleted = true;
+    }
+}
+
+/**
+ * A Key value pair store, linked to other entries.
+ * @extends Entry
+ */
+class LinkedEntry extends Entry{
+
+    /**
+     * Entry constructor takes a key and a value
+     * @param {*} key
+     * @param {*} value
+     */
+    constructor(key, value) {
+        super(key, value);
+        this.previous = undefined;
+        this.next = undefined;
+    }
+
+    /**
+     * Marks this entry as deleted,
+     * it will also ensure any or previous and next values point to each other rather than this.
+     */
+    delete() {
+        super.delete();
+        if (this.previous) {
+            this.previous.next = this.next;
+        }
+        if (this.next) {
+            this.next.previous = this.previous;
+        }
     }
 }
 
@@ -2067,7 +2114,6 @@ class Entry {
  * @version 0.12.6
  * Homepage: https://github.com/mootable/hashmap
  */
-
 class SingleContainer {
     constructor(entry) {
         this.entry = entry;
@@ -2098,7 +2144,7 @@ class SingleContainer {
 
     set(newEntry, equals) {
         if (equals(newEntry.key, this.key)) {
-            newEntry.overwrite(this.entry);
+            this.entry.overwrite(newEntry);
             return this;
         }
         return new ArrayContainer(newEntry, this);
@@ -2129,16 +2175,16 @@ class SingleContainer {
  */
 class ArrayContainer {
     constructor(entry, next) {
-        this.contents = [entry,next];
+        this.contents = [entry, next];
     }
 
-    get size(){
+    get size() {
         return this.contents.length;
     }
 
     get(key, equals) {
-        for(const entry of this.contents){
-            if(equals(key, entry.key)){
+        for (const entry of this.contents) {
+            if (equals(key, entry.key)) {
                 return entry.value;
             }
         }
@@ -2146,8 +2192,8 @@ class ArrayContainer {
     }
 
     optionalGet(key, equals) {
-        for(const entry of this.contents){
-            if(equals(key, entry.key)){
+        for (const entry of this.contents) {
+            if (equals(key, entry.key)) {
                 return some(entry.value);
             }
         }
@@ -2156,9 +2202,9 @@ class ArrayContainer {
 
     set(newEntry, equals) {
 
-        for(const entry of this.contents){
-            if(equals(newEntry.key, entry.key)){
-                newEntry.overwrite(entry);
+        for (const entry of this.contents) {
+            if (equals(newEntry.key, entry.key)) {
+                entry.overwrite(newEntry);
                 return this;
             }
         }
@@ -2167,8 +2213,8 @@ class ArrayContainer {
     }
 
     has(key, equals) {
-        for(const entry of this.contents){
-            if(equals(key, entry.key)){
+        for (const entry of this.contents) {
+            if (equals(key, entry.key)) {
                 return true;
             }
         }
@@ -2178,22 +2224,22 @@ class ArrayContainer {
     delete(key, equals) {
         const findPredicate = entry => equals(key, entry.key);
 
-        if(this.contents.length === 2) {
+        if (this.contents.length === 2) {
             const newEntry = this.contents.find(findPredicate);
-            if(newEntry){
+            if (newEntry) {
                 return new SingleContainer(newEntry);
             }
         } else {
             const idx = this.contents.findIndex(entry => equals(key, entry.key));
-            if(idx >= 0){
-                this.contents = this.contents.splice(idx,1);
+            if (idx >= 0) {
+                this.contents = this.contents.splice(idx, 1);
             }
         }
         return this;
     }
 
     * [Symbol.iterator]() {
-        for(const entry of this.contents){
+        for (const entry of this.contents) {
             yield [entry.key, entry.value];
         }
     }
@@ -2206,7 +2252,6 @@ class ArrayContainer {
  * @version 0.12.6
  * Homepage: https://github.com/mootable/hashmap
  */
-
 /**
  * This HashMap is backed by a hashtrie, and can be tuned to specific use cases.
  * @extends {MapIterable}
@@ -2404,7 +2449,7 @@ class HashContainer extends SingleContainer {
 
     set(newEntry, equals, hash) {
         if (hash === this.hash && equals(newEntry.key, this.key)) {
-            newEntry.overwrite(this.entry);
+            this.entry.overwrite(newEntry);
             return this;
         }
         const bucket = new HashBuckets(this.options, this.depth);
@@ -2554,32 +2599,6 @@ class HashBuckets {
  * @version 0.12.6
  * Homepage: https://github.com/mootable/hashmap
  */
-/**
- * @private
- * @extends Entry
- */
-class LinkedEntry extends Entry {
-    constructor(key, value) {
-        super(key, value);
-        this.previous = undefined;
-        this.next = undefined;
-    }
-
-    overwrite(oldEntry) {
-        oldEntry.value = this.value;
-        this.deleted = true;
-    }
-
-    delete() {
-        if (this.previous) {
-            this.previous.next = this.next;
-        }
-        if (this.next) {
-            this.next.previous = this.previous;
-        }
-        this.deleted = true;
-    }
-}
 
 /**
  * This LinkedHashMap is is an extension of {@link HashMap} however LinkedHashMap also maintains insertion order of keys, and guarantees to iterate over them in that order.
