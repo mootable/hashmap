@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>@mootable/hashmap - Documentation</title>
+    <title>hashmap/entry/index.js - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -34,55 +34,42 @@
 
 <div id="main">
     
-    <h1 class="page-title">@mootable/hashmap</h1>
+    <h1 class="page-title">hashmap/entry/index.js</h1>
     
 
     
 
 
 
-
-<section>
-
-<header>
     
-        
-    
-</header>
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * HashMap - HashMap Implementation for JavaScript
+ * @namespace Mootable.hashmap.entry
+ * @author Jack Moxley &lt;https://github.com/jackmoxley>
+ * @version 0.12.6
+ * Homepage: https://github.com/mootable/hashmap
+ */
+/**
+ * @private
+ */
+export class Entry {
+    constructor(key, value) {
+        this.key = key;
+        this.value = value;
+    }
 
-<article>
-    
-        <div class="container-overview">
-        
-            
+    overwrite(oldEntry) {
+        oldEntry.value = this.value;
+    }
 
-            
-        
-        </div>
-    
-
-    
-
-    
-
-    
-    
-    
-
-     
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
+    delete() {
+    }
+}
+</code></pre>
+        </article>
+    </section>
 
 
 
