@@ -1,6 +1,6 @@
 import {isFunction} from '../utils/';
 import {equalsFor} from '../hash';
-import {some, none} from '../option/'
+import {some, none} from '../option/';
 /**
  * HashMap - HashMap Implementation for JavaScript
  * @namespace Mootable

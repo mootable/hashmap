@@ -44,12 +44,13 @@
     "url": "git://github.com/mootable/hashmap.git"
   },
   "scripts": {
-    "build": "npm run build:transpile && npm run build:jsdocs",
+    "build": "npm run lint && npm run coverage && npm run build:jsdocs && npm run build:transpile && npm run test:sanity",
     "build:transpile": "rollup -c",
     "build:jsdocs": "jsdoc -c jsdoc-config.json",
-    "dev": "rollup -c -w",
-    "test": "mocha --config .mocharc.cjs",
-    "coverage": "nyc --cache-dir ./.nyc_cache --nycrc-path .nycrc npm run test",
+    "coverage": " nyc npm test",
+    "benchmark": "node benchmark/benchmark.js",
+    "lint": "jshint ./src/ ./test/",
+    "test": "mocha",
     "test:sanity": "run-p test:sanity:**",
     "test:sanity:src": "mocha --config testconfig/src.mocharc.cjs",
     "test:sanity:default": "mocha --config testconfig/dist.mocharc.cjs",
@@ -58,9 +59,7 @@
     "test:sanity:umd:min": "mocha --config testconfig/dist.umd.min.mocharc.cjs",
     "test:sanity:mjs": "mocha --require esm --config testconfig/dist.mjs.mocharc.cjs",
     "test:sanity:cjs": "mocha --config testconfig/dist.cjs.mocharc.cjs",
-    "benchmark": "node benchmark/benchmark.js",
-    "lint": "jshint ./src/ ./test/",
-    "precommit": "npm run lint",
+    "precommit": "npm run coverage && npm run test:sanity",
     "prepush": "npm run test -- --reporter dot"
   },
   "engines": {
@@ -98,5 +97,8 @@
     "docs": "docs",
     "dist": "dist",
     "src": "src"
+  },
+  "esm": {
+    "cache": false
   }
 }

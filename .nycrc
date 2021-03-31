@@ -5,7 +5,6 @@
     "text",
     "text-summary"
   ],
-  "target": "es6",
   "check-coverage": true,
   "include": [
     "src"
@@ -15,8 +14,8 @@
     ".cjs",
     ".js"
   ],
-  "statements": 83,
-  "branches": 81,
-  "functions": 82,
-  "lines": 83
+  "statements": 87,
+  "branches": 85,
+  "functions": 84,
+  "lines": 87
 }

@@ -18,6 +18,11 @@
   - Switched to a simpler array store over a linked store. This can be optimised later.
   - Split out Hashmap Further.
   - renamed internal length property to size
+- Developer Experience
+  - Fixed a bug where the esm cache was preventing instrumentation during coverage.
+    - we could fix this by removing the need for esm altogether
+  - Cleaned and simplified package.json commands 
+  - Put the expected testing around the build command.
 - Testing
   - hash collision testing.
   - Utility Function testing.
