@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>entry/index.js - Documentation</title>
+    <title>SingleContainer - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -34,88 +34,107 @@
 
 <div id="main">
     
-    <h1 class="page-title">entry/index.js</h1>
+    <h1 class="page-title">SingleContainer</h1>
     
 
     
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>/**
- * Entry - internal keyvalue storage for Mapping Collections
- * @namespace Mootable.Entry
- * @author Jack Moxley &lt;https://github.com/jackmoxley>
- * @version 0.12.6
- * Homepage: https://github.com/mootable/hashmap
- */
-/**
- * A Key value pair store.
- */
-export class Entry {
-    /**
-     * Entry constructor takes a key and a value
-     * @param {*} key
-     * @param {*} value
-     */
-    constructor(key, value) {
-        this.key = key;
-        this.value = value;
-    }
+        <h2>
+            <span class="ancestors"><a href="Mootable.html">Mootable</a><a href="Mootable.Container.html">.Container</a>.</span>
+        
+        SingleContainer
+        </h2>
+        
+    
+</header>
 
-    /**
-     * replaces this key and value with the entry provided
-     * @param overwritingEntry
-     */
-    overwrite(overwritingEntry) {
-        this.key = overwritingEntry.key;
-        this.value = overwritingEntry.value;
-        overwritingEntry.deleted = true;
-    }
+<article>
+    
+        <div class="container-overview">
+        
+            
 
-    /**
-     * Marks this entry as deleted
-     */
-    delete() {
-        this.deleted = true;
-    }
-}
+<dl class="details">
 
-/**
- * A Key value pair store, linked to other entries.
- * @extends Entry
- */
-export class LinkedEntry extends Entry{
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="container_index.js.html">container/index.js</a>, <a href="container_index.js.html#line11">line 11</a>
+    </li></ul></dd>
+    
 
-    /**
-     * Entry constructor takes a key and a value
-     * @param {*} key
-     * @param {*} value
-     */
-    constructor(key, value) {
-        super(key, value);
-        this.previous = undefined;
-        this.next = undefined;
-    }
+    
 
-    /**
-     * Marks this entry as deleted,
-     * it will also ensure any or previous and next values point to each other rather than this.
-     */
-    delete() {
-        super.delete();
-        if (this.previous) {
-            this.previous.next = this.next;
-        }
-        if (this.next) {
-            this.next.previous = this.previous;
-        }
-    }
-}</code></pre>
-        </article>
-    </section>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+            
+                <div class="description usertext"><p>Holds a single entry, but expands to An array container if more than one entry is set on it.</p></div>
+            
+
+            
+        
+        </div>
+    
+
+    
+
+    
+
+    
+    
+    
+
+     
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 
