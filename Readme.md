@@ -132,19 +132,6 @@ map.set(1, "number one");
 map.get("1"); // --> "string one"
 ```
 
-A regular `Object` used as a map would yield `"number one"`
-
-### Objects as keys
-
-```js
-var key = {};
-var key2 = {};
-map.set(key, 123);
-map.set(key2, 321);
-map.get(key); // --> 123
-```
-A regular `Object` used as a map would yield `321`
-
 ### Iterating
 
 ```js
@@ -156,8 +143,8 @@ map.forEach(function(value, key) {
     console.log(key + " : " + value);
 });
 // ES6 Iterators version
-for (const pair of map) {
-    console.log(`${pair.key} : ${pair.value}`)
+for (const [key,value] of map) {
+    console.log(`${key} : ${value}`)
 }
 ```
 
@@ -181,7 +168,7 @@ map
     - It must have an identical interface to JS Map
     - It must be fully written in JS. (Transpiling is acceptable) So that we can guarantee it works in the browser, not just node.
 
-### Benchmarks on version 0.13.0
+### Benchmarks on version 0.13.1
 
 <table>
 <thead><tr><th>Entry Size</th><th>Fastest Version</th><th>Percentage Faster</th><th>Times Faster</th></tr></thead>

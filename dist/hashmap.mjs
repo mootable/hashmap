@@ -2,7 +2,7 @@
  * Utils - Utility functions
  * @namespace Mootable.Utils
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.13.0
+ * @version 0.13.1
  * Homepage: https://github.com/mootable/hashmap
  */
 /**
@@ -48,7 +48,7 @@ function sameValueZero(x, y) {
  * Option - a class to get round nullable fields.
  * @namespace Mootable.Option
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.13.0
+ * @version 0.13.1
  * Homepage: https://github.com/mootable/hashmap
  */
 
@@ -196,7 +196,7 @@ const none = new Option(false, undefined);
  * Hash - Hash functions
  * @namespace Mootable.Hash
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.13.0
+ * @version 0.13.1
  * Homepage: https://github.com/mootable/hashmap
  */
 /**
@@ -420,7 +420,7 @@ function equalsAndHash(key, equals, hash) {
  * HashMap - HashMap Implementation for JavaScript
  * @namespace Mootable
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.13.0
+ * @version 0.13.1
  * Homepage: https://github.com/mootable/hashmap
  */
 /**
@@ -2036,7 +2036,7 @@ class SetFilter extends SetIterableWrapper {
  * Entry - internal keyvalue storage for Mapping Collections
  * @namespace Mootable.Entry
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.13.0
+ * @version 0.13.1
  * Homepage: https://github.com/mootable/hashmap
  */
 /**
@@ -2107,7 +2107,7 @@ class LinkedEntry extends Entry{
  * Container - Container Implementation for JavaScript
  * @namespace Mootable.Container
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.13.0
+ * @version 0.13.1
  * Homepage: https://github.com/mootable/hashmap
  */
 
@@ -2243,7 +2243,7 @@ class ArrayContainer {
  * HashMap - HashMap Implementation for JavaScript
  * @namespace Mootable
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.13.0
+ * @version 0.13.1
  * Homepage: https://github.com/mootable/hashmap
  */
 /**
@@ -2590,7 +2590,7 @@ class HashBuckets {
  * HashMap - LinkedHashMap Implementation for JavaScript
  * @namespace Mootable
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.13.0
+ * @version 0.13.1
  * Homepage: https://github.com/mootable/hashmap
  */
 

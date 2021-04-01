@@ -5,7 +5,7 @@ import {equalsAndHash} from '../hash';
  * HashMap - LinkedHashMap Implementation for JavaScript
  * @namespace Mootable
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.13.0
+ * @version 0.13.1
  * Homepage: https://github.com/mootable/hashmap
  */
 

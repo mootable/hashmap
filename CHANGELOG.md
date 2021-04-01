@@ -1,4 +1,6 @@
 # Changelog
+## 0.13.1
+- Fixed readme
 ## 0.13.0
 - Breaking Changes
   - Moved hash, MapIterable and SetIterable into the Mootable object, out of the standard exports.
