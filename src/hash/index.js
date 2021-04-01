@@ -4,7 +4,7 @@ import {Option} from "../option";
  * Hash - Hash functions
  * @namespace Mootable.Hash
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.12.6
+ * @version 0.13.0
  * Homepage: https://github.com/mootable/hashmap
  */
 /**

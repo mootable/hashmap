@@ -8,7 +8,7 @@ import {SingleContainer, ArrayContainer} from '../container/';
  * HashMap - HashMap Implementation for JavaScript
  * @namespace Mootable
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.12.6
+ * @version 0.13.0
  * Homepage: https://github.com/mootable/hashmap
  */
 /**

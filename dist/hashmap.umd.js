@@ -1031,7 +1031,7 @@
 	 * Utils - Utility functions
 	 * @namespace Mootable.Utils
 	 * @author Jack Moxley <https://github.com/jackmoxley>
-	 * @version 0.12.6
+	 * @version 0.13.0
 	 * Homepage: https://github.com/mootable/hashmap
 	 */
 
@@ -1079,7 +1079,7 @@
 	 * Option - a class to get round nullable fields.
 	 * @namespace Mootable.Option
 	 * @author Jack Moxley <https://github.com/jackmoxley>
-	 * @version 0.12.6
+	 * @version 0.13.0
 	 * Homepage: https://github.com/mootable/hashmap
 	 */
 
@@ -1232,7 +1232,7 @@
 	 * Hash - Hash functions
 	 * @namespace Mootable.Hash
 	 * @author Jack Moxley <https://github.com/jackmoxley>
-	 * @version 0.12.6
+	 * @version 0.13.0
 	 * Homepage: https://github.com/mootable/hashmap
 	 */
 
@@ -1478,7 +1478,7 @@
 	 * HashMap - HashMap Implementation for JavaScript
 	 * @namespace Mootable
 	 * @author Jack Moxley <https://github.com/jackmoxley>
-	 * @version 0.12.6
+	 * @version 0.13.0
 	 * Homepage: https://github.com/mootable/hashmap
 	 */
 
@@ -3187,7 +3187,7 @@
 	 * Entry - internal keyvalue storage for Mapping Collections
 	 * @namespace Mootable.Entry
 	 * @author Jack Moxley <https://github.com/jackmoxley>
-	 * @version 0.12.6
+	 * @version 0.13.0
 	 * Homepage: https://github.com/mootable/hashmap
 	 */
 
@@ -3265,7 +3265,7 @@
 	 * Container - Container Implementation for JavaScript
 	 * @namespace Mootable.Container
 	 * @author Jack Moxley <https://github.com/jackmoxley>
-	 * @version 0.12.6
+	 * @version 0.13.0
 	 * Homepage: https://github.com/mootable/hashmap
 	 */
 
@@ -3414,7 +3414,7 @@
 	 * HashMap - HashMap Implementation for JavaScript
 	 * @namespace Mootable
 	 * @author Jack Moxley <https://github.com/jackmoxley>
-	 * @version 0.12.6
+	 * @version 0.13.0
 	 * Homepage: https://github.com/mootable/hashmap
 	 */
 
@@ -3813,7 +3813,7 @@
 	 * HashMap - LinkedHashMap Implementation for JavaScript
 	 * @namespace Mootable
 	 * @author Jack Moxley <https://github.com/jackmoxley>
-	 * @version 0.12.6
+	 * @version 0.13.0
 	 * Homepage: https://github.com/mootable/hashmap
 	 */
 

@@ -1,5 +1,5 @@
 # Changelog
-## 0.13.0 - Work In Progress
+## 0.13.0
 - Breaking Changes
   - Moved hash, MapIterable and SetIterable into the Mootable object, out of the standard exports.
   - Split classes out into separate functional areas, for my own sanity.

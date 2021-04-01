@@ -2,7 +2,7 @@
  * Entry - internal keyvalue storage for Mapping Collections
  * @namespace Mootable.Entry
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.12.6
+ * @version 0.13.0
  * Homepage: https://github.com/mootable/hashmap
  */
 /**
