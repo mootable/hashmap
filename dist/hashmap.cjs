@@ -2116,8 +2116,7 @@ class LinkedEntry extends Entry{
  */
 
 /**
- * Holds a single entry, but expands to An array container if more than one entry is set on it.
- * @namespace Mootable.Container.SingleContainer
+ * Holds a single entry, but expands to an array container if more than one entry is set on it.
  */
 class SingleContainer {
     constructor(entry) {
@@ -2173,8 +2172,7 @@ class SingleContainer {
 }
 
 /**
- * @namespace Mootable.Container.ArrayContainer
- * @extends Container
+ * Holds multiple entries, but shrinks to a single container if reduced to a size of one.
  */
 class ArrayContainer {
     constructor(entry, next) {

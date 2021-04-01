@@ -9,8 +9,7 @@ import {none, some} from '../option/';
  */
 
 /**
- * Holds a single entry, but expands to An array container if more than one entry is set on it.
- * @namespace Mootable.Container.SingleContainer
+ * Holds a single entry, but expands to an array container if more than one entry is set on it.
  */
 export class SingleContainer {
     constructor(entry) {
@@ -66,8 +65,7 @@ export class SingleContainer {
 }
 
 /**
- * @namespace Mootable.Container.ArrayContainer
- * @extends Container
+ * Holds multiple entries, but shrinks to a single container if reduced to a size of one.
  */
 export class ArrayContainer {
     constructor(entry, next) {
