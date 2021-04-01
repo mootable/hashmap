@@ -7154,11 +7154,16 @@
   });
 
   /**
-   * HashMap - HashMap Implementation for JavaScript
-   * @namespace Mootable.hashmap.container
+   * Container - Container Implementation for JavaScript
+   * @namespace Mootable.Container
    * @author Jack Moxley <https://github.com/jackmoxley>
    * @version 0.12.6
    * Homepage: https://github.com/mootable/hashmap
+   */
+
+  /**
+   * Holds a single entry, but expands to An array container if more than one entry is set on it.
+   * @namespace Mootable.Container.SingleContainer
    */
 
   var SingleContainer = /*#__PURE__*/function () {
@@ -7229,15 +7234,10 @@
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                if (!(this.size !== 0)) {
-                  _context.next = 3;
-                  break;
-                }
-
-                _context.next = 3;
+                _context.next = 2;
                 return [this.key, this.value];
 
-              case 3:
+              case 2:
               case "end":
                 return _context.stop();
             }
@@ -7249,7 +7249,7 @@
     return SingleContainer;
   }();
   /**
-   * @private
+   * @namespace Mootable.Container.ArrayContainer
    * @extends Container
    */
 
@@ -7363,19 +7363,13 @@
           return equals(key, entry.key);
         };
 
-        if (this.contents.length === 2) {
-          var newEntry = this.contents.find(findPredicate);
+        var idx = this.contents.findIndex(findPredicate);
 
-          if (newEntry) {
-            return new SingleContainer(newEntry);
-          }
-        } else {
-          var idx = this.contents.findIndex(function (entry) {
-            return equals(key, entry.key);
-          });
-
-          if (idx >= 0) {
-            this.contents = this.contents.splice(idx, 1);
+        if (idx >= 0) {
+          if (this.contents.length === 2) {
+            return new SingleContainer(this.contents[(idx + 1) % 2]);
+          } else {
+            this.contents.splice(idx, 1);
           }
         }
 

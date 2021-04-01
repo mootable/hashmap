@@ -3262,11 +3262,16 @@
 	}
 
 	/**
-	 * HashMap - HashMap Implementation for JavaScript
-	 * @namespace Mootable.hashmap.container
+	 * Container - Container Implementation for JavaScript
+	 * @namespace Mootable.Container
 	 * @author Jack Moxley <https://github.com/jackmoxley>
 	 * @version 0.12.6
 	 * Homepage: https://github.com/mootable/hashmap
+	 */
+
+	/**
+	 * Holds a single entry, but expands to An array container if more than one entry is set on it.
+	 * @namespace Mootable.Container.SingleContainer
 	 */
 
 	class SingleContainer {
@@ -3322,14 +3327,12 @@
 	  }
 
 	  *[Symbol.iterator]() {
-	    if (this.size !== 0) {
-	      yield [this.key, this.value];
-	    }
+	    yield [this.key, this.value];
 	  }
 
 	}
 	/**
-	 * @private
+	 * @namespace Mootable.Container.ArrayContainer
 	 * @extends Container
 	 */
 
@@ -3388,17 +3391,13 @@
 	  delete(key, equals) {
 	    const findPredicate = entry => equals(key, entry.key);
 
-	    if (this.contents.length === 2) {
-	      const newEntry = this.contents.find(findPredicate);
+	    const idx = this.contents.findIndex(findPredicate);
 
-	      if (newEntry) {
-	        return new SingleContainer(newEntry);
-	      }
-	    } else {
-	      const idx = this.contents.findIndex(entry => equals(key, entry.key));
-
-	      if (idx >= 0) {
-	        this.contents = this.contents.splice(idx, 1);
+	    if (idx >= 0) {
+	      if (this.contents.length === 2) {
+	        return new SingleContainer(this.contents[(idx + 1) % 2]);
+	      } else {
+	        this.contents.splice(idx, 1);
 	      }
 	    }
 

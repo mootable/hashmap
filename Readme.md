@@ -181,12 +181,12 @@ map
     - It must have an identical interface to JS Map
     - It must be fully written in JS. (Transpiling is acceptable) So that we can guarantee it works in the browser, not just node.
 
-### Benchmarks on version 0.12.4
+### Benchmarks on version 0.13.0
 
 <table>
 <thead><tr><th>Entry Size</th><th>Fastest Version</th><th>Percentage Faster</th><th>Times Faster</th></tr></thead>
 <tbody>
-<tr><td>0</td><td>map</td><td>872%</td><td>X 9.72</td></tr><tr><td>64</td><td>map</td><td>476%</td><td>X 5.76</td></tr><tr><td>256</td><td>map</td><td>686%</td><td>X 7.86</td></tr><tr><td>512</td><td>map</td><td>100%</td><td>X 2.00</td></tr><tr><td>768</td><td>mootable-hashmap.HashMap</td><td>110%</td><td>X 2.10</td></tr><tr><td>1024</td><td>mootable-hashmap.HashMap</td><td>91%</td><td>X 1.91</td></tr><tr><td>4096</td><td>mootable-hashmap.HashMap</td><td>507%</td><td>X 6.07</td></tr><tr><td>16384</td><td>mootable-hashmap.HashMap</td><td>2129%</td><td>X 22.29</td></tr><tr><td>65536</td><td>mootable-hashmap.HashMap</td><td>8825%</td><td>X 89.25</td></tr><tr><td>262144</td><td>mootable-hashmap.HashMap</td><td>7903%</td><td>X 80.03</td></tr><tr><td>1048576</td><td>mootable-hashmap.HashMap</td><td>8629%</td><td>X 87.29</td></tr><tr><td>4194304</td><td>mootable-hashmap.HashMap</td><td>8498%</td><td>X 85.98</td></tr><tr><td>create</td><td>mootable-hashmap.LinkedHashMap</td><td>13%</td><td>X 1.13</td></tr></tbody>
+<tr><td>0</td><td>mootable-hashmap.HashMap</td><td>53%</td><td>X 1.53</td></tr><tr><td>64</td><td>map</td><td>451%</td><td>X 5.51</td></tr><tr><td>256</td><td>map</td><td>250%</td><td>X 3.50</td></tr><tr><td>512</td><td>mootable-hashmap.HashMap</td><td>93%</td><td>X 1.93</td></tr><tr><td>768</td><td>mootable-hashmap.HashMap</td><td>151%</td><td>X 2.51</td></tr><tr><td>1024</td><td>mootable-hashmap.HashMap</td><td>100%</td><td>X 2.00</td></tr><tr><td>4096</td><td>mootable-hashmap.HashMap</td><td>631%</td><td>X 7.31</td></tr><tr><td>16384</td><td>mootable-hashmap.HashMap</td><td>2795%</td><td>X 28.95</td></tr><tr><td>65536</td><td>mootable-hashmap.HashMap</td><td>10285%</td><td>X 103.85</td></tr><tr><td>262144</td><td>mootable-hashmap.HashMap</td><td>11134%</td><td>X 112.34</td></tr><tr><td>1048576</td><td>mootable-hashmap.HashMap</td><td>10069%</td><td>X 101.69</td></tr><tr><td>4194304</td><td>mootable-hashmap.HashMap</td><td>10520%</td><td>X 106.20</td></tr><tr><td>create</td><td>flesler-hashmap.HashMap</td><td>70%</td><td>X 1.70</td></tr></tbody>
 </table>
 
 ## Background

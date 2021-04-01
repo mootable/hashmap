@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>option/index.js - Documentation</title>
+    <title>container/index.js - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -34,7 +34,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">option/index.js</h1>
+    <h1 class="page-title">container/index.js</h1>
     
 
     
@@ -44,154 +44,146 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/**
- * Option - a class to get round nullable fields.
- * @namespace Mootable.Option
+            <pre class="prettyprint source linenums"><code>import {none, some} from '../option/';
+
+/**
+ * Container - Container Implementation for JavaScript
+ * @namespace Mootable.Container
  * @author Jack Moxley &lt;https://github.com/jackmoxley>
  * @version 0.12.6
  * Homepage: https://github.com/mootable/hashmap
  */
 
 /**
- * A representation of a value, that might be or might not be null.
- * - Options are immutable, once set, it can't be changed.
- * - Options are iterable
- *   - If using a for loop.
- *     - If it has a value the loop will execute just once.
- *     - If it doesn't have a value the loop will not execute
- * @example &lt;caption>iterating over some&lt;/caption>
- * const opt = Option.some("hello");
- * for (value of opt) {
- *    // loops once.
- *    console.log(opt);
- * }
- * console.log("world");
- * // logs - hello\nworld
- * @example &lt;caption>iterating over none&lt;/caption>
- * const opt = Option.none;
- * for (value of opt) {
- *   // does not loop.
- *    console.log(opt);
- * }
- * console.log("world");
- * // logs - world
+ * Holds a single entry, but expands to An array container if more than one entry is set on it.
+ * @namespace Mootable.Container.SingleContainer
  */
-export class Option {
-    /**
-     * Usage of this constructor should generally be avoided,
-     * - instead use the some or none method on Option,
-     * - or the some or none exported functions provided with this javascript file.
-     * This constructor makes the Option immutable and inextensible.
-     * @see none
-     * @see some
-     * @param has - whether it contains a value or not.
-     * @param value - the value to set
-     */
-    constructor(has, value) {
-        this.has = has;
-        this.value = value;
-        Object.freeze(this);
+export class SingleContainer {
+    constructor(entry) {
+        this.entry = entry;
+        this.size = 1;
     }
 
-    /**
-     * A constant representation of an Option with nothing in it:
-     * &lt;code>{value:undefined,has:false}&lt;/code>
-     * @example &lt;caption>create an option using none&lt;/caption>
-     * const option = Option.none;
-     * // option.has === false
-     * // option.value === undefined
-     * // option.size === 0
-     * @type {Option}
-     */
-    static get none() {
+    get key() {
+        return this.entry.key;
+    }
+
+    get value() {
+        return this.entry.value;
+    }
+
+    get(key, equals) {
+        if (equals(key, this.key)) {
+            return this.entry.value;
+        }
+        return undefined;
+    }
+
+    optionalGet(key, equals) {
+        if (equals(key, this.key)) {
+            return some(this.entry.value);
+        }
         return none;
     }
 
-    /**
-     * Return the size of this option.
-     *  - 1 if it has a value
-     *  - 0 if it doesn't
-     * @return {number}
-     */
-    get size() {
-        return this.has ? 1 : 0;
-    }
-
-
-    /**
-     * When called with a value returns an Option object of the form:
-     * &lt;code>{value:value,has:true}&lt;/code>
-     * Even if a value is not provided it still counts as existing, this is different from other libraries,
-     * we are effectively saying, null and undefined count as valid values.
-     * @example &lt;caption>create an option using some&lt;/caption>
-     * const myValue = 'hello';
-     * const option = Option.some(myValue);
-     * // option.has === true
-     * // option.value === 'hello'
-     * // option.size === 1
-     * @param value - the value
-     * @return {Option} - the option in the form &lt;code>{value:value,has:true}&lt;/code>
-     */
-    static some(value) {
-        return some(value);
-    }
-    /**
-     * Provides an iterable for the Option
-     * If using a for loop.
-     * - If it has a value the loop will execute just once.
-     * - If it doesn't have a value the loop will not execute
-     * @example &lt;caption>iterating over some&lt;/caption>
-     * const opt = Option.some("hello");
-     * for (value of opt) {
-     *    // loops once.
-     *    console.log(opt);
-     * }
-     * console.log("world");
-     * // logs - hello\nworld
-     * @example &lt;caption>iterating over none&lt;/caption>
-     * const opt = Option.none;
-     * for (value of opt) {
-     *   // does not loop.
-     *    console.log(opt);
-     * }
-     * console.log("world");
-     * // logs - world
-     * @return {Generator&lt;*, void, *>}
-     */
-    * [Symbol.iterator]() {
-        if (this.has) {
-            yield this.value;
+    set(newEntry, equals) {
+        if (equals(newEntry.key, this.key)) {
+            this.entry.overwrite(newEntry);
+            return this;
         }
+        return new ArrayContainer(newEntry, this);
+    }
+
+    has(key, equals) {
+        return equals(key, this.key);
+    }
+
+    delete(key, equals) {
+        if (equals(key, this.key)) {
+            this.entry.delete();
+            return undefined;
+        }
+        return this;
+    }
+
+    * [Symbol.iterator]() {
+        yield [this.key, this.value];
     }
 }
 
 /**
- * A function that when called with a value returns an Option object of the form:
- * &lt;code>{value:value,has:true}&lt;/code>
- * Even if a value is not provided it still counts as existing, this is different from other libraries,
- * we are effectively saying as null and undefined count as valid values.
- * @example  &lt;caption>create an option using some&lt;/caption>
- * const myValue = 'hello';
- * const option = some(myValue);
- * // option.has === true
- * // option.value === 'hello'
- * // option.size === 1
- * @type {function(*=): Option}
+ * @namespace Mootable.Container.ArrayContainer
+ * @extends Container
  */
-export const some = (value) => new Option(true, value);
+export class ArrayContainer {
+    constructor(entry, next) {
+        this.contents = [entry, next];
+    }
 
-/**
- * A constant representation of an Option with nothing in it:
- * &lt;code>{value:undefined,has:false}&lt;/code>
- * @example &lt;caption>create an option using none&lt;/caption>
- * const option = none;
- * // option.has === false
- * // option.value === undefined
- * // option.size === 0
- * @type {Option}
- */
-export const none = new Option(false, undefined);
-</code></pre>
+    get size() {
+        return this.contents.length;
+    }
+
+    get(key, equals) {
+        for (const entry of this.contents) {
+            if (equals(key, entry.key)) {
+                return entry.value;
+            }
+        }
+        return undefined;
+    }
+
+    optionalGet(key, equals) {
+        let container = this;
+        for (const entry of this.contents) {
+            if (equals(key, entry.key)) {
+                return some(entry.value);
+            }
+        }
+        return none;
+    }
+
+    set(newEntry, equals) {
+
+        for (const entry of this.contents) {
+            if (equals(newEntry.key, entry.key)) {
+                entry.overwrite(newEntry);
+                return this;
+            }
+        }
+        this.contents.push(newEntry);
+        return this;
+    }
+
+    has(key, equals) {
+        for (const entry of this.contents) {
+            if (equals(key, entry.key)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    delete(key, equals) {
+        const findPredicate = entry => equals(key, entry.key);
+        const idx = this.contents.findIndex(findPredicate);
+
+        if (idx >= 0) {
+            if (this.contents.length === 2) {
+                return new SingleContainer(this.contents[(idx + 1) % 2]);
+            } else {
+                this.contents.splice(idx, 1);
+            }
+        }
+        return this;
+    }
+
+    * [Symbol.iterator]() {
+        for (const entry of this.contents) {
+            yield [entry.key, entry.value];
+        }
+    }
+}</code></pre>
         </article>
     </section>
 

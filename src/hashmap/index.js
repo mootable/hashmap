@@ -3,7 +3,7 @@ import {equalsAndHash} from '../hash';
 import {none, some} from '../option/';
 import {MapIterable} from '../iterable/';
 import {Entry} from '../entry/';
-import {SingleContainer, ArrayContainer} from './container/';
+import {SingleContainer, ArrayContainer} from '../container/';
 /**
  * HashMap - HashMap Implementation for JavaScript
  * @namespace Mootable

@@ -18,6 +18,7 @@
   - Switched to a simpler array store over a linked store. This can be optimised later.
   - Split out Hashmap Further.
   - renamed internal length property to size
+  - fixed a bug where array containers were deleting the wrong items.
 - Developer Experience
   - Fixed a bug where the esm cache was preventing instrumentation during coverage.
     - we could fix this by removing the need for esm altogether
