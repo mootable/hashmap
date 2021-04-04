@@ -1,4 +1,5 @@
-import {none, some} from '../option/';
+import {none, some} from '../option/index.js';
+import {sameValueZero} from "../utils";
 
 /**
  * Container - Container Implementation for JavaScript
@@ -8,77 +9,29 @@ import {none, some} from '../option/';
  * Homepage: https://github.com/mootable/hashmap
  */
 
-/**
- * Holds a single entry, but expands to an array container if more than one entry is set on it.
- */
-export class SingleContainer {
-    constructor(entry) {
-        this.entry = entry;
-        this.size = 1;
-    }
-
-    get key() {
-        return this.entry.key;
-    }
-
-    get value() {
-        return this.entry.value;
-    }
-
-    get(key, equals) {
-        if (equals(key, this.key)) {
-            return this.entry.value;
-        }
-        return undefined;
-    }
-
-    optionalGet(key, equals) {
-        if (equals(key, this.key)) {
-            return some(this.entry.value);
-        }
-        return none;
-    }
-
-    set(newEntry, equals) {
-        if (equals(newEntry.key, this.key)) {
-            this.entry.overwrite(newEntry);
-            return this;
-        }
-        return new ArrayContainer(newEntry, this);
-    }
-
-    has(key, equals) {
-        return equals(key, this.key);
-    }
-
-    delete(key, equals) {
-        if (equals(key, this.key)) {
-            this.entry.delete();
-            return undefined;
-        }
-        return this;
-    }
-
-    * [Symbol.iterator]() {
-        yield [this.key, this.value];
-    }
-}
+const findPredicate = (key, equals) => entry => equals(key, entry.key);
 
 /**
  * Holds multiple entries, but shrinks to a single container if reduced to a size of one.
  */
 export class ArrayContainer {
-    constructor(entry, next) {
-        this.contents = [entry, next];
+
+    constructor(options) {
+        this.size = 0;
+        this.contents = [undefined];
+        this.options = options;
     }
 
-    get size() {
-        return this.contents.length;
+    prefill(key, value) {
+        this.contents[0] = this.options.createEntry(key, value, true);
+        this.size = 1;
+        return this;
     }
 
     get(key, equals) {
-        for (const entry of this.contents) {
-            if (equals(key, entry.key)) {
+        if (this.size !== 0) {
+            const entry = this.contents.find(findPredicate(key, equals));
+            if (entry) {
                 return entry.value;
             }
         }
@@ -86,53 +39,118 @@ export class ArrayContainer {
     }
 
     optionalGet(key, equals) {
-        let container = this;
-        for (const entry of this.contents) {
-            if (equals(key, entry.key)) {
+        if (this.size !== 0) {
+            const entry = this.contents.find(findPredicate(key, equals));
+            if (entry) {
                 return some(entry.value);
             }
         }
         return none;
     }
-
-    set(newEntry, equals) {
-
-        for (const entry of this.contents) {
-            if (equals(newEntry.key, entry.key)) {
-                entry.overwrite(newEntry);
-                return this;
+    set(key, value, equals) {
+        let idx = 0;
+        let undefinedIdx;
+        for(const entry of this.contents) {
+            if(entry){
+                if(equals(key, entry.key)) {
+                    this.contents[idx] = this.options.overwriteEntry(key, value, entry);
+                    return false;
+                }
+            } else if(undefinedIdx === undefined){
+                undefinedIdx = idx;
             }
+            idx += 1;
         }
-        this.contents.push(newEntry);
-        return this;
+        if(undefinedIdx === undefined){
+            this.contents.push(this.options.createEntry(key, value));
+        } else {
+            this.contents[undefinedIdx] = this.options.createEntry(key, value);
+        }
+        return true;
+    }
+    set2(key, value, equals) {
+        let idx = this.contents.findIndex(findPredicate(key, equals));
+        if (idx < 0) {
+            if (this.size === this.contents.length) {
+                this.contents.push(this.options.createEntry(key, value));
+                this.size++;
+                return true;
+            } else {
+                idx = 0;
+                for (const entry of this.contents) {
+                    if (entry === undefined) {
+                        this.contents[idx] = this.options.createEntry(key, value);
+                        this.size++;
+                        return true;
+                    }
+                    idx++;
+                }
+            }
+        } else {
+            this.contents[idx] = this.options.overwriteEntry(key, value, this.contents[idx]);
+            return false;
+        }
+    }
+
+
+    emplace(key, handler, equals) {
+        let idx = this.contents.findIndex(findPredicate(key, equals));
+        let value;
+        if (idx < 0) {
+            // we expect an error to be thrown if insert doesn't exist.
+            // https://github.com/tc39/proposal-upsert
+            value = handler.insert(key, this.options.map);
+            if (this.size === this.contents.length) {
+                this.contents.push(this.options.createEntry(key, value));
+                this.size++;
+                return {value, resized:true};
+            } else {
+                idx = 0;
+                for (const entry of this.contents) {
+                    if (entry === undefined) {
+                        this.contents[idx] = this.options.createEntry(key, value);
+                        this.size++;
+                        return {value, resized:true};
+                    }
+                    idx++;
+                }
+            }
+        } else if (handler.update) {
+            value = handler.update(this.contents[idx].value, key, this.options.map);
+            this.contents[idx] = this.options.overwriteEntry(key, value, this.contents[idx]);
+            return {value, resized:false};
+        }
     }
 
     has(key, equals) {
-        for (const entry of this.contents) {
-            if (equals(key, entry.key)) {
-                return true;
-            }
+        if (this.size !== 0) {
+            return this.contents.some(findPredicate(key, equals));
         }
         return false;
     }
 
     delete(key, equals) {
-        const findPredicate = entry => equals(key, entry.key);
-        const idx = this.contents.findIndex(findPredicate);
+        const idx = this.contents.findIndex(findPredicate(key, equals));
 
-        if (idx >= 0) {
-            if (this.contents.length === 2) {
-                return new SingleContainer(this.contents[(idx + 1) % 2]);
-            } else {
-                this.contents.splice(idx, 1);
-            }
+        if (idx === -1) {
+            return false;
         }
-        return this;
+        if(this.options.deleteEntry){
+            this.options.deleteEntry(this.contents[idx]);
+        }
+        //autocompress.
+        // this.contents = this.contents.filter(entry => !!entry);
+
+        this.contents[idx] = undefined;
+        this.size--;
+        return true;
     }
 
     * [Symbol.iterator]() {
         for (const entry of this.contents) {
-            yield [entry.key, entry.value];
+            if (entry !== undefined) {
+                yield [entry.key, entry.value];
+            }
         }
     }
 }

@@ -1,6 +1,5 @@
 import {HashMap} from '../hashmap/';
-import {LinkedEntry} from '../entry/';
-import {equalsAndHash} from '../hash';
+import { Entry} from '../entry/';
 /**
  * HashMap - LinkedHashMap Implementation for JavaScript
  * @namespace Mootable
@@ -8,7 +7,6 @@ import {equalsAndHash} from '../hash';
  * @version 0.13.1
  * Homepage: https://github.com/mootable/hashmap
  */
-
 /**
  * This LinkedHashMap is is an extension of {@link HashMap} however LinkedHashMap also maintains insertion order of keys, and guarantees to iterate over them in that order.
  * @extends HashMap
@@ -34,36 +32,35 @@ export class LinkedHashMap extends HashMap {
      */
     constructor(args = {copy: undefined, depth: undefined, widthAs2sExponent: 6}) {
         super(args);
-        this.start = undefined;
-        this.end = undefined;
-    }
-
-    set(key, value, hashEq = equalsAndHash(key)) {
-        const entry = this.addEntry(new LinkedEntry(key, value), hashEq);
-        // if we added at the end, shift forward one.
-        if (this.end) {
-            if (!entry.deleted) {
+        this.options.createEntry =(key,value)=>{
+            const entry = new Entry(key,value);
+            if (this.end) {
                 this.end.next = entry;
                 entry.previous = this.end;
                 this.end = entry;
+            } else {
+                this.end = this.start = entry;
             }
-        } else {
-            this.end = this.start = entry;
-        }
-        return this;
+            return entry;
+        };
+        this.options.deleteEntry = (oldEntry)=>{
+            if (oldEntry.previous) {
+                oldEntry.previous.next = oldEntry.next;
+            }
+            if (oldEntry.next) {
+                oldEntry.next.previous = oldEntry.previous;
+            }
+            if (this.start === oldEntry) {
+                this.start = oldEntry.next;
+            }
+            if (this.end === oldEntry) {
+                this.end = oldEntry.previous;
+            }
+            return undefined;
+        };
+        this.start = undefined;
+        this.end = undefined;
     }
-
-    delete(key, hashEq = equalsAndHash(key)) {
-        super.delete(key, hashEq);
-        if (this.start && this.start.deleted) {
-            this.start = this.start.next;
-        }
-        if (this.end && this.end.deleted) {
-            this.end = this.end.previous;
-        }
-        return this;
-    }
-
 
     /**
      * Makes a copy of this LinkedHashMap
