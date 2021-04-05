@@ -1,0 +1,51 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script  type="application/javascript">
+
+        const labels = ["0","64","256","512","768","1024","4096","16384","65536","262144","1048576","4194304"];
+        const data = {
+            labels: labels,
+            datasets: [{"label":"@mootable/HashMap","backgroundColor":"#6929c488","borderColor":"#6929c4","data":[899823,850255,856320,849588,846404,807876,813780,798373,624507,746117,820931,794710]},{"label":"@mootable/LinkedHashMap","backgroundColor":"#1192e888","borderColor":"#1192e8","data":[835867,772750,774084,774228,765622,737673,738630,729791,730163,756879,762646,754997]},{"label":"map","backgroundColor":"#005d5d88","borderColor":"#005d5d","borderDash":[5,3],"data":[2064233,4192525,1642481,911513,415608,494592,135763,34060,8457,9241,9292,8909]},{"label":"flesler-hashmap","backgroundColor":"#9f185388","borderColor":"#9f1853","borderDash":[2,2],"data":[343395,359162,384836,385052,400863,433956,447372,462419,435569,447957,441058,421440]}]
+        };
+
+        const config = {
+            type: 'line',
+            data,
+            options: {
+            responsive: true,
+                plugins: {
+                title: {
+                    display: true,
+                    text: 'SetGetDelete'
+                }
+            },
+            scales: {
+                x: {
+                    display: true,
+                    text: 'Prefilled Map Size',
+                },
+                y: {
+                    display: true,
+                    type: 'logarithmic',
+                    text: 'Operations per second',
+                }
+            }
+            },
+        };
+    </script>
+</head>
+<body>
+<div style="max-height:90%;max-width: 90%;">
+    <canvas id="SetGetDeleteChart"></canvas>
+</div>
+<script type="application/javascript">
+    const ctx = document.getElementById('SetGetDeleteChart');
+    const SetGetDeleteChart = new Chart(ctx, config );
+</script>
+</body>
+</html>

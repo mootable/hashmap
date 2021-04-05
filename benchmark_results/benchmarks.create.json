@@ -1,0 +1,1 @@
+{"benchmark":"create","type":"single","results":[{"name":"flesler-hashmap","ops":21181424},{"name":"@mootable/HashMap","ops":12996037},{"name":"map","ops":10579896},{"name":"@mootable/LinkedHashMap","ops":5604246}]}

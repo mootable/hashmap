@@ -18,4 +18,4 @@ const testForSetGetAndDelete = (map) => {
     };
 };
 
-module.exports = suitsForAllImpls('SetGetAndDelete', testForSetGetAndDelete, false,256);
+module.exports = suitsForAllImpls('SetGetAndDelete', testForSetGetAndDelete, false);
