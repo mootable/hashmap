@@ -33,7 +33,7 @@ To run the tests:
     $ npm test
 
 To run the benchmarks: (Ensure you have the memory to run them)
-- If you don't you can reduce the memory size (in MB) accordingly `--max_old_space_size` and remove the last items in `HASHMAP_SIZES`
+- If you don't you can reduce the memory size (in MB) accordingly `--max_old_space_size` and remove the last items in `MAP_SIZES`
 
     $ node  --max_old_space_size=24576 --expose-gc test\benchmark.js
 

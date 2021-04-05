@@ -102,5 +102,8 @@
   },
   "esm": {
     "cache": false
+  },
+  "dependencies": {
+    "fs-extra": "^9.1.0"
   }
 }

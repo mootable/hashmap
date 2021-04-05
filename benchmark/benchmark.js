@@ -1,114 +1,118 @@
-/**
- * HashMap - HashMap Implementation for JavaScript
- * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.13.1
- * Homepage: https://github.com/mootable/hashmap
- */
-const {add, cycle, suite, save} = require('benny');
-const esmRequire = require("esm")(module/*, options*/);
-const hashmapImplementationMetaData = {
-    '@mootable/hashmap.HashMap': {location: '../src/', esm: true, value: 'HashMap'},
-    '@mootable/hashmap.LinkedHashMap': {location: '../src/', esm: true, value: 'LinkedHashMap'},
-    'map': {location: './nativeMap.js', esm: false, value: 'Map'},
-    'flesler-hashmap': {location: 'flesler-hashmap', esm: false, value: 'HashMap'},
-};
+const fse = require('fs-extra');
 
-const HASHMAP_SIZES = [0, 64, 256, 512, 768, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304];
 
-const LARGEST_HASHMAP = HASHMAP_SIZES.sort((left, right) => left - right)[HASHMAP_SIZES.length - 1];
+const create = require('./benchmark_create');
+const setgetdelete = require('./benchmark_setgetdelete');
+const reportSingle = (promise) =>
+    promise.then(report => {
+        return {
+            benchmark: report.name, type: 'single', results: report.results.map(({name, ops}) => {
+                return {name, ops};
+            }).sort((a, b) => b.ops - a.ops)
+        };
+    });
+const reportMultipleImplementations = (promises, benchmark) => Promise.all(promises)
+    .then(allResults => {
+        return {
+            benchmark,
+            type: 'multiple',
+            results: allResults.map(({name: parent, classification, report}) => {
+                return {
+                    name: parent, classification, results: report.results.map(({name, ops}) => {
+                        return {name, ops};
+                    })
+                };
+            })
+        };
+    });
+Promise.all([
+    reportSingle(create),
+    reportMultipleImplementations(setgetdelete, 'SetGetDelete')
+]).then(reports => [
+    fse.outputJson(`benchmark_results/benchmarks.json`, reports),
+    ...reports.map(report => fse.outputJson(`benchmark_results/benchmarks.${report.benchmark}.json`, report)),
+    ...reports.filter(({type}) => type === 'multiple')
+        .map(report => fse.outputFile(`benchmark_results/benchmarks.${report.benchmark}.html`, generateLineChart(report))),
+    // ...reports.filter(({type}) => type === 'single')
+    //     .map(report => fse.outputFile(`benchmark_results/benchmarks.html`, generateBarChart(report)))
+]);
+const colours = [
+    '#6929c4',
+    '#1192e8',
+    '#005d5d',
+    '#9f1853',
+    '#fa4d56',
+    '#570408',
+    '#198038',
+    '#002d9c',
+    '#ee538b',
+    '#b28600',
+    '#009d9a',
+    '#012749',
+    '#8a3800',
+    '#a56eff',
+];
 
-console.info("Generating Test Data");
-const ALL_KV = new Array(LARGEST_HASHMAP);
-for (let i = 0; i < LARGEST_HASHMAP; i++) {
-    ALL_KV[i] = [makeKey(), makeValue()];
-}
-// random value
-const TEST_KV = [makeKey(), makeValue()];
-console.info("Test Data Generated");
-const hashmapImplementations = Object.entries(hashmapImplementationMetaData)
-    .map(
-        ([version, {location, esm, value}]) => {
-            const required = esm ? esmRequire(location) : require(location);
-            return [version, required[value]];
-        });
+function generateLineChart(report) {
+    const labels = report.results[0].results.map(({name}) => name);
+    const datasets = report.results.map((impl,index) => {
+        return {
+            label: impl.name,
+            backgroundColor: colours[index]+'88',
+            borderColor: colours[index],
+            borderDash: impl.classification === 'mootable' ? undefined : impl.classification === 'native' ? [5, 3] : [2,2],
+            data: impl.results.map(({ops}) => ops)};
+    });
+    return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script  type="application/javascript">
 
-const saves = (name) => [save({
-    file: name,
-    folder: 'benchmark_results',
-    details: false,
-    format: 'table.html',
-}),
-    save({
-        file: name,
-        folder: 'benchmark_results',
-        details: true,
-        format: 'chart.html',
-    }),
-    save({
-        file: name,
-        folder: 'benchmark_results',
-        details: true,
-        /**
-         * Output format, currently supported:
-         *   'json' | 'csv' | 'table.html' | 'chart.html'
-         * Default: 'json'
-         */
-    })];
-const addsForSetGetDeleteSize = (size) => hashmapImplementations.map(([name, HashMap]) => {
+        const labels = ${JSON.stringify(labels)};
+        const data = {
+            labels: labels,
+            datasets: ${JSON.stringify(datasets)}
+        };
 
-        const hashmap = new HashMap();
-        for (let i = 0; i < size; i++) {
-            hashmap.set(ALL_KV[i][0], ALL_KV[i][1]);
-        }
-        console.log(`Created Hashmap of ${size} for ${name}`);
-        return add(name, () => {
-            hashmap.set(TEST_KV[0], TEST_KV[1]);
-            if (!hashmap.get(TEST_KV[0])) {
-                throw `${TEST_KV[0]} does not exist`;
+        const config = {
+            type: 'line',
+            data,
+            options: {
+            responsive: true,
+                plugins: {
+                title: {
+                    display: true,
+                    text: '${report.benchmark}'
+                }
+            },
+            scales: {
+                x: {
+                    display: true,
+                    text: 'Prefilled Map Size',
+                },
+                y: {
+                    display: true,
+                    type: 'logarithmic',
+                    text: 'Operations per second',
+                }
             }
-            hashmap.delete(TEST_KV[0]);
-        });
-    }
-);
-
-const suiteForSetGetDeleteSize = (size) => suite(
-    `${size}`,
-    ...addsForSetGetDeleteSize(size),
-    cycle(),
-    ...saves(`GetSetDelete_${size}`)
-);
-const addsForCreate = () => hashmapImplementations.map(([name, HashMap]) =>
-    add(name, () => {
-        const hashmap = new HashMap();
-        if (!hashmap) {
-            throw "where is the hashmap?";
-        }
-    })
-);
-const suiteForCreate = () => suite(
-    `create`,
-    ...addsForCreate(),
-    cycle(),
-    ...saves('create')
-);
-module.exports = [suiteForCreate(), ...HASHMAP_SIZES.map(size => suiteForSetGetDeleteSize(size))];
-
-function makeKey() {
-    // return Math.floor(Math.random() * this.max32);
-    return makeid(32);
-}
-
-function makeValue() {
-    return makeid(8);
-}
-
-function makeid(length) {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    const charactersLength = characters.length;
-    let result = '';
-    let i = 0;
-    while (i++ < length) {
-        result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
+            },
+        };
+    </script>
+</head>
+<body>
+<div style="max-height:90%;max-width: 90%;">
+    <canvas id="${report.benchmark}Chart"></canvas>
+</div>
+<script type="application/javascript">
+    const ctx = document.getElementById('${report.benchmark}Chart');
+    const ${report.benchmark}Chart = new Chart(ctx, config );
+</script>
+</body>
+</html>
+`;
 }
