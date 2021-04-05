@@ -5,8 +5,8 @@
  * Homepage: https://github.com/mootable/hashmap
  */
 const {add, cycle, suite: b_suite,} = require('benny');
-const {saves} = require('./handler_saves.js');
-const {mapImpls}  = require('./fetcher_impls.js');
+const {saves} = require('./saves.js');
+const {mapImpls}  = require('../fetchers/impls.js');
 
 const adds = (test) => mapImpls.map((implementation) =>
     add(implementation.implName, test(implementation))

@@ -4,8 +4,8 @@
  * @version 0.13.1
  * Homepage: https://github.com/mootable/hashmap
  */
-const {kvStore, MAP_SIZES} = require('./fetcher_test_data.js');
-const {mapImpls} = require('./fetcher_impls.js');
+const {kvStore, MAP_SIZES} = require('./test_data.js');
+const {mapImpls} = require('./impls.js');
 const cache = {};
 
 function generateForImplAndSize({location, esm, className, implName, Impl}, size, ignoreCache) {

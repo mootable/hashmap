@@ -6,9 +6,9 @@
  */
 const esmRequire = require("esm")(module/*, options*/);
 const mapImplsMetaData = {
-    '@mootable/HashMap': {location: '../src/', esm: true, className: 'HashMap', classification: 'mootable'},
-    '@mootable/LinkedHashMap': {location: '../src/', esm: true, className: 'LinkedHashMap', classification: 'mootable'},
-    'map': {location: './nativeMap.js', esm: false, className: 'Map', classification: 'native'},
+    '@mootable/HashMap': {location: '../../src/', esm: true, className: 'HashMap', classification: 'mootable'},
+    '@mootable/LinkedHashMap': {location: '../../src/', esm: true, className: 'LinkedHashMap', classification: 'mootable'},
+    'map': {location: '../loaders/nativeMap.js', esm: false, className: 'Map', classification: 'native'},
     'flesler-hashmap': {location: 'flesler-hashmap', esm: false, className: 'HashMap', classification: 'other'},
 };
 

@@ -4,8 +4,8 @@
  * @version 0.13.1
  * Homepage: https://github.com/mootable/hashmap
  */
-const {suitsForAllImpls} = require("./handler_many.js");
-const {TEST_KV} = require('./fetcher_test_data.js');
+const {suitsForAllImpls} = require("../handlers/multiple.js");
+const {TEST_KV} = require('../fetchers/test_data.js');
 
 // test(map, implementation, size)
 const testForSetGetAndDelete = (map) => {

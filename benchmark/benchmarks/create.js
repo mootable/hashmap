@@ -4,7 +4,7 @@
  * @version 0.13.1
  * Homepage: https://github.com/mootable/hashmap
  */
-const singleSuite = require("./handler_single.js");
+const singleSuite = require("../handlers/single.js");
 
 // test(implementation)
 const testForCreate = ({Impl}) => {

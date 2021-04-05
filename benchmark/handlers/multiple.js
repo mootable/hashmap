@@ -6,10 +6,10 @@
  */
 
 const {add, cycle, suite: b_suite} = require('benny');
-const {saves} = require('./handler_saves.js');
-const {mapsForImpl, mapsForSize} = require('./fetcher_maps.js');
-const {mapImpls} = require('./fetcher_impls.js');
-const {MAP_SIZES} = require('./fetcher_test_data.js');
+const {saves} = require('./saves.js');
+const {mapsForImpl, mapsForSize} = require('../fetchers/maps.js');
+const {mapImpls} = require('../fetchers/impls.js');
+const {MAP_SIZES} = require('../fetchers/test_data.js');
 
 const addsForImpl = (implementation, test, ignoreCache, maxSize) => mapsForImpl(implementation, ignoreCache, maxSize).map(([size, map]) =>
     add(`${size}`, test(map, implementation, size))
