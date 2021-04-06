@@ -317,8 +317,8 @@ export class HashBuckets {
 
     prefillContainer(container) {
         // just shift the bucket down a level.
-        container.hash = container.hash >>> this.options.widthAs2sExponent;
         this.buckets[container.hash & this.options.mask] = container;
+        container.hash = container.hash >>> this.options.widthAs2sExponent;
         // create a new container for the  new entry
         this.size += container.size;
         return this;

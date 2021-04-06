@@ -19,4 +19,4 @@ const benchmark = new Benchmark('GetNone')
         };
     });
 
-module.exports = suitsForAllImpls(benchmark, false,17000);
+module.exports = suitsForAllImpls(benchmark, false);

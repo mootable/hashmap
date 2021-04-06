@@ -6,12 +6,12 @@
  */
 const Benchmark = require("../util/Benchmark.js");
 const {suitsForAllImpls} = require("../handlers/multiple.js");
-const {kvStore} = require('../fetchers/test_data.js');
+const {keyAt} = require('../fetchers/test_data.js');
 // test(map, implementation, size)
 const benchmark = new Benchmark('GetStart')
-    .withBefore(() => {
-        const key = kvStore(1)[0][0];
-        console.log('GetStart', key);
+    .withBefore(({size, implementation}) =>  {
+        const key = keyAt(0);
+        console.log(`GetStart using key: ${key} in ${implementation.implName} for size: ${size}`);
         return key;
     })
     .withTest(({map, size, implementation},key) => {
@@ -19,10 +19,10 @@ const benchmark = new Benchmark('GetStart')
             const value = map.get(key);
             if (!value) {
                 if(size !== 0) {
-                    throw `${key} does not exist in ${implementation.implName} for size: ${size}`;
+                    throw `GetStart key: {key} does not exist in ${implementation.implName} for size: ${size}`;
                 }
             }
         };
     });
 
-module.exports = suitsForAllImpls(benchmark, false,17000);
+module.exports = suitsForAllImpls(benchmark, false);

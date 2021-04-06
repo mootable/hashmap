@@ -81,6 +81,7 @@
     "docdash": "^1.2.0",
     "esm": "^3.2.25",
     "flesler-hashmap": "npm:hashmap@^2.4.0",
+    "fs-extra": "^9.1.0",
     "jsdoc": "^3.6.6",
     "jsdoc-escape-at": "^1.0.1",
     "jshint": "^2.12.0",
@@ -91,7 +92,8 @@
     "random-seed": "^0.3.0",
     "regenerator-runtime": "^0.13.7",
     "rollup": "^2.42.1",
-    "rollup-plugin-terser": "^7.0.2"
+    "rollup-plugin-terser": "^7.0.2",
+    "yargs": "^16.2.0"
   },
   "directories": {
     "test": "test",
@@ -102,8 +104,5 @@
   },
   "esm": {
     "cache": false
-  },
-  "dependencies": {
-    "fs-extra": "^9.1.0"
   }
 }

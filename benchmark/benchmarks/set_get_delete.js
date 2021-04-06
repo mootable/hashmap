@@ -23,4 +23,4 @@ const benchmark = new Benchmark('SetGetAndDelete')
         map.delete(key);
     });
 
-module.exports = suitsForAllImpls(benchmark, false,17000);
+module.exports = suitsForAllImpls(benchmark, false);

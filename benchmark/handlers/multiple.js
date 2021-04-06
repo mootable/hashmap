@@ -5,13 +5,17 @@
  * Homepage: https://github.com/mootable/hashmap
  */
 
+const yargs = require('yargs/yargs');
+const {hideBin} = require('yargs/helpers');
+const argv = yargs(hideBin(process.argv)).argv;
+const maxMapSize = argv.maxMapSize ? argv.maxMapSize : -1;
+console.info(`maxMapSize is ${maxMapSize}`);
+
 const {cycle, complete, suite: b_suite} = require('benny');
 const {saves} = require('./saves.js');
 const {mapsForImpl, mapsForSize} = require('../fetchers/maps.js');
 const {mapImpls} = require('../fetchers/impls.js');
 const {MAP_SIZES} = require('../fetchers/test_data.js');
-
-
 
 const testsForImpl = (implementation, benchmark, ignoreCache, maxSize) => mapsForImpl(implementation, ignoreCache, maxSize)
     .flatMap(([size, map]) => benchmark.benchMethods(`${size}`, {size, implementation, map}));
@@ -39,11 +43,11 @@ const suiteForSize = (size, benchmark, ignoreCache) => b_suite(
 ).then(report => {
     return {report, name: benchmark.name, size};
 });
-const suitsForAllImpls = ( benchmark, ignoreCache, maxSize = -1) => mapImpls
+const suitsForAllImpls = (benchmark, ignoreCache, maxSize = -1) => mapImpls
     .map(implementation => suiteForImpl(implementation, benchmark, ignoreCache, maxSize));
-const suitsForAllSizes = ( benchmark, ignoreCache, maxSize = -1) => MAP_SIZES
+const suitsForAllSizes = (benchmark, ignoreCache, maxSize = -1) => MAP_SIZES
     .filter(size => maxSize < 0 || maxSize >= size)
-    .map(size => suiteForSize( size, benchmark, ignoreCache));
+    .map(size => suiteForSize(size, benchmark, ignoreCache));
 
 module.exports = {suiteForImpl, suiteForSize, suitsForAllImpls, suitsForAllSizes};
 
