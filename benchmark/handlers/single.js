@@ -4,18 +4,17 @@
  * @version 0.13.1
  * Homepage: https://github.com/mootable/hashmap
  */
-const {add, cycle, suite: b_suite,} = require('benny');
+const {cycle,complete, suite: b_suite,} = require('benny');
 const {saves} = require('./saves.js');
 const {mapImpls}  = require('../fetchers/impls.js');
 
-const adds = (test) => mapImpls.map((implementation) =>
-    add(implementation.implName, test(implementation))
-);
-const singleSuite = (name, test) => b_suite(
-    name,
-    ...adds(test),
+const tests = (benchmark) => mapImpls.flatMap((implementation) => benchmark.benchMethods(implementation.implName, implementation));
+const singleSuite = (benchmark) => b_suite(
+    benchmark.name,
+    ...tests(benchmark),
     cycle(),
-    ...saves(name)
+    complete(),
+    ...saves(benchmark.name)
 );
 module.exports = singleSuite;
 

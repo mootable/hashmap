@@ -2,7 +2,13 @@ const fse = require('fs-extra');
 
 
 const create = require('./benchmarks/create');
-const setgetdelete = require('./benchmarks/setgetdelete');
+const set_get_delete = require('./benchmarks/set_get_delete');
+
+const get_end     = require('./benchmarks/get_end');
+const get_middle  = require('./benchmarks/get_middle');
+const get_none    = require('./benchmarks/get_none');
+const get_start   = require('./benchmarks/get_start');
+
 const reportSingle = (promise) =>
     promise.then(report => {
         return {
@@ -11,19 +17,25 @@ const reportSingle = (promise) =>
     });
 const reportMultipleImplementations = (promises, benchmark) => Promise.all(promises)
     .then(allResults => {
-        return {
+        console.log(allResults);
+        const ret = {
             benchmark,
             type: 'multiple',
-            results: allResults.map(({name: parent, classification, report}) => {
+            results: allResults.map(({name, implementation, report}) => {
                 return {
-                    name: parent, classification, results: report.results
+                    name, implementation, results: report.results
                 };
             })
         };
+        return ret;
     });
 Promise.all([
     reportSingle(create),
-    reportMultipleImplementations(setgetdelete, 'Set Get Delete')
+    reportMultipleImplementations(set_get_delete, 'Set Get Delete'),
+    reportMultipleImplementations(get_end, 'Get End'),
+    reportMultipleImplementations(get_middle, 'Get Middle'),
+    reportMultipleImplementations(get_none, 'Get None'),
+    reportMultipleImplementations(get_start, 'Get Start'),
 ]).then(reports => [
     fse.outputJson(`benchmark_results/benchmarks.json`, reports),
     ...reports.map(report => fse.outputJson(`benchmark_results/benchmarks.${report.benchmark.replace(/\s/g, "")}.json`, report)),
@@ -70,7 +82,8 @@ function generateLineChart(report) {
                 label: impl.name,
                 backgroundColor: colours[index] + '66',
                 borderColor: colours[index],
-                borderDash: impl.classification === 'mootable' ? undefined : impl.classification === 'native' ? [5, 3] : [2, 2],
+                borderDash: impl.implementation.classification === 'mootable'? undefined
+                    : impl.implementation.classification === 'native' ? [5, 3] : [2, 2],
                 data: impl.results.map(({ops}) => ops),
                 cubicInterpolationMode: 'monotone',
                 tension: 0.4

@@ -5,16 +5,26 @@
  * Homepage: https://github.com/mootable/hashmap
  */
 
-
+const NUMBER_OF_UNIQUE_KEYS = 100;
 const MAP_SIZES_UNSORTED = [0, 64, 256, 512, 768, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304];
 const MAP_SIZES = MAP_SIZES_UNSORTED.sort((left, right) => left - right);
 
 const LARGEST_MAP_SIZE = MAP_SIZES[MAP_SIZES.length - 1];
 let filledSoFar = 0;
 
-const ALL_KV = new Array(LARGEST_MAP_SIZE);
 // random value
-const TEST_KV = [makeKey(), makeValue()];
+const UNIQUE_KEYS = new Array(NUMBER_OF_UNIQUE_KEYS);
+const VALUES = new Array(NUMBER_OF_UNIQUE_KEYS);
+for(let i = 0;i < NUMBER_OF_UNIQUE_KEYS;i++){
+    let key;
+    do{
+        key  = makeKey();
+    }
+    while(UNIQUE_KEYS.includes(key));
+    UNIQUE_KEYS[i] = key;
+    VALUES[i] = makeValue();
+}
+const ALL_KV = new Array(LARGEST_MAP_SIZE);
 
 function makeKey() {
     // return Math.floor(Math.random() * this.max32);
@@ -41,7 +51,13 @@ function kvStore(size = -1){
         console.info(`Generating More Test Key Value Pairs from ${filledSoFar} pairs to ${size} pairs.`);
         const newSize = size <= 0 ? LARGEST_MAP_SIZE : size;
         for (let i = filledSoFar; i < newSize; i++) {
-            ALL_KV[i] = [makeKey(), makeValue()];
+
+            let key;
+            do{
+                key  = makeKey();
+            }
+            while(UNIQUE_KEYS.includes(key));
+            ALL_KV[i] = [key, makeValue()];
         }
 
         console.info(`${size - filledSoFar} Test Key Value Pairs Generated.`);
@@ -50,4 +66,4 @@ function kvStore(size = -1){
     return ALL_KV;
 }
 
-module.exports = {kvStore, TEST_KV, MAP_SIZES};
+module.exports = {kvStore, MAP_SIZES, UNIQUE_KEYS, VALUES, NUMBER_OF_UNIQUE_KEYS};
