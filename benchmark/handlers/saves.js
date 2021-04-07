@@ -5,19 +5,25 @@
  * Homepage: https://github.com/mootable/hashmap
  */
 
-// const {save} = require('benny');
-//
-// const sanitize = (text) => {
-//     return text.replace(/[\W_]+/g, "_");
-// };
+const {save} = require('benny');
+
+const sanitize = (text) => {
+    return text.replace(/[\W_]+/g, "_");
+};
 const saves = (name) => {
-    // const fileName = sanitize(name);
+    const fileName = sanitize(name);
     return [
-        // save({
-        //     file: fileName,
-        //     folder: 'benchmark_results',
-        //     details: false,
-        // })
+        save({
+            file: fileName,
+            folder: 'benchmark_results',
+            /**
+             * Output format, currently supported:
+             *   'json' | 'csv' | 'table.html' | 'chart.html'
+             * Default: 'json'
+             */
+            format: 'chart.html',
+            details: false,
+        })
     ];
 };
 

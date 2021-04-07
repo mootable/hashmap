@@ -12,7 +12,7 @@ const maxMapSize = argv.maxMapSize ? argv.maxMapSize : -1;
 console.info(`maxMapSize is ${maxMapSize}`);
 
 const NUMBER_OF_UNIQUE_KEYS = 100;
-const MAP_SIZES_UNSORTED = [0, 64, 256, 512, 768, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304];
+const MAP_SIZES_UNSORTED = [16, 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304];
 const MAP_SIZES = MAP_SIZES_UNSORTED.filter(size => maxMapSize <= 0 || size <= maxMapSize).sort((left, right) => left - right);
 
 const LARGEST_MAP_SIZE = MAP_SIZES[MAP_SIZES.length - 1];

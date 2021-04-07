@@ -1,5 +1,5 @@
 import {isFunction, isIterable} from '../utils/';
-import {equalsAndHash} from '../hash';
+import {hashCodeFor} from '../hash';
 import {none} from '../option/';
 import {MapIterable} from '../iterable/';
 import {Entry} from '../entry/';
@@ -76,28 +76,22 @@ export class HashMap extends MapIterable {
     }
 
 
-    has(key, hashEq = equalsAndHash(key)) {
-        if (this.buckets) {
-            return this.buckets.has(key, hashEq.equals, hashEq.hash);
-        }
-        return false;
+    has(key, options = {}) {
+        setHashIfMissing(key, options);
+        return this.buckets.has(key, options);
     }
 
 
-    get(key, hashEq = equalsAndHash(key)) {
-        if (this.buckets) {
-            return this.buckets.get(key, hashEq.equals, hashEq.hash);
-        }
-        return undefined;
+    get(key, options = {}) {
+        setHashIfMissing(key, options);
+        return this.buckets.get(key, options);
     }
 
 
     // noinspection JSCheckFunctionSignatures
-    optionalGet(key, hashEq = equalsAndHash(key)) {
-        if (this.buckets) {
-            return this.buckets.optionalGet(key, hashEq.equals, hashEq.hash);
-        }
-        return none;
+    optionalGet(key, options = {}) {
+        setHashIfMissing(key, options);
+        return this.buckets.optionalGet(key, options);
     }
 
     /**
@@ -107,13 +101,9 @@ export class HashMap extends MapIterable {
      * @param {*} value - the value we are setting
      * @return {HashMap}
      */
-    set(key, value, hashEq = equalsAndHash(key)) {
-        if (this.buckets) {
-            this.buckets.set(key, value, hashEq.equals, hashEq.hash);
-        } else {
-            this.buckets = new HashBuckets(Object.assign({}, this.options), this.options.depth);
-            this.buckets.prefill(key, value, hashEq.hash);
-        }
+    set(key, value, options = {}) {
+        setHashIfMissing(key, options);
+        this.buckets.set(key, value, options);
         this.length = this.buckets.size;
         return this;
     }
@@ -176,12 +166,11 @@ export class HashMap extends MapIterable {
      * @param key
      * @return {HashMap}
      */
-    delete(key, hashEq = equalsAndHash(key)) {
-        if (this.buckets) {
-            const deleted = this.buckets.delete(key, hashEq.equals, hashEq.hash);
-            if (deleted) {
-                this.length = this.buckets.size;
-            }
+    delete(key, options = {}) {
+        setHashIfMissing(key, options);
+        const deleted = this.buckets.delete(key, options);
+        if (deleted) {
+            this.length = this.buckets.size;
         }
         return this;
     }
@@ -191,8 +180,7 @@ export class HashMap extends MapIterable {
      * @return {HashMap}
      */
     clear() {
-        // we clone the options as its dangerous to modify mid execution.
-        this.buckets = undefined;
+        this.buckets = new HashBuckets(this.options, this.options.depth);
         this.length = 0;
         return this;
     }
@@ -207,6 +195,13 @@ export class HashMap extends MapIterable {
     }
 }
 
+function setHashIfMissing(key, options) {
+    if (options.hash === undefined) {
+        options.hash = hashCodeFor(key);
+    }
+    return options.hash;
+}
+
 const createEntry = (key, value) => new Entry(key, value);
 const overwriteEntry = (key, value, oldEntry) => {
     oldEntry.key = key;
@@ -216,161 +211,51 @@ const overwriteEntry = (key, value, oldEntry) => {
 
 /**
  * @private
- * @extends Container
- */
-export class HashContainer extends ArrayContainer {
-    constructor(hash, options) {
-        super(options);
-        this.hash = hash;
-    }
-
-    set(key, value, equals, hash) {
-        if (hash === this.hash) {
-            return super.set(key, value, equals);
-        }
-        // we have not modified
-        return undefined;
-    }
-
-
-    emplace(key, handler, equals, hash) {
-        if (hash === this.hash) {
-            return super.emplace(key, handler, equals);
-        }
-        // we have not modified
-        return undefined;
-    }
-
-    get(key, equals, hash) {
-        if (hash === this.hash) {
-            return super.get(key, equals);
-        }
-        return undefined;
-    }
-
-    optionalGet(key, equals, hash) {
-        if (hash === this.hash) {
-            return super.optionalGet(key, equals);
-        }
-        return none;
-    }
-
-    has(key, equals, hash) {
-        if (hash === this.hash) {
-            return super.has(key, equals);
-        }
-        return false;
-    }
-
-    delete(key, equals, hash) {
-        if (hash === this.hash) {
-            return super.delete(key, equals);
-        }
-        return false;
-    }
-}
-
-/**
- * @private
  */
 export class HashBuckets {
     constructor(options, depth) {
         this.options = options;
         this.size = 0;
         this.depth = depth;
-        this.buckets = new Array(this.options.width);
+        this.buckets = [];
     }
 
-    set(key, value, equals, hash) {
-        const idx = hash & this.options.mask;
-        const bucket = this.buckets[idx];
-        let resized = true;
-        if (this.depth) {
-            const newHash = hash >>> this.options.widthAs2sExponent;
-            if (bucket) {
-                resized = bucket.set(key, value, equals, newHash);
-                if (resized === undefined) {
-                    // we need to split into more hashbuckets.
-                    const newBucket = new HashBuckets(this.options, this.depth - 1)
-                        .prefillContainer(bucket)
-                        .prefill(key, value, newHash);
-                    this.buckets[idx] = newBucket;
-                    resized = true;
-                }
-            } else {
-                this.buckets[idx] = new HashContainer(newHash, this.options)
-                    .prefill(key, value);
-            }
-        } else {
-            if (bucket) {
-                resized = bucket.set(key, value, equals);
-            } else {
-                this.buckets[idx] = new ArrayContainer(this.options)
-                    .prefill(key, value);
-            }
-        }
-        if (resized) {
-            this.size += 1;
-        }
-        return resized;
-    }
-
-    prefillContainer(container) {
-        // just shift the bucket down a level.
-        this.buckets[container.hash & this.options.mask] = container;
-        container.hash = container.hash >>> this.options.widthAs2sExponent;
-        // create a new container for the  new entry
-        this.size += container.size;
-        return this;
-    }
-
-    prefill(key, value, hash) {
-        // create a new container for the  new entry
-        // FIXME: We want to do this from hashmap, do we want to bitshift the hash from the set function?
-        // I think things are being done at the right levels, but worth checking.
-        this.buckets[hash & this.options.mask] = new HashContainer(
-            hash >>> this.options.widthAs2sExponent,
-            this.options).prefill(key, value);
-
-        this.size += 1;
-        return this;
-    }
-
-
-    emplace(key, handler, equals, hash) {
-        const idx = hash & this.options.mask;
+    set(key, value, options) {
+        const idx = options.hash & this.options.mask;
         let bucket = this.buckets[idx];
-        let response;
-        if (this.depth) {
-            const newHash = hash >>> this.options.widthAs2sExponent;
-            if (bucket) {
-                response = bucket.emplace(key, handler, equals, newHash);
-                if (response.resized === undefined) {
-                    // we need to split into more hashbuckets.
-                    this.buckets[idx] = bucket = new HashBuckets(this.options, this.depth - 1).prefillContainer(bucket);
-                    response = bucket.emplace(key, handler, equals, newHash);
-                }
-            } else {
-                this.buckets[idx] = bucket = new HashContainer(newHash, this.options);
-                response = bucket.emplace(key, handler, equals, newHash)
-            }
-        } else {
-            if (!bucket) {
-                this.buckets[idx] = bucket = new ArrayContainer(this.options);
-            }
-            response = bucket.emplace(key, handler, equals);
+        if (!bucket) {
+            bucket = this.depth ? new HashBuckets(this.options, this.depth - 1) : new ArrayContainer(this.options);
+            this.buckets[idx] = bucket;
         }
+        options.hash >>>= this.options.widthAs2sExponent;
+        if (bucket.set(key, value, options)) {
+            this.size += 1;
+            return true;
+        }
+        return false;
+    }
+
+    emplace(key, handler, options) {
+        const idx = options.hash & this.options.mask;
+        let bucket = this.buckets[idx];
+        if (!bucket) {
+            bucket = this.depth ? new HashBuckets(this.options, this.depth - 1) : new ArrayContainer(this.options);
+            this.buckets[idx] = bucket;
+        }
+        options.hash >>>= this.options.widthAs2sExponent;
+        const response = bucket.emplace(key, handler, options)
         if (response.resized) {
             this.size += 1;
         }
         return response;
     }
 
-    delete(key, equals, hash) {
-        const idx = hash & this.options.mask;
+    delete(key, options) {
+        const idx = options.hash & this.options.mask;
         let bucket = this.buckets[idx];
         if (bucket) {
-            const deleted = bucket.delete(key, equals, hash >>> this.options.widthAs2sExponent);
+            options.hash >>>= this.options.widthAs2sExponent;
+            const deleted = bucket.delete(key, options);
             if (deleted) {
                 if (bucket.size === 0) {
                     // we could choose to compress instead.
@@ -383,26 +268,29 @@ export class HashBuckets {
         return false;
     }
 
-    get(key, equals, hash) {
-        const bucket = this.buckets[hash & this.options.mask];
+    get(key, options) {
+        const bucket = this.buckets[options.hash & this.options.mask];
         if (bucket) {
-            return bucket.get(key, equals, hash >>> this.options.widthAs2sExponent);
+            options.hash >>>= this.options.widthAs2sExponent;
+            return bucket.get(key, options);
         }
         return undefined;
     }
 
-    optionalGet(key, equals, hash) {
-        const bucket = this.buckets[hash & this.options.mask];
+    optionalGet(key, options) {
+        const bucket = this.buckets[options.hash & this.options.mask];
         if (bucket) {
-            return bucket.optionalGet(key, equals, hash >>> this.options.widthAs2sExponent);
+            options.hash >>>= this.options.widthAs2sExponent;
+            return bucket.optionalGet(key, options);
         }
         return none;
     }
 
-    has(key, equals, hash) {
-        const bucket = this.buckets[hash & this.options.mask];
+    has(key, options) {
+        const bucket = this.buckets[options.hash & this.options.mask];
         if (bucket) {
-            return bucket.has(key, equals, hash >>> this.options.widthAs2sExponent);
+            options.hash >>>= this.options.widthAs2sExponent;
+            return bucket.has(key, options);
         }
         return false;
     }

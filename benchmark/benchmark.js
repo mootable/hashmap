@@ -4,10 +4,10 @@ const fse = require('fs-extra');
 const create = require('./benchmarks/create');
 const set_get_delete = require('./benchmarks/set_get_delete');
 
-const get_end     = require('./benchmarks/get_end');
-const get_middle  = require('./benchmarks/get_middle');
-const get_none    = require('./benchmarks/get_none');
-const get_start   = require('./benchmarks/get_start');
+// const get_end     = require('./benchmarks/get_end');
+// const get_middle  = require('./benchmarks/get_middle');
+// const get_none    = require('./benchmarks/get_none');
+// const get_start   = require('./benchmarks/get_start');
 
 const reportSingle = (promise) =>
     promise.then(report => {
@@ -32,10 +32,10 @@ const reportMultipleImplementations = (promises, benchmark) => Promise.all(promi
 Promise.all([
     reportSingle(create),
     reportMultipleImplementations(set_get_delete, 'Set Get Delete'),
-    reportMultipleImplementations(get_end, 'Get End'),
-    reportMultipleImplementations(get_middle, 'Get Middle'),
-    reportMultipleImplementations(get_none, 'Get None'),
-    reportMultipleImplementations(get_start, 'Get Start'),
+    // reportMultipleImplementations(get_end, 'Get End'),
+    // reportMultipleImplementations(get_middle, 'Get Middle'),
+    // reportMultipleImplementations(get_none, 'Get None'),
+    // reportMultipleImplementations(get_start, 'Get Start'),
 ]).then(reports => [
     fse.outputJson(`benchmark_results/benchmarks.json`, reports),
     ...reports.map(report => fse.outputJson(`benchmark_results/benchmarks.${report.benchmark.replace(/\s/g, "")}.json`, report)),
@@ -146,7 +146,7 @@ const ${safeBenchmarkName}Chart = function() {
                 },
                 y: {
                     display: true,
-                    type: 'logarithmic',
+                    // type: 'logarithmic',
                     title: {
                         display: true,
                         text: 'Operations per second',

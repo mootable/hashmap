@@ -19,7 +19,6 @@ const benchmark = new Benchmark('GetMiddle')
             const value = map.get(key);
             if (!value) {
                 if(size !== 0) {
-                    const valueOther = map.get(key);
                     throw `GetMiddle key: ${key} does not exist in ${implementation.implName} for size: ${size}`;
                 }
             }

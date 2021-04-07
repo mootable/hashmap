@@ -1,4 +1,5 @@
 /* jshint ignore:start */
+const chalk = require('chalk')
 const expect = require('chai').expect;
 const esmRequire = require("esm")(module/*, options*/);
 const Hash = {hash, hashCodeFor, equalsFor, equalsAndHash} = esmRequire('../../../src/hash')
@@ -10,27 +11,141 @@ if (process.env.UNDER_TEST_UNIT !== 'true') {
 }
 
 describe('Hash Functions', function () {
+
+    const rand = require('random-seed').create();
+    /**
+     * we use 32 bit hashes, as numbers go up there is more chance of collision,
+     * so this is a sanity check to make sure the hash function spreads properly
+     */
     describe('hash()', function () {
         it('no options', function () {
-            expect(Hash.hash("helloworld")).to.be.equal(1933063992);
-            expect(Hash.hash("HelloWorld")).to.be.equal(1601418099);
-            expect(Hash.hash("HelloWorl")).to.be.equal(138955848);
+            expect(Hash.hash("helloworld")).to.be.equal(1835528551);
+            expect(Hash.hash("HelloWorld")).to.be.equal(82333416);
+            expect(Hash.hash("HelloWorle")).to.be.equal(-1277754921);
         });
         it('with length', function () {
-            expect(Hash.hash("helloworld", 6)).to.be.equal(-574932549);
-            expect(Hash.hash("HelloWorld", 6)).to.be.equal(-336088073);
-            expect(Hash.hash("HelloWorl", 6)).to.be.equal(-336088073);
+            expect(Hash.hash("helloworld", 6)).to.be.equal(-680711315);
+            expect(Hash.hash("HelloWorld", 6)).to.be.equal(-378100874);
+            expect(Hash.hash("HelloWorle", 6)).to.be.equal(-378100874);
         });
         it('with seed', function () {
-            expect(Hash.hash("HelloWorld", 0, 1)).to.be.equal(-484980969);
-            expect(Hash.hash("HelloWorld", 0, 2)).to.be.equal(187381547);
-            expect(Hash.hash("HelloWorld", 0, 3)).to.be.equal(649577143);
+            expect(Hash.hash("HelloWorld", 0, 1)).to.be.equal(1505636030);
+            expect(Hash.hash("HelloWorld", 0, 2)).to.be.equal(-1781177899);
+            expect(Hash.hash("HelloWorld", 0, 3)).to.be.equal(1572924864);
         });
         it('with seed and length', function () {
-            expect(Hash.hash("HelloWorld", 6, 1)).to.be.equal(-1651097962);
-            expect(Hash.hash("HelloWorld", 6, 2)).to.be.equal(-1535466246);
-            expect(Hash.hash("HelloWorld", 6, 3)).to.be.equal(1961415912);
+            expect(Hash.hash("HelloWorld", 6, 1)).to.be.equal(1542308397);
+            expect(Hash.hash("HelloWorld", 6, 2)).to.be.equal(95774133);
+            expect(Hash.hash("HelloWorld", 6, 3)).to.be.equal(-1419050133);
         });
+        /*
+         * higher for slow check, do this manually.
+         * Understand that collision percentages go up the more you create,
+         * as there is a limited 32 bit range.
+         */
+        const HASH_AMOUNT = 5000;
+        const TEST_CYCLES = 6;
+        const valueArray = [];
+        const hashArray = [];
+        const metricsArray = [];
+        const hashMetricsArray = [];
+        const HASHED_COUNTS = [0];
+        const VALUE_COUNTS = [0, 0];
+
+        const probabilityAtMax = (TOTAL_SIZE) => {
+            return 1 - (Math.exp((-0.5 * TOTAL_SIZE * (TOTAL_SIZE - 1))
+                / (2 * Math.pow(2, 32))));
+        }
+
+        for (let colCount = 1; colCount <= TEST_CYCLES; colCount++) {
+            describe(`${HASH_AMOUNT * colCount} Hashes`, function () {
+                before(function () {
+                    VALUE_COUNTS[0] = HASH_AMOUNT;
+                    while (VALUE_COUNTS[0] != 0) {
+                        const value = rand.string(64 + rand(64));
+                        const hash = Hash.hash(value);
+                        const value_idx = valueArray.indexOf(value);
+                        const hash_idx = hashArray.indexOf(hash);
+                        if (value_idx === -1) {
+                            valueArray.push(value);
+                            metricsArray.push({
+                                value,
+                                hash,
+                                hashIdx: hash_idx === -1 ? hashArray.length : hash_idx,
+                                count: 1
+                            });
+                            VALUE_COUNTS[0]--;
+                            VALUE_COUNTS[1]++;
+                        } else if (hash_idx === -1) {
+                            const metric = metricsArray[value_idx];
+                            VALUE_COUNTS[metric.count]--;
+                            metric.count = metric.count + 1;
+                            if (VALUE_COUNTS[metric.count]) {
+                                VALUE_COUNTS[metric.count]++;
+                            } else {
+                                VALUE_COUNTS[metric.count] = 1;
+                            }
+                        }
+
+                        if (hash_idx === -1) {
+                            hashArray.push(hash);
+                            hashMetricsArray.push({
+                                value,
+                                hash,
+                                valueIdx: value_idx === -1 ? valueArray.length : value_idx,
+                                count: 0
+                            });
+                            HASHED_COUNTS[0]++;
+                        } else {
+                            const metric = hashMetricsArray[hash_idx];
+                            HASHED_COUNTS[metric.count]--;
+                            metric.count = metric.count + 1;
+                            if (HASHED_COUNTS[metric.count]) {
+                                HASHED_COUNTS[metric.count]++;
+                            } else {
+                                HASHED_COUNTS[metric.count] = 1;
+                            }
+                        }
+                    }
+                });
+                it('Values produce the same hash', function () {
+                    expect(VALUE_COUNTS).to.be.deep.equals([0, HASH_AMOUNT * colCount]);
+                });
+
+                it('Collisions in 32bit space are low', function () {
+                    const collisions = [];
+                    for (let i = 0; i < HASHED_COUNTS.length; i++) {
+
+                        const count = HASHED_COUNTS[i] * (i + 1); // if i is 2 we have a collision of 2.
+                        const collision = (count * 100) / (HASH_AMOUNT * colCount);
+                        collisions.push(collision)
+                    }
+                    const probability = probabilityAtMax(HASH_AMOUNT * colCount);
+                    const probabilityAsPercentage = (probability * 100);
+                    // we add 1% to take into account random variance.
+                    let expectedCollisions = probabilityAsPercentage + 0.5;
+
+                    console.log(`${chalk.bold(`${HASH_AMOUNT * colCount}:`)}
+   Collisions: ${chalk.green((HASH_AMOUNT * colCount) - HASHED_COUNTS[0])}
+      ${chalk.gray('-   How many hash collisions did we have.')}
+   Unique Hash Count: ${chalk.green(`[${HASHED_COUNTS}]`)}
+      ${chalk.gray('-   Unique Hash counts, in order of repeats, index 0 is not repeated')}
+   Proportions: ${chalk.green(`[${collisions}]`)}
+      ${chalk.gray('-   What is the percentage portions of those hash counts.')}
+   Precalculated Probability: ${chalk.green(`${probabilityAsPercentage.toFixed(4)}%`)}
+      ${chalk.gray('-   Mathematical likelyhood of an entry colliding, with the perfect hashing algorithim.')}
+   Test Collision Ceiling: ${chalk.green(`${expectedCollisions.toFixed(4)}%`)}
+      ${chalk.gray('-   The value we use for testing to cater for random variation (0.5% higher)')}`);
+
+                    expect(collisions[0]).to.be.greaterThan(100 - expectedCollisions);
+                    for (let i = 1; i < collisions.length; i++) {
+                        expect(collisions[i]).to.be.lessThan(expectedCollisions);
+                        // we only need to include the error once.
+                        expectedCollisions *= probabilityAsPercentage;
+                    }
+                });
+            });
+        }
     });
     describe('hashCodeFor()', function () {
         it('undefined', function () {

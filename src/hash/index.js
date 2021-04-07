@@ -18,39 +18,37 @@ import {Option} from "../option";
  * @returns {number} the hash
  */
 export function hash(key, len = 0, seed = 0) {
-    len = len && len > 0 ? Math.min(len, key.length) : key.length;
-    seed = seed | 0;
+    len = len > 0 ? Math.min(len, key.length) : key.length;
+    seed |= 0;
     const remaining = len & 1;
-    const bytes = len - remaining;
+    const doubleBytes = len - remaining;
     let hash = seed, k = 0, i = 0;
 
-    while (i < bytes) {
+    while (i < doubleBytes) {
         k = (key.charCodeAt(i++) & 0xffff) |
             ((key.charCodeAt(i++) & 0xffff) << 16);
-
-        k *= (k * 0xcc9e2d51) | 0;
+        k *= 0xcc9e2d51;
         k = (k << 15) | (k >>> 17);
-        k = (k * 0x1b873593);
-
+        k *= 0x1b873593;
         hash ^= k;
         hash = (hash << 13) | (hash >>> 19);
-        hash = (hash * 5 + 0xe6546b64);
+        hash *= 5;
+        hash += 0xe6546b64;
     }
     if (remaining) {
         k ^= (key.charCodeAt(i) & 0xffff);
 
-        k = k * 0xcc9e2d51;
+        k *= 0xcc9e2d51;
         k = (k << 15) | (k >>> 17);
-        k = k * 0x1b873593;
+        k *= 0x1b873593;
         hash ^= k;
     }
 
     hash ^= len;
-
     hash ^= hash >>> 16;
-    hash = hash * 0x85ebca6b;
+    hash *= 0x85ebca6b;
     hash ^= hash >>> 13;
-    hash = hash * 0xc2b2ae35;
+    hash *= 0xc2b2ae35;
     hash ^= hash >>> 16;
     return hash | 0;
 }

@@ -6,6 +6,7 @@
  */
 const {kvStore, MAP_SIZES} = require('./test_data.js');
 const {mapImpls} = require('./impls.js');
+const {hashCodeFor} = require('../../src/hash');
 const cache = {};
 
 function generateForImplAndSize({location, esm, className, implName, Impl}, size, ignoreCache) {
@@ -17,6 +18,11 @@ function generateForImplAndSize({location, esm, className, implName, Impl}, size
     const map = new Impl();
     for (let i = 0; i < size; i++) {
         map.set(ALL_KV[i][0], ALL_KV[i][1]);
+    }
+    for (let i = 0; i < size; i++) {
+        if(!map.has(ALL_KV[i][0])){
+            console.log(`Sanity Check: Missing key  ${ALL_KV[i][0]} with hash ${hashCodeFor(ALL_KV[i][0])} at ${i}`);
+        }
     }
     if (ignoreCache) {
         console.info(`${implName} : ${size} generated fresh`);

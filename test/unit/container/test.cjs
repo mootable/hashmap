@@ -1,13 +1,21 @@
 /* jshint ignore:start */
 const expect = require('chai').expect;
 const esmRequire = require("esm")(module/*, options*/);
-const {SingleContainer, ArrayContainer} = esmRequire('../../../src/container')
+const {ArrayContainer} = esmRequire('../../../src/container')
 const {Entry} = esmRequire('../../../src/entry')
 const {sameValueZero} = esmRequire('../../../src/utils')
 
 if (process.env.UNDER_TEST_UNIT !== 'true') {
     return 0;
 }
+
+const createEntry = (key, value) => new Entry(key, value);
+
+const overwriteEntry = (key, value, oldEntry) => {
+    oldEntry.key = key;
+    oldEntry.value = value;
+    return oldEntry;
+};
 /**
  * constructor
  * get
@@ -17,216 +25,116 @@ if (process.env.UNDER_TEST_UNIT !== 'true') {
  * delete
  * [Symbol.iterator]
  */
-describe('SingleContainer Class', function () {
-    it('constructor', function () {
-        const entry = new Entry("key","value");
-        const container = new SingleContainer(entry);
-        expect(container.key).to.equal("key");
-        expect(container.value).to.equal("value");
-        expect(container.size).to.equal(1);
-        expect(container.entry).to.equal(entry);
-    });
-    it('get has key', function () {
-        const entry = new Entry("key","value");
-        const container = new SingleContainer(entry);
-        const value = container.get("key",sameValueZero);
-        expect(value).to.equal("value");
-    });
-    it('get has not got key', function () {
-        const entry = new Entry("key","value");
-        const container = new SingleContainer(entry);
-        const value = container.get("other",sameValueZero);
-        expect(value).to.be.undefined
-    });
-    it('optionalGet has key', function () {
-        const entry = new Entry("key","value");
-        const container = new SingleContainer(entry);
-        const option = container.optionalGet("key",sameValueZero);
-        expect(option.value).to.equal("value");
-        expect(option.has).to.be.true;
-    });
-    it('optionalGet has not got key', function () {
-        const entry = new Entry("key","value");
-        const container = new SingleContainer(entry);
-        const option = container.optionalGet("other",sameValueZero);
-        expect(option.has).to.be.false;
-    });
-    it('set has keyed entry', function () {
-        const entry = new Entry("key","value");
-        const entry2 = new Entry("key","value2");
-        const container = new SingleContainer(entry);
-        const ret = container.set(entry2,sameValueZero);
-        expect(ret).to.be.instanceOf(SingleContainer);
-        const value = ret.get("key",sameValueZero);
-        expect(value).to.equal("value2");
-    });
-    it('set has entry but not keyed', function () {
-        const entry = new Entry("key","value");
-        const entry2 = new Entry("key2","value2");
-        const container = new SingleContainer(entry);
-        const ret = container.set(entry2,sameValueZero);
-        expect(ret).to.be.instanceOf(ArrayContainer);
-        const value = ret.get("key",sameValueZero);
-        expect(value).to.equal("value");
-        const value2 = ret.get("key2",sameValueZero);
-        expect(value2).to.equal("value2");
-    });
-    it('has key', function () {
-        const entry = new Entry("key","value");
-        const container = new SingleContainer(entry);
-        const ret = container.has("key",sameValueZero);
-        expect(ret).to.be.true;
-    });
-    it('has not got key', function () {
-        const entry = new Entry("key","value");
-        const container = new SingleContainer(entry);
-        const ret = container.has("other",sameValueZero);
-        expect(ret).to.be.false;
-    });
-    it('delete has key', function () {
-        const entry = new Entry("key","value");
-        const container = new SingleContainer(entry);
-        const ret = container.delete("key",sameValueZero);
-        expect(ret).to.be.undefined;
-    });
-    it('delete has not got key', function () {
-        const entry = new Entry("key","value");
-        const container = new SingleContainer(entry);
-        const ret = container.delete("other",sameValueZero);
-        expect(ret).to.equal(container);
-    });
-
-    it('[Symbol.iterator]', function () {
-        const entry = new Entry("key","value");
-        const container = new SingleContainer(entry);
-        let executedCount = 0;
-        for([key,value] of container){
-            executedCount++;
-            expect(key).to.equal("key");
-            expect(value).to.equal("value");
-        }
-        expect(executedCount).to.equal(1);
-    });
-
-});
 describe('ArrayContainer Class', function () {
+
+    const defaultContainerOptions = {createEntry,overwriteEntry};
+    const defaultMethodOptions = {equals:sameValueZero};
     it('constructor', function () {
-        const entry = new Entry("key","value");
-        const entry2 = new Entry("key2","value2");
-        const container = new ArrayContainer(entry,entry2);
-        expect(container.size).to.equal(2);
-        expect(container.contents).to.deep.equal([entry,entry2]);
+        const container = new ArrayContainer(defaultContainerOptions);
+        expect(container.size).to.equal(0);
+        expect(container.contents.length).to.equal(0);
+        expect(container.options).to.equal(defaultContainerOptions);
     });
-    it('get has key', function () {
-        const entry = new Entry("key","value");
-        const entry2 = new Entry("key2","value2");
-        const container = new ArrayContainer(entry,entry2);
-        const value = container.get("key",sameValueZero);
+    it('get with prefil', function () {
+
+        const container = new ArrayContainer(defaultContainerOptions);
+        container.prefill("key","value");
+        const value = container.get("key",defaultMethodOptions);
         expect(value).to.equal("value");
-        const value2 = container.get("key2",sameValueZero);
-        expect(value2).to.equal("value2");
     });
     it('get has not got key', function () {
-        const entry = new Entry("key","value");
-        const entry2 = new Entry("key2","value2");
-        const container = new ArrayContainer(entry,entry2);
-        const value = container.get("other",sameValueZero);
+        const container = new ArrayContainer(defaultContainerOptions);
+        container.prefill("key","value");
+        const value = container.get("other",defaultMethodOptions);
         expect(value).to.be.undefined
     });
     it('optionalGet has key', function () {
-        const entry = new Entry("key","value");
-        const entry2 = new Entry("key2","value2");
-        const container = new ArrayContainer(entry,entry2);
-        const option = container.optionalGet("key",sameValueZero);
+        const container = new ArrayContainer(defaultContainerOptions);
+        container.prefill("key","value");
+        const option = container.optionalGet("key",defaultMethodOptions);
         expect(option.value).to.equal("value");
         expect(option.has).to.be.true;
-        const option2 = container.optionalGet("key2",sameValueZero);
-        expect(option2.value).to.equal("value2");
-        expect(option2.has).to.be.true;
     });
     it('optionalGet has not got key', function () {
-        const entry = new Entry("key","value");
-        const entry2 = new Entry("key2","value2");
-        const container = new ArrayContainer(entry,entry2);
-        const option = container.optionalGet("other",sameValueZero);
+        const container = new ArrayContainer(defaultContainerOptions);
+        container.prefill("key","value");
+        const option = container.optionalGet("other",defaultMethodOptions);
         expect(option.has).to.be.false;
     });
     it('set has keyed entry', function () {
-        const entry = new Entry("key","value");
-        const entry2 = new Entry("key2","value2");
-        const entryToSet = new Entry("key2","value3");
-        const container = new ArrayContainer(entry,entry2);
-        const ret = container.set(entryToSet,sameValueZero);
-        expect(ret).to.be.instanceOf(ArrayContainer);
-        const value = ret.get("key2",sameValueZero);
+        const container = new ArrayContainer(defaultContainerOptions);
+        container.prefill("key","value");
+
+        const ret = container.set("key","value3",defaultMethodOptions);
+        expect(ret).to.be.false;
+        const value = container.get("key",defaultMethodOptions);
         expect(value).to.equal("value3");
-        expect(container.size).to.equal(2);
+        expect(container.size).to.equal(1);
     });
     it('set has entry but not keyed', function () {
-        const entry = new Entry("key","value");
-        const entry2 = new Entry("key2","value2");
-        const entryToSet = new Entry("key3","value3");
-        const container = new ArrayContainer(entry,entry2);
-        const ret = container.set(entryToSet,sameValueZero);
-        expect(ret).to.be.instanceOf(ArrayContainer);
-        const value = ret.get("key",sameValueZero);
+        const container = new ArrayContainer(defaultContainerOptions);
+        container.prefill("key","value");
+        container.set("key2","value2",defaultMethodOptions);
+        const ret = container.set("key3","value3",defaultMethodOptions);
+        expect(ret).to.be.true;
+        const value = container.get("key",defaultMethodOptions);
         expect(value).to.equal("value");
-        const value2 = ret.get("key2",sameValueZero);
+        const value2 = container.get("key2",defaultMethodOptions);
         expect(value2).to.equal("value2");
-        const value3 = ret.get("key3",sameValueZero);
+        const value3 = container.get("key3",defaultMethodOptions);
         expect(value3).to.equal("value3");
         expect(container.size).to.equal(3);
     });
     it('has key', function () {
-        const entry = new Entry("key","value");
-        const entry2 = new Entry("key2","value2");
-        const container = new ArrayContainer(entry,entry2);
-        const ret = container.has("key",sameValueZero);
+        const container = new ArrayContainer(defaultContainerOptions);
+        container.prefill("key","value");
+        container.set("key2","value2",defaultMethodOptions);
+        const ret = container.has("key",defaultMethodOptions);
         expect(ret).to.be.true;
-        const ret2 = container.has("key2",sameValueZero);
+        const ret2 = container.has("key2",defaultMethodOptions);
         expect(ret2).to.be.true;
     });
     it('has not got key', function () {
-        const entry = new Entry("key","value");
-        const entry2 = new Entry("key2","value2");
-        const container = new ArrayContainer(entry,entry2);
-        const ret = container.has("other",sameValueZero);
+        const container = new ArrayContainer(defaultContainerOptions);
+        container.prefill("key","value");
+        container.set("key2","value2",defaultMethodOptions);
+        const ret = container.has("other",defaultMethodOptions);
         expect(ret).to.be.false;
     });
     it('delete has key', function () {
-        const entry = new Entry("key","value");
-        const entry2 = new Entry("key2","value2");
-        const container = new ArrayContainer(entry,entry2);
-        const ret = container.delete("key",sameValueZero);
-        expect(ret).to.be.instanceOf(SingleContainer);
-        expect(ret.size).to.equal(1);
-        expect(ret.has("key", sameValueZero)).to.false;
+        const container = new ArrayContainer(defaultContainerOptions);
+        container.prefill("key","value");
+        container.set("key2","value2",defaultMethodOptions);
+        const ret = container.delete("key",defaultMethodOptions);
+        expect(ret).to.be.true;
+        expect(container.size).to.equal(1);
+        expect(container.has("key", defaultMethodOptions)).to.false;
     });
     it('delete has not got key', function () {
-        const entry = new Entry("key","value");
-        const entry2 = new Entry("key2","value2");
-        const container = new ArrayContainer(entry,entry2);
-        const ret = container.delete("other",sameValueZero);
-        expect(ret).to.equal(container);
-        expect(ret).to.be.instanceOf(ArrayContainer);
-        expect(ret.size).to.equal(2);
+        const container = new ArrayContainer(defaultContainerOptions);
+        container.prefill("key","value");
+        container.set("key2","value2",defaultMethodOptions);
+        const ret = container.delete("other",defaultMethodOptions);
+        expect(ret).to.be.false;
+        expect(container.size).to.equal(2);
     });
     it('delete has got 3 entries', function () {
-        const entry = new Entry("key","value");
-        const entry2 = new Entry("key2","value2");
-        const entry3 = new Entry("key3","value3");
-        const container = new ArrayContainer(entry,entry2).set(entry3, sameValueZero);
+        const container = new ArrayContainer(defaultContainerOptions);
+        container.prefill("key","value");
+        container.set("key2","value2",defaultMethodOptions);
+        container.set("key3","value3", defaultMethodOptions);
+
         expect(container.size).to.equal(3);
-        const ret = container.delete("key2",sameValueZero);
-        expect(ret).to.be.instanceOf(ArrayContainer);
-        expect(ret.size).to.equal(2);
-        expect(ret.has("key2", sameValueZero)).to.false;
+        const ret = container.delete("key2",defaultMethodOptions);
+        expect(ret).to.be.true;
+        expect(container.size).to.equal(2);
+        expect(container.has("key2", defaultMethodOptions)).to.false;
     });
 
     it('[Symbol.iterator]', function () {
-        const entry = new Entry("key1","value1");
-        const entry2 = new Entry("key2","value2");
-        const container = new ArrayContainer(entry,entry2);
+        const container = new ArrayContainer(defaultContainerOptions);
+        container.prefill("key1","value1");
+        container.set("key2","value2",defaultMethodOptions);
         let executedCount = 0;
         for([key,value] of container){
             executedCount++;
@@ -236,10 +144,10 @@ describe('ArrayContainer Class', function () {
         expect(executedCount).to.equal(2);
     });
     it('[Symbol.iterator] size 3', function () {
-        const entry = new Entry("key1","value1");
-        const entry2 = new Entry("key2","value2");
-        const entry3 = new Entry("key3","value3");
-        const container = new ArrayContainer(entry,entry2).set(entry3, sameValueZero);
+        const container = new ArrayContainer(defaultContainerOptions);
+        container.prefill("key1","value1");
+        container.set("key2","value2",defaultMethodOptions);
+        container.set("key3","value3",defaultMethodOptions);
         let executedCount = 0;
         for([key,value] of container){
             executedCount++;
