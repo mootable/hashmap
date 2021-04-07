@@ -18,6 +18,7 @@ const mapImplsMetaData = {
     '@mootable/LinkedHashMap': {location: '../../src/', esm: true, className: 'LinkedHashMap', classification: 'mootable'},
     'map': {location: '../loaders/nativeMap.js', esm: false, className: 'Map', classification: 'native'},
     'flesler-hashmap': {location: 'flesler-hashmap', esm: false, className: 'HashMap', classification: 'other'},
+    'donhash': {location: '../loaders/donHashMap.js', esm: false, className: 'HashMap', classification: 'other'},
 };
 
 

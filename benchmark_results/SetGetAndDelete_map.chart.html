@@ -16,7 +16,7 @@
   </head>
   <body>
     <div style="max-width: 800px">
-      <canvas id="chart1617758946804" width="16" height="9"></canvas>
+      <canvas id="chart1617762382675" width="16" height="9"></canvas>
     </div>
     <script>
       const format = (num) => {
@@ -34,13 +34,14 @@
 
         return chunked.map((chunk) => chunk.join("")).join(" ");
       };
-      const ctx1617758946804 = document
-        .getElementById("chart1617758946804")
+      const ctx1617762382675 = document
+        .getElementById("chart1617762382675")
         .getContext("2d");
-      const chart1617758946804 = new Chart(ctx1617758946804, {
+      const chart1617762382675 = new Chart(ctx1617762382675, {
         type: "bar",
         data: {
           labels: [
+            "0",
             "16",
             "64",
             "256",
@@ -55,16 +56,17 @@
           datasets: [
             {
               data: [
-                7034050,
-                4095353,
-                1663623,
-                486772,
-                132224,
-                33074,
-                8506,
-                8384,
-                8435,
-                8625,
+                3698770,
+                3237179,
+                5001363,
+                1748155,
+                494709,
+                133380,
+                33903,
+                9592,
+                8919,
+                9070,
+                9379,
               ],
               backgroundColor: [
                 "rgba(63, 142, 252, 0.8)",
@@ -77,6 +79,7 @@
                 "rgba(219, 108, 121, 0.8)",
                 "rgba(189, 79, 108, 0.8)",
                 "rgba(138, 79, 125, 0.8)",
+                "rgba(95, 75, 102, 0.8)",
               ],
               borderColor: [
                 "rgba(63, 142, 252, 1)",
@@ -89,6 +92,7 @@
                 "rgba(219, 108, 121, 1)",
                 "rgba(189, 79, 108, 1)",
                 "rgba(138, 79, 125, 1)",
+                "rgba(95, 75, 102, 1)",
               ],
               borderWidth: 1,
             },

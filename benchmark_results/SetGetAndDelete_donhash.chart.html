@@ -12,11 +12,11 @@
         order: row;
       }
     </style>
-    <title>SetGetAndDelete_@mootable/LinkedHashMap</title>
+    <title>SetGetAndDelete_donhash</title>
   </head>
   <body>
     <div style="max-width: 800px">
-      <canvas id="chart1617762318316" width="16" height="9"></canvas>
+      <canvas id="chart1617762503893" width="16" height="9"></canvas>
     </div>
     <script>
       const format = (num) => {
@@ -34,10 +34,10 @@
 
         return chunked.map((chunk) => chunk.join("")).join(" ");
       };
-      const ctx1617762318316 = document
-        .getElementById("chart1617762318316")
+      const ctx1617762503893 = document
+        .getElementById("chart1617762503893")
         .getContext("2d");
-      const chart1617762318316 = new Chart(ctx1617762318316, {
+      const chart1617762503893 = new Chart(ctx1617762503893, {
         type: "bar",
         data: {
           labels: [
@@ -56,17 +56,17 @@
           datasets: [
             {
               data: [
-                108810,
-                87192,
-                52137,
-                75488,
-                162820,
-                225618,
-                602326,
-                593145,
-                684757,
-                730426,
-                626276,
+                192910,
+                190882,
+                192083,
+                191201,
+                188495,
+                189599,
+                187676,
+                84298,
+                274,
+                25,
+                5421,
               ],
               backgroundColor: [
                 "rgba(63, 142, 252, 0.8)",
@@ -104,7 +104,7 @@
           },
           title: {
             display: true,
-            text: "SetGetAndDelete_@mootable/LinkedHashMap",
+            text: "SetGetAndDelete_donhash",
             fontSize: 16,
             padding: 20,
           },
