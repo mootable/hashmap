@@ -5,7 +5,7 @@ import {equalsFor} from "../hash";
  * Container - Container Implementation for JavaScript
  * @namespace Mootable.Container
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.13.1
+ * @version 0.14.0
  * Homepage: https://github.com/mootable/hashmap
  */
 

@@ -1,0 +1,63 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div style="max-height:90%;max-width: 90%;">
+    <canvas id="SetGetDeleteChart"></canvas>
+    <script type="application/javascript">
+const SetGetDeleteChart = function() {
+  const labels = ["16","64","256","1024","4096","16384","65536","262144","1048576","4194304"];
+        const data = {
+            labels: labels,
+            datasets: [{"backgroundColor":"#6929c433","borderColor":"#6929c444","pointRadius":0,"fill":"+2","data":[242767.3205044481,263137.9907425434,243791.26865097354,198620.5047676159,102774.25191022531,333073.33885657275,802062.1401759697,779886.6735334236,764932.4043993503,884093.6210729544],"cubicInterpolationMode":"monotone","tension":0.4},{"label":"@mootable/HashMap","backgroundColor":"#6929c466","borderColor":"#6929c4","data":[237956,252636,238389,174479,91513,308366,787740,767259,753680,870758],"cubicInterpolationMode":"monotone","tension":0.4},{"backgroundColor":"#6929c433","borderColor":"#6929c444","pointRadius":0,"data":[233144.6794955519,242134.00925745655,232986.73134902646,150337.4952323841,80251.74808977467,283658.66114342725,773417.8598240304,754631.3264665763,742427.5956006497,857422.3789270455],"cubicInterpolationMode":"monotone","tension":0.4},{"backgroundColor":"#1192e833","borderColor":"#1192e844","pointRadius":0,"fill":"+2","data":[210319.43144670443,231855.11000932503,212729.14567214763,82863.10498456896,188635.16168072206,315048.5647384603,704687.5771043112,684338.9715148475,692634.2006663735,789896.0749291225],"cubicInterpolationMode":"monotone","tension":0.4},{"label":"@mootable/LinkedHashMap","backgroundColor":"#1192e866","borderColor":"#1192e8","data":[205629,225676,206726,77008,154846,309782,694784,676894,679218,776596],"cubicInterpolationMode":"monotone","tension":0.4},{"backgroundColor":"#1192e833","borderColor":"#1192e844","pointRadius":0,"data":[200938.56855329557,219496.889990675,200722.8543278524,71152.89501543104,121056.83831927794,304515.4352615397,684880.4228956888,669449.0284851526,665801.7993336265,763295.9250708775],"cubicInterpolationMode":"monotone","tension":0.4},{"backgroundColor":"#005d5d33","borderColor":"#005d5d44","pointRadius":0,"fill":"+2","data":[7126177.935002273,4149126.4691665648,1682907.195727586,489873.6323498628,133291.94483986578,37328.13419004522,12469.625957865812,11486.741899766137,11886.189234349527,12368.666641956072],"cubicInterpolationMode":"monotone","tension":0.4},{"label":"map","backgroundColor":"#005d5d66","borderColor":"#005d5d","borderDash":[5,3],"data":[7034050,4095353,1663623,486772,132224,33074,8506,8384,8435,8625],"cubicInterpolationMode":"monotone","tension":0.4},{"backgroundColor":"#005d5d33","borderColor":"#005d5d44","pointRadius":0,"data":[6941922.064997727,4041579.5308334352,1644338.8042724137,483670.3676501372,131156.05516013422,28819.865809954783,4542.37404213419,5281.258100233862,4983.8107656504735,4881.3333580439285],"cubicInterpolationMode":"monotone","tension":0.4},{"backgroundColor":"#9f185333","borderColor":"#9f185344","pointRadius":0,"fill":"+2","data":[260410.31740168534,388584.491955998,511492.2598332244,294456.696661718,379363.39533044246,641220.8641246002,662953.5868236951,646634.1933495483,685510.0844491567,780506.4861935265],"cubicInterpolationMode":"monotone","tension":0.4},{"label":"flesler-hashmap","backgroundColor":"#9f185366","borderColor":"#9f1853","borderDash":[2,2],"data":[245476,381829,494779,264447,317750,632902,650026,609673,589414,569464],"cubicInterpolationMode":"monotone","tension":0.4},{"backgroundColor":"#9f185333","borderColor":"#9f185344","pointRadius":0,"data":[230541.68259831468,375073.50804400205,478065.7401667756,234437.303338282,256136.6046695575,624583.1358753997,637098.4131763049,572711.8066504517,493317.9155508434,358421.5138064735],"cubicInterpolationMode":"monotone","tension":0.4}]
+        };
+
+        const config = {
+            type: 'line',
+            data,
+            options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Set Get Delete'
+                },
+                legend: {
+                    labels: {
+                        filter: function (item, data) {
+                            return item.text !== undefined;
+                        },
+                    },
+                },
+            },
+            scales: {
+                x: {
+                    display: true,
+                    title: {
+                        display: true,
+                    text: 'Prefilled Map Size',
+                    }
+                },
+                y: {
+                    display: true,
+                    type: 'logarithmic',
+                    title: {
+                        display: true,
+                        text: 'Operations per second',
+                    }
+                }
+            }
+            },
+        };
+    const ctx = document.getElementById('SetGetDeleteChart');
+    return new Chart(ctx, config );
+    }();
+</script>
+</div>
+</body>
+</html>

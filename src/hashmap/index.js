@@ -9,7 +9,7 @@ import {ArrayContainer} from '../container/';
  * HashMap - HashMap Implementation for JavaScript
  * @namespace Mootable
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.13.1
+ * @version 0.14.0
  * Homepage: https://github.com/mootable/hashmap
  */
 /**
@@ -243,7 +243,7 @@ export class HashBuckets {
             this.buckets[idx] = bucket;
         }
         options.hash >>>= this.options.widthAs2sExponent;
-        const response = bucket.emplace(key, handler, options)
+        const response = bucket.emplace(key, handler, options);
         if (response.resized) {
             this.size += 1;
         }

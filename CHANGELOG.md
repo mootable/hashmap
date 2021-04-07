@@ -1,4 +1,15 @@
 # Changelog
+## 0.14.0
+- Breaking Changes
+  - Switched to an options parameter for all methods.
+  - Internal classes have been restructured.
+- Switched to using Benny, for cleaner benchmarking.
+- Cleaned up benchmarking, and included optional parameters.
+- Added Graph for better comparison.
+- Simplified code, ready for optimisation phase later on.
+- Fixed some potential bugs around keys being overwritten when branching.
+- Allowed arrays to resize themselves rather than provide a set size.
+- Started work on the emplace method.
 ## 0.13.1
 - Fixed readme
 ## 0.13.0

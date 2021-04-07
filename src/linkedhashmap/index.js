@@ -4,7 +4,7 @@ import { Entry} from '../entry/';
  * HashMap - LinkedHashMap Implementation for JavaScript
  * @namespace Mootable
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.13.1
+ * @version 0.14.0
  * Homepage: https://github.com/mootable/hashmap
  */
 /**

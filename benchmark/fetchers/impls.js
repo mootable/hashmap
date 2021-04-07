@@ -9,7 +9,7 @@ if(categories.length > 0){
 /**
  * HashMap - HashMap Implementation for JavaScript
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.13.1
+ * @version 0.14.0
  * Homepage: https://github.com/mootable/hashmap
  */
 const esmRequire = require("esm")(module/*, options*/);

@@ -13,7 +13,7 @@ This project provides `HashMap` and `LinkedHashMap` classes that works both on _
 ### Choose your map wisely.
 - When choosing a collection it is worth understanding the problem you are trying to solve.
 - [Native JS Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) for small numbers of entries, will be significantly faster.
-- However once the map reaches 1'000 or more the Mootable Hashmap really shows its strengths. It utilizes more memory, to do this. [see Benchmarks](Benchmarks.md)
+- However once the map reaches 1'000 or more the Mootable Hashmap really shows its strengths. It utilizes more memory, to do this.
 - The [Native JS Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) is likely to have improved speed characteristics if repeating operations in a loop, via things such as JIT compilation. It is worth benchmarking to see if Map works better for you in those situations.
 
 ## Installation
@@ -161,20 +161,15 @@ map
 ```
 
 ## Benchmarks
-- Current Benchmarks can be found [here](Benchmarks.md).
-  - Each benchmark does a single set, get and delete against a hashmap of a specific size. It does this thousands of times, and finds an approximate average.
+- Current Benchmarks can be found under benchmark_results.
+  - The default benchmark does a single set, get and delete against a hashmap of a specific size. It does this thousands of times, and finds an approximate average.
   - If you would like me to include your library for benchmarking, raise an issue in github.
     - It must be in NPM
     - It must have an identical interface to JS Map
     - It must be fully written in JS. (Transpiling is acceptable) So that we can guarantee it works in the browser, not just node.
 
-### Benchmarks on version 0.13.1
-
-<table>
-<thead><tr><th>Entry Size</th><th>Fastest Version</th><th>Percentage Faster</th><th>Times Faster</th></tr></thead>
-<tbody>
-<tr><td>0</td><td>mootable-hashmap.HashMap</td><td>53%</td><td>X 1.53</td></tr><tr><td>64</td><td>map</td><td>451%</td><td>X 5.51</td></tr><tr><td>256</td><td>map</td><td>250%</td><td>X 3.50</td></tr><tr><td>512</td><td>mootable-hashmap.HashMap</td><td>93%</td><td>X 1.93</td></tr><tr><td>768</td><td>mootable-hashmap.HashMap</td><td>151%</td><td>X 2.51</td></tr><tr><td>1024</td><td>mootable-hashmap.HashMap</td><td>100%</td><td>X 2.00</td></tr><tr><td>4096</td><td>mootable-hashmap.HashMap</td><td>631%</td><td>X 7.31</td></tr><tr><td>16384</td><td>mootable-hashmap.HashMap</td><td>2795%</td><td>X 28.95</td></tr><tr><td>65536</td><td>mootable-hashmap.HashMap</td><td>10285%</td><td>X 103.85</td></tr><tr><td>262144</td><td>mootable-hashmap.HashMap</td><td>11134%</td><td>X 112.34</td></tr><tr><td>1048576</td><td>mootable-hashmap.HashMap</td><td>10069%</td><td>X 101.69</td></tr><tr><td>4194304</td><td>mootable-hashmap.HashMap</td><td>10520%</td><td>X 106.20</td></tr><tr><td>create</td><td>flesler-hashmap.HashMap</td><td>70%</td><td>X 1.70</td></tr></tbody>
-</table>
+### Benchmarks on version 0.14.0
+![Set Get And Delete](BenchmarkSGD.png)
 
 ## Background
 - This repository is a reimplemented version of the [npm hashmap](https://npmjs.org/package/hashmap) repository. It takes that implementation as a starting point, and moves it closer to the core functionality hashmaps are designed to achieve.
