@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>hashmap/index.js - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav class="wrap">
+    
+    <input type="text" id="nav-search" placeholder="Search" />
+    
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ArrayContainer.html">ArrayContainer</a></li><li><a href="Entry.html">Entry</a></li><li><a href="HashMap.html">HashMap</a><ul class='methods'><li data-type='method' style='display: none;'><a href="HashMap.html#clear">clear</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#clone">clone</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#collect">collect</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#concat">concat</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#concatMap">concatMap</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#copy">copy</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#delete">delete</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#entries">entries</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#every">every</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#filter">filter</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#find">find</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#findIndex">findIndex</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#forEach">forEach</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#get">get</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#has">has</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#indexOf">indexOf</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#keys">keys</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#map">map</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#mapEntries">mapEntries</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#mapKeys">mapKeys</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#mapValues">mapValues</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#optionalGet">optionalGet</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#reduce">reduce</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#set">set</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#some">some</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#values">values</a></li></ul></li><li><a href="LinkedHashMap.html">LinkedHashMap</a><ul class='methods'><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#clear">clear</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#clone">clone</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#collect">collect</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#concat">concat</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#concatMap">concatMap</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#copy">copy</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#delete">delete</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#entries">entries</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#every">every</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#filter">filter</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#find">find</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#findIndex">findIndex</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#forEach">forEach</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#get">get</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#has">has</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#indexOf">indexOf</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#keys">keys</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#map">map</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#mapEntries">mapEntries</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#mapKeys">mapKeys</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#mapValues">mapValues</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#optionalGet">optionalGet</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#reduce">reduce</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#set">set</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#some">some</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#values">values</a></li></ul></li><li><a href="MapIterable.html">MapIterable</a><ul class='methods'><li data-type='method' style='display: none;'><a href="MapIterable.html#.from">from</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#collect">collect</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#concat">concat</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#concatMap">concatMap</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#entries">entries</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#every">every</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#filter">filter</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#find">find</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#findIndex">findIndex</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#forEach">forEach</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#get">get</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#has">has</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#indexOf">indexOf</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#keys">keys</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#map">map</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#mapEntries">mapEntries</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#mapKeys">mapKeys</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#mapValues">mapValues</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#optionalGet">optionalGet</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#reduce">reduce</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#some">some</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#values">values</a></li></ul></li><li><a href="Option.html">Option</a><ul class='methods'><li data-type='method' style='display: none;'><a href="Option.html#.some">some</a></li></ul></li><li><a href="SetIterable.html">SetIterable</a><ul class='methods'><li data-type='method' style='display: none;'><a href="SetIterable.html#.from">from</a></li><li data-type='method' style='display: none;'><a href="SetIterable.html#collect">collect</a></li><li data-type='method' style='display: none;'><a href="SetIterable.html#concat">concat</a></li><li data-type='method' style='display: none;'><a href="SetIterable.html#entries">entries</a></li><li data-type='method' style='display: none;'><a href="SetIterable.html#every">every</a></li><li data-type='method' style='display: none;'><a href="SetIterable.html#filter">filter</a></li><li data-type='method' style='display: none;'><a href="SetIterable.html#find">find</a></li><li data-type='method' style='display: none;'><a href="SetIterable.html#forEach">forEach</a></li><li data-type='method' style='display: none;'><a href="SetIterable.html#has">has</a></li><li data-type='method' style='display: none;'><a href="SetIterable.html#keys">keys</a></li><li data-type='method' style='display: none;'><a href="SetIterable.html#map">map</a></li><li data-type='method' style='display: none;'><a href="SetIterable.html#reduce">reduce</a></li><li data-type='method' style='display: none;'><a href="SetIterable.html#some">some</a></li><li data-type='method' style='display: none;'><a href="SetIterable.html#values">values</a></li></ul></li></ul><h3>Modules</h3><ul><li><a href="module-@mootable_hashmap.html">@mootable/hashmap</a></li></ul><h3>Namespaces</h3><ul><li><a href="Mootable.html">Mootable</a></li><li></li><li></li><li><a href="Mootable.Container.html">Container</a></li><li><a href="Mootable.Entry.html">Entry</a></li><li><a href="Mootable.Hash.html">Hash</a></li><li><a href="Mootable.Option.html">Option</a></li><li><a href="Mootable.Utils.html">Utils</a></li></ul><h3>Global</h3><ul><li><a href="global.html#abstractEquals">abstractEquals</a></li><li><a href="global.html#equalsAndHash">equalsAndHash</a></li><li><a href="global.html#equalsFor">equalsFor</a></li><li><a href="global.html#hash">hash</a></li><li><a href="global.html#hashCodeFor">hashCodeFor</a></li><li><a href="global.html#isFunction">isFunction</a></li><li><a href="global.html#isIterable">isIterable</a></li><li><a href="global.html#isString">isString</a></li><li><a href="global.html#none">none</a></li><li><a href="global.html#sameValue">sameValue</a></li><li><a href="global.html#sameValueZero">sameValueZero</a></li><li><a href="global.html#some">some</a></li><li><a href="global.html#strictEquals">strictEquals</a></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">hashmap/index.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import {isFunction, isIterable} from '../utils/';
+import {hashCodeFor} from '../hash';
+import {none} from '../option/';
+import {MapIterable} from '../iterable/';
+import {Entry} from '../entry/';
+import {ArrayContainer} from '../container/';
+
+/**
+ * HashMap - HashMap Implementation for JavaScript
+ * @namespace Mootable
+ * @author Jack Moxley &lt;https://github.com/jackmoxley>
+ * @version 0.14.0
+ * Homepage: https://github.com/mootable/hashmap
+ */
+/**
+ * This HashMap is backed by a hashtrie, and can be tuned to specific use cases.
+ * @extends {MapIterable}
+ */
+export class HashMap extends MapIterable {
+    /**
+     * @typedef HashMap~ConstructorOptions
+     * @property {(Map|HashMap|LinkedHashMap|Iterable.&lt;Array.&lt;key,value>>)} [copy] - an object that provides a forEach function with the same signature as`Map.forEach`.
+     * such as `Map` or this `HashMap` and `LinkedHashMap`, or any iterable that provides [key,value] pairs such as a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
+     * @property {number} [depth] - how many layers deep our hashtrie goes.
+     * - Minimum: `1`
+     * - Maximum/Default: `(32/widthAs2sExponent)-1`
+     * @property {number} [widthAs2sExponent] - how many buckets in each hashtrie layer we use 2 to the power of widthAs2sExponent, for instance a widthAs2sExponent of 4 is 2 ^ 4 = 16 buckets.
+     * - Minimum: `1`
+     * - Maximum: `16`
+     * - Default: `6` (64 Buckets)
+     */
+    /**
+     * This HashMap is backed by a hashtrie, and can be tuned to specific use cases.
+     * - `new HashMap()` creates an empty hashmap
+     * - `new HashMap(copy:Iterable)` creates a hashmap which is a copy of the provided iterable.
+     *   1) `copy` either
+     *      - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
+     *      - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
+     * - `new HashMap({copy:?Iterable, depth:?int, widthAs2sExponent:?int})` creates a hashmap with optional `depth` and `widthAs2sExponent`. If `copy` is provided (map, array or iterable), it's keys and values are inserted into this map.
+     *   1) `copy` either
+     *      - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
+     *      - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
+     *   2) `depth` is how many layers deep our hashtrie goes.
+     *      - Minimum: `1`, Maximum/Default: `(32/widthAs2sExponent)-1`
+     *   3) `widthAs2sExponent` is how many buckets in each hashtrie layer we use to the power of 2, for instance a widthAs2sExponent of 4 is 2 ^ 4 = 16 buckets.
+     *      - Minimum: `1`, Maximum: `16`, Default: `6` (64 Buckets)
+     * @param {(Map|HashMap|LinkedHashMap|Iterable.&lt;Array.&lt;key,value>>|HashMap~ConstructorOptions)} [args]
+     */
+    constructor(args = {copy: undefined, depth: undefined, widthAs2sExponent: undefined}) {
+        super();
+        let {depth, widthAs2sExponent, copy} = args;
+        if (!(Number.isFinite(widthAs2sExponent) || widthAs2sExponent &lt; 1)) {
+            widthAs2sExponent = 6; // 2^6 = 64 buckets
+            depth = depth &amp;&amp; depth > 0 ? Math.min(depth - 1, 4) : 4;
+        } else {
+            widthAs2sExponent = Math.max(1, Math.min(16, widthAs2sExponent));
+            const defaultDepth = ((32 / widthAs2sExponent) >> 0) - 1;
+            depth = depth &amp;&amp; depth > 0 ? Math.min(depth - 1, defaultDepth) : defaultDepth;
+        }
+        // 0 indexed so 3 is a depth of 4.
+        const width = 1 &lt;&lt; widthAs2sExponent; // 2 ^ widthAs2sExponent
+        const mask = width - 1;
+        this.options = {
+            widthAs2sExponent, width, mask, depth, map: this,
+            createEntry,
+            overwriteEntry
+        };
+        this.clear();
+        if (args.forEach || (copy &amp;&amp; copy.forEach)) {
+            this.copy(args.forEach ? args : copy);
+        }
+    }
+
+    get size() {
+        return this.length;
+    }
+
+
+    has(key, options = {}) {
+        setHashIfMissing(key, options);
+        return this.buckets.has(key, options);
+    }
+
+
+    get(key, options = {}) {
+        setHashIfMissing(key, options);
+        return this.buckets.get(key, options);
+    }
+
+
+    // noinspection JSCheckFunctionSignatures
+    optionalGet(key, options = {}) {
+        setHashIfMissing(key, options);
+        return this.buckets.optionalGet(key, options);
+    }
+
+    /**
+     * Sets a value onto this map, using the key as its reference.
+     *
+     * @param {*} key - the key we want to key our value to
+     * @param {*} value - the value we are setting
+     * @return {HashMap}
+     */
+    set(key, value, options = {}) {
+        setHashIfMissing(key, options);
+        this.buckets.set(key, value, options);
+        this.length = this.buckets.size;
+        return this;
+    }
+
+    // emplace(key, handler) {
+    //     const hash = hashCodeFor(key);
+    //     if (this.buckets) {
+    //         const {value, container} = this.buckets.emplace(key, handler, hash);
+    //         this.buckets = container;
+    //         this.length = this.buckets.size;
+    //         return value;
+    //     } else {
+    //         // this.buckets = new HashContainer(entry, hashEq.hash, Object.assign({}, this.options), this.options.depth);
+    //         // this.length = 1;
+    //     }
+    // }
+
+
+    /**
+     *
+     * @param {Map|HashMap|LinkedHashMap|MapIterable|SetIterable.&lt;Array.&lt;key,value>>|Iterator.&lt;Array.&lt;key,value>>|Array.&lt;Array.&lt;key,value>>} other - the iterable to copy
+     * @return {HashMap} this hashmap, with the values copied to it.
+     * @throws {TypeError} if the provided object other is null or not iterable.
+     */
+    copy(other) {
+        const map = this;
+        if (isIterable(other)) {
+            for (const [key, value] of other) {
+                map.set(key, value);
+            }
+            return this;
+        } else if (isFunction(other.entries)) {
+            for (const [key, value] of other.entries()) {
+                map.set(key, value);
+            }
+            return this;
+        } else if (isFunction(other.forEach)) {
+            other.forEach(function (value, key) {
+                map.set(key, value);
+            });
+            return this;
+        }
+        throw new TypeError('HashMap.copy expects an object which is iterable or has a forEach function on it');
+    }
+
+    /**
+     * Makes a copy of this hashmap and returns a new one.
+     * @return {HashMap}
+     */
+    clone() {
+        return new HashMap({
+            copy: this,
+            depth: this.options.depth,
+            widthAs2sExponent: this.options.widthAs2sExponent
+        });
+    }
+
+    /**
+     * Deletes an entry from this hashmap, using the provided key
+     * @param key
+     * @return {HashMap}
+     */
+    delete(key, options = {}) {
+        setHashIfMissing(key, options);
+        const deleted = this.buckets.delete(key, options);
+        if (deleted) {
+            this.length = this.buckets.size;
+        }
+        return this;
+    }
+
+    /**
+     * clears the data from this hashmap.
+     * @return {HashMap}
+     */
+    clear() {
+        this.buckets = new HashBuckets(this.options, this.options.depth);
+        this.length = 0;
+        return this;
+    }
+
+
+    * [Symbol.iterator]() {
+        if (this.buckets) {
+            for (const entry of this.buckets) {
+                yield entry;
+            }
+        }
+    }
+}
+
+function setHashIfMissing(key, options) {
+    if (options.hash === undefined) {
+        options.hash = hashCodeFor(key);
+    }
+    return options.hash;
+}
+
+const createEntry = (key, value) => new Entry(key, value);
+const overwriteEntry = (key, value, oldEntry) => {
+    oldEntry.key = key;
+    oldEntry.value = value;
+    return oldEntry;
+};
+
+/**
+ * @private
+ */
+export class HashBuckets {
+    constructor(options, depth) {
+        this.options = options;
+        this.size = 0;
+        this.depth = depth;
+        this.buckets = [];
+    }
+
+    set(key, value, options) {
+        const idx = options.hash &amp; this.options.mask;
+        let bucket = this.buckets[idx];
+        if (!bucket) {
+            bucket = this.depth ? new HashBuckets(this.options, this.depth - 1) : new ArrayContainer(this.options);
+            this.buckets[idx] = bucket;
+        }
+        options.hash >>>= this.options.widthAs2sExponent;
+        if (bucket.set(key, value, options)) {
+            this.size += 1;
+            return true;
+        }
+        return false;
+    }
+
+    emplace(key, handler, options) {
+        const idx = options.hash &amp; this.options.mask;
+        let bucket = this.buckets[idx];
+        if (!bucket) {
+            bucket = this.depth ? new HashBuckets(this.options, this.depth - 1) : new ArrayContainer(this.options);
+            this.buckets[idx] = bucket;
+        }
+        options.hash >>>= this.options.widthAs2sExponent;
+        const response = bucket.emplace(key, handler, options);
+        if (response.resized) {
+            this.size += 1;
+        }
+        return response;
+    }
+
+    delete(key, options) {
+        const idx = options.hash &amp; this.options.mask;
+        let bucket = this.buckets[idx];
+        if (bucket) {
+            options.hash >>>= this.options.widthAs2sExponent;
+            const deleted = bucket.delete(key, options);
+            if (deleted) {
+                if (bucket.size === 0) {
+                    // we could choose to compress instead.
+                    this.buckets[idx] = undefined;
+                }
+                this.size -= 1;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    get(key, options) {
+        const bucket = this.buckets[options.hash &amp; this.options.mask];
+        if (bucket) {
+            options.hash >>>= this.options.widthAs2sExponent;
+            return bucket.get(key, options);
+        }
+        return undefined;
+    }
+
+    optionalGet(key, options) {
+        const bucket = this.buckets[options.hash &amp; this.options.mask];
+        if (bucket) {
+            options.hash >>>= this.options.widthAs2sExponent;
+            return bucket.optionalGet(key, options);
+        }
+        return none;
+    }
+
+    has(key, options) {
+        const bucket = this.buckets[options.hash &amp; this.options.mask];
+        if (bucket) {
+            options.hash >>>= this.options.widthAs2sExponent;
+            return bucket.has(key, options);
+        }
+        return false;
+    }
+
+    * [Symbol.iterator]() {
+        for (const bucket of this.buckets) {
+            if (bucket) {
+                for (const entry of bucket) {
+                    yield entry;
+                }
+            }
+        }
+    }
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a> on Wed Apr 07 2021 02:23:58 GMT+0100 (British Summer Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+<script src="scripts/search.js" defer></script>
+
+
+<script src="scripts/collapse.js" defer></script>
+
+
+    <link type="text/css" rel="stylesheet" href="docs.css">
+    
+</body>
+</html>

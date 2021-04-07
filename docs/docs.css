@@ -1,0 +1,81 @@
+article > *{
+    border-left: 10px solid rgba(255,255,255,0);
+}
+article h4.name {
+    background: #374e94;
+    padding-top: 1em;
+    padding-left: 1em;
+    margin-top: 2.5em;
+    margin-bottom: 0;
+    box-shadow: none;
+    border: none;
+    border-top-left-radius: 0.5em;
+    border-top-right-radius: 0.5em;
+    font-size: 24px;
+}
+table {
+    border-collapse: unset;
+    box-shadow: none;
+    border-radius: 0.5em;
+    border: 1px solid #dfdbd3;
+    border-left: 10px solid #374e94;
+}
+
+/*article .description.usertext p:first-child::first-line {*/
+/*    font-size: 20px;*/
+/*    line-height: 32px;*/
+/*}*/
+/*article .description.usertext p:first-child::first-letter {*/
+/*    font-size: 28px;*/
+/*}*/
+article .details {
+    margin-top: 0;
+    padding-top: 0.3em;
+    border-left: 10px solid #374e94;
+    border-bottom-left-radius: 0.5em;
+    background: #f8f4ed;
+}
+
+article .details dd {
+    margin-top: 0;
+}
+.prettyprint {
+    border-left: 10px solid #374e94;
+    background-color: #0a0611;
+    border-radius: 0.5em;
+}
+.prettyprint code {
+    background-color: #0a0611;
+}
+
+.type-signature {
+    color: #c7ebdf;
+}
+.type-signature:last-child {
+    color: #d6be8f;
+}
+.signature {
+    color: #d6be8f;
+}
+.signature-attributes {
+    color: #c7ebdf;
+    vertical-align: super;
+    margin-left: 0.2em;
+}
+h4.name a:hover {
+    border-bottom-color: white;
+}
+h4.name a {
+    color: #d6be8f;
+    border-bottom-color: #d6be8f;
+}
+code {
+    background: #f8f4ed;
+}
+span.param-type, .params td .param-type, .param-type dd {
+    color: #573794;
+}
+
+article .params .param-type, article .param-type .param-type, article .type .param-type {
+    margin: unset;
+}
