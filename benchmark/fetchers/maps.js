@@ -9,21 +9,27 @@ const {mapImpls} = require('./impls.js');
 const {hashCodeFor} = require('../../src/hash');
 const cache = {};
 
-function generateForImplAndSize({location, esm, className, implName, Impl}, size, ignoreCache) {
+function generateForImplAndSize({location, esm, className, implName, Impl, constructorParameters}, size, ignoreCache) {
     const ALL_KV = kvStore(size);
     if ((!ignoreCache) && cache[implName] && cache[implName][`${size}`]) {
         console.info(`${implName} : ${size} from cached`);
         return cache[implName][`${size}`];
     }
-    const map = new Impl();
+    const start = new Date();
+    const map = constructorParameters ? new Impl(constructorParameters) : new Impl();
     for (let i = 0; i < size; i++) {
         map.set(ALL_KV[i][0], ALL_KV[i][1]);
     }
+    const end = new Date();
+    console.info(`${(end.getTime()-start.getTime())/1000} secs to create a ${implName} of size ${size}`);
+    const start2 = new Date();
     for (let i = 0; i < size; i++) {
         if(!map.has(ALL_KV[i][0])){
             console.log(`Sanity Check: Missing key  ${ALL_KV[i][0]} with hash ${hashCodeFor(ALL_KV[i][0])} at ${i}`);
         }
     }
+    const end2 = new Date();
+    console.info(`${(end2.getTime()-start2.getTime())/1000} secs to sanity check a ${implName} of size ${size}`);
     if (ignoreCache) {
         console.info(`${implName} : ${size} generated fresh`);
     } else {

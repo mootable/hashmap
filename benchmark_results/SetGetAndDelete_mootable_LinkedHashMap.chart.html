@@ -16,7 +16,7 @@
   </head>
   <body>
     <div style="max-width: 800px">
-      <canvas id="chart1617762318316" width="16" height="9"></canvas>
+      <canvas id="chart1617845715385" width="16" height="9"></canvas>
     </div>
     <script>
       const format = (num) => {
@@ -34,10 +34,10 @@
 
         return chunked.map((chunk) => chunk.join("")).join(" ");
       };
-      const ctx1617762318316 = document
-        .getElementById("chart1617762318316")
+      const ctx1617845715385 = document
+        .getElementById("chart1617845715385")
         .getContext("2d");
-      const chart1617762318316 = new Chart(ctx1617762318316, {
+      const chart1617845715385 = new Chart(ctx1617845715385, {
         type: "bar",
         data: {
           labels: [
@@ -51,22 +51,20 @@
             "65536",
             "262144",
             "1048576",
-            "4194304",
           ],
           datasets: [
             {
               data: [
-                108810,
-                87192,
-                52137,
-                75488,
-                162820,
-                225618,
-                602326,
-                593145,
-                684757,
-                730426,
-                626276,
+                99607,
+                215548,
+                183382,
+                182193,
+                165936,
+                95489,
+                246682,
+                246176,
+                757927,
+                757749,
               ],
               backgroundColor: [
                 "rgba(63, 142, 252, 0.8)",
@@ -79,7 +77,6 @@
                 "rgba(219, 108, 121, 0.8)",
                 "rgba(189, 79, 108, 0.8)",
                 "rgba(138, 79, 125, 0.8)",
-                "rgba(95, 75, 102, 0.8)",
               ],
               borderColor: [
                 "rgba(63, 142, 252, 1)",
@@ -92,7 +89,6 @@
                 "rgba(219, 108, 121, 1)",
                 "rgba(189, 79, 108, 1)",
                 "rgba(138, 79, 125, 1)",
-                "rgba(95, 75, 102, 1)",
               ],
               borderWidth: 1,
             },

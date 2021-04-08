@@ -1,5 +1,5 @@
-const DonHashMap = require('donhash').HashMap;
-class HashMap extends DonHashMap{
+const HashMap = require('Z--bench-compare--donhash').HashMap;
+class DonHashMap extends HashMap{
     constructor() {
         super();
     }
@@ -13,4 +13,4 @@ class HashMap extends DonHashMap{
         return super.remove(key);
     }
 }
-module.exports = {HashMap};
+module.exports = {DonHashMap};

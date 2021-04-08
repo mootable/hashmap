@@ -12,11 +12,11 @@
         order: row;
       }
     </style>
-    <title>SetGetAndDelete_@mootable/HashMap</title>
+    <title>GetMiddle_flesler-hashmap</title>
   </head>
   <body>
     <div style="max-width: 800px">
-      <canvas id="chart1617845660981" width="16" height="9"></canvas>
+      <canvas id="chart1617846207575" width="16" height="9"></canvas>
     </div>
     <script>
       const format = (num) => {
@@ -34,10 +34,10 @@
 
         return chunked.map((chunk) => chunk.join("")).join(" ");
       };
-      const ctx1617845660981 = document
-        .getElementById("chart1617845660981")
+      const ctx1617846207575 = document
+        .getElementById("chart1617846207575")
         .getContext("2d");
-      const chart1617845660981 = new Chart(ctx1617845660981, {
+      const chart1617846207575 = new Chart(ctx1617846207575, {
         type: "bar",
         data: {
           labels: [
@@ -55,16 +55,16 @@
           datasets: [
             {
               data: [
-                87272,
-                75269,
-                66106,
-                38875,
-                98403,
-                132959,
-                115289,
-                102328,
-                688853,
-                590463,
+                6581172,
+                7181091,
+                7244481,
+                6988550,
+                7160267,
+                7195697,
+                7380043,
+                7372584,
+                7382109,
+                7377476,
               ],
               backgroundColor: [
                 "rgba(63, 142, 252, 0.8)",
@@ -100,7 +100,7 @@
           },
           title: {
             display: true,
-            text: "SetGetAndDelete_@mootable/HashMap",
+            text: "GetMiddle_flesler-hashmap",
             fontSize: 16,
             padding: 20,
           },

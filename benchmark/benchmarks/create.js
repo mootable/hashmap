@@ -9,7 +9,15 @@ const singleSuite = require("../handlers/single.js");
 
 // test(implementation)
 
-const benchmark = new Benchmark('create').withTest( ({Impl}) => {
+const benchmark = new Benchmark('create').withTest( ({Impl, constructorParameters}) => {
+    if(constructorParameters){
+        return function() {
+            const hashmap = new Impl(constructorParameters);
+            if (!hashmap) {
+                throw "where is the hashmap?";
+            }
+        };
+    }
     return function() {
         const hashmap = new Impl();
         if (!hashmap) {

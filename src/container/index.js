@@ -23,14 +23,14 @@ function equalsForOptions(key, options) {
  */
 export class ArrayContainer {
 
-    constructor(options) {
+    constructor(map) {
         this.size = 0;
         this.contents = [];
-        this.options = options;
+        this.map = map;
     }
 
     prefill(key, value) {
-        this.contents[0] = this.options.createEntry(key, value, true);
+        this.contents[0] = this.map.createEntry(key, value, true);
         this.size = 1;
         return this;
     }
@@ -65,7 +65,7 @@ export class ArrayContainer {
         for (const entry of this.contents) {
             if (entry) {
                 if (equals(key, entry.key)) {
-                    this.contents[idx] = this.options.overwriteEntry(key, value, entry);
+                    this.contents[idx] = this.map.overwriteEntry(key, value, entry);
                     return false;
                 }
             } else if (undefinedIdx === undefined) {
@@ -74,9 +74,9 @@ export class ArrayContainer {
             idx += 1;
         }
         if (undefinedIdx === undefined) {
-            this.contents.push(this.options.createEntry(key, value));
+            this.contents.push(this.map.createEntry(key, value));
         } else {
-            this.contents[undefinedIdx] = this.options.createEntry(key, value);
+            this.contents[undefinedIdx] = this.map.createEntry(key, value);
         }
         this.size += 1;
         return true;
@@ -89,16 +89,16 @@ export class ArrayContainer {
         if (idx < 0) {
             // we expect an error to be thrown if insert doesn't exist.
             // https://github.com/tc39/proposal-upsert
-            value = handler.insert(key, this.options.map);
+            value = handler.insert(key, this.map);
             if (this.size === this.contents.length) {
-                this.contents.push(this.options.createEntry(key, value));
+                this.contents.push(this.map.createEntry(key, value));
                 this.size++;
                 return {value, resized: true};
             } else {
                 idx = 0;
                 for (const entry of this.contents) {
                     if (entry === undefined) {
-                        this.contents[idx] = this.options.createEntry(key, value);
+                        this.contents[idx] = this.map.createEntry(key, value);
                         this.size++;
                         return {value, resized: true};
                     }
@@ -106,8 +106,8 @@ export class ArrayContainer {
                 }
             }
         } else if (handler.update) {
-            value = handler.update(this.contents[idx].value, key, this.options.map);
-            this.contents[idx] = this.options.overwriteEntry(key, value, this.contents[idx]);
+            value = handler.update(this.contents[idx].value, key, this.map);
+            this.contents[idx] = this.map.overwriteEntry(key, value, this.contents[idx]);
             return {value, resized: false};
         }
     }
@@ -128,16 +128,14 @@ export class ArrayContainer {
             return false;
         }
 
-        if (this.options.deleteEntry) {
-            this.options.deleteEntry(this.contents[idx]);
-        }
+        this.map.deleteEntry(this.contents[idx]);
 
         this.contents[idx] = undefined;
 
-        //autocompress.
-        if (this.options.compress === undefined || this.options.compress === true) {
+        //autocompress. compress off has yet to be implemented
+        // if (this.map.compress) {
             this.contents = this.contents.filter(entry => entry !== undefined);
-        }
+        // }
         this.size -= 1;
         return true;
     }

@@ -1,5 +1,6 @@
 import {HashMap} from '../hashmap/';
-import { Entry} from '../entry/';
+import {Entry} from '../entry/';
+
 /**
  * HashMap - LinkedHashMap Implementation for JavaScript
  * @namespace Mootable
@@ -30,10 +31,13 @@ export class LinkedHashMap extends HashMap {
      *      - Minimum: `2`, Maximum: `16`, Default: `6` (64 Buckets)
      * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>|HashMap~ConstructorOptions)} [args]
      */
-    constructor(args = {copy: undefined, depth: undefined, widthAs2sExponent: 6}) {
+    constructor(args = {copy: undefined, depth: undefined, widthAs2sExponent: 6, hamt: false, compress: true}) {
         super(args);
-        this.options.createEntry =(key,value)=>{
-            const entry = new Entry(key,value);
+        this.start = undefined;
+        this.end = undefined;
+
+        this.createEntry = (key, value) =>  {
+            const entry = new Entry(key, value);
             if (this.end) {
                 this.end.next = entry;
                 entry.previous = this.end;
@@ -43,7 +47,8 @@ export class LinkedHashMap extends HashMap {
             }
             return entry;
         };
-        this.options.deleteEntry = (oldEntry)=>{
+
+        this.deleteEntry = (oldEntry) => {
             if (oldEntry.previous) {
                 oldEntry.previous.next = oldEntry.next;
             }
@@ -58,8 +63,6 @@ export class LinkedHashMap extends HashMap {
             }
             return undefined;
         };
-        this.start = undefined;
-        this.end = undefined;
     }
 
     /**
@@ -69,8 +72,10 @@ export class LinkedHashMap extends HashMap {
     clone() {
         return new LinkedHashMap({
             copy: this,
-            depth: this.options.depth,
-            widthAs2sExponent: this.options.widthAs2sExponent
+            depth: this.depth,
+            widthAs2sExponent: this.widthAs2sExponent,
+            hamt: this.hamt,
+            compress: this.compress
         });
     }
 

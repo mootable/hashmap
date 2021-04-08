@@ -5,7 +5,7 @@ const create = require('./benchmarks/create');
 const set_get_delete = require('./benchmarks/set_get_delete');
 
 // const get_end     = require('./benchmarks/get_end');
-// const get_middle  = require('./benchmarks/get_middle');
+const get_middle  = require('./benchmarks/get_middle');
 // const get_none    = require('./benchmarks/get_none');
 // const get_start   = require('./benchmarks/get_start');
 
@@ -33,7 +33,7 @@ Promise.all([
     reportSingle(create),
     reportMultipleImplementations(set_get_delete, 'Set Get Delete'),
     // reportMultipleImplementations(get_end, 'Get End'),
-    // reportMultipleImplementations(get_middle, 'Get Middle'),
+    reportMultipleImplementations(get_middle, 'Get Middle'),
     // reportMultipleImplementations(get_none, 'Get None'),
     // reportMultipleImplementations(get_start, 'Get Start'),
 ]).then(reports => [

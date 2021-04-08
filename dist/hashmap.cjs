@@ -419,6 +419,18 @@ function equalsAndHash(key, equals, hash) {
 }
 
 /**
+ * Counts the number of ones in a 32 bit integer.
+ *
+ * @param {number} flags 32 bit integet
+ * @return {number} amount of ones.
+ */
+function hammingWeight(flags) {
+    flags -= ((flags >> 1) & 0x55555555);
+    flags = (flags & 0x33333333) + ((flags >> 2) & 0x33333333);
+    return ((flags + (flags >> 4) & 0xF0F0F0F) * 0x1010101) >> 24;
+}
+
+/**
  * HashMap - HashMap Implementation for JavaScript
  * @namespace Mootable
  * @author Jack Moxley <https://github.com/jackmoxley>
@@ -2079,14 +2091,14 @@ function equalsForOptions(key, options) {
  */
 class ArrayContainer {
 
-    constructor(options) {
+    constructor(map) {
         this.size = 0;
         this.contents = [];
-        this.options = options;
+        this.map = map;
     }
 
     prefill(key, value) {
-        this.contents[0] = this.options.createEntry(key, value, true);
+        this.contents[0] = this.map.createEntry(key, value, true);
         this.size = 1;
         return this;
     }
@@ -2121,7 +2133,7 @@ class ArrayContainer {
         for (const entry of this.contents) {
             if (entry) {
                 if (equals(key, entry.key)) {
-                    this.contents[idx] = this.options.overwriteEntry(key, value, entry);
+                    this.contents[idx] = this.map.overwriteEntry(key, value, entry);
                     return false;
                 }
             } else if (undefinedIdx === undefined) {
@@ -2130,9 +2142,9 @@ class ArrayContainer {
             idx += 1;
         }
         if (undefinedIdx === undefined) {
-            this.contents.push(this.options.createEntry(key, value));
+            this.contents.push(this.map.createEntry(key, value));
         } else {
-            this.contents[undefinedIdx] = this.options.createEntry(key, value);
+            this.contents[undefinedIdx] = this.map.createEntry(key, value);
         }
         this.size += 1;
         return true;
@@ -2145,16 +2157,16 @@ class ArrayContainer {
         if (idx < 0) {
             // we expect an error to be thrown if insert doesn't exist.
             // https://github.com/tc39/proposal-upsert
-            value = handler.insert(key, this.options.map);
+            value = handler.insert(key, this.map);
             if (this.size === this.contents.length) {
-                this.contents.push(this.options.createEntry(key, value));
+                this.contents.push(this.map.createEntry(key, value));
                 this.size++;
                 return {value, resized: true};
             } else {
                 idx = 0;
                 for (const entry of this.contents) {
                     if (entry === undefined) {
-                        this.contents[idx] = this.options.createEntry(key, value);
+                        this.contents[idx] = this.map.createEntry(key, value);
                         this.size++;
                         return {value, resized: true};
                     }
@@ -2162,8 +2174,8 @@ class ArrayContainer {
                 }
             }
         } else if (handler.update) {
-            value = handler.update(this.contents[idx].value, key, this.options.map);
-            this.contents[idx] = this.options.overwriteEntry(key, value, this.contents[idx]);
+            value = handler.update(this.contents[idx].value, key, this.map);
+            this.contents[idx] = this.map.overwriteEntry(key, value, this.contents[idx]);
             return {value, resized: false};
         }
     }
@@ -2184,16 +2196,14 @@ class ArrayContainer {
             return false;
         }
 
-        if (this.options.deleteEntry) {
-            this.options.deleteEntry(this.contents[idx]);
-        }
+        this.map.deleteEntry(this.contents[idx]);
 
         this.contents[idx] = undefined;
 
-        //autocompress.
-        if (this.options.compress === undefined || this.options.compress === true) {
+        //autocompress. compress off has yet to be implemented
+        // if (this.map.compress) {
             this.contents = this.contents.filter(entry => entry !== undefined);
-        }
+        // }
         this.size -= 1;
         return true;
     }
@@ -2207,6 +2217,15 @@ class ArrayContainer {
     }
 }
 
+const createEntry = (key, value) => new Entry(key, value);
+
+const deleteEntry = (oldEntry) => undefined;
+
+const overwriteEntry = (key, value, oldEntry) => {
+    oldEntry.key = key;
+    oldEntry.value = value;
+    return oldEntry;
+};
 /**
  * HashMap - HashMap Implementation for JavaScript
  * @namespace Mootable
@@ -2248,25 +2267,26 @@ class HashMap extends MapIterable {
      *      - Minimum: `1`, Maximum: `16`, Default: `6` (64 Buckets)
      * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>|HashMap~ConstructorOptions)} [args]
      */
-    constructor(args = {copy: undefined, depth: undefined, widthAs2sExponent: undefined}) {
+    constructor(args = {copy: undefined, depth: undefined, widthAs2sExponent: undefined, hamt: false, compress: true}) {
         super();
-        let {depth, widthAs2sExponent, copy} = args;
+        const {depth, widthAs2sExponent, copy, hamt, compress} = args;
         if (!(Number.isFinite(widthAs2sExponent) || widthAs2sExponent < 1)) {
-            widthAs2sExponent = 6; // 2^6 = 64 buckets
-            depth = depth && depth > 0 ? Math.min(depth - 1, 4) : 4;
+            this.widthAs2sExponent = hamt ? 5 : 8; // 2^5 = 32 buckets // 2^8 = 256
+            this.depth = depth && depth > 0 ? Math.min(depth - 1, (hamt ? 5 : 3)) : (hamt ? 5 : 3);
         } else {
-            widthAs2sExponent = Math.max(1, Math.min(16, widthAs2sExponent));
-            const defaultDepth = ((32 / widthAs2sExponent) >> 0) - 1;
-            depth = depth && depth > 0 ? Math.min(depth - 1, defaultDepth) : defaultDepth;
+            this.widthAs2sExponent = Math.max(1, Math.min((hamt ? 5 : 16), widthAs2sExponent));
+            const defaultDepth = ((32 / this.widthAs2sExponent) >> 0) - 1;
+            this.depth = depth && depth > 0 ? Math.min(depth - 1, defaultDepth) : defaultDepth;
         }
         // 0 indexed so 3 is a depth of 4.
-        const width = 1 << widthAs2sExponent; // 2 ^ widthAs2sExponent
-        const mask = width - 1;
-        this.options = {
-            widthAs2sExponent, width, mask, depth, map: this,
-            createEntry,
-            overwriteEntry
-        };
+        const width = 1 << this.widthAs2sExponent; // 2 ^ widthAs2sExponent
+        this.width = width;
+        this.mask = width - 1;
+        this.hamt = hamt;
+        this.compress = compress;
+        this.createEntry = createEntry;
+        this.overwriteEntry = overwriteEntry;
+        this.deleteEntry = deleteEntry;
         this.clear();
         if (args.forEach || (copy && copy.forEach)) {
             this.copy(args.forEach ? args : copy);
@@ -2358,8 +2378,10 @@ class HashMap extends MapIterable {
     clone() {
         return new HashMap({
             copy: this,
-            depth: this.options.depth,
-            widthAs2sExponent: this.options.widthAs2sExponent
+            depth: this.depth,
+            widthAs2sExponent: this.widthAs2sExponent,
+            hamt: this.hamt,
+            compress: this.compress,
         });
     }
 
@@ -2370,8 +2392,7 @@ class HashMap extends MapIterable {
      */
     delete(key, options = {}) {
         setHashIfMissing(key, options);
-        const deleted = this.buckets.delete(key, options);
-        if (deleted) {
+        if (this.buckets.delete(key, options)) {
             this.length = this.buckets.size;
         }
         return this;
@@ -2382,7 +2403,8 @@ class HashMap extends MapIterable {
      * @return {HashMap}
      */
     clear() {
-        this.buckets = new HashBuckets(this.options, this.options.depth);
+
+        this.buckets = this.hamt ? new HamtBuckets(this, this.depth) : new HashBuckets(this, this.depth);
         this.length = 0;
         return this;
     }
@@ -2398,38 +2420,150 @@ class HashMap extends MapIterable {
 }
 
 function setHashIfMissing(key, options) {
-    if (options.hash === undefined) {
-        options.hash = hashCodeFor(key);
+    let hash = options.hash;
+    if (hash === undefined) {
+        hash = options.hash = hashCodeFor(key);
     }
-    return options.hash;
+    return hash;
 }
 
-const createEntry = (key, value) => new Entry(key, value);
-const overwriteEntry = (key, value, oldEntry) => {
-    oldEntry.key = key;
-    oldEntry.value = value;
-    return oldEntry;
-};
+
+/**
+ * @private
+ */
+class HamtBuckets {
+    constructor(map, depth) {
+        this.map = map;
+        this.size = 0;
+        this.depth = depth;
+        this.buckets = [];
+        this.idxFlags = 0;
+    }
+
+    bucketForHash(hash) {
+        const idxFlags = this.idxFlags;
+        const hashIdx = hash & this.map.mask;
+        const flag = 1 << hashIdx;
+        const idx = hammingWeight(idxFlags & (flag - 1));
+        if (idxFlags & flag) {
+            return this.buckets[idx];
+        }
+        return undefined;
+    }
+
+    set(key, value, options) {
+        const idxFlags = this.idxFlags;
+        const hashIdx = options.hash & this.map.mask;
+        const flag = 1 << hashIdx;
+        const idx = hammingWeight(idxFlags & (flag - 1));
+        let bucket;
+        if (idxFlags & flag) {
+            bucket = this.buckets[idx];
+        } else {
+            bucket = this.depth ? new HamtBuckets(this.map, this.depth - 1) : new ArrayContainer(this.map);
+            this.buckets.splice(idx, 0, bucket);
+            this.idxFlags |= flag;
+        }
+        options.hash >>>= this.map.widthAs2sExponent;
+        if (bucket.set(key, value, options)) {
+            this.size += 1;
+            return true;
+        }
+        return false;
+    }
+
+    // emplace(key, handler, options) {
+    //     const idx = options.hash & this.options.mask;
+    //     let bucket = this.buckets[idx];
+    //     if (!bucket) {
+    //         bucket = this.depth ? new HamtBuckets(this.options, this.depth - 1) : new ArrayContainer(this.options);
+    //         this.buckets[idx] = bucket;
+    //     }
+    //     options.hash >>>= this.options.widthAs2sExponent;
+    //     const response = bucket.emplace(key, handler, options);
+    //     if (response.resized) {
+    //         this.size += 1;
+    //     }
+    //     return response;
+    // }
+
+    delete(key, options) {
+        const idxFlags = this.idxFlags;
+        const hashIdx = options.hash & this.map.mask;
+        const flag = 1 << hashIdx;
+        if (idxFlags & flag) {
+            options.hash >>>= this.map.widthAs2sExponent;
+            const idx = hammingWeight(idxFlags & (flag - 1));
+            const bucket = this.buckets[idx];
+            const deleted = bucket.delete(key, options);
+            if (deleted) {
+                if (bucket.size === 0) {
+                    this.buckets.splice(idx, 1);
+                    this.idxFlags ^= flag;
+                }
+                this.size -= 1;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    get(key, options) {
+        const bucket = this.bucketForHash(options.hash);
+        if (bucket !== undefined) {
+            options.hash >>>= this.map.widthAs2sExponent;
+            return bucket.get(key, options);
+        }
+        return undefined;
+    }
+
+    optionalGet(key, options) {
+        const bucket = this.bucketForHash(options.hash);
+        if (bucket !== undefined) {
+            options.hash >>>= this.map.widthAs2sExponent;
+            return bucket.optionalGet(key, options);
+        }
+        return none;
+    }
+
+    has(key, options) {
+        const bucket = this.bucketForHash(options.hash);
+        if (bucket !== undefined) {
+            options.hash >>>= this.map.widthAs2sExponent;
+            return bucket.has(key, options);
+        }
+        return false;
+    }
+
+    * [Symbol.iterator]() {
+        for (const bucket of this.buckets) {
+            for (const entry of bucket) {
+                yield entry;
+            }
+        }
+    }
+}
+
 
 /**
  * @private
  */
 class HashBuckets {
-    constructor(options, depth) {
-        this.options = options;
+    constructor(map, depth) {
+        this.map = map;
         this.size = 0;
         this.depth = depth;
         this.buckets = [];
     }
 
     set(key, value, options) {
-        const idx = options.hash & this.options.mask;
+        const idx = options.hash & this.map.mask;
         let bucket = this.buckets[idx];
         if (!bucket) {
-            bucket = this.depth ? new HashBuckets(this.options, this.depth - 1) : new ArrayContainer(this.options);
+            bucket = this.depth ? new HashBuckets(this.map, this.depth - 1) : new ArrayContainer(this.map);
             this.buckets[idx] = bucket;
         }
-        options.hash >>>= this.options.widthAs2sExponent;
+        options.hash >>>= this.map.widthAs2sExponent;
         if (bucket.set(key, value, options)) {
             this.size += 1;
             return true;
@@ -2438,13 +2572,13 @@ class HashBuckets {
     }
 
     emplace(key, handler, options) {
-        const idx = options.hash & this.options.mask;
+        const idx = options.hash & this.map.mask;
         let bucket = this.buckets[idx];
         if (!bucket) {
-            bucket = this.depth ? new HashBuckets(this.options, this.depth - 1) : new ArrayContainer(this.options);
+            bucket = this.depth ? new HashBuckets(this.map, this.depth - 1) : new ArrayContainer(this.map);
             this.buckets[idx] = bucket;
         }
-        options.hash >>>= this.options.widthAs2sExponent;
+        options.hash >>>= this.map.widthAs2sExponent;
         const response = bucket.emplace(key, handler, options);
         if (response.resized) {
             this.size += 1;
@@ -2453,10 +2587,10 @@ class HashBuckets {
     }
 
     delete(key, options) {
-        const idx = options.hash & this.options.mask;
+        const idx = options.hash & this.map.mask;
         let bucket = this.buckets[idx];
         if (bucket) {
-            options.hash >>>= this.options.widthAs2sExponent;
+            options.hash >>>= this.map.widthAs2sExponent;
             const deleted = bucket.delete(key, options);
             if (deleted) {
                 if (bucket.size === 0) {
@@ -2471,27 +2605,27 @@ class HashBuckets {
     }
 
     get(key, options) {
-        const bucket = this.buckets[options.hash & this.options.mask];
+        const bucket = this.buckets[options.hash & this.map.mask];
         if (bucket) {
-            options.hash >>>= this.options.widthAs2sExponent;
+            options.hash >>>= this.map.widthAs2sExponent;
             return bucket.get(key, options);
         }
         return undefined;
     }
 
     optionalGet(key, options) {
-        const bucket = this.buckets[options.hash & this.options.mask];
+        const bucket = this.buckets[options.hash & this.map.mask];
         if (bucket) {
-            options.hash >>>= this.options.widthAs2sExponent;
+            options.hash >>>= this.map.widthAs2sExponent;
             return bucket.optionalGet(key, options);
         }
         return none;
     }
 
     has(key, options) {
-        const bucket = this.buckets[options.hash & this.options.mask];
+        const bucket = this.buckets[options.hash & this.map.mask];
         if (bucket) {
-            options.hash >>>= this.options.widthAs2sExponent;
+            options.hash >>>= this.map.widthAs2sExponent;
             return bucket.has(key, options);
         }
         return false;
@@ -2538,10 +2672,13 @@ class LinkedHashMap extends HashMap {
      *      - Minimum: `2`, Maximum: `16`, Default: `6` (64 Buckets)
      * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>|HashMap~ConstructorOptions)} [args]
      */
-    constructor(args = {copy: undefined, depth: undefined, widthAs2sExponent: 6}) {
+    constructor(args = {copy: undefined, depth: undefined, widthAs2sExponent: 6, hamt: false, compress: true}) {
         super(args);
-        this.options.createEntry =(key,value)=>{
-            const entry = new Entry(key,value);
+        this.start = undefined;
+        this.end = undefined;
+
+        this.createEntry = (key, value) =>  {
+            const entry = new Entry(key, value);
             if (this.end) {
                 this.end.next = entry;
                 entry.previous = this.end;
@@ -2551,7 +2688,8 @@ class LinkedHashMap extends HashMap {
             }
             return entry;
         };
-        this.options.deleteEntry = (oldEntry)=>{
+
+        this.deleteEntry = (oldEntry) => {
             if (oldEntry.previous) {
                 oldEntry.previous.next = oldEntry.next;
             }
@@ -2566,8 +2704,6 @@ class LinkedHashMap extends HashMap {
             }
             return undefined;
         };
-        this.start = undefined;
-        this.end = undefined;
     }
 
     /**
@@ -2577,8 +2713,10 @@ class LinkedHashMap extends HashMap {
     clone() {
         return new LinkedHashMap({
             copy: this,
-            depth: this.options.depth,
-            widthAs2sExponent: this.options.widthAs2sExponent
+            depth: this.depth,
+            widthAs2sExponent: this.widthAs2sExponent,
+            hamt: this.hamt,
+            compress: this.compress
         });
     }
 

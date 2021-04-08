@@ -1232,7 +1232,7 @@
   (module.exports = function (key, value) {
     return sharedStore[key] || (sharedStore[key] = value !== undefined ? value : {});
   })('versions', []).push({
-    version: '3.10.0',
+    version: '3.10.1',
     mode: 'global',
     copyright: '© 2021 Denis Pushkarev (zloirock.ru)'
   });
@@ -1365,23 +1365,23 @@
     return isNaN(argument = +argument) ? 0 : (argument > 0 ? floor$1 : ceil)(argument);
   };
 
-  var min$1 = Math.min;
+  var min$2 = Math.min;
 
   // `ToLength` abstract operation
   // https://tc39.es/ecma262/#sec-tolength
   var toLength = function (argument) {
-    return argument > 0 ? min$1(toInteger(argument), 0x1FFFFFFFFFFFFF) : 0; // 2 ** 53 - 1 == 9007199254740991
+    return argument > 0 ? min$2(toInteger(argument), 0x1FFFFFFFFFFFFF) : 0; // 2 ** 53 - 1 == 9007199254740991
   };
 
-  var max = Math.max;
-  var min = Math.min;
+  var max$1 = Math.max;
+  var min$1 = Math.min;
 
   // Helper for a popular repeating case of the spec:
   // Let integer be ? ToInteger(index).
   // If integer < 0, let result be max((length + integer), 0); else let result be min(integer, length).
   var toAbsoluteIndex = function (index, length) {
     var integer = toInteger(index);
-    return integer < 0 ? max(integer + length, 0) : min(integer, length);
+    return integer < 0 ? max$1(integer + length, 0) : min$1(integer, length);
   };
 
   // `Array.prototype.{ indexOf, includes }` methods implementation
@@ -2767,6 +2767,101 @@
     });
   }
 
+  var SPECIES$1 = wellKnownSymbol('species');
+
+  var arrayMethodHasSpeciesSupport = function (METHOD_NAME) {
+    // We can't use this feature detection in V8 since it causes
+    // deoptimization and serious performance degradation
+    // https://github.com/zloirock/core-js/issues/677
+    return engineV8Version >= 51 || !fails(function () {
+      var array = [];
+      var constructor = array.constructor = {};
+      constructor[SPECIES$1] = function () {
+        return { foo: 1 };
+      };
+      return array[METHOD_NAME](Boolean).foo !== 1;
+    });
+  };
+
+  var $map = arrayIteration.map;
+
+
+  var HAS_SPECIES_SUPPORT$2 = arrayMethodHasSpeciesSupport('map');
+
+  // `Array.prototype.map` method
+  // https://tc39.es/ecma262/#sec-array.prototype.map
+  // with adding support of @@species
+  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$2 }, {
+    map: function map(callbackfn /* , thisArg */) {
+      return $map(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
+    }
+  });
+
+  var createProperty = function (object, key, value) {
+    var propertyKey = toPrimitive(key);
+    if (propertyKey in object) objectDefineProperty.f(object, propertyKey, createPropertyDescriptor(0, value));
+    else object[propertyKey] = value;
+  };
+
+  var HAS_SPECIES_SUPPORT$1 = arrayMethodHasSpeciesSupport('splice');
+
+  var max = Math.max;
+  var min = Math.min;
+  var MAX_SAFE_INTEGER$1 = 0x1FFFFFFFFFFFFF;
+  var MAXIMUM_ALLOWED_LENGTH_EXCEEDED = 'Maximum allowed length exceeded';
+
+  // `Array.prototype.splice` method
+  // https://tc39.es/ecma262/#sec-array.prototype.splice
+  // with adding support of @@species
+  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$1 }, {
+    splice: function splice(start, deleteCount /* , ...items */) {
+      var O = toObject(this);
+      var len = toLength(O.length);
+      var actualStart = toAbsoluteIndex(start, len);
+      var argumentsLength = arguments.length;
+      var insertCount, actualDeleteCount, A, k, from, to;
+      if (argumentsLength === 0) {
+        insertCount = actualDeleteCount = 0;
+      } else if (argumentsLength === 1) {
+        insertCount = 0;
+        actualDeleteCount = len - actualStart;
+      } else {
+        insertCount = argumentsLength - 2;
+        actualDeleteCount = min(max(toInteger(deleteCount), 0), len - actualStart);
+      }
+      if (len + insertCount - actualDeleteCount > MAX_SAFE_INTEGER$1) {
+        throw TypeError(MAXIMUM_ALLOWED_LENGTH_EXCEEDED);
+      }
+      A = arraySpeciesCreate(O, actualDeleteCount);
+      for (k = 0; k < actualDeleteCount; k++) {
+        from = actualStart + k;
+        if (from in O) createProperty(A, k, O[from]);
+      }
+      A.length = actualDeleteCount;
+      if (insertCount < actualDeleteCount) {
+        for (k = actualStart; k < len - actualDeleteCount; k++) {
+          from = k + actualDeleteCount;
+          to = k + insertCount;
+          if (from in O) O[to] = O[from];
+          else delete O[to];
+        }
+        for (k = len; k > len - actualDeleteCount + insertCount; k--) delete O[k - 1];
+      } else if (insertCount > actualDeleteCount) {
+        for (k = len - actualDeleteCount; k > actualStart; k--) {
+          from = k + actualDeleteCount - 1;
+          to = k + insertCount - 1;
+          if (from in O) O[to] = O[from];
+          else delete O[to];
+        }
+      }
+      for (k = 0; k < insertCount; k++) {
+        O[k + actualStart] = arguments[k + 2];
+      }
+      O.length = len - actualDeleteCount + insertCount;
+      return A;
+    }
+  });
+
   // `SameValue` abstract operation
   // https://tc39.es/ecma262/#sec-samevalue
   // eslint-disable-next-line es/no-object-is -- safe
@@ -2924,14 +3019,14 @@
   	BROKEN_CARET: BROKEN_CARET
   };
 
-  var SPECIES$1 = wellKnownSymbol('species');
+  var SPECIES = wellKnownSymbol('species');
 
   var setSpecies = function (CONSTRUCTOR_NAME) {
     var Constructor = getBuiltIn(CONSTRUCTOR_NAME);
     var defineProperty = objectDefineProperty.f;
 
-    if (descriptors && Constructor && !Constructor[SPECIES$1]) {
-      defineProperty(Constructor, SPECIES$1, {
+    if (descriptors && Constructor && !Constructor[SPECIES]) {
+      defineProperty(Constructor, SPECIES, {
         configurable: true,
         get: function () { return this; }
       });
@@ -3020,9 +3115,6 @@
   setSpecies('RegExp');
 
   var nativeExec = RegExp.prototype.exec;
-  // This always refers to the native implementation, because the
-  // String#replace polyfill uses ./fix-regexp-well-known-symbol-logic.js,
-  // which loads this file before patching the method.
   var nativeReplace = shared('native-string-replace', String.prototype.replace);
 
   var patchedExec = nativeExec;
@@ -3613,28 +3705,18 @@
       equals: equals
     };
   }
+  /**
+   * Counts the number of ones in a 32 bit integer.
+   *
+   * @param {number} flags 32 bit integet
+   * @return {number} amount of ones.
+   */
 
-  var createProperty = function (object, key, value) {
-    var propertyKey = toPrimitive(key);
-    if (propertyKey in object) objectDefineProperty.f(object, propertyKey, createPropertyDescriptor(0, value));
-    else object[propertyKey] = value;
-  };
-
-  var SPECIES = wellKnownSymbol('species');
-
-  var arrayMethodHasSpeciesSupport = function (METHOD_NAME) {
-    // We can't use this feature detection in V8 since it causes
-    // deoptimization and serious performance degradation
-    // https://github.com/zloirock/core-js/issues/677
-    return engineV8Version >= 51 || !fails(function () {
-      var array = [];
-      var constructor = array.constructor = {};
-      constructor[SPECIES] = function () {
-        return { foo: 1 };
-      };
-      return array[METHOD_NAME](Boolean).foo !== 1;
-    });
-  };
+  function hammingWeight(flags) {
+    flags -= flags >> 1 & 0x55555555;
+    flags = (flags & 0x33333333) + (flags >> 2 & 0x33333333);
+    return (flags + (flags >> 4) & 0xF0F0F0F) * 0x1010101 >> 24;
+  }
 
   var IS_CONCAT_SPREADABLE = wellKnownSymbol('isConcatSpreadable');
   var MAX_SAFE_INTEGER = 0x1FFFFFFFFFFFFF;
@@ -4164,20 +4246,6 @@
   collection('Map', function (init) {
     return function Map() { return init(this, arguments.length ? arguments[0] : undefined); };
   }, collectionStrong);
-
-  var $map = arrayIteration.map;
-
-
-  var HAS_SPECIES_SUPPORT$1 = arrayMethodHasSpeciesSupport('map');
-
-  // `Array.prototype.map` method
-  // https://tc39.es/ecma262/#sec-array.prototype.map
-  // with adding support of @@species
-  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$1 }, {
-    map: function map(callbackfn /* , thisArg */) {
-      return $map(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
-    }
-  });
 
   // `Set` constructor
   // https://tc39.es/ecma262/#sec-set-objects
@@ -7039,18 +7107,18 @@
 
 
   var ArrayContainer = /*#__PURE__*/function () {
-    function ArrayContainer(options) {
+    function ArrayContainer(map) {
       _classCallCheck(this, ArrayContainer);
 
       this.size = 0;
       this.contents = [];
-      this.options = options;
+      this.map = map;
     }
 
     _createClass(ArrayContainer, [{
       key: "prefill",
       value: function prefill(key, value) {
-        this.contents[0] = this.options.createEntry(key, value, true);
+        this.contents[0] = this.map.createEntry(key, value, true);
         this.size = 1;
         return this;
       }
@@ -7110,7 +7178,7 @@
 
             if (entry) {
               if (equals(key, entry.key)) {
-                this.contents[idx] = this.options.overwriteEntry(key, value, entry);
+                this.contents[idx] = this.map.overwriteEntry(key, value, entry);
                 return false;
               }
             } else if (undefinedIdx === undefined) {
@@ -7126,9 +7194,9 @@
         }
 
         if (undefinedIdx === undefined) {
-          this.contents.push(this.options.createEntry(key, value));
+          this.contents.push(this.map.createEntry(key, value));
         } else {
-          this.contents[undefinedIdx] = this.options.createEntry(key, value);
+          this.contents[undefinedIdx] = this.map.createEntry(key, value);
         }
 
         this.size += 1;
@@ -7144,10 +7212,10 @@
         if (idx < 0) {
           // we expect an error to be thrown if insert doesn't exist.
           // https://github.com/tc39/proposal-upsert
-          value = handler.insert(key, this.options.map);
+          value = handler.insert(key, this.map);
 
           if (this.size === this.contents.length) {
-            this.contents.push(this.options.createEntry(key, value));
+            this.contents.push(this.map.createEntry(key, value));
             this.size++;
             return {
               value: value,
@@ -7164,7 +7232,7 @@
                 var entry = _step3.value;
 
                 if (entry === undefined) {
-                  this.contents[idx] = this.options.createEntry(key, value);
+                  this.contents[idx] = this.map.createEntry(key, value);
                   this.size++;
                   return {
                     value: value,
@@ -7181,8 +7249,8 @@
             }
           }
         } else if (handler.update) {
-          value = handler.update(this.contents[idx].value, key, this.options.map);
-          this.contents[idx] = this.options.overwriteEntry(key, value, this.contents[idx]);
+          value = handler.update(this.contents[idx].value, key, this.map);
+          this.contents[idx] = this.map.overwriteEntry(key, value, this.contents[idx]);
           return {
             value: value,
             resized: false
@@ -7209,17 +7277,13 @@
           return false;
         }
 
-        if (this.options.deleteEntry) {
-          this.options.deleteEntry(this.contents[idx]);
-        }
+        this.map.deleteEntry(this.contents[idx]);
+        this.contents[idx] = undefined; //autocompress. compress off has yet to be implemented
+        // if (this.map.compress) {
 
-        this.contents[idx] = undefined; //autocompress.
-
-        if (this.options.compress === undefined || this.options.compress === true) {
-          this.contents = this.contents.filter(function (entry) {
-            return entry !== undefined;
-          });
-        }
+        this.contents = this.contents.filter(function (entry) {
+          return entry !== undefined;
+        }); // }
 
         this.size -= 1;
         return true;
@@ -7287,6 +7351,19 @@
     return ArrayContainer;
   }();
 
+  var createEntry = function createEntry(key, value) {
+    return new Entry(key, value);
+  };
+
+  var deleteEntry = function deleteEntry(oldEntry) {
+    return undefined;
+  };
+
+  var overwriteEntry = function overwriteEntry(key, value, oldEntry) {
+    oldEntry.key = key;
+    oldEntry.value = value;
+    return oldEntry;
+  };
   /**
    * HashMap - HashMap Implementation for JavaScript
    * @namespace Mootable
@@ -7299,6 +7376,7 @@
    * This HashMap is backed by a hashtrie, and can be tuned to specific use cases.
    * @extends {MapIterable}
    */
+
 
   var HashMap = /*#__PURE__*/function (_MapIterable) {
     _inherits(HashMap, _MapIterable);
@@ -7341,7 +7419,9 @@
       var args = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
         copy: undefined,
         depth: undefined,
-        widthAs2sExponent: undefined
+        widthAs2sExponent: undefined,
+        hamt: false,
+        compress: true
       };
 
       _classCallCheck(this, HashMap);
@@ -7349,31 +7429,30 @@
       _this = _super.call(this);
       var depth = args.depth,
           widthAs2sExponent = args.widthAs2sExponent,
-          copy = args.copy;
+          copy = args.copy,
+          hamt = args.hamt,
+          compress = args.compress;
 
       if (!(Number.isFinite(widthAs2sExponent) || widthAs2sExponent < 1)) {
-        widthAs2sExponent = 6; // 2^6 = 64 buckets
+        _this.widthAs2sExponent = hamt ? 5 : 8; // 2^5 = 32 buckets // 2^8 = 256
 
-        depth = depth && depth > 0 ? Math.min(depth - 1, 4) : 4;
+        _this.depth = depth && depth > 0 ? Math.min(depth - 1, hamt ? 5 : 3) : hamt ? 5 : 3;
       } else {
-        widthAs2sExponent = Math.max(1, Math.min(16, widthAs2sExponent));
-        var defaultDepth = (32 / widthAs2sExponent >> 0) - 1;
-        depth = depth && depth > 0 ? Math.min(depth - 1, defaultDepth) : defaultDepth;
+        _this.widthAs2sExponent = Math.max(1, Math.min(hamt ? 5 : 16, widthAs2sExponent));
+        var defaultDepth = (32 / _this.widthAs2sExponent >> 0) - 1;
+        _this.depth = depth && depth > 0 ? Math.min(depth - 1, defaultDepth) : defaultDepth;
       } // 0 indexed so 3 is a depth of 4.
 
 
-      var width = 1 << widthAs2sExponent; // 2 ^ widthAs2sExponent
+      var width = 1 << _this.widthAs2sExponent; // 2 ^ widthAs2sExponent
 
-      var mask = width - 1;
-      _this.options = {
-        widthAs2sExponent: widthAs2sExponent,
-        width: width,
-        mask: mask,
-        depth: depth,
-        map: _assertThisInitialized(_this),
-        createEntry: createEntry,
-        overwriteEntry: overwriteEntry
-      };
+      _this.width = width;
+      _this.mask = width - 1;
+      _this.hamt = hamt;
+      _this.compress = compress;
+      _this.createEntry = createEntry;
+      _this.overwriteEntry = overwriteEntry;
+      _this.deleteEntry = deleteEntry;
 
       _this.clear();
 
@@ -7509,8 +7588,10 @@
       value: function clone() {
         return new HashMap({
           copy: this,
-          depth: this.options.depth,
-          widthAs2sExponent: this.options.widthAs2sExponent
+          depth: this.depth,
+          widthAs2sExponent: this.widthAs2sExponent,
+          hamt: this.hamt,
+          compress: this.compress
         });
       }
       /**
@@ -7524,9 +7605,8 @@
       value: function _delete(key) {
         var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
         setHashIfMissing(key, options);
-        var deleted = this.buckets.delete(key, options);
 
-        if (deleted) {
+        if (this.buckets.delete(key, options)) {
           this.length = this.buckets.size;
         }
 
@@ -7540,7 +7620,7 @@
     }, {
       key: "clear",
       value: function clear() {
-        this.buckets = new HashBuckets(this.options, this.options.depth);
+        this.buckets = this.hamt ? new HamtBuckets(this, this.depth) : new HashBuckets(this, this.depth);
         this.length = 0;
         return this;
       }
@@ -7607,49 +7687,62 @@
   }(MapIterable);
 
   function setHashIfMissing(key, options) {
-    if (options.hash === undefined) {
-      options.hash = hashCodeFor(key);
+    var hash = options.hash;
+
+    if (hash === undefined) {
+      hash = options.hash = hashCodeFor(key);
     }
 
-    return options.hash;
+    return hash;
   }
-
-  var createEntry = function createEntry(key, value) {
-    return new Entry(key, value);
-  };
-
-  var overwriteEntry = function overwriteEntry(key, value, oldEntry) {
-    oldEntry.key = key;
-    oldEntry.value = value;
-    return oldEntry;
-  };
   /**
    * @private
    */
 
 
-  var HashBuckets = /*#__PURE__*/function () {
-    function HashBuckets(options, depth) {
-      _classCallCheck(this, HashBuckets);
+  var HamtBuckets = /*#__PURE__*/function () {
+    function HamtBuckets(map, depth) {
+      _classCallCheck(this, HamtBuckets);
 
-      this.options = options;
+      this.map = map;
       this.size = 0;
       this.depth = depth;
       this.buckets = [];
+      this.idxFlags = 0;
     }
 
-    _createClass(HashBuckets, [{
-      key: "set",
-      value: function set(key, value, options) {
-        var idx = options.hash & this.options.mask;
-        var bucket = this.buckets[idx];
+    _createClass(HamtBuckets, [{
+      key: "bucketForHash",
+      value: function bucketForHash(hash) {
+        var idxFlags = this.idxFlags;
+        var hashIdx = hash & this.map.mask;
+        var flag = 1 << hashIdx;
+        var idx = hammingWeight(idxFlags & flag - 1);
 
-        if (!bucket) {
-          bucket = this.depth ? new HashBuckets(this.options, this.depth - 1) : new ArrayContainer(this.options);
-          this.buckets[idx] = bucket;
+        if (idxFlags & flag) {
+          return this.buckets[idx];
         }
 
-        options.hash >>>= this.options.widthAs2sExponent;
+        return undefined;
+      }
+    }, {
+      key: "set",
+      value: function set(key, value, options) {
+        var idxFlags = this.idxFlags;
+        var hashIdx = options.hash & this.map.mask;
+        var flag = 1 << hashIdx;
+        var idx = hammingWeight(idxFlags & flag - 1);
+        var bucket;
+
+        if (idxFlags & flag) {
+          bucket = this.buckets[idx];
+        } else {
+          bucket = this.depth ? new HamtBuckets(this.map, this.depth - 1) : new ArrayContainer(this.map);
+          this.buckets.splice(idx, 0, bucket);
+          this.idxFlags |= flag;
+        }
+
+        options.hash >>>= this.map.widthAs2sExponent;
 
         if (bucket.set(key, value, options)) {
           this.size += 1;
@@ -7657,41 +7750,38 @@
         }
 
         return false;
-      }
-    }, {
-      key: "emplace",
-      value: function emplace(key, handler, options) {
-        var idx = options.hash & this.options.mask;
-        var bucket = this.buckets[idx];
+      } // emplace(key, handler, options) {
+      //     const idx = options.hash & this.options.mask;
+      //     let bucket = this.buckets[idx];
+      //     if (!bucket) {
+      //         bucket = this.depth ? new HamtBuckets(this.options, this.depth - 1) : new ArrayContainer(this.options);
+      //         this.buckets[idx] = bucket;
+      //     }
+      //     options.hash >>>= this.options.widthAs2sExponent;
+      //     const response = bucket.emplace(key, handler, options);
+      //     if (response.resized) {
+      //         this.size += 1;
+      //     }
+      //     return response;
+      // }
 
-        if (!bucket) {
-          bucket = this.depth ? new HashBuckets(this.options, this.depth - 1) : new ArrayContainer(this.options);
-          this.buckets[idx] = bucket;
-        }
-
-        options.hash >>>= this.options.widthAs2sExponent;
-        var response = bucket.emplace(key, handler, options);
-
-        if (response.resized) {
-          this.size += 1;
-        }
-
-        return response;
-      }
     }, {
       key: "delete",
       value: function _delete(key, options) {
-        var idx = options.hash & this.options.mask;
-        var bucket = this.buckets[idx];
+        var idxFlags = this.idxFlags;
+        var hashIdx = options.hash & this.map.mask;
+        var flag = 1 << hashIdx;
 
-        if (bucket) {
-          options.hash >>>= this.options.widthAs2sExponent;
+        if (idxFlags & flag) {
+          options.hash >>>= this.map.widthAs2sExponent;
+          var idx = hammingWeight(idxFlags & flag - 1);
+          var bucket = this.buckets[idx];
           var deleted = bucket.delete(key, options);
 
           if (deleted) {
             if (bucket.size === 0) {
-              // we could choose to compress instead.
-              this.buckets[idx] = undefined;
+              this.buckets.splice(idx, 1);
+              this.idxFlags ^= flag;
             }
 
             this.size -= 1;
@@ -7704,10 +7794,10 @@
     }, {
       key: "get",
       value: function get(key, options) {
-        var bucket = this.buckets[options.hash & this.options.mask];
+        var bucket = this.bucketForHash(options.hash);
 
-        if (bucket) {
-          options.hash >>>= this.options.widthAs2sExponent;
+        if (bucket !== undefined) {
+          options.hash >>>= this.map.widthAs2sExponent;
           return bucket.get(key, options);
         }
 
@@ -7716,10 +7806,10 @@
     }, {
       key: "optionalGet",
       value: function optionalGet(key, options) {
-        var bucket = this.buckets[options.hash & this.options.mask];
+        var bucket = this.bucketForHash(options.hash);
 
-        if (bucket) {
-          options.hash >>>= this.options.widthAs2sExponent;
+        if (bucket !== undefined) {
+          options.hash >>>= this.map.widthAs2sExponent;
           return bucket.optionalGet(key, options);
         }
 
@@ -7728,10 +7818,10 @@
     }, {
       key: "has",
       value: function has(key, options) {
-        var bucket = this.buckets[options.hash & this.options.mask];
+        var bucket = this.bucketForHash(options.hash);
 
-        if (bucket) {
-          options.hash >>>= this.options.widthAs2sExponent;
+        if (bucket !== undefined) {
+          options.hash >>>= this.map.widthAs2sExponent;
           return bucket.has(key, options);
         }
 
@@ -7753,77 +7843,279 @@
 
               case 3:
                 if ((_step4 = _iterator4.n()).done) {
-                  _context2.next = 25;
+                  _context2.next = 24;
                   break;
                 }
 
                 bucket = _step4.value;
-
-                if (!bucket) {
-                  _context2.next = 23;
-                  break;
-                }
-
                 _iterator5 = _createForOfIteratorHelper(bucket);
-                _context2.prev = 7;
+                _context2.prev = 6;
 
                 _iterator5.s();
 
-              case 9:
+              case 8:
                 if ((_step5 = _iterator5.n()).done) {
-                  _context2.next = 15;
+                  _context2.next = 14;
                   break;
                 }
 
                 entry = _step5.value;
-                _context2.next = 13;
+                _context2.next = 12;
                 return entry;
 
-              case 13:
-                _context2.next = 9;
+              case 12:
+                _context2.next = 8;
                 break;
 
-              case 15:
-                _context2.next = 20;
+              case 14:
+                _context2.next = 19;
                 break;
 
-              case 17:
-                _context2.prev = 17;
-                _context2.t0 = _context2["catch"](7);
+              case 16:
+                _context2.prev = 16;
+                _context2.t0 = _context2["catch"](6);
 
                 _iterator5.e(_context2.t0);
 
-              case 20:
-                _context2.prev = 20;
+              case 19:
+                _context2.prev = 19;
 
                 _iterator5.f();
 
-                return _context2.finish(20);
+                return _context2.finish(19);
 
-              case 23:
+              case 22:
                 _context2.next = 3;
                 break;
 
-              case 25:
-                _context2.next = 30;
+              case 24:
+                _context2.next = 29;
                 break;
 
-              case 27:
-                _context2.prev = 27;
+              case 26:
+                _context2.prev = 26;
                 _context2.t1 = _context2["catch"](1);
 
                 _iterator4.e(_context2.t1);
 
-              case 30:
-                _context2.prev = 30;
+              case 29:
+                _context2.prev = 29;
 
                 _iterator4.f();
 
-                return _context2.finish(30);
+                return _context2.finish(29);
+
+              case 32:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, value, this, [[1, 26, 29, 32], [6, 16, 19, 22]]);
+      })
+    }]);
+
+    return HamtBuckets;
+  }();
+  /**
+   * @private
+   */
+
+  var HashBuckets = /*#__PURE__*/function () {
+    function HashBuckets(map, depth) {
+      _classCallCheck(this, HashBuckets);
+
+      this.map = map;
+      this.size = 0;
+      this.depth = depth;
+      this.buckets = [];
+    }
+
+    _createClass(HashBuckets, [{
+      key: "set",
+      value: function set(key, value, options) {
+        var idx = options.hash & this.map.mask;
+        var bucket = this.buckets[idx];
+
+        if (!bucket) {
+          bucket = this.depth ? new HashBuckets(this.map, this.depth - 1) : new ArrayContainer(this.map);
+          this.buckets[idx] = bucket;
+        }
+
+        options.hash >>>= this.map.widthAs2sExponent;
+
+        if (bucket.set(key, value, options)) {
+          this.size += 1;
+          return true;
+        }
+
+        return false;
+      }
+    }, {
+      key: "emplace",
+      value: function emplace(key, handler, options) {
+        var idx = options.hash & this.map.mask;
+        var bucket = this.buckets[idx];
+
+        if (!bucket) {
+          bucket = this.depth ? new HashBuckets(this.map, this.depth - 1) : new ArrayContainer(this.map);
+          this.buckets[idx] = bucket;
+        }
+
+        options.hash >>>= this.map.widthAs2sExponent;
+        var response = bucket.emplace(key, handler, options);
+
+        if (response.resized) {
+          this.size += 1;
+        }
+
+        return response;
+      }
+    }, {
+      key: "delete",
+      value: function _delete(key, options) {
+        var idx = options.hash & this.map.mask;
+        var bucket = this.buckets[idx];
+
+        if (bucket) {
+          options.hash >>>= this.map.widthAs2sExponent;
+          var deleted = bucket.delete(key, options);
+
+          if (deleted) {
+            if (bucket.size === 0) {
+              // we could choose to compress instead.
+              this.buckets[idx] = undefined;
+            }
+
+            this.size -= 1;
+            return true;
+          }
+        }
+
+        return false;
+      }
+    }, {
+      key: "get",
+      value: function get(key, options) {
+        var bucket = this.buckets[options.hash & this.map.mask];
+
+        if (bucket) {
+          options.hash >>>= this.map.widthAs2sExponent;
+          return bucket.get(key, options);
+        }
+
+        return undefined;
+      }
+    }, {
+      key: "optionalGet",
+      value: function optionalGet(key, options) {
+        var bucket = this.buckets[options.hash & this.map.mask];
+
+        if (bucket) {
+          options.hash >>>= this.map.widthAs2sExponent;
+          return bucket.optionalGet(key, options);
+        }
+
+        return none;
+      }
+    }, {
+      key: "has",
+      value: function has(key, options) {
+        var bucket = this.buckets[options.hash & this.map.mask];
+
+        if (bucket) {
+          options.hash >>>= this.map.widthAs2sExponent;
+          return bucket.has(key, options);
+        }
+
+        return false;
+      }
+    }, {
+      key: Symbol.iterator,
+      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
+        var _iterator6, _step6, bucket, _iterator7, _step7, entry;
+
+        return regeneratorRuntime.wrap(function value$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                _iterator6 = _createForOfIteratorHelper(this.buckets);
+                _context3.prev = 1;
+
+                _iterator6.s();
+
+              case 3:
+                if ((_step6 = _iterator6.n()).done) {
+                  _context3.next = 25;
+                  break;
+                }
+
+                bucket = _step6.value;
+
+                if (!bucket) {
+                  _context3.next = 23;
+                  break;
+                }
+
+                _iterator7 = _createForOfIteratorHelper(bucket);
+                _context3.prev = 7;
+
+                _iterator7.s();
+
+              case 9:
+                if ((_step7 = _iterator7.n()).done) {
+                  _context3.next = 15;
+                  break;
+                }
+
+                entry = _step7.value;
+                _context3.next = 13;
+                return entry;
+
+              case 13:
+                _context3.next = 9;
+                break;
+
+              case 15:
+                _context3.next = 20;
+                break;
+
+              case 17:
+                _context3.prev = 17;
+                _context3.t0 = _context3["catch"](7);
+
+                _iterator7.e(_context3.t0);
+
+              case 20:
+                _context3.prev = 20;
+
+                _iterator7.f();
+
+                return _context3.finish(20);
+
+              case 23:
+                _context3.next = 3;
+                break;
+
+              case 25:
+                _context3.next = 30;
+                break;
+
+              case 27:
+                _context3.prev = 27;
+                _context3.t1 = _context3["catch"](1);
+
+                _iterator6.e(_context3.t1);
+
+              case 30:
+                _context3.prev = 30;
+
+                _iterator6.f();
+
+                return _context3.finish(30);
 
               case 33:
               case "end":
-                return _context2.stop();
+                return _context3.stop();
             }
           }
         }, value, this, [[1, 27, 30, 33], [7, 17, 20, 23]]);
@@ -7874,14 +8166,18 @@
       var args = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
         copy: undefined,
         depth: undefined,
-        widthAs2sExponent: 6
+        widthAs2sExponent: 6,
+        hamt: false,
+        compress: true
       };
 
       _classCallCheck(this, LinkedHashMap);
 
       _this = _super.call(this, args);
+      _this.start = undefined;
+      _this.end = undefined;
 
-      _this.options.createEntry = function (key, value) {
+      _this.createEntry = function (key, value) {
         var entry = new Entry(key, value);
 
         if (_this.end) {
@@ -7895,7 +8191,7 @@
         return entry;
       };
 
-      _this.options.deleteEntry = function (oldEntry) {
+      _this.deleteEntry = function (oldEntry) {
         if (oldEntry.previous) {
           oldEntry.previous.next = oldEntry.next;
         }
@@ -7915,8 +8211,6 @@
         return undefined;
       };
 
-      _this.start = undefined;
-      _this.end = undefined;
       return _this;
     }
     /**
@@ -7930,8 +8224,10 @@
       value: function clone() {
         return new LinkedHashMap({
           copy: this,
-          depth: this.options.depth,
-          widthAs2sExponent: this.options.widthAs2sExponent
+          depth: this.depth,
+          widthAs2sExponent: this.widthAs2sExponent,
+          hamt: this.hamt,
+          compress: this.compress
         });
       }
     }, {

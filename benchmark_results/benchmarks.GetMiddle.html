@@ -1,0 +1,63 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div style="max-height:90%;max-width: 90%;">
+    <canvas id="GetMiddleChart"></canvas>
+    <script type="application/javascript">
+const GetMiddleChart = function() {
+  const labels = ["0","16","64","256","1024","4096","16384","65536","262144","1048576"];
+        const data = {
+            labels: labels,
+            datasets: [{"backgroundColor":"#6929c433","borderColor":"#6929c444","pointRadius":0,"fill":"+2","data":[4628035.577250147,3717181.562289813,3687158.6910427115,3589025.9435376623,3672985.709915297,3611365.0324995224,3440908.8168268297,3569104.104025124,3421824.060958348,3736471.7192273047],"cubicInterpolationMode":"monotone","tension":0.4},{"label":"@mootable/HashMap","backgroundColor":"#6929c466","borderColor":"#6929c4","data":[4574434,3660697,3628422,3509550,3612351,3553341,3381623,3511996,3364666,3672898],"cubicInterpolationMode":"monotone","tension":0.4},{"backgroundColor":"#6929c433","borderColor":"#6929c444","pointRadius":0,"data":[4520832.422749854,3604212.437710187,3569685.308957288,3430074.0564623377,3551716.290084703,3495316.9675004776,3322337.183173171,3454887.895974876,3307507.9390416523,3609324.2807726953],"cubicInterpolationMode":"monotone","tension":0.4},{"backgroundColor":"#1192e833","borderColor":"#1192e844","pointRadius":0,"fill":"+2","data":[4652296.588738904,3507403.408435741,3502562.916373776,3555257.8829270164,3497527.3687107717,3554796.256138921,3360266.5490639657,3587192.0459300647,3342832.2565075452,3525608.8952582073],"cubicInterpolationMode":"monotone","tension":0.4},{"label":"@mootable/LinkedHashMap","backgroundColor":"#1192e866","borderColor":"#1192e8","data":[4589648,3448429,3445214,3493088,3438626,3496301,3306915,3526331,3287342,3473150],"cubicInterpolationMode":"monotone","tension":0.4},{"backgroundColor":"#1192e833","borderColor":"#1192e844","pointRadius":0,"data":[4526999.411261096,3389454.591564259,3387865.0836262247,3430918.1170729836,3379724.6312892283,3437805.743861079,3253563.450936034,3465469.9540699357,3231851.7434924543,3420691.104741792],"cubicInterpolationMode":"monotone","tension":0.4},{"backgroundColor":"#005d5d33","borderColor":"#005d5d44","pointRadius":0,"fill":"+2","data":[4588413.950498022,3231430.1487709256,3222371.500460179,3148581.8442867883,3189459.305390196,3198790.1959466906,3075401.314174777,3199742.943456825,3047639.8606023653,3253774.640202516],"cubicInterpolationMode":"monotone","tension":0.4},{"label":"@mootable/HashMap.HAMT","backgroundColor":"#005d5d66","borderColor":"#005d5d","data":[4544610,3173386,3164680,3092278,3137622,3144202,3018743,3143846,2995055,3193481],"cubicInterpolationMode":"monotone","tension":0.4},{"backgroundColor":"#005d5d33","borderColor":"#005d5d44","pointRadius":0,"data":[4500806.049501979,3115341.8512290744,3106988.499539821,3035974.1557132117,3085784.694609804,3089613.8040533094,2962084.685825223,3087949.056543175,2942470.1393976347,3133187.359797484],"cubicInterpolationMode":"monotone","tension":0.4},{"backgroundColor":"#9f185333","borderColor":"#9f185344","pointRadius":0,"fill":"+2","data":[4646848.37166429,3240057.295975974,3227379.784611782,3204405.3189021843,3161600.3959736605,3214604.580582159,3095009.731270526,3173424.7341640354,3076387.6843336276,3159885.3466954124],"cubicInterpolationMode":"monotone","tension":0.4},{"label":"@mootable/LinkedHashMap.HAMT","backgroundColor":"#9f185366","borderColor":"#9f1853","data":[4595599,3183532,3173868,3145176,3102963,3157712,3037687,3112342,3018198,3101329],"cubicInterpolationMode":"monotone","tension":0.4},{"backgroundColor":"#9f185333","borderColor":"#9f185344","pointRadius":0,"data":[4544349.62833571,3127006.7040240257,3120356.2153882175,3085946.6810978157,3044325.6040263395,3100819.419417841,2980364.268729474,3051259.265835965,2960008.3156663724,3042772.653304588],"cubicInterpolationMode":"monotone","tension":0.4},{"backgroundColor":"#fa4d5633","borderColor":"#fa4d5644","pointRadius":0,"fill":"+2","data":[6734119.713237672,7333230.328671664,7407766.592658497,7234200.204192465,7400310.7105252305,7319056.178806888,7506348.589500244,7525469.557139409,7547860.587435758,7550821.442376685],"cubicInterpolationMode":"monotone","tension":0.4},{"label":"flesler-hashmap","backgroundColor":"#fa4d5666","borderColor":"#fa4d56","borderDash":[2,2],"data":[6581172,7181091,7244481,6988550,7160267,7195697,7380043,7372584,7382109,7377476],"cubicInterpolationMode":"monotone","tension":0.4},{"backgroundColor":"#fa4d5633","borderColor":"#fa4d5644","pointRadius":0,"data":[6428224.286762328,7028951.671328336,7081195.407341503,6742899.795807536,6920223.2894747695,7072337.821193112,7253737.410499756,7219698.442860591,7216357.412564243,7204130.557623316],"cubicInterpolationMode":"monotone","tension":0.4},{"backgroundColor":"#57040833","borderColor":"#57040844","pointRadius":0,"fill":"+2","data":[52007448.22032796,46244094.174743176,42691860.86217364,35678698.92270119,33816078.72973486,44748951.92159635,32373368.035249677,32556471.43415309,47230968.28777565,41957838.22843543],"cubicInterpolationMode":"monotone","tension":0.4},{"label":"map","backgroundColor":"#57040866","borderColor":"#570408","borderDash":[5,3],"data":[49183194,44622786,40447929,34704555,32611623,42769757,31707550,31208474,45969472,40112510],"cubicInterpolationMode":"monotone","tension":0.4},{"backgroundColor":"#57040833","borderColor":"#57040844","pointRadius":0,"data":[46358939.77967204,43001477.825256824,38203997.13782636,33730411.07729881,31407167.270265136,40790562.07840365,31041731.96475032,29860476.56584691,44707975.71222436,38267181.77156457],"cubicInterpolationMode":"monotone","tension":0.4}]
+        };
+
+        const config = {
+            type: 'line',
+            data,
+            options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Get Middle'
+                },
+                legend: {
+                    labels: {
+                        filter: function (item, data) {
+                            return item.text !== undefined;
+                        },
+                    },
+                },
+            },
+            scales: {
+                x: {
+                    display: true,
+                    title: {
+                        display: true,
+                    text: 'Prefilled Map Size',
+                    }
+                },
+                y: {
+                    display: true,
+                    type: 'logarithmic',
+                    title: {
+                        display: true,
+                        text: 'Operations per second',
+                    }
+                }
+            }
+            },
+        };
+    const ctx = document.getElementById('GetMiddleChart');
+    return new Chart(ctx, config );
+    }();
+</script>
+</div>
+</body>
+</html>

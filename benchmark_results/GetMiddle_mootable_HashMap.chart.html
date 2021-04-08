@@ -12,11 +12,11 @@
         order: row;
       }
     </style>
-    <title>SetGetAndDelete_@mootable/HashMap</title>
+    <title>GetMiddle_@mootable/HashMap</title>
   </head>
   <body>
     <div style="max-width: 800px">
-      <canvas id="chart1617845660981" width="16" height="9"></canvas>
+      <canvas id="chart1617845991166" width="16" height="9"></canvas>
     </div>
     <script>
       const format = (num) => {
@@ -34,10 +34,10 @@
 
         return chunked.map((chunk) => chunk.join("")).join(" ");
       };
-      const ctx1617845660981 = document
-        .getElementById("chart1617845660981")
+      const ctx1617845991166 = document
+        .getElementById("chart1617845991166")
         .getContext("2d");
-      const chart1617845660981 = new Chart(ctx1617845660981, {
+      const chart1617845991166 = new Chart(ctx1617845991166, {
         type: "bar",
         data: {
           labels: [
@@ -55,16 +55,16 @@
           datasets: [
             {
               data: [
-                87272,
-                75269,
-                66106,
-                38875,
-                98403,
-                132959,
-                115289,
-                102328,
-                688853,
-                590463,
+                4574434,
+                3660697,
+                3628422,
+                3509550,
+                3612351,
+                3553341,
+                3381623,
+                3511996,
+                3364666,
+                3672898,
               ],
               backgroundColor: [
                 "rgba(63, 142, 252, 0.8)",
@@ -100,7 +100,7 @@
           },
           title: {
             display: true,
-            text: "SetGetAndDelete_@mootable/HashMap",
+            text: "GetMiddle_@mootable/HashMap",
             fontSize: 16,
             padding: 20,
           },

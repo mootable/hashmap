@@ -14,8 +14,8 @@
     ".cjs",
     ".js"
   ],
-  "statements": 88,
-  "branches": 84,
-  "functions": 88,
-  "lines": 88
+  "statements": 80,
+  "branches": 78,
+  "functions": 84,
+  "lines": 80
 }
