@@ -5,7 +5,7 @@ const create = require('./benchmarks/create');
 const set_get_delete = require('./benchmarks/set_get_delete');
 
 // const get_end     = require('./benchmarks/get_end');
-const get_middle  = require('./benchmarks/get_middle');
+// const get_middle  = require('./benchmarks/get_middle');
 // const get_none    = require('./benchmarks/get_none');
 // const get_start   = require('./benchmarks/get_start');
 
@@ -33,7 +33,7 @@ Promise.all([
     reportSingle(create),
     reportMultipleImplementations(set_get_delete, 'Set Get Delete'),
     // reportMultipleImplementations(get_end, 'Get End'),
-    reportMultipleImplementations(get_middle, 'Get Middle'),
+    // reportMultipleImplementations(get_middle, 'Get Middle'),
     // reportMultipleImplementations(get_none, 'Get None'),
     // reportMultipleImplementations(get_start, 'Get Start'),
 ]).then(reports => [
@@ -70,17 +70,17 @@ function generateLineChart(report) {
         // const lowerMargin = 1 - margin;
         return [
             {
-                backgroundColor: colours[index] + '33',
-                borderColor: colours[index] + '44',
+                backgroundColor: colours[index] + '30',
+                borderColor: colours[index] + '00',
                 pointRadius: 0,
-                fill: '+2',
+                fill: '+1',
                 data: impl.results.map(({ops, details}) => ops * (1 + (details.relativeMarginOfError / 100))),
                 cubicInterpolationMode: 'monotone',
                 tension: 0.4
             },
             {
                 label: impl.name,
-                backgroundColor: colours[index] + '66',
+                backgroundColor: colours[index] + '50',
                 borderColor: colours[index],
                 borderDash: impl.implementation.classification === 'mootable'? undefined
                     : impl.implementation.classification === 'native' ? [5, 3] : [2, 2],
@@ -88,11 +88,12 @@ function generateLineChart(report) {
                 cubicInterpolationMode: 'monotone',
                 tension: 0.4
             }, {
-                backgroundColor: colours[index] + '33',
-                borderColor: colours[index] + '44',
+                backgroundColor: colours[index] + '30',
+                borderColor: colours[index] + '00',
                 pointRadius: 0,
                 data: impl.results.map(({ops, details}) => ops * (1 - (details.relativeMarginOfError / 100))),
                 cubicInterpolationMode: 'monotone',
+                fill: '-1',
                 tension: 0.4
             },
         ];
@@ -124,6 +125,9 @@ const ${safeBenchmarkName}Chart = function() {
             options: {
             responsive: true,
             plugins: {
+                filler: {
+                    propagate: false
+                },
                 title: {
                     display: true,
                     text: '${report.benchmark}'

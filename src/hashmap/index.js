@@ -55,7 +55,7 @@ export class HashMap extends MapIterable {
      *      - Minimum: `1`, Maximum: `16`, Default: `6` (64 Buckets)
      * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>|HashMap~ConstructorOptions)} [args]
      */
-    constructor(args = {copy: undefined, depth: undefined, widthAs2sExponent: undefined, hamt: false, compress: true}) {
+    constructor(args = {copy: undefined, depth: undefined, widthAs2sExponent: undefined, hamt: false, compress: false}) {
         super();
         const {depth, widthAs2sExponent, copy, hamt, compress} = args;
         if (!(Number.isFinite(widthAs2sExponent) || widthAs2sExponent < 1)) {
@@ -341,7 +341,7 @@ export class HashBuckets {
         this.map = map;
         this.size = 0;
         this.depth = depth;
-        this.buckets = [];
+        this.buckets = map.compress ? []: new Array(map.width);
     }
 
     set(key, value, options) {

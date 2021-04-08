@@ -16,7 +16,7 @@
   </head>
   <body>
     <div style="max-width: 800px">
-      <canvas id="chart1617845770002" width="16" height="9"></canvas>
+      <canvas id="chart1617848536758" width="16" height="9"></canvas>
     </div>
     <script>
       const format = (num) => {
@@ -34,49 +34,22 @@
 
         return chunked.map((chunk) => chunk.join("")).join(" ");
       };
-      const ctx1617845770002 = document
-        .getElementById("chart1617845770002")
+      const ctx1617848536758 = document
+        .getElementById("chart1617848536758")
         .getContext("2d");
-      const chart1617845770002 = new Chart(ctx1617845770002, {
+      const chart1617848536758 = new Chart(ctx1617848536758, {
         type: "bar",
         data: {
-          labels: [
-            "0",
-            "16",
-            "64",
-            "256",
-            "1024",
-            "4096",
-            "16384",
-            "65536",
-            "262144",
-            "1048576",
-          ],
+          labels: ["0", "16", "64", "256", "1024"],
           datasets: [
             {
-              data: [
-                283540,
-                279084,
-                260354,
-                295361,
-                302344,
-                328834,
-                371675,
-                372984,
-                436751,
-                391514,
-              ],
+              data: [445516, 482247, 481375, 484994, 534363],
               backgroundColor: [
                 "rgba(63, 142, 252, 0.8)",
                 "rgba(116, 165, 127, 0.8)",
                 "rgba(158, 206, 154, 0.8)",
                 "rgba(58, 175, 185, 0.8)",
                 "rgba(79, 124, 172, 0.8)",
-                "rgba(113, 128, 172, 0.8)",
-                "rgba(182, 140, 184, 0.8)",
-                "rgba(219, 108, 121, 0.8)",
-                "rgba(189, 79, 108, 0.8)",
-                "rgba(138, 79, 125, 0.8)",
               ],
               borderColor: [
                 "rgba(63, 142, 252, 1)",
@@ -84,11 +57,6 @@
                 "rgba(158, 206, 154, 1)",
                 "rgba(58, 175, 185, 1)",
                 "rgba(79, 124, 172, 1)",
-                "rgba(113, 128, 172, 1)",
-                "rgba(182, 140, 184, 1)",
-                "rgba(219, 108, 121, 1)",
-                "rgba(189, 79, 108, 1)",
-                "rgba(138, 79, 125, 1)",
               ],
               borderWidth: 1,
             },
