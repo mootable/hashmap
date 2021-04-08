@@ -2476,7 +2476,7 @@ class HamtBuckets {
     //     const idx = options.hash & this.options.mask;
     //     let bucket = this.buckets[idx];
     //     if (!bucket) {
-    //         bucket = this.depth ? new HamtBuckets(this.options, this.depth - 1) : new ArrayContainer(this.options);
+    //         bucket = this.depth ? new HamtBuckets(this.options, this.depth - 1) : new Container(this.options);
     //         this.buckets[idx] = bucket;
     //     }
     //     options.hash >>>= this.options.widthAs2sExponent;

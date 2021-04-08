@@ -17,29 +17,29 @@ const esmRequire = require("esm")(module/*, options*/);
 const mapImplsMetaData = {
     'map': {location: '../bench-compare/nativeMap.js', esm: false, className: 'Map', classification: 'native'},
     '@mootable/HashMap': {location: '../../src/', esm: true, className: 'HashMap', classification: 'mootable'},
-    '@mootable/LinkedHashMap': {
-        location: '../../src/',
-        esm: true,
-        className: 'LinkedHashMap',
-        classification: 'mootable'
-    },
     '@mootable/HashMap.HAMT': {
         location: '../../src/', esm: true, className: 'HashMap', classification: 'mootable',
         constructorParameters: {hamt: true}
     },
-    '@mootable/LinkedHashMap.HAMT': {
-        location: '../../src/',
-        esm: true,
-        className: 'LinkedHashMap',
-        classification: 'mootable',
-        constructorParameters: {hamt: true}
-    },
-    'flesler-hashmap': {
-        location: 'Z--bench-compare--flesler-hashmap',
-        esm: false,
-        className: 'HashMap',
-        classification: 'other'
-    },
+    // '@mootable/LinkedHashMap': {
+    //     location: '../../src/',
+    //     esm: true,
+    //     className: 'LinkedHashMap',
+    //     classification: 'mootable'
+    // },
+    // '@mootable/LinkedHashMap.HAMT': {
+    //     location: '../../src/',
+    //     esm: true,
+    //     className: 'LinkedHashMap',
+    //     classification: 'mootable',
+    //     constructorParameters: {hamt: true}
+    // },
+    // 'flesler-hashmap': {
+    //     location: 'Z--bench-compare--flesler-hashmap',
+    //     esm: false,
+    //     className: 'HashMap',
+    //     classification: 'other'
+    // },
     // Very slow to load.
     //   'donhash': {location: '../bench-compare/donHashMap.js', esm: false, className: 'HashMap', classification: 'other'},
 };

@@ -3,7 +3,7 @@ import {hashCodeFor, hammingWeight} from '../hash';
 import {none} from '../option/';
 import {MapIterable} from '../iterable/';
 import {Entry} from '../entry/';
-import {ArrayContainer} from '../container/';
+import {Container} from '../container/';
 
 const createEntry = (key, value) => new Entry(key, value);
 
@@ -14,6 +14,7 @@ const overwriteEntry = (key, value, oldEntry) => {
     oldEntry.value = value;
     return oldEntry;
 };
+
 /**
  * HashMap - HashMap Implementation for JavaScript
  * @namespace Mootable
@@ -55,7 +56,13 @@ export class HashMap extends MapIterable {
      *      - Minimum: `1`, Maximum: `16`, Default: `6` (64 Buckets)
      * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>|HashMap~ConstructorOptions)} [args]
      */
-    constructor(args = {copy: undefined, depth: undefined, widthAs2sExponent: undefined, hamt: false, compress: false}) {
+    constructor(args = {
+        copy: undefined,
+        depth: undefined,
+        widthAs2sExponent: undefined,
+        hamt: false,
+        compress: false
+    }) {
         super();
         const {depth, widthAs2sExponent, copy, hamt, compress} = args;
         if (!(Number.isFinite(widthAs2sExponent) || widthAs2sExponent < 1)) {
@@ -88,20 +95,20 @@ export class HashMap extends MapIterable {
 
     has(key, options = {}) {
         setHashIfMissing(key, options);
-        return this.buckets.has(key, options);
+        return this.buckets.has(key, options, 0);
     }
 
 
     get(key, options = {}) {
         setHashIfMissing(key, options);
-        return this.buckets.get(key, options);
+        return this.buckets.get(key, options, 0);
     }
 
 
     // noinspection JSCheckFunctionSignatures
     optionalGet(key, options = {}) {
         setHashIfMissing(key, options);
-        return this.buckets.optionalGet(key, options);
+        return this.buckets.optionalGet(key, options, 0);
     }
 
     /**
@@ -113,7 +120,7 @@ export class HashMap extends MapIterable {
      */
     set(key, value, options = {}) {
         setHashIfMissing(key, options);
-        this.buckets.set(key, value, options);
+        this.buckets.set(key, value, options, 0);
         this.length = this.buckets.size;
         return this;
     }
@@ -180,7 +187,7 @@ export class HashMap extends MapIterable {
      */
     delete(key, options = {}) {
         setHashIfMissing(key, options);
-        if (this.buckets.delete(key, options)) {
+        if (this.buckets.delete(key, options, 0)) {
             this.length = this.buckets.size;
         }
         return this;
@@ -215,44 +222,164 @@ function setHashIfMissing(key, options) {
     return hash;
 }
 
+/**
+ * @private
+ */
+export class HashBuckets {
+    constructor(map, depth) {
+        this.map = map;
+        this.depth = depth;
+        this.shift = (map.depth - depth) * map.widthAs2sExponent;
+        this.clear();
+    }
+
+    clear() {
+        this.buckets = this.map.compress ? [] : new Array(this.map.width);
+        this.size = 0;
+    }
+
+    bucketFor(options) {
+        return this.buckets[(options.hash >>> this.shift) & this.map.mask];
+    }
+
+    indexFor(options) {
+        return (options.hash >>> this.shift) & this.map.mask;
+    }
+
+    set(key, value, options) {
+        const idx = this.indexFor(options);
+        let bucket = this.buckets[idx];
+        if (!bucket) {
+            bucket = this.depth ? new HashBuckets(this.map, this.depth - 1) : new Container(this.map);
+            this.buckets[idx] = bucket;
+        }
+        if (bucket.set(key, value, options)) {
+            this.size += 1;
+            return true;
+        }
+        return false;
+    }
+
+    emplace(key, handler, options) {
+        const idx = this.indexFor(options);
+        let bucket = this.buckets[idx];
+        if (!bucket) {
+            bucket = this.depth ? new HashBuckets(this.map, this.depth - 1) : new Container(this.map);
+            this.buckets[idx] = bucket;
+        }
+        const response = bucket.emplace(key, handler, options);
+        if (response.resized) {
+            this.size += 1;
+        }
+        return response;
+    }
+
+    delete(key, options) {
+        const idx = this.indexFor(options);
+        const bucket = this.buckets[idx];
+        if (bucket) {
+            const deleted = bucket.delete(key, options);
+            if (deleted) {
+                if (bucket.size === 0) {
+                    // we could choose to compress instead.
+                    this.buckets[idx] = undefined;
+                }
+                this.size -= 1;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    get(key, options) {
+        const bucket = this.bucketFor(options);
+        if (bucket) {
+            return bucket.get(key, options);
+        }
+        return undefined;
+    }
+
+    optionalGet(key, options) {
+        const bucket = this.bucketFor(options);
+        if (bucket) {
+            return bucket.optionalGet(key, options);
+        }
+        return none;
+    }
+
+    has(key, options) {
+        const bucket = this.bucketFor(options);
+        if (bucket) {
+            return bucket.has(key, options);
+        }
+        return false;
+    }
+
+    * [Symbol.iterator]() {
+        if (this.map.compress) {
+            for (const bucket of this.buckets) {
+                for (const entry of bucket) {
+                    yield entry;
+                }
+            }
+        } else {
+            for (const bucket of this.buckets) {
+                if (bucket) {
+                    for (const entry of bucket) {
+                        yield entry;
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 /**
  * @private
  */
-export class HamtBuckets {
+export class HamtBuckets extends HashBuckets {
     constructor(map, depth) {
-        this.map = map;
+        super(map,depth);
+    }
+
+    clear() {
         this.size = 0;
-        this.depth = depth;
         this.buckets = [];
         this.idxFlags = 0;
     }
 
-    bucketForHash(hash) {
+    indexFor(options) {
         const idxFlags = this.idxFlags;
-        const hashIdx = hash & this.map.mask;
+        const hashIdx = (options.hash >>> this.shift) & this.map.mask;
+        const flag = 1 << hashIdx;
+        return hammingWeight(idxFlags & (flag - 1));
+    }
+    bucketFor(options) {
+        const idxFlags = this.idxFlags;
+        const hashIdx = (options.hash >>> this.shift) & this.map.mask;
         const flag = 1 << hashIdx;
         const idx = hammingWeight(idxFlags & (flag - 1));
+
         if (idxFlags & flag) {
             return this.buckets[idx];
         }
         return undefined;
     }
 
-    set(key, value, options) {
+    set(key, value, options, shift) {
         const idxFlags = this.idxFlags;
-        const hashIdx = options.hash & this.map.mask;
+        const hashIdx = (options.hash >>> this.shift) & this.map.mask;
         const flag = 1 << hashIdx;
         const idx = hammingWeight(idxFlags & (flag - 1));
         let bucket;
         if (idxFlags & flag) {
             bucket = this.buckets[idx];
         } else {
-            bucket = this.depth ? new HamtBuckets(this.map, this.depth - 1) : new ArrayContainer(this.map);
+            bucket = this.depth ? new HamtBuckets(this.map, this.depth - 1) : new Container(this.map);
             this.buckets.splice(idx, 0, bucket);
             this.idxFlags |= flag;
         }
-        options.hash >>>= this.map.widthAs2sExponent;
         if (bucket.set(key, value, options)) {
             this.size += 1;
             return true;
@@ -261,10 +388,10 @@ export class HamtBuckets {
     }
 
     // emplace(key, handler, options) {
-    //     const idx = options.hash & this.options.mask;
+    //     const idx = (options.hash >>> this.shift) & this.map.mask;
     //     let bucket = this.buckets[idx];
     //     if (!bucket) {
-    //         bucket = this.depth ? new HamtBuckets(this.options, this.depth - 1) : new ArrayContainer(this.options);
+    //         bucket = this.depth ? new HamtBuckets(this.options, this.depth - 1) : new Container(this.options);
     //         this.buckets[idx] = bucket;
     //     }
     //     options.hash >>>= this.options.widthAs2sExponent;
@@ -275,12 +402,11 @@ export class HamtBuckets {
     //     return response;
     // }
 
-    delete(key, options) {
+    delete(key, options, shift) {
         const idxFlags = this.idxFlags;
-        const hashIdx = options.hash & this.map.mask;
+        const hashIdx = (options.hash >>> this.shift) & this.map.mask;
         const flag = 1 << hashIdx;
         if (idxFlags & flag) {
-            options.hash >>>= this.map.widthAs2sExponent;
             const idx = hammingWeight(idxFlags & (flag - 1));
             const bucket = this.buckets[idx];
             const deleted = bucket.delete(key, options);
@@ -296,33 +422,6 @@ export class HamtBuckets {
         return false;
     }
 
-    get(key, options) {
-        const bucket = this.bucketForHash(options.hash);
-        if (bucket !== undefined) {
-            options.hash >>>= this.map.widthAs2sExponent;
-            return bucket.get(key, options);
-        }
-        return undefined;
-    }
-
-    optionalGet(key, options) {
-        const bucket = this.bucketForHash(options.hash);
-        if (bucket !== undefined) {
-            options.hash >>>= this.map.widthAs2sExponent;
-            return bucket.optionalGet(key, options);
-        }
-        return none;
-    }
-
-    has(key, options) {
-        const bucket = this.bucketForHash(options.hash);
-        if (bucket !== undefined) {
-            options.hash >>>= this.map.widthAs2sExponent;
-            return bucket.has(key, options);
-        }
-        return false;
-    }
-
     * [Symbol.iterator]() {
         for (const bucket of this.buckets) {
             for (const entry of bucket) {
@@ -332,100 +431,3 @@ export class HamtBuckets {
     }
 }
 
-
-/**
- * @private
- */
-export class HashBuckets {
-    constructor(map, depth) {
-        this.map = map;
-        this.size = 0;
-        this.depth = depth;
-        this.buckets = map.compress ? []: new Array(map.width);
-    }
-
-    set(key, value, options) {
-        const idx = options.hash & this.map.mask;
-        let bucket = this.buckets[idx];
-        if (!bucket) {
-            bucket = this.depth ? new HashBuckets(this.map, this.depth - 1) : new ArrayContainer(this.map);
-            this.buckets[idx] = bucket;
-        }
-        options.hash >>>= this.map.widthAs2sExponent;
-        if (bucket.set(key, value, options)) {
-            this.size += 1;
-            return true;
-        }
-        return false;
-    }
-
-    emplace(key, handler, options) {
-        const idx = options.hash & this.map.mask;
-        let bucket = this.buckets[idx];
-        if (!bucket) {
-            bucket = this.depth ? new HashBuckets(this.map, this.depth - 1) : new ArrayContainer(this.map);
-            this.buckets[idx] = bucket;
-        }
-        options.hash >>>= this.map.widthAs2sExponent;
-        const response = bucket.emplace(key, handler, options);
-        if (response.resized) {
-            this.size += 1;
-        }
-        return response;
-    }
-
-    delete(key, options) {
-        const idx = options.hash & this.map.mask;
-        let bucket = this.buckets[idx];
-        if (bucket) {
-            options.hash >>>= this.map.widthAs2sExponent;
-            const deleted = bucket.delete(key, options);
-            if (deleted) {
-                if (bucket.size === 0) {
-                    // we could choose to compress instead.
-                    this.buckets[idx] = undefined;
-                }
-                this.size -= 1;
-                return true;
-            }
-        }
-        return false;
-    }
-
-    get(key, options) {
-        const bucket = this.buckets[options.hash & this.map.mask];
-        if (bucket) {
-            options.hash >>>= this.map.widthAs2sExponent;
-            return bucket.get(key, options);
-        }
-        return undefined;
-    }
-
-    optionalGet(key, options) {
-        const bucket = this.buckets[options.hash & this.map.mask];
-        if (bucket) {
-            options.hash >>>= this.map.widthAs2sExponent;
-            return bucket.optionalGet(key, options);
-        }
-        return none;
-    }
-
-    has(key, options) {
-        const bucket = this.buckets[options.hash & this.map.mask];
-        if (bucket) {
-            options.hash >>>= this.map.widthAs2sExponent;
-            return bucket.has(key, options);
-        }
-        return false;
-    }
-
-    * [Symbol.iterator]() {
-        for (const bucket of this.buckets) {
-            if (bucket) {
-                for (const entry of bucket) {
-                    yield entry;
-                }
-            }
-        }
-    }
-}

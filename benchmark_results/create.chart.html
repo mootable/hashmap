@@ -16,7 +16,7 @@
   </head>
   <body>
     <div style="max-width: 800px">
-      <canvas id="chart1617848427823" width="16" height="9"></canvas>
+      <canvas id="chart1617918271744" width="16" height="9"></canvas>
     </div>
     <script>
       const format = (num) => {
@@ -34,38 +34,25 @@
 
         return chunked.map((chunk) => chunk.join("")).join(" ");
       };
-      const ctx1617848427823 = document
-        .getElementById("chart1617848427823")
+      const ctx1617918271744 = document
+        .getElementById("chart1617918271744")
         .getContext("2d");
-      const chart1617848427823 = new Chart(ctx1617848427823, {
+      const chart1617918271744 = new Chart(ctx1617918271744, {
         type: "bar",
         data: {
-          labels: [
-            "map",
-            "@mootable/HashMap",
-            "@mootable/LinkedHashMap",
-            "@mootable/HashMap.HAMT",
-            "@mootable/LinkedHashMap.HAMT",
-            "flesler-hashmap",
-          ],
+          labels: ["map", "@mootable/HashMap", "@mootable/HashMap.HAMT"],
           datasets: [
             {
-              data: [27565275, 3166079, 10629922, 11249588, 8531411, 66803182],
+              data: [10543302, 944728, 6442733],
               backgroundColor: [
                 "rgba(63, 142, 252, 0.8)",
                 "rgba(116, 165, 127, 0.8)",
                 "rgba(158, 206, 154, 0.8)",
-                "rgba(58, 175, 185, 0.8)",
-                "rgba(79, 124, 172, 0.8)",
-                "rgba(113, 128, 172, 0.8)",
               ],
               borderColor: [
                 "rgba(63, 142, 252, 1)",
                 "rgba(116, 165, 127, 1)",
                 "rgba(158, 206, 154, 1)",
-                "rgba(58, 175, 185, 1)",
-                "rgba(79, 124, 172, 1)",
-                "rgba(113, 128, 172, 1)",
               ],
               borderWidth: 1,
             },

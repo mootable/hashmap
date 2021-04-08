@@ -16,7 +16,7 @@
   </head>
   <body>
     <div style="max-width: 800px">
-      <canvas id="chart1617848455279" width="16" height="9"></canvas>
+      <canvas id="chart1617918348328" width="16" height="9"></canvas>
     </div>
     <script>
       const format = (num) => {
@@ -34,22 +34,52 @@
 
         return chunked.map((chunk) => chunk.join("")).join(" ");
       };
-      const ctx1617848455279 = document
-        .getElementById("chart1617848455279")
+      const ctx1617918348328 = document
+        .getElementById("chart1617918348328")
         .getContext("2d");
-      const chart1617848455279 = new Chart(ctx1617848455279, {
+      const chart1617918348328 = new Chart(ctx1617918348328, {
         type: "bar",
         data: {
-          labels: ["0", "16", "64", "256", "1024"],
+          labels: [
+            "0",
+            "16",
+            "64",
+            "256",
+            "1024",
+            "4096",
+            "16384",
+            "65536",
+            "262144",
+            "1048576",
+            "4194304",
+          ],
           datasets: [
             {
-              data: [6574185, 8365694, 4807800, 1805058, 504813],
+              data: [
+                4247313,
+                5656880,
+                3530236,
+                1536018,
+                464550,
+                128852,
+                32436,
+                7682,
+                8384,
+                5767,
+                8764,
+              ],
               backgroundColor: [
                 "rgba(63, 142, 252, 0.8)",
                 "rgba(116, 165, 127, 0.8)",
                 "rgba(158, 206, 154, 0.8)",
                 "rgba(58, 175, 185, 0.8)",
                 "rgba(79, 124, 172, 0.8)",
+                "rgba(113, 128, 172, 0.8)",
+                "rgba(182, 140, 184, 0.8)",
+                "rgba(219, 108, 121, 0.8)",
+                "rgba(189, 79, 108, 0.8)",
+                "rgba(138, 79, 125, 0.8)",
+                "rgba(95, 75, 102, 0.8)",
               ],
               borderColor: [
                 "rgba(63, 142, 252, 1)",
@@ -57,6 +87,12 @@
                 "rgba(158, 206, 154, 1)",
                 "rgba(58, 175, 185, 1)",
                 "rgba(79, 124, 172, 1)",
+                "rgba(113, 128, 172, 1)",
+                "rgba(182, 140, 184, 1)",
+                "rgba(219, 108, 121, 1)",
+                "rgba(189, 79, 108, 1)",
+                "rgba(138, 79, 125, 1)",
+                "rgba(95, 75, 102, 1)",
               ],
               borderWidth: 1,
             },

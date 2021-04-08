@@ -21,7 +21,7 @@ function equalsForOptions(key, options) {
 /**
  * Holds multiple entries, but shrinks to a single container if reduced to a size of one.
  */
-export class ArrayContainer {
+export class Container {
 
     constructor(map) {
         this.size = 0;
