@@ -3,6 +3,16 @@ import {hashCodeFor, hammingWeight, equalsFor} from '../hash';
 import {none, some} from '../option/';
 import {MapIterable} from '../iterable/';
 
+const SHIFT = 7;
+const WIDTH = 1 << SHIFT;
+const MASK = WIDTH - 1;
+const DEPTH = 5;
+
+const SHIFT_HAMT = 5;
+const WIDTH_HAMT = 1 << SHIFT_HAMT;
+const MASK_HAMT = WIDTH_HAMT - 1;
+const DEPTH_HAMT = DEPTH-1;
+const SHIFT_HAMT_1 = SHIFT_HAMT+SHIFT;
 
 /**
  * HashMap - HashMap Implementation for JavaScript
@@ -16,18 +26,7 @@ import {MapIterable} from '../iterable/';
  * @extends {MapIterable}
  */
 export class HashMap extends MapIterable {
-    /**
-     * @typedef HashMap~ConstructorOptions
-     * @property {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>)} [copy] - an object that provides a forEach function with the same signature as`Map.forEach`.
-     * such as `Map` or this `HashMap` and `LinkedHashMap`, or any iterable that provides [key,value] pairs such as a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
-     * @property {number} [depth] - how many layers deep our hashtrie goes.
-     * - Minimum: `1`
-     * - Maximum/Default: `(32/widthAs2sExponent)-1`
-     * @property {number} [widthAs2sExponent] - how many buckets in each hashtrie layer we use 2 to the power of widthAs2sExponent, for instance a widthAs2sExponent of 4 is 2 ^ 4 = 16 buckets.
-     * - Minimum: `1`
-     * - Maximum: `16`
-     * - Default: `6` (64 Buckets)
-     */
+
     /**
      * This HashMap is backed by a hashtrie, and can be tuned to specific use cases.
      * - `new HashMap()` creates an empty hashmap
@@ -35,42 +34,13 @@ export class HashMap extends MapIterable {
      *   1) `copy` either
      *      - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
      *      - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
-     * - `new HashMap({copy:?Iterable, depth:?int, widthAs2sExponent:?int})` creates a hashmap with optional `depth` and `widthAs2sExponent`. If `copy` is provided (map, array or iterable), it's keys and values are inserted into this map.
-     *   1) `copy` either
-     *      - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
-     *      - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
-     *   2) `depth` is how many layers deep our hashtrie goes.
-     *      - Minimum: `1`, Maximum/Default: `(32/widthAs2sExponent)-1`
-     *   3) `widthAs2sExponent` is how many buckets in each hashtrie layer we use to the power of 2, for instance a widthAs2sExponent of 4 is 2 ^ 4 = 16 buckets.
-     *      - Minimum: `1`, Maximum: `16`, Default: `6` (64 Buckets)
-     * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>|HashMap~ConstructorOptions)} [args]
+     * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>)} [copy]
      */
-    constructor(args = {
-        copy: undefined,
-        depth: undefined,
-        widthAs2sExponent: undefined,
-        hamt: false,
-        compress: true
-    }) {
+    constructor(copy) {
         super();
-        const {depth, widthAs2sExponent, copy, hamt, compress} = args;
-        if (!(Number.isFinite(widthAs2sExponent) || widthAs2sExponent < 1)) {
-            this.widthAs2sExponent = hamt ? 5 : 6; // 2^5 = 32 buckets // 2^6 = 64
-            this.depth = depth && depth > 0 ? Math.min(depth - 1, (hamt ? 5 : 4)) : (hamt ? 5 : 4);
-        } else {
-            this.widthAs2sExponent = Math.max(1, Math.min((hamt ? 5 : 16), widthAs2sExponent));
-            const defaultDepth = ((32 / this.widthAs2sExponent) >> 0) - 1;
-            this.depth = depth && depth > 0 ? Math.min(depth - 1, defaultDepth) : defaultDepth;
-        }
-        // 0 indexed so 3 is a depth of 4.
-        const width = 1 << this.widthAs2sExponent; // 2 ^ widthAs2sExponent
-        this.width = width;
-        this.mask = width - 1;
-        this.hamt = hamt;
-        this.compress = compress;
         this.clear();
-        if (args.forEach || (copy && copy.forEach)) {
-            this.copy(args.forEach ? args : copy);
+        if (copy && copy.forEach) {
+            this.copy(copy);
         }
     }
 
@@ -114,20 +84,6 @@ export class HashMap extends MapIterable {
         return this;
     }
 
-    // emplace(key, handler) {
-    //     const hash = hashCodeFor(key);
-    //     if (this.buckets) {
-    //         const {value, container} = this.buckets.emplace(key, handler, hash);
-    //         this.buckets = container;
-    //         this.length = this.buckets.size;
-    //         return value;
-    //     } else {
-    //         // this.buckets = new HashContainer(entry, hashEq.hash, Object.assign({}, this.options), this.options.depth);
-    //         // this.length = 1;
-    //     }
-    // }
-
-
     /**
      *
      * @param {Map|HashMap|LinkedHashMap|MapIterable|SetIterable.<Array.<key,value>>|Iterator.<Array.<key,value>>|Array.<Array.<key,value>>} other - the iterable to copy
@@ -160,13 +116,7 @@ export class HashMap extends MapIterable {
      * @return {HashMap}
      */
     clone() {
-        return new HashMap({
-            copy: this,
-            depth: this.depth,
-            widthAs2sExponent: this.widthAs2sExponent,
-            hamt: this.hamt,
-            compress: this.compress,
-        });
+        return new HashMap(this);
     }
 
     /**
@@ -187,25 +137,21 @@ export class HashMap extends MapIterable {
      * @return {HashMap}
      */
     clear() {
-        this.buckets = this.hamt ? new HamtBuckets(this, this.depth) : new HashBuckets(this, this.depth);
+        this.buckets = new HashBuckets(this);
         this.length = 0;
         return this;
     }
 
 
     * [Symbol.iterator]() {
-        if (this.buckets) {
-            for (const entry of this.buckets) {
-                yield entry;
-            }
+        for (const entry of this.buckets) {
+            yield entry;
         }
     }
 
     * reverse() {
-        if (this.buckets) {
-            for (const entry of this.buckets.reverse()) {
-                yield entry;
-            }
+        for (const entry of this.buckets.reverse()) {
+            yield entry;
         }
     }
 }
@@ -224,10 +170,8 @@ function setHashIfMissing(key, options) {
  * @private
  */
 export class HashBuckets {
-    constructor(map, depth) {
+    constructor(map) {
         this.map = map;
-        this.depth = depth;
-        this.shift = (map.depth - depth) * map.widthAs2sExponent;
         this.clear();
     }
 
@@ -236,7 +180,7 @@ export class HashBuckets {
     }
 
     clear() {
-        this.buckets = this.map.compress ? [] : new Array(this.map.width);
+        this.buckets = new Array(WIDTH);
         this.size = 0;
     }
 
@@ -249,7 +193,7 @@ export class HashBuckets {
     }
 
     indexFor(hash) {
-        return (hash >>> this.shift) & this.map.mask;
+        return (hash >>> SHIFT) & MASK;
     }
 
     set(key, value, options) {
@@ -258,14 +202,19 @@ export class HashBuckets {
         let bucket = this.buckets[idx];
         if (!bucket) {
             bucket = this.map.__createContainer(hash);
+            bucket.createEntry(key,value);
             this.buckets[idx] = bucket;
-        } else if (this.depth && bucket.hashConflicts(hash)) {
+            this.size += 1;
+            return true;
+        } else if (bucket.hashConflicts(hash)) {
             const oldBucket = bucket;
-            bucket = new HashBuckets(this.map, this.depth - 1);
-            // shift the old bucket up a level.
-            bucket.buckets[(oldBucket.hash >>> (this.shift + this.map.widthAs2sExponent)) & this.map.mask] = oldBucket;
-            bucket.size = oldBucket.size;
+            bucket = new HamtBuckets(this.map, DEPTH_HAMT, SHIFT_HAMT_1);
+            const new_flag = 1 << ((oldBucket.hash >>> SHIFT_HAMT_1) & MASK_HAMT);
+            bucket.idxFlags |= new_flag;
+            // shift the old bucket up a level. no need to splice its always going to be the first item.
+            bucket.buckets[0] = oldBucket;
             this.buckets[idx] = bucket;
+            bucket.size = oldBucket.size;
         }
         if (bucket.set(key, value, options)) {
             this.size += 1;
@@ -279,7 +228,14 @@ export class HashBuckets {
         const idx = this.indexFor(hash);
         let bucket = this.buckets[idx];
         if (!bucket) {
-            bucket = this.depth ? new HashBuckets(this.map, this.depth - 1) : new Container(this.map);
+            bucket = this.map.__createContainer(hash);
+            this.buckets[idx] = bucket;
+        } else if (bucket.hashConflicts(hash)) {
+            const oldBucket = bucket;
+            bucket = new HamtBuckets(this.map, DEPTH_HAMT, SHIFT_HAMT_1);
+            // shift the old bucket up a level.
+            bucket.buckets[(oldBucket.hash >>> SHIFT_HAMT_1) & MASK_HAMT] = oldBucket;
+            bucket.size = oldBucket.size;
             this.buckets[idx] = bucket;
         }
         const response = bucket.emplace(key, handler, options);
@@ -355,13 +311,14 @@ export class HashBuckets {
     }
 }
 
-
 /**
  * @private
  */
 export class HamtBuckets extends HashBuckets {
-    constructor(map, depth) {
-        super(map, depth);
+    constructor(map, depth, shift) {
+        super(map);
+        this.depth = depth;
+        this.shift = shift;
     }
 
     clear() {
@@ -372,14 +329,14 @@ export class HamtBuckets extends HashBuckets {
 
     indexFor(hash) {
         const idxFlags = this.idxFlags;
-        const hashIdx = (hash >>> this.shift) & this.map.mask;
+        const hashIdx = (hash >>> this.shift) & MASK_HAMT;
         const flag = 1 << hashIdx;
         return hammingWeight(idxFlags & (flag - 1));
     }
 
     bucketFor(hash) {
         const idxFlags = this.idxFlags;
-        const hashIdx = (hash >>> this.shift) & this.map.mask;
+        const hashIdx = (hash >>> this.shift) & MASK_HAMT;
         const flag = 1 << hashIdx;
         const idx = hammingWeight(idxFlags & (flag - 1));
 
@@ -392,7 +349,7 @@ export class HamtBuckets extends HashBuckets {
     set(key, value, options) {
         const hash = options.hash;
         const idxFlags = this.idxFlags;
-        const hashIdx = (hash >>> this.shift) & this.map.mask;
+        const hashIdx = (hash >>> this.shift) & MASK_HAMT;
         const flag = 1 << hashIdx;
         const idx = hammingWeight(idxFlags & (flag - 1));
         let bucket;
@@ -400,9 +357,9 @@ export class HamtBuckets extends HashBuckets {
             bucket = this.buckets[idx];
             if (this.depth && bucket.hashConflicts(hash)) {
                 const oldBucket = bucket;
-                bucket = new HamtBuckets(this.map, this.depth - 1);
+                bucket = new HamtBuckets(this.map, this.depth - 1, this.shift + SHIFT_HAMT);
                 this.buckets[idx] = bucket;
-                const new_flag = 1 << ((oldBucket.hash >>> (this.shift + this.map.widthAs2sExponent)) & this.map.mask);
+                const new_flag = 1 << ((oldBucket.hash >>> bucket.shift) & MASK_HAMT);
                 bucket.idxFlags |= new_flag;
                 // shift the old bucket up a level. no need to splice its always going to be the first item.
                 bucket.buckets[0] = oldBucket;
@@ -410,14 +367,11 @@ export class HamtBuckets extends HashBuckets {
             }
         } else {
             bucket = this.map.__createContainer(hash);
-            if (idx === 0) {
-                this.buckets.unshift(bucket);
-            } else if (idx === this.buckets.length) {
-                this.buckets.push(bucket);
-            } else {
-                this.buckets.splice(idx, 0, bucket);
-            }
+            bucket.createEntry(key,value);
+            this.buckets.splice(idx, 0, bucket);
             this.idxFlags |= flag;
+            this.size += 1;
+            return true;
         }
         if (bucket.set(key, value, options)) {
             this.size += 1;
@@ -444,7 +398,7 @@ export class HamtBuckets extends HashBuckets {
     delete(key, options) {
         const hash = options.hash;
         const idxFlags = this.idxFlags;
-        const hashIdx = (hash >>> this.shift) & this.map.mask;
+        const hashIdx = (hash >>> this.shift) & MASK_HAMT;
         const flag = 1 << hashIdx;
         if (idxFlags & flag) {
             const idx = hammingWeight(idxFlags & (flag - 1));
@@ -452,13 +406,7 @@ export class HamtBuckets extends HashBuckets {
             const deleted = bucket.delete(key, options);
             if (deleted) {
                 if (bucket.size === 0) {
-                    if (idx === 0) {
-                        this.buckets.shift();
-                    } else if (idx === this.buckets.length - 1) {
-                        this.buckets.pop();
-                    } else {
-                        this.buckets.splice(idx, 1);
-                    }
+                    this.buckets.splice(idx, 1);
                     this.idxFlags ^= flag;
                 }
                 this.size -= 1;
@@ -510,12 +458,6 @@ export class Container {
         return hash !== this.hash;
     }
 
-    prefill(key, value) {
-        this.contents[0] = [key, value];
-        this.size = 1;
-        return this;
-    }
-
     get(key, options) {
         if (this.size !== 0) {
             const equals = equalsForOptions(key, options);
@@ -550,12 +492,14 @@ export class Container {
         this.createEntry(key, value);
         return true;
     }
+
     createEntry(key,value) {
         const entry = [key,value];
         this.contents.push(entry);
         this.size += 1;
         return entry;
     }
+
     overwriteValue(entry, value) {
         entry[1] = value;
     }
@@ -566,33 +510,18 @@ export class Container {
     }
 
     emplace(key, handler, options) {
+
         const equals = equalsForOptions(key, options);
-        let idx = this.contents.findIndex(entry => equals(key, entry[0]));
-        let value;
-        if (idx < 0) {
-            // we expect an error to be thrown if insert doesn't exist.
-            // https://github.com/tc39/proposal-upsert
-            value = handler.insert(key, this.map);
-            if (this.size === this.contents.length) {
-                this.createEntry(key, value);
-                return {value, resized: true};
-            } else {
-                idx = 0;
-                for (const entry of this.contents) {
-                    if (entry === undefined) {
-                        this.contents[idx] = [key, value];
-                        this.size++;
-                        return {value, resized: true};
-                    }
-                    idx++;
-                }
+        for (const entry of this.contents) {
+            if (equals(key, entry[0])) {
+                const value = handler.update(entry[1], key, this.map);
+                this.overwriteValue(entry,value);
+                return {value, resized: false};
             }
-        } else if (handler.update) {
-            const entry = this.contents[idx];
-            value = handler.update(entry[1], key, this.map);
-            this.overwriteValue(entry,value);
-            return {value, resized: false};
         }
+        const value = handler.insert(key, this.map);
+        this.createEntry(key, value);
+        return {value, resized: true};
     }
 
     has(key, options) {
@@ -616,9 +545,7 @@ export class Container {
 
     * [Symbol.iterator]() {
         for (const entry of this.contents) {
-            if (entry !== undefined) {
-                yield entry.slice();
-            }
+            yield entry.slice();
         }
     }
 

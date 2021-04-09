@@ -429,15 +429,6 @@ describe('linkedHashMap', function () {
             expect(map.get('key2')).to.equal('value2');
         });
 
-        it('should clone a hashmap when one argument with copy', function () {
-            linkedHashMap.set('key', 'value');
-            linkedHashMap.set('key2', 'value2');
-
-            var map = new LinkedHashMap({copy: linkedHashMap});
-            expect(map.length).to.equal(2);
-            expect(map.get('key')).to.equal('value');
-            expect(map.get('key2')).to.equal('value2');
-        });
         it('should initialize from a 2D array for a single Array argument', function () {
             var map = new LinkedHashMap(
                 [['key', 'value'],
@@ -447,20 +438,6 @@ describe('linkedHashMap', function () {
             expect(map.get('key')).to.equal('value');
             expect(map.get('key2')).to.equal('value2');
         });
-
-
-        it('should initialize from a 2D array for a single Array argument with copy', function () {
-            var map = new LinkedHashMap({
-                    copy:
-                        [['key', 'value'],
-                            ['key2', 'value2']]
-                }
-            );
-            expect(map.length).to.equal(2);
-            expect(map.get('key')).to.equal('value');
-            expect(map.get('key2')).to.equal('value2');
-        });
-
 
     });
 });

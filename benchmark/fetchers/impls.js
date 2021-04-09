@@ -17,22 +17,11 @@ const esmRequire = require("esm")(module/*, options*/);
 const mapImplsMetaData = {
     'map': {location: '../bench-compare/nativeMap.js', esm: false, className: 'Map', classification: 'native'},
     '@mootable/HashMap': {location: '../../src/', esm: true, className: 'HashMap', classification: 'mootable'},
-    '@mootable/HashMap.HAMT': {
-        location: '../../src/', esm: true, className: 'HashMap', classification: 'mootable',
-        constructorParameters: {hamt: true}
-    },
     '@mootable/LinkedHashMap': {
         location: '../../src/',
         esm: true,
         className: 'LinkedHashMap',
         classification: 'mootable'
-    },
-    '@mootable/LinkedHashMap.HAMT': {
-        location: '../../src/',
-        esm: true,
-        className: 'LinkedHashMap',
-        classification: 'mootable',
-        constructorParameters: {hamt: true}
     },
     'flesler-hashmap': {
         location: 'Z--bench-compare--flesler-hashmap',

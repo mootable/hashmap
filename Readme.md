@@ -46,15 +46,6 @@ This [HashMap](https://mootable.github.io/hashmap/HashMap.html) is backed by a h
   1) `copy` either
     - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
     - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
-- `new HashMap({copy:?Iterable, depth:?int, widthB:?int})` creates a hashmap with optional `depth` and `widthB`.  If `copy` is provided (`map` or `array`, its keys and values are inserted into this map.
-  1) `copy` either
-    - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
-    - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
-  2) `depth` is how many layers deep our hashtrie goes.
-    - Minimum: `1`, Maximum/Default: `(32/widthB)-1`
-  3) `widthB` is how many buckets in each hashtrie layer we use to the power of 2, for instance a `widthB` of 4 = 16 buckets.
-    - Minimum: `2`, Maximum: `16`, Default: `6` (64 Buckets)
-
 
 ### [LinkedHashMap](https://mootable.github.io/hashmap/LinkedHashMap.html) constructor
 [LinkedHashMap](https://mootable.github.io/hashmap/LinkedHashMap.html) maintains insertion order of keys, it has a slightly larger memory footprint and is a little slower.
@@ -63,15 +54,6 @@ This [HashMap](https://mootable.github.io/hashmap/HashMap.html) is backed by a h
   1) `copy` either
   - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
   - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
-- `new LinkedHashMap({copy:?Iterable, depth:?int, widthB:?int})` creates a linked hashmap with optional `depth` and `widthB`.  If `copy` is provided (`map` or `array`, its keys and values are inserted into this map.
-  1) `copy` either
-  - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
-  - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
-  2) `depth` is how many layers deep our hashtrie goes.
-  - Minimum: `1`, Maximum/Default: `(32/widthB)-1`
-  3) `widthB` is how many buckets in each hashtrie layer we use to the power of 2, for instance a `widthB` of 4 = 16 buckets.
-  - Minimum: `2`, Maximum: `16`, Default: `6` (64 Buckets)
-  
 ## Examples
 
 Assume this for all examples below

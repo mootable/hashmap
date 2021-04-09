@@ -1,6 +1,4 @@
 import {HashMap, Container} from '../hashmap/';
-import {Entry} from '../entry/';
-import {none, some} from "../option";
 
 /**
  * HashMap - LinkedHashMap Implementation for JavaScript
@@ -22,18 +20,10 @@ export class LinkedHashMap extends HashMap {
      *   1) `copy` either
      *      - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
      *      - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
-     * - `new LinkedHashMap({copy:?Iterable, depth:?int, widthAs2sExponent:?int})` creates a linked hashmap with optional `depth` and `widthAs2sExponent`. If `copy` is provided (map, array or iterable), it's keys and values are inserted into this map.
-     *   1) `copy` either
-     *      - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
-     *      - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
-     *   2) `depth` is how many layers deep our hashtrie goes.
-     *      - Minimum: `1`, Maximum/Default: `(32/widthAs2sExponent)-1`
-     *   3) `widthAs2sExponent` is how many buckets in each hashtrie layer we use to the power of 2, for instance a widthAs2sExponent of 4 is 2 ^ 4 = 16 buckets.
-     *      - Minimum: `2`, Maximum: `16`, Default: `6` (64 Buckets)
-     * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>|HashMap~ConstructorOptions)} [args]
+     * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>)} [copy]
      */
-    constructor(args = {copy: undefined, depth: undefined, widthAs2sExponent: 6, hamt: false, compress: true}) {
-        super(args);
+    constructor(copy) {
+        super(copy);
         this.start = undefined;
         this.end = undefined;
     }
@@ -47,13 +37,7 @@ export class LinkedHashMap extends HashMap {
      * @return {LinkedHashMap}
      */
     clone() {
-        return new LinkedHashMap({
-            copy: this,
-            depth: this.depth,
-            widthAs2sExponent: this.widthAs2sExponent,
-            hamt: this.hamt,
-            compress: this.compress
-        });
+        return new LinkedHashMap(this);
     }
 
     * [Symbol.iterator]() {

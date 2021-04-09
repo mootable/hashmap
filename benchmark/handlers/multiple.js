@@ -16,6 +16,8 @@ const {saves} = require('./saves.js');
 const {mapsForImpl, mapsForSize} = require('../fetchers/maps.js');
 const {mapImpls} = require('../fetchers/impls.js');
 const {MAP_SIZES} = require('../fetchers/test_data.js');
+const delay = (seconds) =>
+    new Promise((resolve) => setTimeout(resolve, seconds * 1000));
 
 const testsForImpl = (implementation, benchmark, ignoreCache, maxSize) => mapsForImpl(implementation, ignoreCache, maxSize)
     .flatMap(([size, map]) => benchmark.benchMethods(`${size}`, {size, implementation, map}));
@@ -24,11 +26,16 @@ const suiteForImpl = (implementation, benchmark, ignoreCache, maxSize = -1) => b
     `${benchmark.name}_${implementation.implName}`,
     ...testsForImpl(implementation, benchmark, ignoreCache, maxSize),
     cycle(),
-    complete(),
+    complete(async () => {
+        // console.info(`Finished ${benchmark.name}_${implementation.implName} waiting 5 seconds` );
+        // await delay(5);
+        // console.info(`Waiting complete` );
+    }),
     ...saves(`${benchmark.name}_${implementation.implName}`)
 ).then(report => {
     return {report, name: implementation.implName, implementation};
 });
+
 
 const testsForSize = (size, benchmark, ignoreCache) => mapsForSize(size, ignoreCache)
     .flatMap(([implementation, map]) => benchmark.benchMethods(implementation.implName, {size, implementation, map}));
@@ -38,7 +45,11 @@ const suiteForSize = (size, benchmark, ignoreCache) => b_suite(
     `${benchmark.name}_${size}`,
     ...testsForSize(size, benchmark, ignoreCache),
     cycle(),
-    complete(),
+    complete(async () => {
+        // console.info(`Finished ${benchmark.name}_${size} waiting 5 seconds` );
+        // await delay(5);
+        // console.info(`Waiting complete` );
+    }),
     ...saves(`${benchmark.name}_${size}`)
 ).then(report => {
     return {report, name: benchmark.name, size};
