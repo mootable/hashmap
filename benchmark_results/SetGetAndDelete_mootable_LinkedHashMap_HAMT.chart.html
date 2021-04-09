@@ -12,11 +12,11 @@
         order: row;
       }
     </style>
-    <title>SetGetAndDelete_map</title>
+    <title>SetGetAndDelete_@mootable/LinkedHashMap.HAMT</title>
   </head>
   <body>
     <div style="max-width: 800px">
-      <canvas id="chart1617927884675" width="16" height="9"></canvas>
+      <canvas id="chart1617927802480" width="16" height="9"></canvas>
     </div>
     <script>
       const format = (num) => {
@@ -34,10 +34,10 @@
 
         return chunked.map((chunk) => chunk.join("")).join(" ");
       };
-      const ctx1617927884675 = document
-        .getElementById("chart1617927884675")
+      const ctx1617927802480 = document
+        .getElementById("chart1617927802480")
         .getContext("2d");
-      const chart1617927884675 = new Chart(ctx1617927884675, {
+      const chart1617927802480 = new Chart(ctx1617927802480, {
         type: "bar",
         data: {
           labels: [
@@ -56,17 +56,17 @@
           datasets: [
             {
               data: [
-                3141438,
-                4418895,
-                2949806,
-                1311960,
-                413927,
-                115300,
-                29602,
-                7934,
-                6806,
-                6762,
-                5533,
+                459558,
+                173118,
+                174177,
+                346834,
+                538273,
+                552246,
+                468197,
+                529935,
+                499082,
+                523361,
+                465389,
               ],
               backgroundColor: [
                 "rgba(63, 142, 252, 0.8)",
@@ -104,7 +104,7 @@
           },
           title: {
             display: true,
-            text: "SetGetAndDelete_map",
+            text: "SetGetAndDelete_@mootable/LinkedHashMap.HAMT",
             fontSize: 16,
             padding: 20,
           },

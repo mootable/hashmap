@@ -134,7 +134,7 @@ export class Container {
 
         //autocompress. compress off has yet to be implemented
         // if (this.map.compress) {
-            this.contents = this.contents.filter(entry => entry !== undefined);
+        this.contents = this.contents.filter(entry => entry !== undefined);
         // }
         this.size -= 1;
         return true;
@@ -145,6 +145,13 @@ export class Container {
             if (entry !== undefined) {
                 yield [entry.key, entry.value];
             }
+        }
+    }
+
+    * reverse() {
+        for (let idx = this.contents.length - 1; idx >= 0; idx--) {
+            const entry = this.contents[idx];
+            yield [entry.key, entry.value];
         }
     }
 }
