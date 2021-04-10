@@ -16,8 +16,6 @@ const {saves} = require('./saves.js');
 const {mapsForImpl, mapsForSize} = require('../fetchers/maps.js');
 const {mapImpls} = require('../fetchers/impls.js');
 const {MAP_SIZES} = require('../fetchers/test_data.js');
-const delay = (seconds) =>
-    new Promise((resolve) => setTimeout(resolve, seconds * 1000));
 
 const testsForImpl = (implementation, benchmark, ignoreCache, maxSize) => mapsForImpl(implementation, ignoreCache, maxSize)
     .flatMap(([size, map]) => benchmark.benchMethods(`${size}`, {size, implementation, map}));

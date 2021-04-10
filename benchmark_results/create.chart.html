@@ -16,7 +16,7 @@
   </head>
   <body>
     <div style="max-width: 800px">
-      <canvas id="chart1617933370137" width="16" height="9"></canvas>
+      <canvas id="chart1618020940079" width="16" height="9"></canvas>
     </div>
     <script>
       const format = (num) => {
@@ -34,21 +34,21 @@
 
         return chunked.map((chunk) => chunk.join("")).join(" ");
       };
-      const ctx1617933370137 = document
-        .getElementById("chart1617933370137")
+      const ctx1618020940079 = document
+        .getElementById("chart1618020940079")
         .getContext("2d");
-      const chart1617933370137 = new Chart(ctx1617933370137, {
+      const chart1618020940079 = new Chart(ctx1618020940079, {
         type: "bar",
         data: {
           labels: [
-            "map",
             "@mootable/HashMap",
             "@mootable/LinkedHashMap",
+            "map",
             "flesler-hashmap",
           ],
           datasets: [
             {
-              data: [12147646, 2296533, 2209071, 25046860],
+              data: [18889017, 16465484, 12083823, 24651724],
               backgroundColor: [
                 "rgba(63, 142, 252, 0.8)",
                 "rgba(116, 165, 127, 0.8)",

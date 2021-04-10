@@ -1,20 +1,18 @@
 /* jshint ignore:start */
 const expect = require('chai').expect;
 const esmRequire = require("esm")(module/*, options*/);
-const {Container} = esmRequire('../../../src/container')
-const {Entry} = esmRequire('../../../src/entry')
+const {HashMap, Container} = esmRequire('../../../src/hashmap')
 const {sameValueZero} = esmRequire('../../../src/utils')
 
 if (process.env.UNDER_TEST_UNIT !== 'true') {
     return 0;
 }
 
-const createEntry = (key, value) => new Entry(key, value);
+const createEntry = (key, value) => [key, value];
 const deleteEntry = (entry) => undefined;
 
 const overwriteEntry = (key, value, oldEntry) => {
-    oldEntry.key = key;
-    oldEntry.value = value;
+    oldEntry[1] = value;
     return oldEntry;
 };
 /**
@@ -28,7 +26,7 @@ const overwriteEntry = (key, value, oldEntry) => {
  */
 describe('Container Class', function () {
 
-    const defaultMap = {createEntry,overwriteEntry,deleteEntry, compress:true};
+    const defaultMap = {};
     const defaultMethodOptions = {equals:sameValueZero};
     it('constructor', function () {
         const container = new Container(defaultMap);
@@ -39,32 +37,32 @@ describe('Container Class', function () {
     it('get with prefil', function () {
 
         const container = new Container(defaultMap);
-        container.prefill("key","value");
+        container.createEntry("key","value");
         const value = container.get("key",defaultMethodOptions);
         expect(value).to.equal("value");
     });
     it('get has not got key', function () {
         const container = new Container(defaultMap);
-        container.prefill("key","value");
+        container.createEntry("key","value");
         const value = container.get("other",defaultMethodOptions);
         expect(value).to.be.undefined
     });
     it('optionalGet has key', function () {
         const container = new Container(defaultMap);
-        container.prefill("key","value");
+        container.createEntry("key","value");
         const option = container.optionalGet("key",defaultMethodOptions);
         expect(option.value).to.equal("value");
         expect(option.has).to.be.true;
     });
     it('optionalGet has not got key', function () {
         const container = new Container(defaultMap);
-        container.prefill("key","value");
+        container.createEntry("key","value");
         const option = container.optionalGet("other",defaultMethodOptions);
         expect(option.has).to.be.false;
     });
     it('set has keyed entry', function () {
         const container = new Container(defaultMap);
-        container.prefill("key","value");
+        container.createEntry("key","value");
 
         const ret = container.set("key","value3",defaultMethodOptions);
         expect(ret).to.be.false;
@@ -74,7 +72,7 @@ describe('Container Class', function () {
     });
     it('set has entry but not keyed', function () {
         const container = new Container(defaultMap);
-        container.prefill("key","value");
+        container.createEntry("key","value");
         container.set("key2","value2",defaultMethodOptions);
         const ret = container.set("key3","value3",defaultMethodOptions);
         expect(ret).to.be.true;
@@ -88,7 +86,7 @@ describe('Container Class', function () {
     });
     it('has key', function () {
         const container = new Container(defaultMap);
-        container.prefill("key","value");
+        container.createEntry("key","value");
         container.set("key2","value2",defaultMethodOptions);
         const ret = container.has("key",defaultMethodOptions);
         expect(ret).to.be.true;
@@ -97,14 +95,14 @@ describe('Container Class', function () {
     });
     it('has not got key', function () {
         const container = new Container(defaultMap);
-        container.prefill("key","value");
+        container.createEntry("key","value");
         container.set("key2","value2",defaultMethodOptions);
         const ret = container.has("other",defaultMethodOptions);
         expect(ret).to.be.false;
     });
     it('delete has key', function () {
         const container = new Container(defaultMap);
-        container.prefill("key","value");
+        container.createEntry("key","value");
         container.set("key2","value2",defaultMethodOptions);
         const ret = container.delete("key",defaultMethodOptions);
         expect(ret).to.be.true;
@@ -113,7 +111,7 @@ describe('Container Class', function () {
     });
     it('delete has not got key', function () {
         const container = new Container(defaultMap);
-        container.prefill("key","value");
+        container.createEntry("key","value");
         container.set("key2","value2",defaultMethodOptions);
         const ret = container.delete("other",defaultMethodOptions);
         expect(ret).to.be.false;
@@ -121,7 +119,7 @@ describe('Container Class', function () {
     });
     it('delete has got 3 entries', function () {
         const container = new Container(defaultMap);
-        container.prefill("key","value");
+        container.createEntry("key","value");
         container.set("key2","value2",defaultMethodOptions);
         container.set("key3","value3", defaultMethodOptions);
 
@@ -134,7 +132,7 @@ describe('Container Class', function () {
 
     it('[Symbol.iterator]', function () {
         const container = new Container(defaultMap);
-        container.prefill("key1","value1");
+        container.createEntry("key1","value1");
         container.set("key2","value2",defaultMethodOptions);
         let executedCount = 0;
         for([key,value] of container){
@@ -146,7 +144,7 @@ describe('Container Class', function () {
     });
     it('[Symbol.iterator] size 3', function () {
         const container = new Container(defaultMap);
-        container.prefill("key1","value1");
+        container.createEntry("key1","value1");
         container.set("key2","value2",defaultMethodOptions);
         container.set("key3","value3",defaultMethodOptions);
         let executedCount = 0;

@@ -1,4 +1,5 @@
 const {add, cycle} = require('benny');
+const {benchOptions} = require('./benchOptions.js');
 
 function isFunction(func) {
     return !!(func && func.constructor && func.call && func.apply);
@@ -32,7 +33,7 @@ class Benchmark {
 
     benchMethods(name, options) {
         const beforeOptions = this.before ? this.before(options) : {};
-        const methods = [add(name, this.test(options,beforeOptions))];
+        const methods = [add(name, this.test(options, beforeOptions), benchOptions)];
         if (this.after) {
             methods.push(cycle(this.after(options, beforeOptions)));
         }

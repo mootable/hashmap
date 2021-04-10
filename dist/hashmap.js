@@ -1036,69 +1036,12 @@
     // eslint-disable-next-line no-new-func -- fallback
     (function () { return this; })() || Function('return this')();
 
-  // iterable DOM collections
-  // flag - `iterable` interface - 'entries', 'keys', 'values', 'forEach' methods
-  var domIterables = {
-    CSSRuleList: 0,
-    CSSStyleDeclaration: 0,
-    CSSValueList: 0,
-    ClientRectList: 0,
-    DOMRectList: 0,
-    DOMStringList: 0,
-    DOMTokenList: 1,
-    DataTransferItemList: 0,
-    FileList: 0,
-    HTMLAllCollection: 0,
-    HTMLCollection: 0,
-    HTMLFormElement: 0,
-    HTMLSelectElement: 0,
-    MediaList: 0,
-    MimeTypeArray: 0,
-    NamedNodeMap: 0,
-    NodeList: 1,
-    PaintRequestList: 0,
-    Plugin: 0,
-    PluginArray: 0,
-    SVGLengthList: 0,
-    SVGNumberList: 0,
-    SVGPathSegList: 0,
-    SVGPointList: 0,
-    SVGStringList: 0,
-    SVGTransformList: 0,
-    SourceBufferList: 0,
-    StyleSheetList: 0,
-    TextTrackCueList: 0,
-    TextTrackList: 0,
-    TouchList: 0
-  };
+  var path = global$1;
 
-  var aFunction$1 = function (it) {
-    if (typeof it != 'function') {
-      throw TypeError(String(it) + ' is not a function');
-    } return it;
-  };
+  var hasOwnProperty = {}.hasOwnProperty;
 
-  // optional / simple context binding
-  var functionBindContext = function (fn, that, length) {
-    aFunction$1(fn);
-    if (that === undefined) return fn;
-    switch (length) {
-      case 0: return function () {
-        return fn.call(that);
-      };
-      case 1: return function (a) {
-        return fn.call(that, a);
-      };
-      case 2: return function (a, b) {
-        return fn.call(that, a, b);
-      };
-      case 3: return function (a, b, c) {
-        return fn.call(that, a, b, c);
-      };
-    }
-    return function (/* ...args */) {
-      return fn.apply(that, arguments);
-    };
+  var has$1 = function (it, key) {
+    return hasOwnProperty.call(it, key);
   };
 
   var fails = function (exec) {
@@ -1109,69 +1052,15 @@
     }
   };
 
-  var toString$1 = {}.toString;
-
-  var classofRaw = function (it) {
-    return toString$1.call(it).slice(8, -1);
-  };
-
-  var split = ''.split;
-
-  // fallback for non-array-like ES3 and non-enumerable old V8 strings
-  var indexedObject = fails(function () {
-    // throws an error in rhino, see https://github.com/mozilla/rhino/issues/346
-    // eslint-disable-next-line no-prototype-builtins -- safe
-    return !Object('z').propertyIsEnumerable(0);
-  }) ? function (it) {
-    return classofRaw(it) == 'String' ? split.call(it, '') : Object(it);
-  } : Object;
-
-  // `RequireObjectCoercible` abstract operation
-  // https://tc39.es/ecma262/#sec-requireobjectcoercible
-  var requireObjectCoercible = function (it) {
-    if (it == undefined) throw TypeError("Can't call method on " + it);
-    return it;
-  };
-
-  // `ToObject` abstract operation
-  // https://tc39.es/ecma262/#sec-toobject
-  var toObject = function (argument) {
-    return Object(requireObjectCoercible(argument));
-  };
-
-  var ceil = Math.ceil;
-  var floor$1 = Math.floor;
-
-  // `ToInteger` abstract operation
-  // https://tc39.es/ecma262/#sec-tointeger
-  var toInteger = function (argument) {
-    return isNaN(argument = +argument) ? 0 : (argument > 0 ? floor$1 : ceil)(argument);
-  };
-
-  var min$2 = Math.min;
-
-  // `ToLength` abstract operation
-  // https://tc39.es/ecma262/#sec-tolength
-  var toLength = function (argument) {
-    return argument > 0 ? min$2(toInteger(argument), 0x1FFFFFFFFFFFFF) : 0; // 2 ** 53 - 1 == 9007199254740991
-  };
-
-  var isObject = function (it) {
-    return typeof it === 'object' ? it !== null : typeof it === 'function';
-  };
-
-  // `IsArray` abstract operation
-  // https://tc39.es/ecma262/#sec-isarray
-  // eslint-disable-next-line es/no-array-isarray -- safe
-  var isArray = Array.isArray || function isArray(arg) {
-    return classofRaw(arg) == 'Array';
-  };
-
   // Detect IE8's incomplete defineProperty implementation
   var descriptors = !fails(function () {
     // eslint-disable-next-line es/no-object-defineproperty -- required for testing
     return Object.defineProperty({}, 1, { get: function () { return 7; } })[1] != 7;
   });
+
+  var isObject = function (it) {
+    return typeof it === 'object' ? it !== null : typeof it === 'function';
+  };
 
   var document$1 = global$1.document;
   // typeof document.createElement is 'object' in old IE
@@ -1268,12 +1157,6 @@
   });
   });
 
-  var hasOwnProperty = {}.hasOwnProperty;
-
-  var has$1 = function (it, key) {
-    return hasOwnProperty.call(it, key);
-  };
-
   var id = 0;
   var postfix = Math.random();
 
@@ -1281,16 +1164,20 @@
     return 'Symbol(' + String(key === undefined ? '' : key) + ')_' + (++id + postfix).toString(36);
   };
 
+  var toString$1 = {}.toString;
+
+  var classofRaw = function (it) {
+    return toString$1.call(it).slice(8, -1);
+  };
+
   var engineIsNode = classofRaw(global$1.process) == 'process';
 
-  var path = global$1;
-
-  var aFunction = function (variable) {
+  var aFunction$1 = function (variable) {
     return typeof variable == 'function' ? variable : undefined;
   };
 
   var getBuiltIn = function (namespace, method) {
-    return arguments.length < 2 ? aFunction(path[namespace]) || aFunction(global$1[namespace])
+    return arguments.length < 2 ? aFunction$1(path[namespace]) || aFunction$1(global$1[namespace])
       : path[namespace] && path[namespace][method] || global$1[namespace] && global$1[namespace][method];
   };
 
@@ -1343,120 +1230,42 @@
     } return WellKnownSymbolsStore$1[name];
   };
 
-  var SPECIES$3 = wellKnownSymbol('species');
+  var f$5 = wellKnownSymbol;
 
-  // `ArraySpeciesCreate` abstract operation
-  // https://tc39.es/ecma262/#sec-arrayspeciescreate
-  var arraySpeciesCreate = function (originalArray, length) {
-    var C;
-    if (isArray(originalArray)) {
-      C = originalArray.constructor;
-      // cross-realm fallback
-      if (typeof C == 'function' && (C === Array || isArray(C.prototype))) C = undefined;
-      else if (isObject(C)) {
-        C = C[SPECIES$3];
-        if (C === null) C = undefined;
-      }
-    } return new (C === undefined ? Array : C)(length === 0 ? 0 : length);
+  var wellKnownSymbolWrapped = {
+  	f: f$5
   };
 
-  var push = [].push;
+  var defineProperty$5 = objectDefineProperty.f;
 
-  // `Array.prototype.{ forEach, map, filter, some, every, find, findIndex, filterOut }` methods implementation
-  var createMethod$3 = function (TYPE) {
-    var IS_MAP = TYPE == 1;
-    var IS_FILTER = TYPE == 2;
-    var IS_SOME = TYPE == 3;
-    var IS_EVERY = TYPE == 4;
-    var IS_FIND_INDEX = TYPE == 6;
-    var IS_FILTER_OUT = TYPE == 7;
-    var NO_HOLES = TYPE == 5 || IS_FIND_INDEX;
-    return function ($this, callbackfn, that, specificCreate) {
-      var O = toObject($this);
-      var self = indexedObject(O);
-      var boundFunction = functionBindContext(callbackfn, that, 3);
-      var length = toLength(self.length);
-      var index = 0;
-      var create = specificCreate || arraySpeciesCreate;
-      var target = IS_MAP ? create($this, length) : IS_FILTER || IS_FILTER_OUT ? create($this, 0) : undefined;
-      var value, result;
-      for (;length > index; index++) if (NO_HOLES || index in self) {
-        value = self[index];
-        result = boundFunction(value, index, O);
-        if (TYPE) {
-          if (IS_MAP) target[index] = result; // map
-          else if (result) switch (TYPE) {
-            case 3: return true;              // some
-            case 5: return value;             // find
-            case 6: return index;             // findIndex
-            case 2: push.call(target, value); // filter
-          } else switch (TYPE) {
-            case 4: return false;             // every
-            case 7: push.call(target, value); // filterOut
-          }
-        }
-      }
-      return IS_FIND_INDEX ? -1 : IS_SOME || IS_EVERY ? IS_EVERY : target;
-    };
-  };
-
-  var arrayIteration = {
-    // `Array.prototype.forEach` method
-    // https://tc39.es/ecma262/#sec-array.prototype.foreach
-    forEach: createMethod$3(0),
-    // `Array.prototype.map` method
-    // https://tc39.es/ecma262/#sec-array.prototype.map
-    map: createMethod$3(1),
-    // `Array.prototype.filter` method
-    // https://tc39.es/ecma262/#sec-array.prototype.filter
-    filter: createMethod$3(2),
-    // `Array.prototype.some` method
-    // https://tc39.es/ecma262/#sec-array.prototype.some
-    some: createMethod$3(3),
-    // `Array.prototype.every` method
-    // https://tc39.es/ecma262/#sec-array.prototype.every
-    every: createMethod$3(4),
-    // `Array.prototype.find` method
-    // https://tc39.es/ecma262/#sec-array.prototype.find
-    find: createMethod$3(5),
-    // `Array.prototype.findIndex` method
-    // https://tc39.es/ecma262/#sec-array.prototype.findIndex
-    findIndex: createMethod$3(6),
-    // `Array.prototype.filterOut` method
-    // https://github.com/tc39/proposal-array-filtering
-    filterOut: createMethod$3(7)
-  };
-
-  var arrayMethodIsStrict = function (METHOD_NAME, argument) {
-    var method = [][METHOD_NAME];
-    return !!method && fails(function () {
-      // eslint-disable-next-line no-useless-call,no-throw-literal -- required for testing
-      method.call(null, argument || function () { throw 1; }, 1);
+  var defineWellKnownSymbol = function (NAME) {
+    var Symbol = path.Symbol || (path.Symbol = {});
+    if (!has$1(Symbol, NAME)) defineProperty$5(Symbol, NAME, {
+      value: wellKnownSymbolWrapped.f(NAME)
     });
   };
 
-  var $forEach$1 = arrayIteration.forEach;
+  // `Symbol.iterator` well-known symbol
+  // https://tc39.es/ecma262/#sec-symbol.iterator
+  defineWellKnownSymbol('iterator');
 
+  var split = ''.split;
 
-  var STRICT_METHOD = arrayMethodIsStrict('forEach');
+  // fallback for non-array-like ES3 and non-enumerable old V8 strings
+  var indexedObject = fails(function () {
+    // throws an error in rhino, see https://github.com/mozilla/rhino/issues/346
+    // eslint-disable-next-line no-prototype-builtins -- safe
+    return !Object('z').propertyIsEnumerable(0);
+  }) ? function (it) {
+    return classofRaw(it) == 'String' ? split.call(it, '') : Object(it);
+  } : Object;
 
-  // `Array.prototype.forEach` method implementation
-  // https://tc39.es/ecma262/#sec-array.prototype.foreach
-  var arrayForEach = !STRICT_METHOD ? function forEach(callbackfn /* , thisArg */) {
-    return $forEach$1(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
-  // eslint-disable-next-line es/no-array-prototype-foreach -- safe
-  } : [].forEach;
-
-  for (var COLLECTION_NAME$1 in domIterables) {
-    var Collection$1 = global$1[COLLECTION_NAME$1];
-    var CollectionPrototype$1 = Collection$1 && Collection$1.prototype;
-    // some Chrome versions have non-configurable methods on DOMTokenList
-    if (CollectionPrototype$1 && CollectionPrototype$1.forEach !== arrayForEach) try {
-      createNonEnumerableProperty(CollectionPrototype$1, 'forEach', arrayForEach);
-    } catch (error) {
-      CollectionPrototype$1.forEach = arrayForEach;
-    }
-  }
+  // `RequireObjectCoercible` abstract operation
+  // https://tc39.es/ecma262/#sec-requireobjectcoercible
+  var requireObjectCoercible = function (it) {
+    if (it == undefined) throw TypeError("Can't call method on " + it);
+    return it;
+  };
 
   // toObject with fallback for non-array-like ES3 strings
 
@@ -1464,6 +1273,23 @@
 
   var toIndexedObject = function (it) {
     return indexedObject(requireObjectCoercible(it));
+  };
+
+  var ceil = Math.ceil;
+  var floor$1 = Math.floor;
+
+  // `ToInteger` abstract operation
+  // https://tc39.es/ecma262/#sec-tointeger
+  var toInteger = function (argument) {
+    return isNaN(argument = +argument) ? 0 : (argument > 0 ? floor$1 : ceil)(argument);
+  };
+
+  var min$2 = Math.min;
+
+  // `ToLength` abstract operation
+  // https://tc39.es/ecma262/#sec-tolength
+  var toLength = function (argument) {
+    return argument > 0 ? min$2(toInteger(argument), 0x1FFFFFFFFFFFFF) : 0; // 2 ** 53 - 1 == 9007199254740991
   };
 
   var max$2 = Math.max;
@@ -1478,7 +1304,7 @@
   };
 
   // `Array.prototype.{ indexOf, includes }` methods implementation
-  var createMethod$2 = function (IS_INCLUDES) {
+  var createMethod$3 = function (IS_INCLUDES) {
     return function ($this, el, fromIndex) {
       var O = toIndexedObject($this);
       var length = toLength(O.length);
@@ -1500,10 +1326,10 @@
   var arrayIncludes = {
     // `Array.prototype.includes` method
     // https://tc39.es/ecma262/#sec-array.prototype.includes
-    includes: createMethod$2(true),
+    includes: createMethod$3(true),
     // `Array.prototype.indexOf` method
     // https://tc39.es/ecma262/#sec-array.prototype.indexof
-    indexOf: createMethod$2(false)
+    indexOf: createMethod$3(false)
   };
 
   var hiddenKeys$1 = {};
@@ -1733,13 +1559,13 @@
 
   // `Object.prototype.propertyIsEnumerable` method implementation
   // https://tc39.es/ecma262/#sec-object.prototype.propertyisenumerable
-  var f$5 = NASHORN_BUG ? function propertyIsEnumerable(V) {
+  var f$4 = NASHORN_BUG ? function propertyIsEnumerable(V) {
     var descriptor = getOwnPropertyDescriptor$2(this, V);
     return !!descriptor && descriptor.enumerable;
   } : $propertyIsEnumerable$1;
 
   var objectPropertyIsEnumerable = {
-  	f: f$5
+  	f: f$4
   };
 
   // eslint-disable-next-line es/no-object-getownpropertydescriptor -- safe
@@ -1747,7 +1573,7 @@
 
   // `Object.getOwnPropertyDescriptor` method
   // https://tc39.es/ecma262/#sec-object.getownpropertydescriptor
-  var f$4 = descriptors ? $getOwnPropertyDescriptor$1 : function getOwnPropertyDescriptor(O, P) {
+  var f$3 = descriptors ? $getOwnPropertyDescriptor$1 : function getOwnPropertyDescriptor(O, P) {
     O = toIndexedObject(O);
     P = toPrimitive(P, true);
     if (ie8DomDefine) try {
@@ -1757,7 +1583,7 @@
   };
 
   var objectGetOwnPropertyDescriptor = {
-  	f: f$4
+  	f: f$3
   };
 
   var redefine = createCommonjsModule(function (module) {
@@ -1801,19 +1627,19 @@
   // `Object.getOwnPropertyNames` method
   // https://tc39.es/ecma262/#sec-object.getownpropertynames
   // eslint-disable-next-line es/no-object-getownpropertynames -- safe
-  var f$3 = Object.getOwnPropertyNames || function getOwnPropertyNames(O) {
+  var f$2 = Object.getOwnPropertyNames || function getOwnPropertyNames(O) {
     return objectKeysInternal(O, hiddenKeys);
   };
 
   var objectGetOwnPropertyNames = {
-  	f: f$3
+  	f: f$2
   };
 
   // eslint-disable-next-line es/no-object-getownpropertysymbols -- safe
-  var f$2 = Object.getOwnPropertySymbols;
+  var f$1 = Object.getOwnPropertySymbols;
 
   var objectGetOwnPropertySymbols = {
-  	f: f$2
+  	f: f$1
   };
 
   // all object keys, includes non-enumerable and symbols
@@ -1907,6 +1733,12 @@
     }
   };
 
+  // `ToObject` abstract operation
+  // https://tc39.es/ecma262/#sec-toobject
+  var toObject = function (argument) {
+    return Object(requireObjectCoercible(argument));
+  };
+
   var correctPrototypeGetter = !fails(function () {
     function F() { /* empty */ }
     F.prototype.constructor = null;
@@ -1966,7 +1798,7 @@
     BUGGY_SAFARI_ITERATORS: BUGGY_SAFARI_ITERATORS$1
   };
 
-  var defineProperty$5 = objectDefineProperty.f;
+  var defineProperty$4 = objectDefineProperty.f;
 
 
 
@@ -1974,7 +1806,7 @@
 
   var setToStringTag = function (it, TAG, STATIC) {
     if (it && !has$1(it = STATIC ? it : it.prototype, TO_STRING_TAG$3)) {
-      defineProperty$5(it, TO_STRING_TAG$3, { configurable: true, value: TAG });
+      defineProperty$4(it, TO_STRING_TAG$3, { configurable: true, value: TAG });
     }
   };
 
@@ -2191,55 +2023,8 @@
     redefine(Object.prototype, 'toString', objectToString, { unsafe: true });
   }
 
-  var ITERATOR$3 = wellKnownSymbol('iterator');
-  var TO_STRING_TAG = wellKnownSymbol('toStringTag');
-  var ArrayValues = es_array_iterator.values;
-
-  for (var COLLECTION_NAME in domIterables) {
-    var Collection = global$1[COLLECTION_NAME];
-    var CollectionPrototype = Collection && Collection.prototype;
-    if (CollectionPrototype) {
-      // some Chrome versions have non-configurable methods on DOMTokenList
-      if (CollectionPrototype[ITERATOR$3] !== ArrayValues) try {
-        createNonEnumerableProperty(CollectionPrototype, ITERATOR$3, ArrayValues);
-      } catch (error) {
-        CollectionPrototype[ITERATOR$3] = ArrayValues;
-      }
-      if (!CollectionPrototype[TO_STRING_TAG]) {
-        createNonEnumerableProperty(CollectionPrototype, TO_STRING_TAG, COLLECTION_NAME);
-      }
-      if (domIterables[COLLECTION_NAME]) for (var METHOD_NAME in es_array_iterator) {
-        // some Chrome versions have non-configurable methods on DOMTokenList
-        if (CollectionPrototype[METHOD_NAME] !== es_array_iterator[METHOD_NAME]) try {
-          createNonEnumerableProperty(CollectionPrototype, METHOD_NAME, es_array_iterator[METHOD_NAME]);
-        } catch (error) {
-          CollectionPrototype[METHOD_NAME] = es_array_iterator[METHOD_NAME];
-        }
-      }
-    }
-  }
-
-  var f$1 = wellKnownSymbol;
-
-  var wellKnownSymbolWrapped = {
-  	f: f$1
-  };
-
-  var defineProperty$4 = objectDefineProperty.f;
-
-  var defineWellKnownSymbol = function (NAME) {
-    var Symbol = path.Symbol || (path.Symbol = {});
-    if (!has$1(Symbol, NAME)) defineProperty$4(Symbol, NAME, {
-      value: wellKnownSymbolWrapped.f(NAME)
-    });
-  };
-
-  // `Symbol.iterator` well-known symbol
-  // https://tc39.es/ecma262/#sec-symbol.iterator
-  defineWellKnownSymbol('iterator');
-
   // `String.prototype.{ codePointAt, at }` methods implementation
-  var createMethod$1 = function (CONVERT_TO_STRING) {
+  var createMethod$2 = function (CONVERT_TO_STRING) {
     return function ($this, pos) {
       var S = String(requireObjectCoercible($this));
       var position = toInteger(pos);
@@ -2257,10 +2042,10 @@
   var stringMultibyte = {
     // `String.prototype.codePointAt` method
     // https://tc39.es/ecma262/#sec-string.prototype.codepointat
-    codeAt: createMethod$1(false),
+    codeAt: createMethod$2(false),
     // `String.prototype.at` method
     // https://github.com/mathiasbynens/String.prototype.at
-    charAt: createMethod$1(true)
+    charAt: createMethod$2(true)
   };
 
   var charAt = stringMultibyte.charAt;
@@ -2292,6 +2077,77 @@
     return { value: point, done: false };
   });
 
+  // iterable DOM collections
+  // flag - `iterable` interface - 'entries', 'keys', 'values', 'forEach' methods
+  var domIterables = {
+    CSSRuleList: 0,
+    CSSStyleDeclaration: 0,
+    CSSValueList: 0,
+    ClientRectList: 0,
+    DOMRectList: 0,
+    DOMStringList: 0,
+    DOMTokenList: 1,
+    DataTransferItemList: 0,
+    FileList: 0,
+    HTMLAllCollection: 0,
+    HTMLCollection: 0,
+    HTMLFormElement: 0,
+    HTMLSelectElement: 0,
+    MediaList: 0,
+    MimeTypeArray: 0,
+    NamedNodeMap: 0,
+    NodeList: 1,
+    PaintRequestList: 0,
+    Plugin: 0,
+    PluginArray: 0,
+    SVGLengthList: 0,
+    SVGNumberList: 0,
+    SVGPathSegList: 0,
+    SVGPointList: 0,
+    SVGStringList: 0,
+    SVGTransformList: 0,
+    SourceBufferList: 0,
+    StyleSheetList: 0,
+    TextTrackCueList: 0,
+    TextTrackList: 0,
+    TouchList: 0
+  };
+
+  var ITERATOR$3 = wellKnownSymbol('iterator');
+  var TO_STRING_TAG = wellKnownSymbol('toStringTag');
+  var ArrayValues = es_array_iterator.values;
+
+  for (var COLLECTION_NAME$1 in domIterables) {
+    var Collection$1 = global$1[COLLECTION_NAME$1];
+    var CollectionPrototype$1 = Collection$1 && Collection$1.prototype;
+    if (CollectionPrototype$1) {
+      // some Chrome versions have non-configurable methods on DOMTokenList
+      if (CollectionPrototype$1[ITERATOR$3] !== ArrayValues) try {
+        createNonEnumerableProperty(CollectionPrototype$1, ITERATOR$3, ArrayValues);
+      } catch (error) {
+        CollectionPrototype$1[ITERATOR$3] = ArrayValues;
+      }
+      if (!CollectionPrototype$1[TO_STRING_TAG]) {
+        createNonEnumerableProperty(CollectionPrototype$1, TO_STRING_TAG, COLLECTION_NAME$1);
+      }
+      if (domIterables[COLLECTION_NAME$1]) for (var METHOD_NAME in es_array_iterator) {
+        // some Chrome versions have non-configurable methods on DOMTokenList
+        if (CollectionPrototype$1[METHOD_NAME] !== es_array_iterator[METHOD_NAME]) try {
+          createNonEnumerableProperty(CollectionPrototype$1, METHOD_NAME, es_array_iterator[METHOD_NAME]);
+        } catch (error) {
+          CollectionPrototype$1[METHOD_NAME] = es_array_iterator[METHOD_NAME];
+        }
+      }
+    }
+  }
+
+  // `IsArray` abstract operation
+  // https://tc39.es/ecma262/#sec-isarray
+  // eslint-disable-next-line es/no-array-isarray -- safe
+  var isArray = Array.isArray || function isArray(arg) {
+    return classofRaw(arg) == 'Array';
+  };
+
   /* eslint-disable es/no-object-getownpropertynames -- safe */
 
   var $getOwnPropertyNames$1 = objectGetOwnPropertyNames.f;
@@ -2320,7 +2176,120 @@
   	f: f
   };
 
-  var $forEach = arrayIteration.forEach;
+  var aFunction = function (it) {
+    if (typeof it != 'function') {
+      throw TypeError(String(it) + ' is not a function');
+    } return it;
+  };
+
+  // optional / simple context binding
+  var functionBindContext = function (fn, that, length) {
+    aFunction(fn);
+    if (that === undefined) return fn;
+    switch (length) {
+      case 0: return function () {
+        return fn.call(that);
+      };
+      case 1: return function (a) {
+        return fn.call(that, a);
+      };
+      case 2: return function (a, b) {
+        return fn.call(that, a, b);
+      };
+      case 3: return function (a, b, c) {
+        return fn.call(that, a, b, c);
+      };
+    }
+    return function (/* ...args */) {
+      return fn.apply(that, arguments);
+    };
+  };
+
+  var SPECIES$3 = wellKnownSymbol('species');
+
+  // `ArraySpeciesCreate` abstract operation
+  // https://tc39.es/ecma262/#sec-arrayspeciescreate
+  var arraySpeciesCreate = function (originalArray, length) {
+    var C;
+    if (isArray(originalArray)) {
+      C = originalArray.constructor;
+      // cross-realm fallback
+      if (typeof C == 'function' && (C === Array || isArray(C.prototype))) C = undefined;
+      else if (isObject(C)) {
+        C = C[SPECIES$3];
+        if (C === null) C = undefined;
+      }
+    } return new (C === undefined ? Array : C)(length === 0 ? 0 : length);
+  };
+
+  var push = [].push;
+
+  // `Array.prototype.{ forEach, map, filter, some, every, find, findIndex, filterOut }` methods implementation
+  var createMethod$1 = function (TYPE) {
+    var IS_MAP = TYPE == 1;
+    var IS_FILTER = TYPE == 2;
+    var IS_SOME = TYPE == 3;
+    var IS_EVERY = TYPE == 4;
+    var IS_FIND_INDEX = TYPE == 6;
+    var IS_FILTER_OUT = TYPE == 7;
+    var NO_HOLES = TYPE == 5 || IS_FIND_INDEX;
+    return function ($this, callbackfn, that, specificCreate) {
+      var O = toObject($this);
+      var self = indexedObject(O);
+      var boundFunction = functionBindContext(callbackfn, that, 3);
+      var length = toLength(self.length);
+      var index = 0;
+      var create = specificCreate || arraySpeciesCreate;
+      var target = IS_MAP ? create($this, length) : IS_FILTER || IS_FILTER_OUT ? create($this, 0) : undefined;
+      var value, result;
+      for (;length > index; index++) if (NO_HOLES || index in self) {
+        value = self[index];
+        result = boundFunction(value, index, O);
+        if (TYPE) {
+          if (IS_MAP) target[index] = result; // map
+          else if (result) switch (TYPE) {
+            case 3: return true;              // some
+            case 5: return value;             // find
+            case 6: return index;             // findIndex
+            case 2: push.call(target, value); // filter
+          } else switch (TYPE) {
+            case 4: return false;             // every
+            case 7: push.call(target, value); // filterOut
+          }
+        }
+      }
+      return IS_FIND_INDEX ? -1 : IS_SOME || IS_EVERY ? IS_EVERY : target;
+    };
+  };
+
+  var arrayIteration = {
+    // `Array.prototype.forEach` method
+    // https://tc39.es/ecma262/#sec-array.prototype.foreach
+    forEach: createMethod$1(0),
+    // `Array.prototype.map` method
+    // https://tc39.es/ecma262/#sec-array.prototype.map
+    map: createMethod$1(1),
+    // `Array.prototype.filter` method
+    // https://tc39.es/ecma262/#sec-array.prototype.filter
+    filter: createMethod$1(2),
+    // `Array.prototype.some` method
+    // https://tc39.es/ecma262/#sec-array.prototype.some
+    some: createMethod$1(3),
+    // `Array.prototype.every` method
+    // https://tc39.es/ecma262/#sec-array.prototype.every
+    every: createMethod$1(4),
+    // `Array.prototype.find` method
+    // https://tc39.es/ecma262/#sec-array.prototype.find
+    find: createMethod$1(5),
+    // `Array.prototype.findIndex` method
+    // https://tc39.es/ecma262/#sec-array.prototype.findIndex
+    findIndex: createMethod$1(6),
+    // `Array.prototype.filterOut` method
+    // https://github.com/tc39/proposal-array-filtering
+    filterOut: createMethod$1(7)
+  };
+
+  var $forEach$1 = arrayIteration.forEach;
 
   var HIDDEN = sharedKey('hidden');
   var SYMBOL = 'Symbol';
@@ -2395,7 +2364,7 @@
     anObject(O);
     var properties = toIndexedObject(Properties);
     var keys = objectKeys(properties).concat($getOwnPropertySymbols(properties));
-    $forEach(keys, function (key) {
+    $forEach$1(keys, function (key) {
       if (!descriptors || $propertyIsEnumerable.call(properties, key)) $defineProperty(O, key, properties[key]);
     });
     return O;
@@ -2426,7 +2395,7 @@
   var $getOwnPropertyNames = function getOwnPropertyNames(O) {
     var names = nativeGetOwnPropertyNames(toIndexedObject(O));
     var result = [];
-    $forEach(names, function (key) {
+    $forEach$1(names, function (key) {
       if (!has$1(AllSymbols, key) && !has$1(hiddenKeys$1, key)) result.push(key);
     });
     return result;
@@ -2436,7 +2405,7 @@
     var IS_OBJECT_PROTOTYPE = O === ObjectPrototype;
     var names = nativeGetOwnPropertyNames(IS_OBJECT_PROTOTYPE ? ObjectPrototypeSymbols : toIndexedObject(O));
     var result = [];
-    $forEach(names, function (key) {
+    $forEach$1(names, function (key) {
       if (has$1(AllSymbols, key) && (!IS_OBJECT_PROTOTYPE || has$1(ObjectPrototype, key))) {
         result.push(AllSymbols[key]);
       }
@@ -2496,7 +2465,7 @@
     Symbol: $Symbol
   });
 
-  $forEach(objectKeys(WellKnownSymbolsStore), function (name) {
+  $forEach$1(objectKeys(WellKnownSymbolsStore), function (name) {
     defineWellKnownSymbol(name);
   });
 
@@ -2637,6 +2606,37 @@
     _export({ global: true, forced: true }, {
       Symbol: SymbolWrapper
     });
+  }
+
+  var arrayMethodIsStrict = function (METHOD_NAME, argument) {
+    var method = [][METHOD_NAME];
+    return !!method && fails(function () {
+      // eslint-disable-next-line no-useless-call,no-throw-literal -- required for testing
+      method.call(null, argument || function () { throw 1; }, 1);
+    });
+  };
+
+  var $forEach = arrayIteration.forEach;
+
+
+  var STRICT_METHOD = arrayMethodIsStrict('forEach');
+
+  // `Array.prototype.forEach` method implementation
+  // https://tc39.es/ecma262/#sec-array.prototype.foreach
+  var arrayForEach = !STRICT_METHOD ? function forEach(callbackfn /* , thisArg */) {
+    return $forEach(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
+  // eslint-disable-next-line es/no-array-prototype-foreach -- safe
+  } : [].forEach;
+
+  for (var COLLECTION_NAME in domIterables) {
+    var Collection = global$1[COLLECTION_NAME];
+    var CollectionPrototype = Collection && Collection.prototype;
+    // some Chrome versions have non-configurable methods on DOMTokenList
+    if (CollectionPrototype && CollectionPrototype.forEach !== arrayForEach) try {
+      createNonEnumerableProperty(CollectionPrototype, 'forEach', arrayForEach);
+    } catch (error) {
+      CollectionPrototype.forEach = arrayForEach;
+    }
   }
 
   var SPECIES$2 = wellKnownSymbol('species');
@@ -2995,6 +2995,18 @@
 
   function sameValueZero(x, y) {
     return x === y || Number.isNaN(x) && Number.isNaN(y);
+  }
+  /**
+   * The strict Equals method <code>===</code>.
+   * Simply does a strict equality comparison <code>===</code> against 2 values
+   * @see {@link https://262.ecma-international.org/6.0/#sec-strict-equality-comparison strictEquals}
+   * @param x - the first object to compare
+   * @param y - the second object to compare
+   * @returns {boolean} - if they are equals according to {@link https://262.ecma-international.org/6.0/#sec-strict-equality-comparison ECMA Spec for Strict Equality}
+   */
+
+  function strictEquals(x, y) {
+    return x === y;
   }
 
   var globalIsFinite = global$1.isFinite;
@@ -3711,88 +3723,196 @@
 
   function equalsFor(key) {
     // Regexes and Dates we treat like primitives.
-    if (key && _typeof(key) === 'object') {
-      if (key instanceof RegExp) {
-        return function (me, them) {
-          if (them instanceof RegExp) {
-            return me.toString() === them.toString();
-          }
+    switch (_typeof(key)) {
+      case 'object':
+        if (key) {
+          if (key instanceof RegExp) {
+            return function (me, them) {
+              if (them instanceof RegExp) {
+                return me.toString() === them.toString();
+              }
 
-          return false;
-        };
+              return false;
+            };
+          } else if (key instanceof Date) {
+            return function (me, them) {
+              if (them instanceof Date) {
+                return me.getTime() === them.getTime();
+              }
+
+              return false;
+            };
+          } else if (key instanceof Option) {
+            if (key.has) {
+              var valueEquals = equalsFor(key.value);
+              return function (me, them) {
+                if (them.has) {
+                  return valueEquals(them.value, me.value);
+                }
+
+                return false;
+              };
+            } else {
+              return function (me, them) {
+                return !them.has;
+              };
+            }
+          } else if (isFunction(key.equals)) {
+            return function (me, them) {
+              return me.equals(them, me);
+            };
+          }
+        }
+
+        return strictEquals;
+
+      case 'number':
+      case 'bigint':
+        return sameValueZero;
+
+      default:
+        return strictEquals;
+    }
+  }
+  /**
+   * Given any object return back a hashcode
+   * - If the key is undefined, null, false, NaN, infinite etc then it will be assigned a hash of 0.
+   * - If it is a primitive such as string, number bigint it either take the numeric value, or the string value, and hash that.
+   * - if it is a function, symbol or regex it hashes their string values.
+   * - if it is a date, it uses the time value as the hash.
+   * Otherwise
+   * - If it has a hashCode function it will execute it, passing the key as the first and only argument. It will call this function again on its result.
+   * - If it has a hashCode attribute it will call this function on it.
+   * - If it can't do any of the above, it will assign a randomly generated hashcode, to the key using a hidden property.
+   *
+   * As with all hashmaps, there is a contractual equivalence between hashcode and equals methods,
+   * in that any object that equals another, should produce the same hashcode.
+   *
+   * @param {*} key - the key to get the hash code from
+   * @return {{hash: number, equals: function}} - the hash code and equals function.
+   */
+
+  function equalsAndHash(key) {
+    var toSetOn = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+    if (toSetOn.hash) {
+      if (toSetOn.equals) {
+        return toSetOn;
       }
 
-      if (key instanceof Date) {
-        return function (me, them) {
-          if (them instanceof Date) {
-            return me.getTime() === them.getTime();
+      toSetOn.equals = equalsFor(key);
+      return toSetOn;
+    } else if (toSetOn.equals) {
+      toSetOn.hash = hashCodeFor(key);
+      return toSetOn;
+    }
+
+    var keyType = _typeof(key);
+
+    switch (keyType) {
+      case 'undefined':
+        toSetOn.hash = 0;
+        toSetOn.equals = strictEquals;
+        return toSetOn;
+
+      case 'boolean':
+        toSetOn.hash = key ? 1 : 0;
+        toSetOn.equals = strictEquals;
+        return toSetOn;
+
+      case 'string':
+        toSetOn.hash = hash(key);
+        toSetOn.equals = strictEquals;
+        return toSetOn;
+
+      case 'number':
+        if (!Number.isFinite(key)) {
+          toSetOn.hash = 0;
+          toSetOn.equals = sameValueZero;
+          return toSetOn;
+        }
+
+        if (Number.isSafeInteger(key)) {
+          toSetOn.hash = key | 0;
+          toSetOn.equals = sameValueZero;
+          return toSetOn;
+        }
+
+        toSetOn.hash = hash(key.toString());
+        toSetOn.equals = sameValueZero;
+        return toSetOn;
+
+      case 'bigint':
+        toSetOn.hash = hash(key.toString());
+        toSetOn.equals = sameValueZero;
+        return toSetOn;
+
+      case 'symbol':
+      case 'function':
+        toSetOn.hash = hash(key.toString());
+        toSetOn.equals = strictEquals;
+        return toSetOn;
+
+      case 'object':
+      default:
+        {
+          if (key === null) {
+            toSetOn.hash = 0;
+            toSetOn.equals = strictEquals;
+            return toSetOn;
           }
 
-          return false;
-        };
-      }
+          toSetOn.equals = equalsFor(key);
 
-      if (key instanceof Option) {
-        if (key.has) {
-          var valueEquals = equalsFor(key.value);
-          return function (me, them) {
-            if (them.has) {
-              return valueEquals(them.value, me.value);
+          if (key.hashCode) {
+            if (isFunction(key.hashCode)) {
+              toSetOn.hash = hashCodeFor(key.hashCode(key));
+              return toSetOn;
+            } else {
+              toSetOn.hash = hashCodeFor(key.hashCode);
+              return toSetOn;
+            }
+          } // Regexes and Dates we treat like primitives.
+
+
+          if (key instanceof Date) {
+            toSetOn.hash = key.getTime();
+            return toSetOn;
+          }
+
+          if (key instanceof RegExp) {
+            toSetOn.hash = hash(key.toString());
+            return toSetOn;
+          } // Options we work on the values.
+
+
+          if (key instanceof Option) {
+            if (key.has) {
+              toSetOn.hash = 31 * hashCodeFor(key.value);
+              return toSetOn;
             }
 
-            return false;
-          };
-        } else {
-          return function (me, them) {
-            return !them.has;
-          };
+            toSetOn.hash = 0;
+            return toSetOn;
+          } // Hash of Last Resort, ensure we don't consider any objects on the prototype chain.
+
+
+          if (key.hasOwnProperty('_mootable_hashCode')) {
+            // its our special number, but just in case someone has done something a bit weird with it.
+            // Object equality at this point means that only this key instance can be used to fetch the value.
+            toSetOn.hash = hashCodeFor(key._mootable_hashCode);
+            return toSetOn;
+          }
+
+          var hashCode = HASH_COUNTER++; // unenumerable, unwritable, unconfigurable
+
+          Object.defineProperty(key, '_mootable_hashCode', {
+            value: hashCode
+          });
+          toSetOn.hash = hashCode;
+          return toSetOn;
         }
-      } // do we have an equals method, and is it sane.
-
-
-      if (isFunction(key.equals) && key.equals(key, key)) {
-        return function (me, them) {
-          return me.equals(them, me);
-        };
-      }
     }
-
-    return sameValueZero;
-  }
-  /**
-   * A short cut for determining both the equals function and hashcode value for a given key.
-   *
-   * @param {*} key - the key we use to identify values.
-   * @param {(function(*, *): boolean)} [equals = equalsFor(key)] - an optional function for determinging equality
-   * @param {number} [hash = hashCodeFor(key)] - an optional hashcode for the provided key
-   * @return {{equals: (function(*, *): boolean), hash: number}} - a tuple that represents a hash and an equals.
-   */
-
-  function equalsAndHash(key, equals, hash) {
-    if (!(isFunction(equals) && equals(key, key))) {
-      equals = equalsFor(key);
-    }
-
-    if (!Number.isSafeInteger(hash)) {
-      hash = hashCodeFor(key);
-    }
-
-    return {
-      hash: hash,
-      equals: equals
-    };
-  }
-  /**
-   * Counts the number of ones in a 32 bit integer.
-   *
-   * @param {number} flags 32 bit integet
-   * @return {number} amount of ones.
-   */
-
-  function hammingWeight(flags) {
-    flags -= flags >> 1 & 0x55555555;
-    flags = (flags & 0x33333333) + (flags >> 2 & 0x33333333);
-    return (flags + (flags >> 4) & 0xF0F0F0F) * 0x1010101 >> 24;
   }
 
   var IS_CONCAT_SPREADABLE = wellKnownSymbol('isConcatSpreadable');
@@ -7124,7 +7244,7 @@
 
       _this.clear();
 
-      if (copy && copy.forEach) {
+      if (copy && (copy[Symbol.iterator] || copy.forEach)) {
         _this.copy(copy);
       }
 
@@ -7132,27 +7252,27 @@
     }
 
     _createClass(HashMap, [{
-      key: "__createContainer",
-      value: function __createContainer(hash) {
-        return new Container(this, hash);
-      }
-    }, {
       key: "size",
       get: function get() {
         return this.length;
       }
     }, {
+      key: "__createContainer",
+      value: function __createContainer(hash) {
+        return new Container(this, hash);
+      }
+    }, {
       key: "has",
       value: function has(key) {
         var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-        setHashIfMissing(key, options);
+        equalsAndHash(key, options);
         return this.buckets.has(key, options, 0);
       }
     }, {
       key: "get",
       value: function get(key) {
         var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-        setHashIfMissing(key, options);
+        equalsAndHash(key, options);
         return this.buckets.get(key, options, 0);
       } // noinspection JSCheckFunctionSignatures
 
@@ -7160,7 +7280,7 @@
       key: "optionalGet",
       value: function optionalGet(key) {
         var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-        setHashIfMissing(key, options);
+        equalsAndHash(key, options);
         return this.buckets.optionalGet(key, options, 0);
       }
       /**
@@ -7175,7 +7295,7 @@
       key: "set",
       value: function set(key, value) {
         var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-        setHashIfMissing(key, options);
+        equalsAndHash(key, options);
         this.buckets.set(key, value, options, 0);
         this.length = this.buckets.size;
         return this;
@@ -7259,7 +7379,7 @@
       key: "delete",
       value: function _delete(key) {
         var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-        setHashIfMissing(key, options);
+        equalsAndHash(key, options);
 
         if (this.buckets.delete(key, options, 0)) {
           this.length = this.buckets.size;
@@ -7387,20 +7507,9 @@
 
     return HashMap;
   }(MapIterable);
-
-  function setHashIfMissing(key, options) {
-    var hash = options.hash;
-
-    if (hash === undefined) {
-      hash = options.hash = hashCodeFor(key);
-    }
-
-    return hash;
-  }
   /**
    * @private
    */
-
 
   var HashBuckets = /*#__PURE__*/function () {
     function HashBuckets(map) {
@@ -7418,7 +7527,7 @@
     }, {
       key: "clear",
       value: function clear() {
-        this.buckets = new Array(WIDTH);
+        this.buckets = [];
         this.size = 0;
       }
     }, {
@@ -7451,14 +7560,8 @@
           this.size += 1;
           return true;
         } else if (bucket.hashConflicts(hash)) {
-          var oldBucket = bucket;
-          bucket = new HamtBuckets(this.map, DEPTH_HAMT, SHIFT_HAMT_1);
-          var new_flag = 1 << (oldBucket.hash >>> SHIFT_HAMT_1 & MASK_HAMT);
-          bucket.idxFlags |= new_flag; // shift the old bucket up a level. no need to splice its always going to be the first item.
-
-          bucket.buckets[0] = oldBucket;
+          bucket = new HamtBuckets(this.map, DEPTH_HAMT, SHIFT_HAMT_1).replacing(bucket);
           this.buckets[idx] = bucket;
-          bucket.size = oldBucket.size;
         }
 
         if (bucket.set(key, value, options)) {
@@ -7479,11 +7582,7 @@
           bucket = this.map.__createContainer(hash);
           this.buckets[idx] = bucket;
         } else if (bucket.hashConflicts(hash)) {
-          var oldBucket = bucket;
-          bucket = new HamtBuckets(this.map, DEPTH_HAMT, SHIFT_HAMT_1); // shift the old bucket up a level.
-
-          bucket.buckets[oldBucket.hash >>> SHIFT_HAMT_1 & MASK_HAMT] = oldBucket;
-          bucket.size = oldBucket.size;
+          bucket = new HamtBuckets(this.map, DEPTH_HAMT, SHIFT_HAMT_1).replacing(bucket);
           this.buckets[idx] = bucket;
         }
 
@@ -7506,10 +7605,9 @@
           var deleted = bucket.delete(key, options);
 
           if (deleted) {
-            if (bucket.size === 0) {
-              this.buckets[idx] = undefined;
-            }
-
+            // if (bucket.size === 0) {
+            //     this.buckets[idx] = undefined;
+            // }
             this.size -= 1;
             return true;
           }
@@ -7770,6 +7868,16 @@
         return undefined;
       }
     }, {
+      key: "replacing",
+      value: function replacing(oldBucket) {
+        var new_flag = 1 << (oldBucket.hash >>> this.shift & MASK_HAMT);
+        this.idxFlags |= new_flag; // shift the old bucket up a level. no need to splice its always going to be the first item.
+
+        this.buckets[0] = oldBucket;
+        this.size = oldBucket.size;
+        return this;
+      }
+    }, {
       key: "set",
       value: function set(key, value, options) {
         var hash = options.hash;
@@ -7783,14 +7891,8 @@
           bucket = this.buckets[idx];
 
           if (this.depth && bucket.hashConflicts(hash)) {
-            var oldBucket = bucket;
-            bucket = new HamtBuckets(this.map, this.depth - 1, this.shift + SHIFT_HAMT);
+            bucket = new HamtBuckets(this.map, this.depth - 1, this.shift + SHIFT_HAMT).replacing(bucket);
             this.buckets[idx] = bucket;
-            var new_flag = 1 << (oldBucket.hash >>> bucket.shift & MASK_HAMT);
-            bucket.idxFlags |= new_flag; // shift the old bucket up a level. no need to splice its always going to be the first item.
-
-            bucket.buckets[0] = oldBucket;
-            bucket.size = oldBucket.size;
           }
         } else {
           bucket = this.map.__createContainer(hash);
@@ -7836,12 +7938,20 @@
           var deleted = bucket.delete(key, options);
 
           if (deleted) {
+            this.size -= 1;
+
             if (bucket.size === 0) {
-              this.buckets.splice(idx, 1);
+              if (idx === 0) {
+                this.buckets.shift();
+              } else if (this.buckets.size === idx) {
+                this.buckets.pop();
+              } else {
+                this.buckets.splice(idx, 1);
+              }
+
               this.idxFlags ^= flag;
             }
 
-            this.size -= 1;
             return true;
           }
         }
@@ -8003,18 +8113,9 @@
 
     return HamtBuckets;
   }(HashBuckets);
-
-  function equalsForOptions(key, options) {
-    if (options.equals === undefined) {
-      options.equals = equalsFor(key);
-    }
-
-    return options.equals;
-  }
   /**
    * Holds multiple entries, but shrinks to a single container if reduced to a size of one.
    */
-
 
   var Container = /*#__PURE__*/function () {
     function Container(map, hash) {
@@ -8035,7 +8136,7 @@
       key: "get",
       value: function get(key, options) {
         if (this.size !== 0) {
-          var equals = equalsForOptions(key, options);
+          var equals = options.equals;
 
           var _iterator11 = _createForOfIteratorHelper(this.contents),
               _step11;
@@ -8061,7 +8162,7 @@
       key: "optionalGet",
       value: function optionalGet(key, options) {
         if (this.size !== 0) {
-          var equals = equalsForOptions(key, options);
+          var equals = options.equals;
           var entry = this.contents.find(function (entry) {
             return equals(key, entry[0]);
           });
@@ -8076,7 +8177,7 @@
     }, {
       key: "set",
       value: function set(key, value, options) {
-        var equals = equalsForOptions(key, options);
+        var equals = options.equals;
 
         var _iterator12 = _createForOfIteratorHelper(this.contents),
             _step12;
@@ -8086,7 +8187,7 @@
             var entry = _step12.value;
 
             if (equals(key, entry[0])) {
-              this.overwriteValue(entry, value);
+              entry[1] = value;
               return false;
             }
           }
@@ -8108,20 +8209,22 @@
         return entry;
       }
     }, {
-      key: "overwriteValue",
-      value: function overwriteValue(entry, value) {
-        entry[1] = value;
-      }
-    }, {
       key: "deleteEntry",
       value: function deleteEntry(idx) {
         this.size -= 1;
-        return this.contents.splice(idx, 1);
+
+        if (idx === 0) {
+          return this.contents.shift();
+        } else if (idx === this.size) {
+          return this.contents.pop();
+        } else {
+          return this.contents.splice(idx, 1)[0];
+        }
       }
     }, {
       key: "emplace",
       value: function emplace(key, handler, options) {
-        var equals = equalsForOptions(key, options);
+        var equals = options.equals;
 
         var _iterator13 = _createForOfIteratorHelper(this.contents),
             _step13;
@@ -8133,7 +8236,7 @@
             if (equals(key, entry[0])) {
               var _value2 = handler.update(entry[1], key, this.map);
 
-              this.overwriteValue(entry, _value2);
+              entry[1] = _value2;
               return {
                 value: _value2,
                 resized: false
@@ -8157,7 +8260,7 @@
       key: "has",
       value: function has(key, options) {
         if (this.size !== 0) {
-          var equals = equalsForOptions(key, options);
+          var equals = options.equals;
           return this.contents.some(function (entry) {
             return equals(key, entry[0]);
           });
@@ -8168,7 +8271,7 @@
     }, {
       key: "delete",
       value: function _delete(key, options) {
-        var equals = equalsForOptions(key, options);
+        var equals = options.equals;
         var idx = this.contents.findIndex(function (entry) {
           return equals(key, entry[0]);
         });
@@ -8268,6 +8371,18 @@
 
     return Container;
   }();
+  /**
+   * Counts the number of ones in a 32 bit integer.
+   *
+   * @param {number} flags 32 bit integet
+   * @return {number} amount of ones.
+   */
+
+  var hammingWeight = function hammingWeight(flags) {
+    flags -= flags >> 1 & 0x55555555;
+    flags = (flags & 0x33333333) + (flags >> 2 & 0x33333333);
+    return (flags + (flags >> 4) & 0xF0F0F0F) * 0x1010101 >> 24;
+  };
 
   /**
    * HashMap - LinkedHashMap Implementation for JavaScript
@@ -8423,9 +8538,7 @@
     }, {
       key: "deleteEntry",
       value: function deleteEntry(idx) {
-        var _get$call = _get(_getPrototypeOf(LinkedContainer.prototype), "deleteEntry", this).call(this, idx),
-            _get$call2 = _slicedToArray(_get$call, 1),
-            oldEntry = _get$call2[0];
+        var oldEntry = _get(_getPrototypeOf(LinkedContainer.prototype), "deleteEntry", this).call(this, idx);
 
         var map = this.map;
 

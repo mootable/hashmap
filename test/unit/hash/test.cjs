@@ -3,8 +3,8 @@ const chalk = require('chalk')
 const expect = require('chai').expect;
 const esmRequire = require("esm")(module/*, options*/);
 const Hash = {hash, hashCodeFor, equalsFor, equalsAndHash} = esmRequire('../../../src/hash')
-const {sameValueZero} = esmRequire('../../../src/utils')
-const {Option,some,none} = esmRequire('../../../src/option')
+const {sameValueZero,strictEquals} = esmRequire('../../../src/utils')
+const {some,none} = esmRequire('../../../src/option')
 
 if (process.env.UNDER_TEST_UNIT !== 'true') {
     return 0;
@@ -284,10 +284,10 @@ describe('Hash Functions', function () {
     });
     describe('equalsFor()', function () {
         it('undefined', function () {
-            expect(Hash.equalsFor(undefined)).to.be.equal(sameValueZero);
+            expect(Hash.equalsFor(undefined)).to.be.equal(strictEquals);
         });
         it('null', function () {
-            expect(Hash.equalsFor(null)).to.be.equal(sameValueZero);
+            expect(Hash.equalsFor(null)).to.be.equal(strictEquals);
         });
         it('NaN', function () {
             expect(Hash.equalsFor(Math.sqrt(-1))).to.be.equal(sameValueZero);
@@ -299,15 +299,15 @@ describe('Hash Functions', function () {
             expect(Hash.equalsFor(Number.NEGATIVE_INFINITY)).to.be.equal(sameValueZero);
         });
         it('false', function () {
-            expect(Hash.equalsFor(false)).to.be.equal(sameValueZero);
+            expect(Hash.equalsFor(false)).to.be.equal(strictEquals);
         });
         it('true', function () {
-            expect(Hash.equalsFor(true)).to.be.equal(sameValueZero);
+            expect(Hash.equalsFor(true)).to.be.equal(strictEquals);
         });
         it('string', function () {
             const string = "HelloWorld";
 
-            expect(Hash.equalsFor(string)).to.be.equal(sameValueZero);
+            expect(Hash.equalsFor(string)).to.be.equal(strictEquals);
         });
 
         it('integer', function () {
@@ -329,11 +329,11 @@ describe('Hash Functions', function () {
         });
         it('symbol', function () {
             const symbol = Symbol.for('equalsForTest');
-            expect(Hash.equalsFor(symbol)).to.be.equal(sameValueZero);
+            expect(Hash.equalsFor(symbol)).to.be.equal(strictEquals);
         });
         it('function', function () {
             const func = (bar, foo) => bar + foo;
-            expect(Hash.equalsFor(func)).to.be.equal(sameValueZero);
+            expect(Hash.equalsFor(func)).to.be.equal(strictEquals);
         });
 
         it('equals as a function', function () {
@@ -349,17 +349,6 @@ describe('Hash Functions', function () {
 
             expect(equalsResult(myObj, {})).to.be.false;
         });
-
-        it('equals as a dud function', function () {
-            const equals = (key1,key2) => false;
-            const myObj = {
-                equals,
-                other: 'something else'
-            }
-            // if the key doesn't equal itself, this function is dud, and ignore it.
-            expect(Hash.equalsFor(myObj)).to.be.equal(sameValueZero);
-        });
-
 
         it('regex', function () {
             const regex = /ab+c/i;
@@ -411,14 +400,14 @@ describe('Hash Functions', function () {
         it('just the key and equals', function () {
             const key = 2;
             const equals = (key1,key2) => key1 === key2;
-            const equalsAndHash = Hash.equalsAndHash(key, equals);
+            const equalsAndHash = Hash.equalsAndHash(key, {equals});
             expect(equalsAndHash.hash).to.be.equal(2);
             expect(equalsAndHash.equals).to.be.equal(equals);
         });
         it('just the key and hash', function () {
             const key = 3;
             const hash = 23;
-            const equalsAndHash = Hash.equalsAndHash(key, undefined, hash);
+            const equalsAndHash = Hash.equalsAndHash(key, {equals:undefined,hash});
             expect(equalsAndHash.hash).to.be.equal(hash);
             expect(equalsAndHash.equals).to.be.equal(sameValueZero);
         });
@@ -426,24 +415,9 @@ describe('Hash Functions', function () {
             const key = 4;
             const hash = 24;
             const equals = (key1,key2) => key1 === key2;
-            const equalsAndHash = Hash.equalsAndHash(key, equals, hash);
+            const equalsAndHash = Hash.equalsAndHash(key, {equals, hash});
             expect(equalsAndHash.hash).to.be.equal(hash);
             expect(equalsAndHash.equals).to.be.equal(equals);
-        });
-
-        it('just the key and bad equals', function () {
-            const key = 5;
-            const equals = (key1,key2) => false;
-            const equalsAndHash = Hash.equalsAndHash(key, equals);
-            expect(equalsAndHash.hash).to.be.equal(5);
-            expect(equalsAndHash.equals).to.be.equal(sameValueZero);
-        });
-        it('the key, equals and bad hash', function () {
-            const key = 6;
-            const hash = 26.78;
-            const equalsAndHash = Hash.equalsAndHash(key, undefined, hash);
-            expect(equalsAndHash.hash).to.be.equal(6);
-            expect(equalsAndHash.equals).to.be.equal(sameValueZero);
         });
     });
 });

@@ -1,5 +1,5 @@
 import {isFunction, isIterable} from '../utils/';
-import {hashCodeFor, hammingWeight, equalsFor} from '../hash';
+import {equalsAndHash} from '../hash';
 import {none, some} from '../option/';
 import {MapIterable} from '../iterable/';
 
@@ -11,8 +11,8 @@ const DEPTH = 5;
 const SHIFT_HAMT = 5;
 const WIDTH_HAMT = 1 << SHIFT_HAMT;
 const MASK_HAMT = WIDTH_HAMT - 1;
-const DEPTH_HAMT = DEPTH-1;
-const SHIFT_HAMT_1 = SHIFT_HAMT+SHIFT;
+const DEPTH_HAMT = DEPTH - 1;
+const SHIFT_HAMT_1 = SHIFT_HAMT + SHIFT;
 
 /**
  * HashMap - HashMap Implementation for JavaScript
@@ -39,34 +39,34 @@ export class HashMap extends MapIterable {
     constructor(copy) {
         super();
         this.clear();
-        if (copy && copy.forEach) {
+        if (copy && (copy[Symbol.iterator] || copy.forEach)) {
             this.copy(copy);
         }
-    }
-
-    __createContainer(hash) {
-        return new Container(this,hash);
     }
 
     get size() {
         return this.length;
     }
 
+    __createContainer(hash) {
+        return new Container(this, hash);
+    }
+
     has(key, options = {}) {
-        setHashIfMissing(key, options);
+        equalsAndHash(key, options);
         return this.buckets.has(key, options, 0);
     }
 
 
     get(key, options = {}) {
-        setHashIfMissing(key, options);
+        equalsAndHash(key, options);
         return this.buckets.get(key, options, 0);
     }
 
 
     // noinspection JSCheckFunctionSignatures
     optionalGet(key, options = {}) {
-        setHashIfMissing(key, options);
+        equalsAndHash(key, options);
         return this.buckets.optionalGet(key, options, 0);
     }
 
@@ -78,7 +78,7 @@ export class HashMap extends MapIterable {
      * @return {HashMap}
      */
     set(key, value, options = {}) {
-        setHashIfMissing(key, options);
+        equalsAndHash(key, options);
         this.buckets.set(key, value, options, 0);
         this.length = this.buckets.size;
         return this;
@@ -125,7 +125,7 @@ export class HashMap extends MapIterable {
      * @return {HashMap}
      */
     delete(key, options = {}) {
-        setHashIfMissing(key, options);
+        equalsAndHash(key, options);
         if (this.buckets.delete(key, options, 0)) {
             this.length = this.buckets.size;
         }
@@ -156,16 +156,6 @@ export class HashMap extends MapIterable {
     }
 }
 
-function setHashIfMissing(key, options) {
-    let hash = options.hash;
-    if (hash === undefined) {
-        hash = options.hash = hashCodeFor(key);
-    }
-    return hash;
-}
-
-
-
 /**
  * @private
  */
@@ -180,7 +170,7 @@ export class HashBuckets {
     }
 
     clear() {
-        this.buckets = new Array(WIDTH);
+        this.buckets = [];
         this.size = 0;
     }
 
@@ -202,19 +192,13 @@ export class HashBuckets {
         let bucket = this.buckets[idx];
         if (!bucket) {
             bucket = this.map.__createContainer(hash);
-            bucket.createEntry(key,value);
+            bucket.createEntry(key, value);
             this.buckets[idx] = bucket;
             this.size += 1;
             return true;
         } else if (bucket.hashConflicts(hash)) {
-            const oldBucket = bucket;
-            bucket = new HamtBuckets(this.map, DEPTH_HAMT, SHIFT_HAMT_1);
-            const new_flag = 1 << ((oldBucket.hash >>> SHIFT_HAMT_1) & MASK_HAMT);
-            bucket.idxFlags |= new_flag;
-            // shift the old bucket up a level. no need to splice its always going to be the first item.
-            bucket.buckets[0] = oldBucket;
+            bucket = new HamtBuckets(this.map, DEPTH_HAMT, SHIFT_HAMT_1).replacing(bucket);
             this.buckets[idx] = bucket;
-            bucket.size = oldBucket.size;
         }
         if (bucket.set(key, value, options)) {
             this.size += 1;
@@ -231,11 +215,7 @@ export class HashBuckets {
             bucket = this.map.__createContainer(hash);
             this.buckets[idx] = bucket;
         } else if (bucket.hashConflicts(hash)) {
-            const oldBucket = bucket;
-            bucket = new HamtBuckets(this.map, DEPTH_HAMT, SHIFT_HAMT_1);
-            // shift the old bucket up a level.
-            bucket.buckets[(oldBucket.hash >>> SHIFT_HAMT_1) & MASK_HAMT] = oldBucket;
-            bucket.size = oldBucket.size;
+            bucket = new HamtBuckets(this.map, DEPTH_HAMT, SHIFT_HAMT_1).replacing(bucket);
             this.buckets[idx] = bucket;
         }
         const response = bucket.emplace(key, handler, options);
@@ -252,9 +232,9 @@ export class HashBuckets {
         if (bucket) {
             const deleted = bucket.delete(key, options);
             if (deleted) {
-                if (bucket.size === 0) {
-                    this.buckets[idx] = undefined;
-                }
+                // if (bucket.size === 0) {
+                //     this.buckets[idx] = undefined;
+                // }
                 this.size -= 1;
                 return true;
             }
@@ -300,8 +280,8 @@ export class HashBuckets {
     }
 
     * reverse() {
-        for(let idx = this.buckets.length-1;idx >= 0;idx--){
-            const bucket=this.buckets[idx];
+        for (let idx = this.buckets.length - 1; idx >= 0; idx--) {
+            const bucket = this.buckets[idx];
             if (bucket) {
                 for (const entry of bucket.reverse()) {
                     yield entry;
@@ -346,6 +326,15 @@ export class HamtBuckets extends HashBuckets {
         return undefined;
     }
 
+    replacing(oldBucket){
+        const new_flag = 1 << ((oldBucket.hash >>> this.shift) & MASK_HAMT);
+        this.idxFlags |= new_flag;
+        // shift the old bucket up a level. no need to splice its always going to be the first item.
+        this.buckets[0] = oldBucket;
+        this.size = oldBucket.size;
+        return this;
+    }
+
     set(key, value, options) {
         const hash = options.hash;
         const idxFlags = this.idxFlags;
@@ -356,18 +345,13 @@ export class HamtBuckets extends HashBuckets {
         if (idxFlags & flag) {
             bucket = this.buckets[idx];
             if (this.depth && bucket.hashConflicts(hash)) {
-                const oldBucket = bucket;
-                bucket = new HamtBuckets(this.map, this.depth - 1, this.shift + SHIFT_HAMT);
+                bucket = new HamtBuckets(this.map, this.depth - 1, this.shift + SHIFT_HAMT)
+                    .replacing(bucket);
                 this.buckets[idx] = bucket;
-                const new_flag = 1 << ((oldBucket.hash >>> bucket.shift) & MASK_HAMT);
-                bucket.idxFlags |= new_flag;
-                // shift the old bucket up a level. no need to splice its always going to be the first item.
-                bucket.buckets[0] = oldBucket;
-                bucket.size = oldBucket.size;
             }
         } else {
             bucket = this.map.__createContainer(hash);
-            bucket.createEntry(key,value);
+            bucket.createEntry(key, value);
             this.buckets.splice(idx, 0, bucket);
             this.idxFlags |= flag;
             this.size += 1;
@@ -405,11 +389,17 @@ export class HamtBuckets extends HashBuckets {
             const bucket = this.buckets[idx];
             const deleted = bucket.delete(key, options);
             if (deleted) {
+                this.size -= 1;
                 if (bucket.size === 0) {
-                    this.buckets.splice(idx, 1);
+                    if (idx === 0) {
+                        this.buckets.shift();
+                    } else if (this.buckets.size === idx) {
+                        this.buckets.pop();
+                    } else {
+                        this.buckets.splice(idx, 1);
+                    }
                     this.idxFlags ^= flag;
                 }
-                this.size -= 1;
                 return true;
             }
         }
@@ -425,21 +415,13 @@ export class HamtBuckets extends HashBuckets {
     }
 
     * reverse() {
-        for(let idx = this.buckets.length-1;idx >= 0;idx--){
-            const bucket=this.buckets[idx];
+        for (let idx = this.buckets.length - 1; idx >= 0; idx--) {
+            const bucket = this.buckets[idx];
             for (const entry of bucket.reverse()) {
                 yield entry;
             }
         }
     }
-}
-
-
-function equalsForOptions(key, options) {
-    if (options.equals === undefined) {
-        options.equals = equalsFor(key);
-    }
-    return options.equals;
 }
 
 /**
@@ -451,7 +433,7 @@ export class Container {
         this.size = 0;
         this.contents = [];
         this.map = map;
-        this.hash= hash;
+        this.hash = hash;
     }
 
     hashConflicts(hash) {
@@ -460,7 +442,7 @@ export class Container {
 
     get(key, options) {
         if (this.size !== 0) {
-            const equals = equalsForOptions(key, options);
+            const equals = options.equals;
             for (const entry of this.contents) {
                 if (entry && equals(key, entry[0])) {
                     return entry[1];
@@ -472,7 +454,7 @@ export class Container {
 
     optionalGet(key, options) {
         if (this.size !== 0) {
-            const equals = equalsForOptions(key, options);
+            const equals = options.equals;
             const entry = this.contents.find(entry => equals(key, entry[0]));
             if (entry) {
                 return some(entry[1]);
@@ -482,10 +464,10 @@ export class Container {
     }
 
     set(key, value, options) {
-        const equals = equalsForOptions(key, options);
+        const equals = options.equals;
         for (const entry of this.contents) {
             if (equals(key, entry[0])) {
-                this.overwriteValue(entry,value);
+                entry[1] = value;
                 return false;
             }
         }
@@ -493,29 +475,32 @@ export class Container {
         return true;
     }
 
-    createEntry(key,value) {
-        const entry = [key,value];
+    createEntry(key, value) {
+        const entry = [key, value];
         this.contents.push(entry);
         this.size += 1;
         return entry;
     }
 
-    overwriteValue(entry, value) {
-        entry[1] = value;
-    }
 
-    deleteEntry(idx){
+    deleteEntry(idx) {
         this.size -= 1;
-        return this.contents.splice(idx,1);
+        if (idx === 0) {
+            return this.contents.shift();
+        } else if (idx === this.size) {
+            return this.contents.pop();
+        } else {
+            return this.contents.splice(idx, 1)[0];
+        }
     }
 
     emplace(key, handler, options) {
 
-        const equals = equalsForOptions(key, options);
+        const equals = options.equals;
         for (const entry of this.contents) {
             if (equals(key, entry[0])) {
                 const value = handler.update(entry[1], key, this.map);
-                this.overwriteValue(entry,value);
+                entry[1] = value;
                 return {value, resized: false};
             }
         }
@@ -526,14 +511,14 @@ export class Container {
 
     has(key, options) {
         if (this.size !== 0) {
-            const equals = equalsForOptions(key, options);
+            const equals = options.equals;
             return this.contents.some(entry => equals(key, entry[0]));
         }
         return false;
     }
 
     delete(key, options) {
-        const equals = equalsForOptions(key, options);
+        const equals = options.equals;
         const idx = this.contents.findIndex(entry => equals(key, entry[0]));
 
         if (idx === -1) {
@@ -556,3 +541,15 @@ export class Container {
         }
     }
 }
+
+/**
+ * Counts the number of ones in a 32 bit integer.
+ *
+ * @param {number} flags 32 bit integet
+ * @return {number} amount of ones.
+ */
+export const hammingWeight = (flags) => {
+    flags -= ((flags >> 1) & 0x55555555);
+    flags = (flags & 0x33333333) + ((flags >> 2) & 0x33333333);
+    return ((flags + (flags >> 4) & 0xF0F0F0F) * 0x1010101) >> 24;
+};

@@ -80,7 +80,7 @@ export class LinkedContainer extends Container {
     }
 
     deleteEntry(idx){
-        const [oldEntry] = super.deleteEntry(idx);
+        const oldEntry = super.deleteEntry(idx);
         const map = this.map;
         if (oldEntry.previous) {
             oldEntry.previous.next = oldEntry.next;

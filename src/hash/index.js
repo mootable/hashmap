@@ -1,4 +1,4 @@
-import {sameValueZero, isFunction} from '../utils';
+import {sameValueZero, strictEquals, isFunction} from '../utils';
 import {Option} from "../option";
 /**
  * Hash - Hash functions
@@ -163,73 +163,165 @@ let HASH_COUNTER = 0;
  */
 export function equalsFor(key) {
     // Regexes and Dates we treat like primitives.
-    if (key && typeof key === 'object') {
-        if (key instanceof RegExp) {
-            return (me, them) => {
-                if (them instanceof RegExp) {
-                    return me.toString() === them.toString();
-                }
-                return false;
-            };
-        }
-        if (key instanceof Date) {
-            return (me, them) => {
-                if (them instanceof Date) {
-                    return me.getTime() === them.getTime();
-                }
-                return false;
-            };
-        }
-        if(key instanceof Option) {
-            if(key.has) {
-                const valueEquals = equalsFor(key.value);
-                return (me, them) => {
-                    if(them.has){
-                        return valueEquals(them.value,me.value);
+    switch(typeof key){
+        case 'object':
+            if(key) {
+                if (key instanceof RegExp) {
+                    return (me, them) => {
+                        if (them instanceof RegExp) {
+                            return me.toString() === them.toString();
+                        }
+                        return false;
+                    };
+                } else if (key instanceof Date) {
+                    return (me, them) => {
+                        if (them instanceof Date) {
+                            return me.getTime() === them.getTime();
+                        }
+                        return false;
+                    };
+                } else if (key instanceof Option) {
+                    if (key.has) {
+                        const valueEquals = equalsFor(key.value);
+                        return (me, them) => {
+                            if (them.has) {
+                                return valueEquals(them.value, me.value);
+                            }
+                            return false;
+                        };
+                    } else {
+                        return (me, them) => !them.has;
                     }
-                    return false;
-                };
-            } else {
-                return (me, them) => !them.has;
+                } else if (isFunction(key.equals)) {
+                    return (me, them) => me.equals(them, me);
+                }
             }
-        }
-        // do we have an equals method, and is it sane.
-        if (isFunction(key.equals) && key.equals(key, key)) {
-            return (me, them) => me.equals(them, me);
-        }
+            return strictEquals;
+        case 'number':
+        case 'bigint':
+            return sameValueZero;
+        default:
+            return strictEquals;
     }
-    return sameValueZero;
 }
 
 /**
- * A short cut for determining both the equals function and hashcode value for a given key.
+ * Given any object return back a hashcode
+ * - If the key is undefined, null, false, NaN, infinite etc then it will be assigned a hash of 0.
+ * - If it is a primitive such as string, number bigint it either take the numeric value, or the string value, and hash that.
+ * - if it is a function, symbol or regex it hashes their string values.
+ * - if it is a date, it uses the time value as the hash.
+ * Otherwise
+ * - If it has a hashCode function it will execute it, passing the key as the first and only argument. It will call this function again on its result.
+ * - If it has a hashCode attribute it will call this function on it.
+ * - If it can't do any of the above, it will assign a randomly generated hashcode, to the key using a hidden property.
  *
- * @param {*} key - the key we use to identify values.
- * @param {(function(*, *): boolean)} [equals = equalsFor(key)] - an optional function for determinging equality
- * @param {number} [hash = hashCodeFor(key)] - an optional hashcode for the provided key
- * @return {{equals: (function(*, *): boolean), hash: number}} - a tuple that represents a hash and an equals.
+ * As with all hashmaps, there is a contractual equivalence between hashcode and equals methods,
+ * in that any object that equals another, should produce the same hashcode.
+ *
+ * @param {*} key - the key to get the hash code from
+ * @return {{hash: number, equals: function}} - the hash code and equals function.
  */
-export function equalsAndHash(key, equals, hash) {
-    if (!(isFunction(equals) && equals(key, key))) {
-        equals = equalsFor(key);
+export function equalsAndHash(key, toSetOn = {}) {
+    if(toSetOn.hash){
+        if(toSetOn.equals) {
+            return toSetOn;
+        }
+        toSetOn.equals = equalsFor(key);
+        return toSetOn;
+    } else if(toSetOn.equals){
+        toSetOn.hash = hashCodeFor(key);
+        return toSetOn;
     }
-    if (!Number.isSafeInteger(hash)) {
-        hash = hashCodeFor(key);
-    }
-    return {
-        hash,
-        equals
-    };
-}
+    const keyType = typeof key;
+    switch (keyType) {
+        case 'undefined':
+            toSetOn.hash = 0;
+            toSetOn.equals = strictEquals;
+            return toSetOn;
+        case 'boolean':
+            toSetOn.hash = key ? 1 : 0;
+            toSetOn.equals = strictEquals;
+            return toSetOn;
+        case 'string':
+            toSetOn.hash = hash(key);
+            toSetOn.equals = strictEquals;
+            return toSetOn;
+        case 'number':
+            if (!Number.isFinite(key)) {
+                toSetOn.hash = 0;
+                toSetOn.equals = sameValueZero;
+                return toSetOn;
+            }
+            if (Number.isSafeInteger(key)) {
+                toSetOn.hash = key | 0;
+                toSetOn.equals = sameValueZero;
+                return toSetOn;
+            }
+            toSetOn.hash = hash(key.toString());
+            toSetOn.equals = sameValueZero;
+            return toSetOn;
+        case 'bigint':
+            toSetOn.hash = hash(key.toString());
+            toSetOn.equals = sameValueZero;
+            return toSetOn;
+        case 'symbol':
+        case 'function':
+            toSetOn.hash = hash(key.toString());
+            toSetOn.equals = strictEquals;
+            return toSetOn;
+        case 'object':
+        default: {
+            if (key === null) {
+                toSetOn.hash = 0;
+                toSetOn.equals = strictEquals;
+                return toSetOn;
+            }
+            toSetOn.equals =  equalsFor(key);
+            if (key.hashCode) {
+                if (isFunction(key.hashCode)) {
+                    toSetOn.hash = hashCodeFor(key.hashCode(key));
+                    return toSetOn;
+                } else {
+                    toSetOn.hash = hashCodeFor(key.hashCode);
+                    return toSetOn;
+                }
+            }
 
-/**
- * Counts the number of ones in a 32 bit integer.
- *
- * @param {number} flags 32 bit integet
- * @return {number} amount of ones.
- */
-export function hammingWeight(flags) {
-    flags -= ((flags >> 1) & 0x55555555);
-    flags = (flags & 0x33333333) + ((flags >> 2) & 0x33333333);
-    return ((flags + (flags >> 4) & 0xF0F0F0F) * 0x1010101) >> 24;
+            // Regexes and Dates we treat like primitives.
+            if (key instanceof Date) {
+                toSetOn.hash = key.getTime();
+                return toSetOn;
+            }
+            if (key instanceof RegExp) {
+                toSetOn.hash = hash(key.toString());
+                return toSetOn;
+            }
+
+            // Options we work on the values.
+            if(key instanceof Option) {
+                if(key.has) {
+                    toSetOn.hash = 31 * hashCodeFor(key.value);
+                    return toSetOn;
+                }
+                toSetOn.hash = 0;
+                return toSetOn;
+            }
+
+            // Hash of Last Resort, ensure we don't consider any objects on the prototype chain.
+            if (key.hasOwnProperty('_mootable_hashCode')) {
+                // its our special number, but just in case someone has done something a bit weird with it.
+                // Object equality at this point means that only this key instance can be used to fetch the value.
+                toSetOn.hash = hashCodeFor(key._mootable_hashCode);
+                return toSetOn;
+            }
+            const hashCode = HASH_COUNTER++;
+            // unenumerable, unwritable, unconfigurable
+            Object.defineProperty(key, '_mootable_hashCode', {
+                value: hashCode
+            });
+            toSetOn.hash = hashCode;
+            return toSetOn;
+        }
+    }
 }

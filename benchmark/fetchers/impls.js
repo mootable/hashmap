@@ -15,7 +15,6 @@ if (categories.length > 0) {
  */
 const esmRequire = require("esm")(module/*, options*/);
 const mapImplsMetaData = {
-    'map': {location: '../bench-compare/nativeMap.js', esm: false, className: 'Map', classification: 'native'},
     '@mootable/HashMap': {location: '../../src/', esm: true, className: 'HashMap', classification: 'mootable'},
     '@mootable/LinkedHashMap': {
         location: '../../src/',
@@ -23,6 +22,7 @@ const mapImplsMetaData = {
         className: 'LinkedHashMap',
         classification: 'mootable'
     },
+    'map': {location: '../bench-compare/nativeMap.js', esm: false, className: 'Map', classification: 'native'},
     'flesler-hashmap': {
         location: 'Z--bench-compare--flesler-hashmap',
         esm: false,
