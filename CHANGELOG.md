@@ -1,4 +1,25 @@
 # Changelog
+## 0.15.0
+- Functionality
+  - Breaking changes
+    - option to fine tune hashmap has been removed, as we can massively improve performance, by removing it. 
+  - Introduced proper HAMT layers above the bottom the layer. This means we will get optimal performance, with only a small memory sacrifice for small maps.
+  - Put back in the Containers at lower levels, but shift them a level now rather than copy them, if a collision occurs.
+  - Improved performance of hashcode and equals, by recombining them.
+    - uncovered a type collision bug when using option (fixed)
+  - Removed entry class, and replaced with an array of length 2.
+  - Moved container class into the hashmap implementation, and removed hashcontainer.
+  - introduced a new linkedcontainer for linkedhashmaps
+  - added reverse iterators for all maps.
+- Testing
+  - Removed or migrated old tests.
+  - created tests for new equalsHashCode methos.
+- Benchmarks
+  - improved output graph and code of benchmarks.
+  - tried to improve certainty of executions on the benchmark
+    - this has some issues as map at 4 million entries grinds to a halt if I try to prestress it.
+  - recollecting memory to be reported on in a later version.
+  
 ## 0.14.0
 - Breaking Changes
   - Switched to an options parameter for all methods.

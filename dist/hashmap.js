@@ -2953,7 +2953,7 @@
    * Utils - Utility functions
    * @namespace Mootable.Utils
    * @author Jack Moxley <https://github.com/jackmoxley>
-   * @version 0.14.0
+   * @version 0.15.0
    * Homepage: https://github.com/mootable/hashmap
    */
 
@@ -3376,7 +3376,7 @@
    * Option - a class to get round nullable fields.
    * @namespace Mootable.Option
    * @author Jack Moxley <https://github.com/jackmoxley>
-   * @version 0.14.0
+   * @version 0.15.0
    * Homepage: https://github.com/mootable/hashmap
    */
 
@@ -3546,7 +3546,7 @@
    * Hash - Hash functions
    * @namespace Mootable.Hash
    * @author Jack Moxley <https://github.com/jackmoxley>
-   * @version 0.14.0
+   * @version 0.15.0
    * Homepage: https://github.com/mootable/hashmap
    */
 
@@ -4434,7 +4434,7 @@
    * HashMap - HashMap Implementation for JavaScript
    * @namespace Mootable
    * @author Jack Moxley <https://github.com/jackmoxley>
-   * @version 0.14.0
+   * @version 0.15.0
    * Homepage: https://github.com/mootable/hashmap
    */
 
@@ -7212,7 +7212,7 @@
    * HashMap - HashMap Implementation for JavaScript
    * @namespace Mootable
    * @author Jack Moxley <https://github.com/jackmoxley>
-   * @version 0.14.0
+   * @version 0.15.0
    * Homepage: https://github.com/mootable/hashmap
    */
 
@@ -8388,7 +8388,7 @@
    * HashMap - LinkedHashMap Implementation for JavaScript
    * @namespace Mootable
    * @author Jack Moxley <https://github.com/jackmoxley>
-   * @version 0.14.0
+   * @version 0.15.0
    * Homepage: https://github.com/mootable/hashmap
    */
 

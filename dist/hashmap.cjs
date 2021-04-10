@@ -6,7 +6,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
  * Utils - Utility functions
  * @namespace Mootable.Utils
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.14.0
+ * @version 0.15.0
  * Homepage: https://github.com/mootable/hashmap
  */
 /**
@@ -64,7 +64,7 @@ function strictEquals(x, y) {
  * Option - a class to get round nullable fields.
  * @namespace Mootable.Option
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.14.0
+ * @version 0.15.0
  * Homepage: https://github.com/mootable/hashmap
  */
 
@@ -212,7 +212,7 @@ const none = new Option(false, undefined);
  * Hash - Hash functions
  * @namespace Mootable.Hash
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.14.0
+ * @version 0.15.0
  * Homepage: https://github.com/mootable/hashmap
  */
 /**
@@ -538,7 +538,7 @@ function equalsAndHash(key, toSetOn = {}) {
  * HashMap - HashMap Implementation for JavaScript
  * @namespace Mootable
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.14.0
+ * @version 0.15.0
  * Homepage: https://github.com/mootable/hashmap
  */
 /**
@@ -2165,7 +2165,7 @@ const SHIFT_HAMT_1 = SHIFT_HAMT + SHIFT;
  * HashMap - HashMap Implementation for JavaScript
  * @namespace Mootable
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.14.0
+ * @version 0.15.0
  * Homepage: https://github.com/mootable/hashmap
  */
 /**
@@ -2705,7 +2705,7 @@ const hammingWeight = (flags) => {
  * HashMap - LinkedHashMap Implementation for JavaScript
  * @namespace Mootable
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.14.0
+ * @version 0.15.0
  * Homepage: https://github.com/mootable/hashmap
  */
 /**

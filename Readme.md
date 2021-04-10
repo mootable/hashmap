@@ -150,7 +150,7 @@ map
     - It must have an identical interface to JS Map
     - It must be fully written in JS. (Transpiling is acceptable) So that we can guarantee it works in the browser, not just node.
 
-### Benchmarks on version 0.14.0
+### Benchmarks on version 0.15.0
 ![Set Get And Delete](BenchmarkSGD.png)
 
 ## Background

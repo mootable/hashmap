@@ -18,7 +18,7 @@ const SHIFT_HAMT_1 = SHIFT_HAMT + SHIFT;
  * HashMap - HashMap Implementation for JavaScript
  * @namespace Mootable
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.14.0
+ * @version 0.15.0
  * Homepage: https://github.com/mootable/hashmap
  */
 /**
