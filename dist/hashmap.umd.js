@@ -1417,7 +1417,7 @@
 	            const valueEquals = equalsFor(key.value);
 	            return (me, them) => {
 	              if (them.has) {
-	                return valueEquals(them.value, me.value);
+	                return valueEquals(me.value, them.value);
 	              }
 
 	              return false;

@@ -81,6 +81,7 @@
     "docdash": "^1.2.0",
     "esm": "^3.2.25",
     "fs-extra": "^9.1.0",
+    "html-escaper": "^2.0.2",
     "jsdoc": "^3.6.6",
     "jsdoc-escape-at": "^1.0.1",
     "jshint": "^2.12.0",

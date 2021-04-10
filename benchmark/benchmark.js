@@ -1,21 +1,26 @@
 const fse = require('fs-extra');
+const {escape} = require('html-escaper');
+const pathToHere = './benchmark/';
 
-
-const create = require('./benchmarks/create');
-const set_get_delete = require('./benchmarks/set_get_delete');
+//const create = require('./benchmarks/create');
 
 // const get_end     = require('./benchmarks/get_end');
 // const get_middle  = require('./benchmarks/get_middle');
 // const get_none    = require('./benchmarks/get_none');
 // const get_start   = require('./benchmarks/get_start');
 
-const reportSingle = (promise) =>
-    promise.then(report => {
+const reportSingle = (testLocation) =>
+    require(testLocation).then(report => {
         return {
-            benchmark: report.name, type: 'single', results: report.results
+            benchmark: report.name,
+            type: 'single',
+            results: report.results,
+            testFile: fse.readFileSync(
+                `${pathToHere}${testLocation.indexOf('./') === 0 ? testLocation.substring(2) : testLocation}.js`,
+                'utf-8')
         };
     });
-const reportMultipleImplementations = (promises, benchmark) => Promise.all(promises)
+const reportMultipleImplementations = (testLocation, benchmark) => Promise.all(require(testLocation))
     .then(allResults => {
         console.log(allResults);
         const ret = {
@@ -25,17 +30,20 @@ const reportMultipleImplementations = (promises, benchmark) => Promise.all(promi
                 return {
                     name, implementation, results: report.results
                 };
-            })
+            }),
+            testFile: fse.readFileSync(
+                `${pathToHere}${testLocation.indexOf('./') === 0 ? testLocation.substring(2) : testLocation}.js`,
+                'utf-8')
         };
         return ret;
     });
 Promise.all([
-    reportSingle(create),
-    reportMultipleImplementations(set_get_delete, 'Set Get Delete'),
-    // reportMultipleImplementations(get_end, 'Get End'),
-    // reportMultipleImplementations(get_middle, 'Get Middle'),
-    // reportMultipleImplementations(get_none, 'Get None'),
-    // reportMultipleImplementations(get_start, 'Get Start'),
+    reportSingle('./benchmarks/create'),
+    reportMultipleImplementations('./benchmarks/set_get_delete', 'Set Get Delete'),
+    // reportMultipleImplementations('./benchmarks/get_end', 'Get End'),
+    // reportMultipleImplementations('./benchmarks/get_middle', 'Get Middle'),
+    // reportMultipleImplementations('./benchmarks/get_none', 'Get None'),
+    // reportMultipleImplementations('./benchmarks/get_start', 'Get Start'),
 ]).then(reports => [
     fse.outputJson(`benchmark_results/benchmarks.json`, reports),
     ...reports.map(report => fse.outputJson(`benchmark_results/benchmarks.${report.benchmark.replace(/\s/g, "")}.json`, report)),
@@ -62,6 +70,14 @@ const colours = [
 ];
 
 function generateLineChart(report) {
+    console.log(report);
+    const testFile = report.testFile;
+    const testSetup = testFile.includes('// BENCH-SETUP-START') ?
+        testFile.substring(testFile.indexOf('// BENCH-SETUP-START') + 20, testFile.indexOf('// BENCH-SETUP-END')) :
+        undefined;
+    const testExecution = testFile.includes('// BENCH-TEST-START') ?
+        testFile.substring(testFile.indexOf('// BENCH-TEST-START') + 19, testFile.indexOf('// BENCH-TEST-END')) :
+        undefined;
     const safeBenchmarkName = report.benchmark.replace(/\s/g, "");
     const labels = report.results[0].results.map(({name}) => name);
     const datasets = report.results.flatMap((impl, index) => {
@@ -82,7 +98,7 @@ function generateLineChart(report) {
                 label: impl.name,
                 backgroundColor: colours[index] + '50',
                 borderColor: colours[index],
-                borderDash: impl.implementation.classification === 'mootable'? undefined
+                borderDash: impl.implementation.classification === 'mootable' ? undefined
                     : impl.implementation.classification === 'native' ? [5, 3] : [2, 2],
                 data: impl.results.map(({ops}) => ops),
                 cubicInterpolationMode: 'monotone',
@@ -106,11 +122,16 @@ function generateLineChart(report) {
 <head>
     <meta charset="UTF-8"/>
     <meta http-equiv="X-UA-Compatible"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism-tomorrow.min.css"</link>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 <div style="max-height:90%;max-width: 90%;">
+<h1>${report.benchmark}</h1>
+<h2>Results</h2>
     <canvas id="${safeBenchmarkName}Chart"></canvas>
+${testSetup ? `<h3>Setup</h3><pre class="language-javascript"><code class="language-javascript">${escape(testSetup)}</code></pre>` : ''}
+${testExecution ? `<h3>Test</h3><pre class="language-javascript"><code class="language-javascript">${escape(testExecution)}</code></pre>` : ''}
     <script type="application/javascript">
 const ${safeBenchmarkName}Chart = function() {
   const labels = ${JSON.stringify(labels)};
@@ -162,6 +183,10 @@ const ${safeBenchmarkName}Chart = function() {
     return new Chart(ctx, config );
     }();
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/plugins/autoloader/prism-autoloader.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+
 </div>
 </body>
 </html>

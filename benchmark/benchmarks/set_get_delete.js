@@ -7,24 +7,24 @@
 const Benchmark = require("../util/Benchmark.js");
 const {suitsForAllImpls} = require("../handlers/multiple.js");
 const {UNIQUE_KEYS, VALUES} = require('../fetchers/test_data.js');
-const uniqueLength = 10;
+// BENCH-SETUP-START
+const uniqueLength = 8;
 const UNIQUE_KEYS_TO_TEST = UNIQUE_KEYS.slice(0,uniqueLength);
-// test(map, implementation, size)
+// BENCH-SETUP-END
 const benchmark = new Benchmark('SetGetAndDelete')
     .withTest(({map}) => {
         return function () {
+            // BENCH-TEST-START
             for (let idx = 0; idx < uniqueLength; idx++) {
                 const key = UNIQUE_KEYS_TO_TEST[idx];
                 const value = VALUES[idx];
                 map.set(key, value);
-            }
-
-            for (const key of UNIQUE_KEYS_TO_TEST) {
                 if (!map.get(key)) {
                     throw `${key} does not exist`;
                 }
                 map.delete(key);
             }
+            // BENCH-TEST-END
         };
     });
 

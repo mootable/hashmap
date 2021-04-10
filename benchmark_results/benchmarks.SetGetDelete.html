@@ -4,17 +4,35 @@
 <head>
     <meta charset="UTF-8"/>
     <meta http-equiv="X-UA-Compatible"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism-tomorrow.min.css"</link>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 <div style="max-height:90%;max-width: 90%;">
+<h1>Set Get Delete</h1>
+<h2>Results</h2>
     <canvas id="SetGetDeleteChart"></canvas>
+<h3>Setup</h3><pre class="language-javascript"><code class="language-javascript">
+const uniqueLength = 8;
+const UNIQUE_KEYS_TO_TEST = UNIQUE_KEYS.slice(0,uniqueLength);
+</code></pre>
+<h3>Test</h3><pre class="language-javascript"><code class="language-javascript">
+            for (let idx = 0; idx &lt; uniqueLength; idx++) {
+                const key = UNIQUE_KEYS_TO_TEST[idx];
+                const value = VALUES[idx];
+                map.set(key, value);
+                if (!map.get(key)) {
+                    throw `${key} does not exist`;
+                }
+                map.delete(key);
+            }
+            </code></pre>
     <script type="application/javascript">
 const SetGetDeleteChart = function() {
   const labels = ["0","16","64","256","1024","4096","16384","65536","262144","1048576","4194304"];
         const data = {
             labels: labels,
-            datasets: [{"backgroundColor":"#6929c430","borderColor":"#6929c400","pointRadius":0,"fill":"+1","data":[10888.630843285931,10257.611986576498,9452.922384985379,8200.361255851894,7543.850551823193,7182.221808479801,6646.685248625725,6316.605349597114,5879.5650041961935,2247.13551519586,4171.803539431268],"cubicInterpolationMode":"monotone","tension":0.4},{"label":"@mootable/HashMap","backgroundColor":"#6929c450","borderColor":"#6929c4","data":[10729,10091,9295,8075,7400,7032,6538,6170,5765,2124,3375],"cubicInterpolationMode":"monotone","tension":0.4},{"backgroundColor":"#6929c430","borderColor":"#6929c400","pointRadius":0,"data":[10569.369156714069,9924.388013423502,9137.077615014623,7949.6387441481065,7256.149448176807,6881.778191520198,6429.314751374275,6023.394650402886,5650.434995803806,2000.8644848041404,2578.1964605687317],"cubicInterpolationMode":"monotone","fill":"-1","tension":0.4},{"backgroundColor":"#1192e830","borderColor":"#1192e800","pointRadius":0,"fill":"+1","data":[9182.168324594344,8402.852066605292,7887.396552560186,6953.675533880289,6357.398470587878,6164.991022272443,5775.771688722822,5448.338801558824,5152.49717026061,4755.45285180221,4410.215174745346],"cubicInterpolationMode":"monotone","tension":0.4},{"label":"@mootable/LinkedHashMap","backgroundColor":"#1192e850","borderColor":"#1192e8","data":[9064,8284,7756,6821,6238,6036,5647,5330,5092,4709,4310],"cubicInterpolationMode":"monotone","tension":0.4},{"backgroundColor":"#1192e830","borderColor":"#1192e800","pointRadius":0,"data":[8945.831675405658,8165.147933394708,7624.603447439815,6688.324466119711,6118.601529412122,5907.008977727556,5518.228311277179,5211.661198441177,5031.502829739391,4662.547148197791,4209.784825254654],"cubicInterpolationMode":"monotone","fill":"-1","tension":0.4},{"backgroundColor":"#005d5d30","borderColor":"#005d5d00","pointRadius":0,"fill":"+1","data":[32428.036729177493,51804.61172062692,61411.41690238327,78671.14522426548,54940.24279421143,20445.10632087376,4136.570131899753,1204.6744357529126,818.2733439276417,570.6024206149449,182.00451208795505],"cubicInterpolationMode":"monotone","tension":0.4},{"label":"map","backgroundColor":"#005d5d50","borderColor":"#005d5d","borderDash":[5,3],"data":[29748,44093,60893,77642,53486,20290,4035,887,447,312,96],"cubicInterpolationMode":"monotone","tension":0.4},{"backgroundColor":"#005d5d30","borderColor":"#005d5d00","pointRadius":0,"data":[27067.963270822507,36381.38827937307,60374.58309761673,76612.85477573452,52031.75720578858,20134.89367912624,3933.4298681002474,569.3255642470874,75.7266560723583,53.397579385055074,9.995487912044965],"cubicInterpolationMode":"monotone","fill":"-1","tension":0.4},{"backgroundColor":"#9f185330","borderColor":"#9f185300","pointRadius":0,"fill":"+1","data":[2219.6299605706263,3111.345394840606,4297.0695634064605,4112.813470691029,3733.4396980457946,1889.4902410154903,5391.31138245801,5429.662467920847,5456.821783246593,5683.463358837651,6706.8227445874],"cubicInterpolationMode":"monotone","tension":0.4},{"label":"flesler-hashmap","backgroundColor":"#9f185350","borderColor":"#9f1853","borderDash":[2,2],"data":[2054,3098,4174,4025,3292,1694,5308,5341,5169,4992,4998],"cubicInterpolationMode":"monotone","tension":0.4},{"backgroundColor":"#9f185330","borderColor":"#9f185300","pointRadius":0,"data":[1888.3700394293735,3084.6546051593937,4050.9304365935395,3937.186529308971,2850.560301954206,1498.5097589845097,5224.68861754199,5252.337532079153,4881.178216753407,4300.536641162349,3289.1772554126005],"cubicInterpolationMode":"monotone","fill":"-1","tension":0.4}]
+            datasets: [{"backgroundColor":"#6929c430","borderColor":"#6929c400","pointRadius":0,"fill":"+1","data":[159920.2352508072,141263.19168522386,116766.91226481975,105219.98461014406,94955.78533769524,91759.74797890549,87803.39379294454,84272.72322761404,78787.7127410492,40700.39770278492,55318.95596575371],"cubicInterpolationMode":"monotone","tension":0.4},{"label":"@mootable/HashMap","backgroundColor":"#6929c450","borderColor":"#6929c4","data":[158232,139270,114953,103340,93696,89828,85663,82058,77153,36367,46484],"cubicInterpolationMode":"monotone","tension":0.4},{"backgroundColor":"#6929c430","borderColor":"#6929c400","pointRadius":0,"data":[156543.7647491928,137276.80831477614,113139.08773518025,101460.01538985592,92436.21466230477,87896.25202109451,83522.60620705546,79843.27677238594,75518.2872589508,32033.60229721508,37649.04403424629],"cubicInterpolationMode":"monotone","fill":"-1","tension":0.4},{"backgroundColor":"#1192e830","borderColor":"#1192e800","pointRadius":0,"fill":"+1","data":[136609.70796891805,114364.61922864226,97138.39318400016,89510.22478671659,81659.21647020608,78899.82071938163,76202.46666037172,74467.20141815206,68875.72469205227,67240.92000394344,55256.967963501775],"cubicInterpolationMode":"monotone","tension":0.4},{"label":"@mootable/LinkedHashMap","backgroundColor":"#1192e850","borderColor":"#1192e8","data":[135145,113076,95390,87743,79749,77276,74455,72682,67237,65366,48957],"cubicInterpolationMode":"monotone","tension":0.4},{"backgroundColor":"#1192e830","borderColor":"#1192e800","pointRadius":0,"data":[133680.29203108195,111787.38077135773,93641.60681599982,85975.77521328343,77838.78352979392,75652.17928061835,72707.5333396283,70896.79858184794,65598.27530794773,63491.07999605656,42657.032036498225],"cubicInterpolationMode":"monotone","fill":"-1","tension":0.4},{"backgroundColor":"#005d5d30","borderColor":"#005d5d00","pointRadius":0,"fill":"+1","data":[340990.24309120467,1040784.7893601295,996205.3054310794,672589.7023388752,344200.2341825062,102377.08911048909,21879.274238559785,4603.017349391789,1388.1111320540965,201.29127397693924,385.99671673344255],"cubicInterpolationMode":"monotone","tension":0.4},{"label":"map","backgroundColor":"#005d5d50","borderColor":"#005d5d","borderDash":[5,3],"data":[300388,1027045,974408,662977,339507,101572,21645,3751,890,128,235],"cubicInterpolationMode":"monotone","tension":0.4},{"backgroundColor":"#005d5d30","borderColor":"#005d5d00","pointRadius":0,"data":[259785.75690879527,1013305.2106398704,952610.6945689205,653364.297661125,334813.7658174938,100766.91088951091,21410.725761440215,2898.9826506082113,391.8888679459033,54.70872602306076,84.00328326655743],"cubicInterpolationMode":"monotone","fill":"-1","tension":0.4},{"backgroundColor":"#9f185330","borderColor":"#9f185300","pointRadius":0,"fill":"+1","data":[26588.059789981464,39256.00764728904,53123.827547074856,24911.47563365494,62618.679103855546,72906.46911838239,71226.03827462919,69390.47905707304,70006.54955078776,73477.14570600439,85219.79272725595],"cubicInterpolationMode":"monotone","tension":0.4},{"label":"flesler-hashmap","backgroundColor":"#9f185350","borderColor":"#9f1853","borderDash":[2,2],"data":[25098,38592,51678,23071,46137,71990,70368,68381,66533,64471,64479],"cubicInterpolationMode":"monotone","tension":0.4},{"backgroundColor":"#9f185330","borderColor":"#9f185300","pointRadius":0,"data":[23607.940210018536,37927.99235271096,50232.17245292515,21230.524366345056,29655.32089614446,71073.5308816176,69509.96172537083,67371.52094292695,63059.45044921224,55464.85429399561,43738.20727274406],"cubicInterpolationMode":"monotone","fill":"-1","tension":0.4}]
         };
 
         const config = {
@@ -48,6 +66,7 @@ const SetGetDeleteChart = function() {
                 },
                 y: {
                     display: true,
+                    type: 'logarithmic',
                     title: {
                         display: true,
                         text: 'Operations per second',
@@ -60,6 +79,10 @@ const SetGetDeleteChart = function() {
     return new Chart(ctx, config );
     }();
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/plugins/autoloader/prism-autoloader.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+
 </div>
 </body>
 </html>

@@ -391,33 +391,231 @@ describe('Hash Functions', function () {
         });
     });
     describe('equalsAndHash()', function () {
-        it('just the key', function () {
+        it('Basic just the key', function () {
             const key = 1;
             const equalsAndHash = Hash.equalsAndHash(key);
             expect(equalsAndHash.hash).to.be.equal(1);
             expect(equalsAndHash.equals).to.be.equal(sameValueZero);
         });
-        it('just the key and equals', function () {
+        it('Basic just the key and equals', function () {
             const key = 2;
             const equals = (key1,key2) => key1 === key2;
             const equalsAndHash = Hash.equalsAndHash(key, {equals});
             expect(equalsAndHash.hash).to.be.equal(2);
             expect(equalsAndHash.equals).to.be.equal(equals);
         });
-        it('just the key and hash', function () {
+        it('Basic just the key and hash', function () {
             const key = 3;
             const hash = 23;
             const equalsAndHash = Hash.equalsAndHash(key, {equals:undefined,hash});
             expect(equalsAndHash.hash).to.be.equal(hash);
             expect(equalsAndHash.equals).to.be.equal(sameValueZero);
         });
-        it('the key, equals and hash', function () {
+        it('Basic the key, equals and hash', function () {
             const key = 4;
             const hash = 24;
             const equals = (key1,key2) => key1 === key2;
             const equalsAndHash = Hash.equalsAndHash(key, {equals, hash});
             expect(equalsAndHash.hash).to.be.equal(hash);
             expect(equalsAndHash.equals).to.be.equal(equals);
+        });
+
+        it('undefined', function () {
+            expect(Hash.equalsAndHash(undefined)).to.be.deep.equal({hash:0,equals:strictEquals});
+        });
+
+        it('null', function () {
+            expect(Hash.equalsAndHash(null)).to.be.deep.equal({hash:0,equals:strictEquals});
+        });
+
+
+        it('NaN', function () {
+            expect(Hash.equalsAndHash(Math.sqrt(-1))).to.be.deep.equal({hash:0,equals:sameValueZero});
+        });
+        it('+Infinity', function () {
+            expect(Hash.equalsAndHash(Number.POSITIVE_INFINITY)).to.be.deep.equal({hash:0,equals:sameValueZero});
+        });
+        it('-Infinity', function () {
+            expect(Hash.equalsAndHash(Number.NEGATIVE_INFINITY)).to.be.deep.equal({hash:0,equals:sameValueZero});
+        });
+        it('false', function () {
+            expect(Hash.equalsAndHash(false)).to.be.deep.equal({hash:0,equals:strictEquals});
+        });
+        it('true', function () {
+            expect(Hash.equalsAndHash(true)).to.be.deep.equal({hash:1,equals:strictEquals});
+        });
+        it('string', function () {
+            const string = "HelloWorld";
+            // Hash checks are already done above.
+            expect(Hash.equalsAndHash(string)).to.be.deep.equal({hash:Hash.hash(string),equals:strictEquals});
+        });
+
+        it('integer', function () {
+            const int = 12;
+            // integers are the same value
+            expect(Hash.equalsAndHash(int)).to.be.deep.equal({hash:int,equals:sameValueZero});
+        });
+
+        it('float', function () {
+            const float = 1.22;
+            // floats are stringified.
+            expect(Hash.equalsAndHash(float)).to.be.deep.equal({hash:Hash.hash(float.toString()),equals:sameValueZero});
+        });
+
+        it('bigint', function () {
+            const bigint = 9007199254740934291n;
+            // bigints are stringified.
+            expect(Hash.equalsAndHash(bigint)).to.be.deep.equal({hash:Hash.hash(bigint.toString()),equals:sameValueZero});
+        });
+        it('symbol', function () {
+            const symbol = Symbol.for('HashCodeForTest');
+            const symbolAsString = 'Symbol(HashCodeForTest)';
+            expect(Hash.equalsAndHash(symbol)).to.be.deep.equal({hash:Hash.hash(symbolAsString),equals:strictEquals});
+        });
+        it('function', function () {
+            const func = (bar, foo) => bar + foo;
+            const funcAsString = String(func);
+            expect(Hash.equalsAndHash(func)).to.be.deep.equal({hash:Hash.hash(funcAsString),equals:strictEquals});
+        });
+
+        it('equalsAndHash as a function', function () {
+            const hashCode = () => 37;
+            const equals = (key1,key2) => key1===key2;
+            const myObj = {
+                equals,
+                hashCode,
+                other: 'something else'
+            }
+            const equalsAndHashResult = Hash.equalsAndHash(myObj);
+            // we can't just expect a basic function as sameValueZero,
+            // so we have to do the check for this in the test,
+            expect(equalsAndHashResult.equals(myObj,myObj)).to.be.true;
+            expect(equalsAndHashResult.equals(myObj, {})).to.be.false;
+            expect(equalsAndHashResult.hash).to.be.equal(37);
+        });
+
+        it('equalsAndHash as a constant', function () {
+            const hashCode =  38;
+            const equals = (key1,key2) => key1===key2;
+            const myObj = {
+                equals,
+                hashCode,
+                other: 'something else'
+            }
+            const equalsAndHashResult = Hash.equalsAndHash(myObj);
+            // we can't just expect a basic function as sameValueZero,
+            // so we have to do the check for this in the test,
+            expect(equalsAndHashResult.equals(myObj,myObj)).to.be.true;
+            expect(equalsAndHashResult.equals(myObj, {})).to.be.false;
+            expect(equalsAndHashResult.hash).to.be.equal(38);
+        });
+
+        it('regex', function () {
+            const regex = /ab+c/i;
+            const result = Hash.equalsAndHash(regex);
+
+            expect(result.equals(regex,regex)).to.be.true;
+            expect(result.equals(regex, /ab+c/i)).to.be.true;
+
+            expect(result.equals(regex,/xy+z/i)).to.be.false;
+            expect(result.equals(regex, {})).to.be.false;
+            // regexs are stringified.
+            expect(result.hash).to.be.deep.equal(Hash.hash(regex.toString()));
+        });
+        it('date', function () {
+            const date = new Date(123456);
+            const result = Hash.equalsAndHash(date);
+
+            expect(result.equals(date,date)).to.be.true;
+            expect(result.equals(date, new Date(123456))).to.be.true;
+
+            expect(result.equals(date,new Date(12))).to.be.false;
+            expect(result.equals(date, {})).to.be.false;
+            // date we get the time since epoch
+            expect(result.hash).to.be.deep.equal(date.getTime());
+        });
+
+
+        it('option none', function () {
+            const option = none;
+            const noneResult = Hash.equalsFor(option);
+
+            expect(noneResult(option,option)).to.be.true;
+            expect(noneResult(option,none)).to.be.true;
+
+            expect(noneResult(option,some(1))).to.be.false;
+        });
+        it('option some', function () {
+            const option = some(1);
+            const someResult = Hash.equalsFor(option);
+
+            expect(someResult(option,option)).to.be.true;
+            expect(someResult(option,some(1))).to.be.true;
+            expect(someResult(option,none)).to.be.false;
+        });
+
+        it('option none', function () {
+            const option = none;
+            const noneResult = Hash.equalsAndHash(option);
+
+            expect(noneResult.equals(option,option)).to.be.true;
+            expect(noneResult.equals(option,none)).to.be.true;
+
+            expect(noneResult.equals(option,some(1))).to.be.false;
+            // if it has nothing we treat it like null
+            expect(noneResult.hash).to.be.deep.equal(0);
+        });
+        it('option some', function () {
+
+            const option = some(new Date(2345));
+            const someResult = Hash.equalsAndHash(option);
+
+            expect(someResult.equals(option,option)).to.be.true;
+            expect(someResult.equals(option,some(2345))).to.be.false;
+
+            expect(someResult.equals(option,none)).to.be.false;
+
+            // with options we multiply by a prime number. we have to expose it here.
+            expect(someResult.hash).to.be.deep.equal(2345*31);
+        });
+
+        it('no hash available, _mootable_hashCode preset by internal code', function () {
+            const _mootable_hashCode =  39;
+            const myObj = {
+                _mootable_hashCode,
+                other: 'something else'
+            }
+            expect(Hash.equalsAndHash(myObj).hash).to.be.equal(_mootable_hashCode);
+        });
+
+        it('no hash available, _mootable_hashCode preset by a naughty elf', function () {
+            const _mootable_hashCode =  `WhoDunnit`;
+            const myObj = {
+                _mootable_hashCode,
+                other: 'something else'
+            }
+            expect(Hash.equalsAndHash(myObj).hash).to.be.equal(Hash.hash(_mootable_hashCode));
+        });
+
+        it('no hash available, _mootable_hashCode not set by internal code', function () {
+            // since another test might of run, we need to get the last mutable hashcode,
+            // and then run it again and see if we get a different one..
+            const first = {
+                other: 'something else'
+            }
+            const firstHash = Hash.equalsAndHash(first).hash;
+            expect(first['_mootable_hashCode']).to.be.equal(firstHash);
+            const second = {
+                other: 'something else'
+            }
+            const secondHash = Hash.equalsAndHash(second).hash;
+            expect(secondHash ).to.not.be.equal(firstHash);
+            expect(second['_mootable_hashCode']).to.be.equal(secondHash);
+            // mathematically well duh!
+            expect(second['_mootable_hashCode']).to.not.be.equal(firstHash);
+
+            const firstHashAgain = Hash.equalsAndHash(first).hash;
+            expect(firstHashAgain ).to.be.equal(firstHash);
         });
     });
 });

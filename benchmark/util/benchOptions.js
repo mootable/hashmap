@@ -6,9 +6,9 @@
  */
 
 const benchOptions = {
-    // delay: 1,
-    // minSamples: 20,
-    // minTime: 1,
+    delay: 0.05,
+    // initCount: 30,
+    minSamples: 10,
 };
 
 module.exports = {benchOptions};
