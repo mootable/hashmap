@@ -40,6 +40,11 @@ describe('Container Class', function () {
         const value = container.get("other", defaultMethodOptions);
         expect(value).to.be.undefined
     });
+    it('get is empty', function () {
+        const container = new Container(defaultMap);
+        const value = container.get("other", defaultMethodOptions);
+        expect(value).to.be.undefined
+    });
     it('optionalGet has key', function () {
         const container = new Container(defaultMap);
         container.createEntry("key", "value");
@@ -50,6 +55,11 @@ describe('Container Class', function () {
     it('optionalGet has not got key', function () {
         const container = new Container(defaultMap);
         container.createEntry("key", "value");
+        const option = container.optionalGet("other", defaultMethodOptions);
+        expect(option.has).to.be.false;
+    });
+    it('optionalGet is empty', function () {
+        const container = new Container(defaultMap);
         const option = container.optionalGet("other", defaultMethodOptions);
         expect(option.has).to.be.false;
     });
