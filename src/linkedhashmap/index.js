@@ -1,4 +1,5 @@
-import {HashMap, Container} from '../hashmap/';
+import {HashMap} from '../hashmap/';
+import {Container} from '../hashmap/container';
 
 /**
  * HashMap - LinkedHashMap Implementation for JavaScript
@@ -28,7 +29,7 @@ export class LinkedHashMap extends HashMap {
         this.end = undefined;
     }
 
-    __createContainer(hash) {
+    createContainer(hash) {
         return new LinkedContainer(this,hash);
     }
 
@@ -40,17 +41,77 @@ export class LinkedHashMap extends HashMap {
         return new LinkedHashMap(this);
     }
 
+    /**
+     * Iterates over all the entries in the map.
+     *
+     * @return {Generator<any, void, any>}
+     */
     * [Symbol.iterator]() {
+        yield* this.entries();
+    }
+
+    * entries() {
         let entry = this.start;
         while (entry) {
             yield entry.slice();
             entry = entry.next;
         }
     }
-    * reverse() {
+
+    * entriesRight() {
         let entry = this.end;
         while (entry) {
             yield entry.slice();
+            entry = entry.previous;
+        }
+    }
+
+    /**
+     * Iterates over all the keys in the map.
+     *
+     * @return {Generator<any, void, any>}
+     */
+    * keys() {
+        let entry = this.start;
+        while (entry) {
+            yield entry[0];
+            entry = entry.next;
+        }
+    }
+
+    /**
+     * Iterates over all the values in the map.
+     *
+     * @return {Generator<any, void, any>}
+     */
+    * values() {
+        let entry = this.start;
+        while (entry) {
+            yield entry[1];
+            entry = entry.next;
+        }
+    }
+
+    /**
+     * Iterates over all the keys in the map in reverse.
+     * @return {Generator<any, void, any>}
+     */
+    * keysRight() {
+        let entry = this.end;
+        while (entry) {
+            yield entry[0];
+            entry = entry.previous;
+        }
+    }
+
+    /**
+     * Iterates over all the values in the map in reverse.
+     * @return {Generator<any, void, any>}
+     */
+    * valuesRight() {
+        let entry = this.end;
+        while (entry) {
+            yield entry[1];
             entry = entry.previous;
         }
     }

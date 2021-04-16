@@ -17,7 +17,7 @@ if (process.env.UNDER_TEST_UNIT !== 'true') {
  * delete
  * [Symbol.iterator]
  */
-describe('HashMap Class', function () {
+describe('HashBucket Class', function () {
 
 
 });
