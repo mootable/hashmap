@@ -180,6 +180,18 @@ export class HashMap {
     }
 
     /**
+     *
+     * @param {*} key - the key we want to key our value to
+     * @param handler
+     * @param {HashMap.methodOptions} [options] - a set of optional options to allow a user to define the hashcode and equals methods, rather than them being looked up.
+     * @return {*} the new value
+     */
+    emplace(key, handler, options) {
+        const op = equalsAndHash(key, options);
+        return this.buckets.emplace(key, handler, op);
+    }
+
+    /**
      * Copies the keys and values from the iterable, into this one.
      *
      * @param {Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>|Array.<Array.<key,value>>} other - the iterable to copy
