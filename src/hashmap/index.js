@@ -28,7 +28,7 @@ export class HashMap {
     constructor(copy) {
         this.size = 0;
         this.buckets = new HashBuckets(this);
-        if (copy && (copy[Symbol.iterator] || copy.forEach)) {
+        if (copy) {
             this.copy(copy);
         }
     }
