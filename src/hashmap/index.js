@@ -36,7 +36,7 @@ export class HashMap {
      * Returns the number of elements in this hashmap
      * @return {number}
      */
-    get size(){
+    get size() {
         return this.buckets.size;
     }
 
@@ -280,6 +280,7 @@ export class HashMap {
         }
         return this;
     }
+
     /**
      * Execute the provided callback on every <code>[key,value]</code> pair of this map iterable in reverse.
      * @example <caption>Log all the keys and values.</caption>

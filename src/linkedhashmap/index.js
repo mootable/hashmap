@@ -25,12 +25,20 @@ export class LinkedHashMap extends HashMap {
      */
     constructor(copy) {
         super(copy);
+        if(this.size === 0) {
+            this.start = undefined;
+            this.end = undefined;
+        }
+    }
+
+    clear() {
         this.start = undefined;
         this.end = undefined;
+        return super.clear();
     }
 
     createContainer(hash) {
-        return new LinkedContainer(this,hash);
+        return new LinkedContainer(this, hash);
     }
 
     /**
@@ -124,11 +132,11 @@ export class LinkedHashMap extends HashMap {
 export class LinkedContainer extends Container {
 
     constructor(map, hash) {
-        super(map,hash);
+        super(map, hash);
     }
 
-    createEntry(key,value) {
-        const entry = super.createEntry(key,value);
+    createEntry(key, value) {
+        const entry = super.createEntry(key, value);
         const map = this.map;
         if (map.end) {
             map.end.next = entry;
@@ -140,17 +148,17 @@ export class LinkedContainer extends Container {
         return entry;
     }
 
-    deleteEntry(idx){
+    deleteEntry(idx) {
         const oldEntry = super.deleteEntry(idx);
         const map = this.map;
         if (oldEntry.previous) {
             oldEntry.previous.next = oldEntry.next;
-        } else if (map.start === oldEntry) {
+        } else {
             map.start = oldEntry.next;
         }
         if (oldEntry.next) {
             oldEntry.next.previous = oldEntry.previous;
-        } else if (map.end === oldEntry) {
+        } else {
             map.end = oldEntry.previous;
         }
     }
