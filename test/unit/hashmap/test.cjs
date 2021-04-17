@@ -486,6 +486,53 @@ describe('HashMap Class', function () {
         expect(hashmap.size).to.equal(0);
     });
 
+    it('forEach', function () {
+        // Given
+        const hashmap = new HashMap();
+        // numbers are generally ordered in the hashmap
+        hashmap.set(1, "value1");
+        hashmap.set(2, "value2");
+        hashmap.set(3, "value3");
+        let executedCount = 0;
+        const forEachCallback = (value, key, map) => {
+            executedCount++;
+            // Then
+            expect(key).to.equal(executedCount);
+            expect(value).to.equal("value"+executedCount);
+            expect(map).to.equal(hashmap);
+        };
+        // When & Then
+        expect(hashmap.forEach(forEachCallback)).to.equal(hashmap)
+
+        // Then
+        expect(executedCount).to.equal(3);
+
+    });
+
+    it('forEachRight', function () {
+        // Given
+        const hashmap = new HashMap();
+        // numbers are generally ordered in this hashmap, so taking advantage.
+        // If this breaks check for changes to how numbers are hashed, or it maybe a symptom of a bigger issue.
+        hashmap.set(1, "value1");
+        hashmap.set(2, "value2");
+        hashmap.set(3, "value3");
+        let executedCount = 3;
+        const forEachCallback = (value, key, map) => {
+            // Then
+            expect(key).to.equal(executedCount);
+            expect(value).to.equal("value"+executedCount);
+            expect(map).to.equal(hashmap);
+            executedCount--;
+        };
+        // When & Then
+        expect(hashmap.forEachRight(forEachCallback)).to.equal(hashmap)
+
+        // Then
+        expect(executedCount).to.equal(0);
+
+    });
+
     it('[Symbol.iterator]', function () {
         // Given
         const hashmap = new HashMap();

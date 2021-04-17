@@ -237,6 +237,60 @@ export class HashMap {
     }
 
     /**
+     * For Each Function
+     * A callback to execute on every <code>[key,value]</code> pair of this map iterable.
+     * @example <caption>log the keys and values</caption>
+     * const forEachFunction = (value, key) => console.log(key,value)
+     * @callback HashMap#ForEachCallback
+     * @param {*} [value] - the entry value.
+     * @param {*} [key] - the entry key
+     * @param {HashMap} [map] - the calling Map Iterable.
+     */
+
+    /**
+     * Execute the provided callback on every <code>[key,value]</code> pair of this map iterable.
+     * @example <caption>Log all the keys and values.</caption>
+     * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+     * mapIterable.forEach((value) => console.log(key, value));
+     * // will log to the console:
+     * // 1 value1
+     * // 2 value2
+     * // 3 value3
+     * // Ordering is deterministic on paper, but from a usability point of view effectively random
+     * // as it is ordered by a mix of the hash of the key, and order of insertion.
+     * @param {HashMap#ForEachCallback} [callback=(value, key, map) => {}]
+     * @param {*} [thisArg=this] Value to use as <code>this</code> when executing <code>forEachCallback</code>
+     * @returns {HashMap} the hashmap you are foreaching on..
+     */
+    forEach(callback, thisArg = this) {
+        for (const entry of this.entries()) {
+            callback.call(thisArg, entry[1], entry[0], this);
+        }
+        return this;
+    }
+    /**
+     * Execute the provided callback on every <code>[key,value]</code> pair of this map iterable in reverse.
+     * @example <caption>Log all the keys and values.</caption>
+     * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+     * mapIterable.forEachRight((value) => console.log(key, value));
+     * // will log to the console:
+     * // 3 value3
+     * // 2 value2
+     * // 1 value1
+     * // Ordering is deterministic on paper, but from a usability point of view effectively random
+     * // as it is ordered by a mix of the hash of the key, and order of insertion.
+     * @param {HashMap#ForEachCallback} [callback=(value, key, map) => {}]
+     * @param {*} [thisArg=this] Value to use as <code>this</code> when executing <code>forEachCallback</code>
+     * @returns {HashMap} the hashmap you are foreaching on..
+     */
+    forEachRight(callback, thisArg = this) {
+        for (const entry of this.entriesRight()) {
+            callback.call(thisArg, entry[1], entry[0], this);
+        }
+        return this;
+    }
+
+    /**
      * Iterates over all the entries in the map.
      *
      * @return {Generator<any, void, any>}
@@ -297,35 +351,4 @@ export class HashMap {
         yield* this.buckets.valuesRight();
     }
 
-    /**
-     * For Each Function
-     * A callback to execute on every <code>[key,value]</code> pair of this map iterable.
-     * @example <caption>log the keys and values</caption>
-     * const forEachFunction = (value, key) => console.log(key,value)
-     * @callback HashMap#ForEachCallback
-     * @param {*} [value] - the entry value.
-     * @param {*} [key] - the entry key
-     * @param {HashMap} [map] - the calling Map Iterable.
-     */
-
-    /**
-     * Execute the provided callback on every <code>[key,value]</code> pair of this map iterable.
-     * @example <caption>Log all the keys and values.</caption>
-     * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
-     * mapIterable.forEach((value) => console.log(key, value));
-     * // will log to the console:
-     * // 1 value1
-     * // 2 value2
-     * // 3 value3
-     * // Ordering is deterministic on paper, but from a usability point of view effectively random
-     * // as it is ordered by a mix of the hash of the key, and order of insertion.
-     * @param {HashMap#ForEachCallback} [callback=(value, key, map) => {}]
-     * @param {*} [thisArg=this] Value to use as <code>this</code> when executing <code>forEachCallback</code>
-     * @returns {HashMap} the hashmap you are foreaching on..
-     */
-    forEach(callback, thisArg = this) {
-        for (const entry of this.entries()) {
-            callback.call(thisArg, entry[1], entry[0], this);
-        }
-    }
 }
