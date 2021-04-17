@@ -26,12 +26,28 @@ export class HashMap {
      * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>)} [copy]
      */
     constructor(copy) {
-        this.size = 0;
         this.buckets = new HashBuckets(this);
         if (copy) {
             this.copy(copy);
         }
     }
+
+    /**
+     * Returns the number of elements in this hashmap
+     * @return {number}
+     */
+    get size(){
+        return this.buckets.size;
+    }
+
+    /**
+     * Returns the number of elements in this hashmap
+     * @return {number}
+     */
+    get length() {
+        return this.buckets.size;
+    }
+
     /**
      * User Defined Equals Method
      * A user defined function to define an equals method against 2 keys.
@@ -142,7 +158,7 @@ export class HashMap {
      * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/get|Map.get}
      * @param {*} key - the key we use to identify if we have a match.
      * @param {HashMap.methodOptions} [options] - a set of optional options to allow a user to define the hashcode and equals methods, rather than them being looked up.
-     * @returns {{has: boolean, value:*}} - an optional result.
+     * @returns {Option} - an optional result.
      */
     optionalGet(key, options) {
         const op = equalsAndHash(key, options);
@@ -160,7 +176,6 @@ export class HashMap {
     set(key, value, options) {
         const op = equalsAndHash(key, options);
         this.buckets.set(key, value, op);
-        this.size = this.buckets.size;
         return this;
     }
 
@@ -189,7 +204,7 @@ export class HashMap {
             });
             return this;
         }
-        throw new TypeError('HashMap.copy expects an object which is iterable or has a forEach function on it');
+        throw new TypeError('HashMap.copy expects an object which is iterable, has an entries iterable function, or has a forEach function on it');
     }
 
     /**
@@ -208,9 +223,7 @@ export class HashMap {
      */
     delete(key, options) {
         const op = equalsAndHash(key, options);
-        if (this.buckets.delete(key, op)) {
-            this.size = this.buckets.size;
-        }
+        this.buckets.delete(key, op)
         return this;
     }
 
@@ -220,7 +233,6 @@ export class HashMap {
      */
     clear() {
         this.buckets.clear();
-        this.size = 0;
         return this;
     }
 
