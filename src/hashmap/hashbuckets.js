@@ -9,7 +9,6 @@ const SHIFT_HAMT = 5;
 const WIDTH_HAMT = 1 << SHIFT_HAMT;
 const MASK_HAMT = WIDTH_HAMT - 1;
 const DEPTH_HAMT = DEPTH - 1;
-const SHIFT_HAMT_1 = SHIFT_HAMT + SHIFT;
 
 /**
  * @private
@@ -27,7 +26,7 @@ export class HashBuckets {
     }
 
     bucketFor(hash) {
-        const idx = (hash >>> SHIFT) & MASK;
+        const idx = hash & MASK;
         if (idx < this.buckets.length) {
             return this.buckets[idx];
         }
@@ -36,7 +35,7 @@ export class HashBuckets {
 
     set(key, value, options) {
         const hash = options.hash;
-        const idx = (hash >>> SHIFT) & MASK;
+        const idx = hash & MASK;
         let bucket = this.buckets[idx];
         if (!bucket) {
             bucket = this.map.createContainer(hash);
@@ -45,7 +44,7 @@ export class HashBuckets {
             this.size += 1;
             return;
         } else if (bucket.hashConflicts(hash)) {
-            bucket = new HamtBuckets(this.map, DEPTH_HAMT, SHIFT_HAMT_1).replacing(bucket);
+            bucket = new HamtBuckets(this.map, DEPTH_HAMT, SHIFT).replacing(bucket);
             this.buckets[idx] = bucket;
         }
         this.size -= bucket.size;
@@ -55,13 +54,13 @@ export class HashBuckets {
 
     emplace(key, handler, options) {
         const hash = options.hash;
-        const idx = (hash >>> SHIFT) & MASK;
+        const idx = hash & MASK;
         let bucket = this.buckets[idx];
         if (!bucket) {
             bucket = this.map.createContainer(hash);
             this.buckets[idx] = bucket;
         } else if (bucket.hashConflicts(hash)) {
-            bucket = new HamtBuckets(this.map, DEPTH_HAMT, SHIFT_HAMT_1).replacing(bucket);
+            bucket = new HamtBuckets(this.map, DEPTH_HAMT, SHIFT).replacing(bucket);
             this.buckets[idx] = bucket;
         }
         this.size -= bucket.size;
@@ -72,7 +71,7 @@ export class HashBuckets {
 
     delete(key, options) {
         const hash = options.hash;
-        const idx = (hash >>> SHIFT) & MASK;
+        const idx = hash & MASK;
         const bucket = this.buckets[idx];
         if (bucket) {
             const deleted = bucket.delete(key, options);
@@ -130,6 +129,7 @@ export class HashBuckets {
             }
         }
     }
+
     * keys() {
         for (const bucket of this.buckets) {
             if (bucket) {
@@ -186,13 +186,6 @@ export class HamtBuckets {
         this.size = 0;
         this.buckets = [];
         this.idxFlags = 0;
-    }
-
-    indexFor(hash) {
-        const idxFlags = this.idxFlags;
-        const hashIdx = (hash >>> this.shift) & MASK_HAMT;
-        const flag = 1 << hashIdx;
-        return hammingWeight(idxFlags & (flag - 1));
     }
 
     bucketFor(hash) {
@@ -281,7 +274,7 @@ export class HamtBuckets {
                 if (bucket.size === 0) {
                     if (idx === 0) {
                         this.buckets.shift();
-                    } else if (this.buckets.size === idx) {
+                    } else if (this.buckets.length === idx+1) {
                         this.buckets.pop();
                     } else {
                         this.buckets.splice(idx, 1);
