@@ -38,13 +38,13 @@ export class HashBuckets {
         const idx = hash & MASK;
         let bucket = this.buckets[idx];
         if (!bucket) {
-            bucket = this.map.createContainer(hash);
-            bucket.createEntry(key, value);
+            bucket = this.map.createContainer(this, hash);
+            bucket.createEntry(key, value,options);
             this.buckets[idx] = bucket;
             this.size += 1;
             return;
         } else if (bucket.hashConflicts(hash)) {
-            bucket = new HamtBuckets(this.map, DEPTH_HAMT, SHIFT).replacing(bucket);
+            bucket = new HamtBuckets(this.map, this, DEPTH_HAMT, SHIFT).replacing(bucket);
             this.buckets[idx] = bucket;
         }
         this.size -= bucket.size;
@@ -57,10 +57,10 @@ export class HashBuckets {
         const idx = hash & MASK;
         let bucket = this.buckets[idx];
         if (!bucket) {
-            bucket = this.map.createContainer(hash);
+            bucket = this.map.createContainer(this, hash);
             this.buckets[idx] = bucket;
         } else if (bucket.hashConflicts(hash)) {
-            bucket = new HamtBuckets(this.map, DEPTH_HAMT, SHIFT).replacing(bucket);
+            bucket = new HamtBuckets(this.map, this, DEPTH_HAMT, SHIFT).replacing(bucket);
             this.buckets[idx] = bucket;
         }
         this.size -= bucket.size;
@@ -76,9 +76,6 @@ export class HashBuckets {
         if (bucket) {
             const deleted = bucket.delete(key, options);
             if (deleted) {
-                // if (bucket.size === 0) {
-                //     this.buckets[idx] = undefined;
-                // }
                 this.size -= 1;
                 return true;
             }
@@ -169,8 +166,9 @@ export class HashBuckets {
  * @private
  */
 export class HamtBuckets {
-    constructor(map, depth, shift) {
+    constructor(map, parent, depth, shift) {
         this.map = map;
+        this.parent = parent;
         this.buckets = [];
         this.size = 0;
         this.idxFlags = 0;
@@ -206,6 +204,7 @@ export class HamtBuckets {
         // shift the old bucket up a level. no need to splice its always going to be the first item.
         this.buckets[0] = oldBucket;
         this.size = oldBucket.size;
+        oldBucket.parent = this;
         return this;
     }
 
@@ -219,7 +218,7 @@ export class HamtBuckets {
         if (idxFlags & flag) {
             bucket = this.buckets[idx];
             if (this.depth && bucket.hashConflicts(hash)) {
-                bucket = new HamtBuckets(this.map, this.depth - 1, this.shift + SHIFT_HAMT)
+                bucket = new HamtBuckets(this.map, this, this.depth - 1, this.shift + SHIFT_HAMT)
                     .replacing(bucket);
                 this.buckets[idx] = bucket;
             }
@@ -227,8 +226,8 @@ export class HamtBuckets {
             bucket.set(key, value, options);
             this.size += bucket.size;
         } else {
-            bucket = this.map.createContainer(hash);
-            bucket.createEntry(key, value);
+            bucket = this.map.createContainer(this, hash);
+            bucket.createEntry(key, value,options);
             this.buckets.splice(idx, 0, bucket);
             this.idxFlags |= flag;
             this.size += 1;
@@ -245,12 +244,12 @@ export class HamtBuckets {
         if (idxFlags & flag) {
             bucket = this.buckets[idx];
             if (this.depth && bucket.hashConflicts(hash)) {
-                bucket = new HamtBuckets(this.map, this.depth - 1, this.shift + SHIFT_HAMT)
+                bucket = new HamtBuckets(this.map, this, this.depth - 1, this.shift + SHIFT_HAMT)
                     .replacing(bucket);
                 this.buckets[idx] = bucket;
             }
         } else {
-            bucket = this.map.createContainer(hash);
+            bucket = this.map.createContainer(this, hash);
             this.buckets.splice(idx, 0, bucket);
             this.idxFlags |= flag;
         }

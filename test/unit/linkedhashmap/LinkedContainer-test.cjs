@@ -27,13 +27,13 @@ describe('LinkedContainer Class', function () {
         it('get with prefil', function () {
 
             const container = new LinkedContainer(defaultMap);
-            container.createEntry("key", "value");
+            container.createEntry("key", "value", {});
             const value = container.get("key", defaultMethodOptions);
             expect(value).to.equal("value");
         });
         it('get has not got key', function () {
             const container = new LinkedContainer(defaultMap);
-            container.createEntry("key", "value");
+            container.createEntry("key", "value", {});
             const value = container.get("other", defaultMethodOptions);
             expect(value).to.be.undefined
         });
@@ -47,14 +47,14 @@ describe('LinkedContainer Class', function () {
     context('optionalGet()', function () {
         it('optionalGet has key', function () {
             const container = new LinkedContainer(defaultMap);
-            container.createEntry("key", "value");
+            container.createEntry("key", "value", {});
             const option = container.optionalGet("key", defaultMethodOptions);
             expect(option.value).to.equal("value");
             expect(option.has).to.be.true;
         });
         it('optionalGet has not got key', function () {
             const container = new LinkedContainer(defaultMap);
-            container.createEntry("key", "value");
+            container.createEntry("key", "value", {});
             const option = container.optionalGet("other", defaultMethodOptions);
             expect(option.has).to.be.false;
         });
@@ -67,7 +67,7 @@ describe('LinkedContainer Class', function () {
     context('set()', function () {
         it('set has keyed entry', function () {
             const container = new LinkedContainer(defaultMap);
-            container.createEntry("key", "value");
+            container.createEntry("key", "value", {});
 
             container.set("key", "value3", defaultMethodOptions);
             const value = container.get("key", defaultMethodOptions);
@@ -81,7 +81,7 @@ describe('LinkedContainer Class', function () {
         });
         it('set has entry but not keyed', function () {
             const container = new LinkedContainer(defaultMap);
-            container.createEntry("key", "value");
+            container.createEntry("key", "value", {});
             container.set("key2", "value2", defaultMethodOptions);
             container.set("key3", "value3", defaultMethodOptions);
             const value = container.get("key", defaultMethodOptions);
@@ -103,7 +103,7 @@ describe('LinkedContainer Class', function () {
     context('emplace()', function () {
         it('emplace has keyed entry', function () {
             const container = new LinkedContainer(defaultMap);
-            container.createEntry("key", "value");
+            container.createEntry("key", "value", {});
             let updateCalled = 0;
             let insertCalled = 0;
             const handler = {
@@ -134,7 +134,7 @@ describe('LinkedContainer Class', function () {
         });
         it('emplace has keyed entry but no update method', function () {
             const container = new LinkedContainer(defaultMap);
-            container.createEntry("key", "value");
+            container.createEntry("key", "value", {});
             let insertCalled = 0;
             const handler = {
                 insert: (key, map) => {
@@ -159,7 +159,7 @@ describe('LinkedContainer Class', function () {
 
         it('emplace has entry but not keyed', function () {
             const container = new LinkedContainer(defaultMap);
-            container.createEntry("key", "value");
+            container.createEntry("key", "value", {});
             let updateCalled = 0;
             let insertCalled = 0;
             const handler = {
@@ -194,7 +194,7 @@ describe('LinkedContainer Class', function () {
     context('has()', function () {
         it('has key', function () {
             const container = new LinkedContainer(defaultMap);
-            container.createEntry("key", "value");
+            container.createEntry("key", "value", {});
             container.set("key2", "value2", defaultMethodOptions);
             const ret = container.has("key", defaultMethodOptions);
             expect(ret).to.be.true;
@@ -203,7 +203,7 @@ describe('LinkedContainer Class', function () {
         });
         it('has not got key', function () {
             const container = new LinkedContainer(defaultMap);
-            container.createEntry("key", "value");
+            container.createEntry("key", "value", {});
             container.set("key2", "value2", defaultMethodOptions);
             const ret = container.has("other", defaultMethodOptions);
             expect(ret).to.be.false;
@@ -217,7 +217,7 @@ describe('LinkedContainer Class', function () {
     context('delete()', function () {
         it('delete has key', function () {
             const container = new LinkedContainer(defaultMap);
-            container.createEntry("key", "value");
+            container.createEntry("key", "value", {});
             container.set("key2", "value2", defaultMethodOptions);
             const ret = container.delete("key", defaultMethodOptions);
             expect(ret).to.be.true;
@@ -231,7 +231,7 @@ describe('LinkedContainer Class', function () {
         });
         it('delete has not got key', function () {
             const container = new LinkedContainer(defaultMap);
-            container.createEntry("key", "value");
+            container.createEntry("key", "value", {});
             container.set("key2", "value2", defaultMethodOptions);
             const ret = container.delete("other", defaultMethodOptions);
             expect(ret).to.be.false;
@@ -244,7 +244,7 @@ describe('LinkedContainer Class', function () {
         });
         it('delete has got 3 entries delete first', function () {
             const container = new LinkedContainer(defaultMap);
-            container.createEntry("key1", "value1");
+            container.createEntry("key1", "value1", {});
             container.set("key2", "value2", defaultMethodOptions);
             container.set("key3", "value3", defaultMethodOptions);
 
@@ -263,7 +263,7 @@ describe('LinkedContainer Class', function () {
         });
         it('delete has got 3 entries delete middle', function () {
             const container = new LinkedContainer(defaultMap);
-            container.createEntry("key1", "value1");
+            container.createEntry("key1", "value1", {});
             container.set("key2", "value2", defaultMethodOptions);
             container.set("key3", "value3", defaultMethodOptions);
 
@@ -282,7 +282,7 @@ describe('LinkedContainer Class', function () {
         });
         it('delete has got 3 entries delete last', function () {
             const container = new LinkedContainer(defaultMap);
-            container.createEntry("key1", "value1");
+            container.createEntry("key1", "value1", {});
             container.set("key2", "value2", defaultMethodOptions);
             container.set("key3", "value3", defaultMethodOptions);
 
@@ -304,7 +304,7 @@ describe('LinkedContainer Class', function () {
     context('Iterators', function () {
         it('[Symbol.iterator]', function () {
             const container = new LinkedContainer(defaultMap);
-            container.createEntry("key1", "value1");
+            container.createEntry("key1", "value1", {});
             container.set("key2", "value2", defaultMethodOptions);
             let executedCount = 0;
             for ([key, value] of container) {
@@ -316,7 +316,7 @@ describe('LinkedContainer Class', function () {
         });
         it('[Symbol.iterator] size 3', function () {
             const container = new LinkedContainer(defaultMap);
-            container.createEntry("key1", "value1");
+            container.createEntry("key1", "value1", {});
             container.set("key2", "value2", defaultMethodOptions);
             container.set("key3", "value3", defaultMethodOptions);
             let executedCount = 0;
@@ -330,7 +330,7 @@ describe('LinkedContainer Class', function () {
 
         it('entriesRight()', function () {
             const container = new LinkedContainer(defaultMap);
-            container.createEntry("key1", "value1");
+            container.createEntry("key1", "value1", {});
             container.set("key2", "value2", defaultMethodOptions);
             let executedCount = 0;
             for ([key, value] of container.entriesRight()) {
@@ -342,7 +342,7 @@ describe('LinkedContainer Class', function () {
         });
         it('entriesRight() size 3', function () {
             const container = new LinkedContainer(defaultMap);
-            container.createEntry("key1", "value1");
+            container.createEntry("key1", "value1", {});
             container.set("key2", "value2", defaultMethodOptions);
             container.set("key3", "value3", defaultMethodOptions);
             let executedCount = 0;
@@ -356,7 +356,7 @@ describe('LinkedContainer Class', function () {
 
         it('keys', function () {
             const container = new LinkedContainer(defaultMap);
-            container.createEntry("key1", "value1");
+            container.createEntry("key1", "value1", {});
             container.set("key2", "value2", defaultMethodOptions);
             let executedCount = 0;
             for (const key of container.keys()) {
@@ -367,7 +367,7 @@ describe('LinkedContainer Class', function () {
         });
         it('keys size 3', function () {
             const container = new LinkedContainer(defaultMap);
-            container.createEntry("key1", "value1");
+            container.createEntry("key1", "value1", {});
             container.set("key2", "value2", defaultMethodOptions);
             container.set("key3", "value3", defaultMethodOptions);
             let executedCount = 0;
@@ -381,7 +381,7 @@ describe('LinkedContainer Class', function () {
 
         it('keysRight()', function () {
             const container = new LinkedContainer(defaultMap);
-            container.createEntry("key1", "value1");
+            container.createEntry("key1", "value1", {});
             container.set("key2", "value2", defaultMethodOptions);
             let executedCount = 0;
             for (const key of container.keysRight()) {
@@ -392,7 +392,7 @@ describe('LinkedContainer Class', function () {
         });
         it('keysRight() size 3', function () {
             const container = new LinkedContainer(defaultMap);
-            container.createEntry("key1", "value1");
+            container.createEntry("key1", "value1", {});
             container.set("key2", "value2", defaultMethodOptions);
             container.set("key3", "value3", defaultMethodOptions);
             let executedCount = 0;
@@ -405,7 +405,7 @@ describe('LinkedContainer Class', function () {
 
         it('values', function () {
             const container = new LinkedContainer(defaultMap);
-            container.createEntry("key1", "value1");
+            container.createEntry("key1", "value1", {});
             container.set("key2", "value2", defaultMethodOptions);
             let executedCount = 0;
             for (const value of container.values()) {
@@ -416,7 +416,7 @@ describe('LinkedContainer Class', function () {
         });
         it('values size 3', function () {
             const container = new LinkedContainer(defaultMap);
-            container.createEntry("key1", "value1");
+            container.createEntry("key1", "value1", {});
             container.set("key2", "value2", defaultMethodOptions);
             container.set("key3", "value3", defaultMethodOptions);
             let executedCount = 0;
@@ -430,7 +430,7 @@ describe('LinkedContainer Class', function () {
 
         it('valuesRight()', function () {
             const container = new LinkedContainer(defaultMap);
-            container.createEntry("key1", "value1");
+            container.createEntry("key1", "value1", {});
             container.set("key2", "value2", defaultMethodOptions);
             let executedCount = 0;
             for (const value of container.valuesRight()) {
@@ -441,7 +441,7 @@ describe('LinkedContainer Class', function () {
         });
         it('valuesRight() size 3', function () {
             const container = new LinkedContainer(defaultMap);
-            container.createEntry("key1", "value1");
+            container.createEntry("key1", "value1", {});
             container.set("key2", "value2", defaultMethodOptions);
             container.set("key3", "value3", defaultMethodOptions);
             let executedCount = 0;
@@ -455,7 +455,7 @@ describe('LinkedContainer Class', function () {
     });
     context('hashConflicts()', function () {
         it('hashConflicts', function () {
-            const container = new LinkedContainer(defaultMap, 1);
+            const container = new LinkedContainer(defaultMap, undefined, 1);
 
             expect(container.hashConflicts(1)).to.be.false;
             expect(container.hashConflicts(2)).to.be.true;

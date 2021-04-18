@@ -1,5 +1,6 @@
 import {HashMap} from '../hashmap/';
 import {Container} from '../hashmap/container';
+import {equalsAndHash} from "../hash";
 
 /**
  * HashMap - LinkedHashMap Implementation for JavaScript
@@ -25,7 +26,7 @@ export class LinkedHashMap extends HashMap {
      */
     constructor(copy) {
         super(copy);
-        if(this.size === 0) {
+        if (this.size === 0) {
             this.start = undefined;
             this.end = undefined;
         }
@@ -37,8 +38,62 @@ export class LinkedHashMap extends HashMap {
         return super.clear();
     }
 
-    createContainer(hash) {
-        return new LinkedContainer(this, hash);
+    createContainer(parent, hash) {
+        return new LinkedContainer(this, parent, hash);
+    }
+
+    push(key, value, options) {
+        const op = equalsAndHash(key, options);
+        if (!(options && options.allowOverwriting)) {
+            op.forceInsert = true;
+        }
+        this.buckets.set(key, value, op);
+        return this;
+    }
+
+    pushEmplace(key, handler, options) {
+        const op = equalsAndHash(key, options);
+        if (!(options && options.allowOverwriting)) {
+            op.forceInsert = true;
+        }
+        return this.buckets.emplace(key, handler, op);
+    }
+
+    unshift(key, value, options) {
+        const op = equalsAndHash(key, options);
+        if (!(options && options.allowOverwriting)) {
+            op.forceInsert = true;
+        }
+        op.addToStart = true;
+        this.buckets.set(key, value, op);
+        return this;
+    }
+
+    unshiftEmplace(key, handler, options) {
+        const op = equalsAndHash(key, options);
+        if (!(options && options.allowOverwriting)) {
+            op.forceInsert = true;
+        }
+        op.addToStart = true;
+        return this.buckets.emplace(key, handler, op);
+    }
+
+    shift() {
+        const entry = this.start;
+        if (entry) {
+            entry.parent.deleteEntry(entry);
+            return entry.slice();
+        }
+        return undefined;
+    }
+
+    pop() {
+        const entry = this.end;
+        if (entry) {
+            entry.parent.deleteEntry(entry);
+            return entry.slice();
+        }
+        return undefined;
     }
 
     /**
@@ -131,14 +186,18 @@ export class LinkedHashMap extends HashMap {
  */
 export class LinkedContainer extends Container {
 
-    constructor(map, hash) {
-        super(map, hash);
+    constructor(map, parent, hash) {
+        super(map, parent, hash);
     }
 
-    createEntry(key, value) {
-        const entry = super.createEntry(key, value);
+    createEntry(key, value, options) {
+        const entry = super.createEntry(key, value, options);
         const map = this.map;
-        if (map.end) {
+        if (options.addToStart && map.start) {
+            map.start.previous = entry;
+            entry.next = map.start;
+            map.start = entry;
+        } else if (map.end) {
             map.end.next = entry;
             entry.previous = map.end;
             map.end = entry;
@@ -148,8 +207,39 @@ export class LinkedContainer extends Container {
         return entry;
     }
 
-    deleteEntry(idx) {
-        const oldEntry = super.deleteEntry(idx);
+    updateEntry(entry, newValue, options) {
+        super.updateEntry(entry, newValue, options);
+        if (options.forceInsert) {
+            if (options.addToStart) {
+                if (entry !== this.map.start) {
+                    if (entry.next) {
+                        entry.next.previous = entry.previous;
+                    }
+                    if (entry.previous) {
+                        entry.previous.next = entry.next;
+                        entry.previous = undefined;
+                    }
+                    this.map.start.previous = entry;
+                    entry.next = this.map.start;
+                    this.map.start = entry;
+                }
+            } else if (entry !== this.map.end) {
+                    if (entry.previous) {
+                        entry.previous.next = entry.next;
+                    }
+                    if (entry.next) {
+                        entry.next.previous = entry.previous;
+                        entry.next = undefined;
+                    }
+                    this.map.end.next = entry;
+                    entry.previous = this.map.end;
+                    this.map.end = entry;
+                }
+        }
+    }
+
+    deleteIndex(idx) {
+        const oldEntry = super.deleteIndex(idx);
         const map = this.map;
         if (oldEntry.previous) {
             oldEntry.previous.next = oldEntry.next;

@@ -139,9 +139,9 @@ describe('HashMap Class', function () {
             // Given
             const hashmap = new HashMap();
             // When & Then
-            expect(hashmap.createContainer(5)).to.be.instanceOf(Container);
-            expect(hashmap.createContainer(5).hash).to.be.equal(5);
-            expect(hashmap.createContainer(5).map).to.be.equal(hashmap);
+            expect(hashmap.createContainer(undefined,5)).to.be.instanceOf(Container);
+            expect(hashmap.createContainer(undefined,5).hash).to.be.equal(5);
+            expect(hashmap.createContainer(undefined,5).map).to.be.equal(hashmap);
         });
 
     });

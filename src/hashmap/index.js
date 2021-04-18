@@ -79,8 +79,8 @@ export class HashMap {
      * @param hash
      * @return {Container}
      */
-    createContainer(hash) {
-        return new Container(this, hash);
+    createContainer(parent, hash) {
+        return new Container(this, parent, hash);
     }
 
     /**
@@ -235,7 +235,7 @@ export class HashMap {
      */
     delete(key, options) {
         const op = equalsAndHash(key, options);
-        this.buckets.delete(key, op)
+        this.buckets.delete(key, op);
         return this;
     }
 

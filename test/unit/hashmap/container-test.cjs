@@ -410,7 +410,7 @@ describe('Container Class', function () {
     });
     context('hashConflicts()', function () {
         it('hashConflicts', function () {
-            const container = new Container(defaultMap, 1);
+            const container = new Container(defaultMap, undefined, 1);
 
             expect(container.hashConflicts(1)).to.be.false;
             expect(container.hashConflicts(2)).to.be.true;

@@ -149,7 +149,7 @@ export class Container {
         return entry;
     }
 
-    deleteEntry(idx) {
+    deleteIndex(idx) {
         this.size -= 1;
         if (idx === 0) {
             return this.contents.shift();
@@ -175,7 +175,7 @@ export class Container {
         if (idx === -1) {
             return false;
         }
-        this.deleteEntry(idx);
+        this.deleteIndex(idx);
         return true;
     }
 

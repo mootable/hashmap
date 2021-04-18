@@ -22,10 +22,11 @@ export class Container {
      * @param [HashMap] map - the map this container belongs too.
      * @param hash - the hash code for the keys in this container.
      */
-    constructor(map, hash) {
+    constructor(map, parent, hash) {
         this.size = 0;
         this.contents = [];
         this.map = map;
+        this.parent = parent;
         this.hash = hash;
     }
 
@@ -74,11 +75,11 @@ export class Container {
         const equals = options.equals;
         for (const entry of this.contents) {
             if (equals(key, entry[0])) {
-                entry[1] = value;
+                this.updateEntry(entry, value, options);
                 return;
             }
         }
-        this.createEntry(key, value);
+        this.createEntry(key, value, options);
     }
 
     emplace(key, handler, options) {
@@ -87,23 +88,40 @@ export class Container {
             if (equals(key, entry[0])) {
                 const value = 'update' in handler ? handler.update(entry[1], key, this.map)
                     : handler.insert(key, this.map);
-                entry[1] = value;
+                this.updateEntry(entry, value, options);
                 return value;
             }
         }
         const value = handler.insert(key, this.map);
-        this.createEntry(key, value);
+        this.createEntry(key, value, options);
         return value;
     }
 
-    createEntry(key, value) {
+    createEntry(key, value, options) {
         const entry = [key, value];
+        entry.parent = this;
         this.contents.push(entry);
         this.size += 1;
         return entry;
     }
 
-    deleteEntry(idx) {
+    updateEntry(entry, newValue, options) {
+        entry[1] = newValue;
+    }
+
+    deleteEntry(entry) {
+        const idx = this.contents.indexOf(entry);
+        if (idx !== -1) {
+            this.deleteIndex(idx);
+            let parent = this.parent;
+            while (parent) {
+                parent.size -= 1;
+                parent = this.parent;
+            }
+        }
+    }
+
+    deleteIndex(idx) {
         this.size -= 1;
         if (idx === 0) {
             return this.contents.shift();
@@ -129,7 +147,7 @@ export class Container {
         if (idx === -1) {
             return false;
         }
-        this.deleteEntry(idx);
+        this.deleteIndex(idx);
         return true;
     }
 

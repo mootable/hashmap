@@ -52,18 +52,18 @@ describe('hashmap', function () {
             })).to.equal(hashmap);
         });
         it('should return an iterator on HashMap methods', function () {
-            expect(hashmap.filter()).is.instanceOf(Mootable.MapIterable);
-            expect(hashmap.mapKeys()).is.instanceOf(Mootable.MapIterable);
-            expect(hashmap.mapValues()).is.instanceOf(Mootable.MapIterable);
-            expect(hashmap.mapEntries()).is.instanceOf(Mootable.MapIterable);
-            expect(hashmap.entries()).is.instanceOf(Mootable.MapIterable);
-            expect(hashmap.concatMap()).is.instanceOf(Mootable.MapIterable);
-            expect(hashmap.concat()).is.instanceOf(Mootable.MapIterable);
-
-            expect(hashmap.concat([])).is.instanceOf(Mootable.SetIterable);
-            expect(hashmap.map()).is.instanceOf(Mootable.SetIterable);
-            expect(hashmap.keys()).is.instanceOf(Mootable.SetIterable);
-            expect(hashmap.values()).is.instanceOf(Mootable.SetIterable);
+            // expect(hashmap.filter()).is.instanceOf(Mootable.MapIterable);
+            // expect(hashmap.mapKeys()).is.instanceOf(Mootable.MapIterable);
+            // expect(hashmap.mapValues()).is.instanceOf(Mootable.MapIterable);
+            // expect(hashmap.mapEntries()).is.instanceOf(Mootable.MapIterable);
+            // expect(hashmap.entries()).is.instanceOf(Mootable.MapIterable);
+            // expect(hashmap.concatMap()).is.instanceOf(Mootable.MapIterable);
+            // expect(hashmap.concat()).is.instanceOf(Mootable.MapIterable);
+            //
+            // expect(hashmap.concat([])).is.instanceOf(Mootable.SetIterable);
+            // expect(hashmap.map()).is.instanceOf(Mootable.SetIterable);
+            // expect(hashmap.keys()).is.instanceOf(Mootable.SetIterable);
+            // expect(hashmap.values()).is.instanceOf(Mootable.SetIterable);
         });
     });
 
@@ -80,16 +80,16 @@ describe('hashmap', function () {
         // TODO: Check other types?
     });
 
-    describe('hashmap.indexOf()', function () {
-        it('should return undefined when it does not have an entry with a value', function () {
-            expect(hashmap.indexOf('value')).to.be.undefined;
-        });
-
-        it('should return key under which a value is stored', function () {
-            hashmap.set('key', 'value');
-            expect(hashmap.indexOf('value')).to.equal('key');
-        });
-    });
+    // describe('hashmap.indexOf()', function () {
+    //     it('should return undefined when it does not have an entry with a value', function () {
+    //         expect(hashmap.indexOf('value')).to.be.undefined;
+    //     });
+    //
+    //     it('should return key under which a value is stored', function () {
+    //         hashmap.set('key', 'value');
+    //         expect(hashmap.indexOf('value')).to.equal('key');
+    //     });
+    // });
 
     describe('hashmap.delete()', function () {
         it('should delete an entry by key', function () {

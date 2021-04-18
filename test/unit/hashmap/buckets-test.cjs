@@ -69,7 +69,7 @@ describe('hammingWeight', function () {
  * valuesRight() {
  */
 describe('HashBucket Class', function () {
-    const defaultMap = {createContainer:  (hash) => new Container(defaultMap, hash)};
+    const defaultMap = {createContainer:  (parent, hash) => new Container(defaultMap, parent, hash)};
     const defaultMethodOptions_key = equalsAndHash('key');
     const defaultMethodOptions_collidingkey = equalsAndHash('colliding_key');
     defaultMethodOptions_collidingkey.hash = defaultMethodOptions_key.hash ^ 0b1000000000000;
@@ -766,7 +766,7 @@ describe('HashBucket Class', function () {
  * valuesRight()
  */
 describe('HamtBucket Class', function () {
-    const defaultMap = {createContainer:  (hash) => new Container(defaultMap, hash)};
+    const defaultMap = {createContainer:  (parent, hash) => new Container(defaultMap, parent, hash)};
     const defaultMethodOptions_key = equalsAndHash('key');
     const defaultMethodOptions_collidingkey = equalsAndHash('colliding_key');
     defaultMethodOptions_collidingkey.hash = defaultMethodOptions_key.hash ^ 0b1000000000000;

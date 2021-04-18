@@ -196,9 +196,9 @@ describe('LinkedHashMap Class', function () {
             // Given
             const linkedHashmap = new LinkedHashMap();
             // When & Then
-            expect(linkedHashmap.createContainer(5)).to.be.instanceOf(LinkedContainer);
-            expect(linkedHashmap.createContainer(5).hash).to.be.equal(5);
-            expect(linkedHashmap.createContainer(5).map).to.be.equal(linkedHashmap);
+            expect(linkedHashmap.createContainer(undefined,5)).to.be.instanceOf(LinkedContainer);
+            expect(linkedHashmap.createContainer(undefined,5).hash).to.be.equal(5);
+            expect(linkedHashmap.createContainer(undefined,5).map).to.be.equal(linkedHashmap);
         });
 
     });
