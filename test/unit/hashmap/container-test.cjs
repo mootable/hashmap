@@ -408,14 +408,127 @@ describe('Container Class', function () {
         });
 
     });
-    context('hashConflicts()', function () {
+    context('internals', function () {
         it('hashConflicts', function () {
+            // Given
             const container = new Container(defaultMap, undefined, 1);
-
+            // When & Then
             expect(container.hashConflicts(1)).to.be.false;
             expect(container.hashConflicts(2)).to.be.true;
         });
-
+        it('createEntry on empty', function () {
+            // Given
+            const container = new Container(defaultMap, undefined, 1);
+            // When
+            const ret = container.createEntry('key','value');
+            // Then
+            expect(container.size).to.equal(1);
+            expect(container.contents[0]).to.deep.equal(ret);
+            expect(ret).to.deep.equal(['key','value']);
+        });
+        it('createEntry on has values', function () {
+            // Given
+            const container = new Container(defaultMap, undefined, 1);
+            container.createEntry('key1','value1');
+            // When
+            const ret = container.createEntry('key2','value2');
+            // Then
+            expect(container.size).to.equal(2);
+            expect(container.contents[0]).to.deep.equal(['key1','value1']);
+            expect(container.contents[1]).to.deep.equal(ret);
+            expect(ret).to.deep.equal(['key2','value2']);
+        });
+        it('updateEntry', function () {
+            // Given
+            const container = new Container(defaultMap, undefined, 1);
+            const entry = container.createEntry('key1','value1');
+            // When
+            container.updateEntry(entry,'value2');
+            // Then
+            expect(container.size).to.equal(1);
+            expect(container.contents[0]).to.deep.equal(['key1','value2']);
+            expect(container.contents[0]).to.deep.equal(entry);
+        });
+        it('deleteEntry', function () {
+            // Given
+            const containerGrandParent = new Container(defaultMap, undefined, 1);
+            containerGrandParent.size=7;
+            const containerParent = new Container(defaultMap, containerGrandParent, 1);
+            containerParent.size=5;
+            const container = new Container(defaultMap, containerParent, 1);
+            const entry = container.createEntry('key1','value1');
+            // When
+            container.deleteEntry(entry);
+            // Then
+            expect(container.size).to.equal(0);
+            expect(containerParent.size).to.equal(4);
+            expect(containerGrandParent.size).to.equal(6);
+        });
+        it('deleteEntry with more than one', function () {
+            // Given
+            const containerGrandParent = new Container(defaultMap, undefined, 1);
+            containerGrandParent.size=7;
+            const containerParent = new Container(defaultMap, containerGrandParent, 1);
+            containerParent.size=5;
+            const container = new Container(defaultMap, containerParent, 1);
+            container.createEntry('key1','value1');
+            const entry = container.createEntry('key2','value2');
+            // When
+            container.deleteEntry(entry);
+            // Then
+            expect(container.size).to.equal(1);
+            expect(containerParent.size).to.equal(4);
+            expect(containerGrandParent.size).to.equal(6);
+        });
+        it('deleteEntry entry not there', function () {
+            // Given
+            const containerGrandParent = new Container(defaultMap, undefined, 1);
+            containerGrandParent.size=7;
+            const containerParent = new Container(defaultMap, containerGrandParent, 1);
+            containerParent.size=5;
+            const container = new Container(defaultMap, containerParent, 1);
+            container.createEntry('key1','value1');
+            // just reusing the parent to create a non existing entry. this will up the size.
+            const entry = containerGrandParent.createEntry('key2','value2');
+            // When
+            container.deleteEntry(entry);
+            // Then
+            expect(container.size).to.equal(1);
+            expect(containerParent.size).to.equal(5);
+            expect(containerGrandParent.size).to.equal(8);
+        });
+        it('deleteIndex', function () {
+            // Given
+            const container = new Container(defaultMap, 1);
+            container.createEntry('key1','value1');
+            // When
+            container.deleteIndex(0);
+            // Then
+            expect(container.size).to.equal(0);
+        });
+        it('deleteIndex last of 2', function () {
+            // Given
+            const container = new Container(defaultMap, 1);
+            container.createEntry('key1','value1');
+            container.createEntry('key2','value2');
+            // When
+            container.deleteIndex(1);
+            // Then
+            expect(container.size).to.equal(1);
+            expect(container.contents[0]).to.deep.equal(['key1','value1']);
+        });
+        it('deleteIndex first of 2', function () {
+            // Given
+            const container = new Container(defaultMap, 1);
+            container.createEntry('key1','value1');
+            container.createEntry('key2','value2');
+            // When
+            container.deleteIndex(0);
+            // Then
+            expect(container.size).to.equal(1);
+            expect(container.contents[0]).to.deep.equal(['key2','value2']);
+        });
+        // deleteIndex(idx)
     });
 });
 /* jshint ignore:end */

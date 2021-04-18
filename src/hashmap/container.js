@@ -116,7 +116,7 @@ export class Container {
             let parent = this.parent;
             while (parent) {
                 parent.size -= 1;
-                parent = this.parent;
+                parent = parent.parent;
             }
         }
     }
