@@ -5873,14 +5873,25 @@
         return new LinkedContainer(this, parent, hash);
       }
     }, {
+      key: "setLeft",
+      value: function setLeft(key, value, options) {
+        var op = equalsAndHash(key, options);
+        op.addToStart = true;
+        this.buckets.set(key, value, op);
+        return this;
+      }
+    }, {
+      key: "emplaceLeft",
+      value: function emplaceLeft(key, handler, options) {
+        var op = equalsAndHash(key, options);
+        op.addToStart = true;
+        return this.buckets.emplace(key, handler, op);
+      }
+    }, {
       key: "push",
       value: function push(key, value, options) {
         var op = equalsAndHash(key, options);
-
-        if (!(options && options.allowOverwriting)) {
-          op.forceInsert = true;
-        }
-
+        op.forceInsert = true;
         this.buckets.set(key, value, op);
         return this;
       }
@@ -5888,22 +5899,14 @@
       key: "pushEmplace",
       value: function pushEmplace(key, handler, options) {
         var op = equalsAndHash(key, options);
-
-        if (!(options && options.allowOverwriting)) {
-          op.forceInsert = true;
-        }
-
+        op.forceInsert = true;
         return this.buckets.emplace(key, handler, op);
       }
     }, {
       key: "unshift",
       value: function unshift(key, value, options) {
         var op = equalsAndHash(key, options);
-
-        if (!(options && options.allowOverwriting)) {
-          op.forceInsert = true;
-        }
-
+        op.forceInsert = true;
         op.addToStart = true;
         this.buckets.set(key, value, op);
         return this;
@@ -5912,11 +5915,7 @@
       key: "unshiftEmplace",
       value: function unshiftEmplace(key, handler, options) {
         var op = equalsAndHash(key, options);
-
-        if (!(options && options.allowOverwriting)) {
-          op.forceInsert = true;
-        }
-
+        op.forceInsert = true;
         op.addToStart = true;
         return this.buckets.emplace(key, handler, op);
       }

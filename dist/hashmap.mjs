@@ -1488,28 +1488,35 @@ class LinkedHashMap extends HashMap {
         return new LinkedContainer(this, parent, hash);
     }
 
+    setLeft(key, value, options) {
+        const op = equalsAndHash(key, options);
+        op.addToStart = true;
+        this.buckets.set(key, value, op);
+        return this;
+    }
+
+    emplaceLeft(key, handler, options) {
+        const op = equalsAndHash(key, options);
+        op.addToStart = true;
+        return this.buckets.emplace(key, handler, op);
+    }
+
     push(key, value, options) {
         const op = equalsAndHash(key, options);
-        if (!(options && options.allowOverwriting)) {
-            op.forceInsert = true;
-        }
+        op.forceInsert = true;
         this.buckets.set(key, value, op);
         return this;
     }
 
     pushEmplace(key, handler, options) {
         const op = equalsAndHash(key, options);
-        if (!(options && options.allowOverwriting)) {
-            op.forceInsert = true;
-        }
+        op.forceInsert = true;
         return this.buckets.emplace(key, handler, op);
     }
 
     unshift(key, value, options) {
         const op = equalsAndHash(key, options);
-        if (!(options && options.allowOverwriting)) {
-            op.forceInsert = true;
-        }
+        op.forceInsert = true;
         op.addToStart = true;
         this.buckets.set(key, value, op);
         return this;
@@ -1517,9 +1524,7 @@ class LinkedHashMap extends HashMap {
 
     unshiftEmplace(key, handler, options) {
         const op = equalsAndHash(key, options);
-        if (!(options && options.allowOverwriting)) {
-            op.forceInsert = true;
-        }
+        op.forceInsert = true;
         op.addToStart = true;
         return this.buckets.emplace(key, handler, op);
     }
