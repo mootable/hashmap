@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>utils/index.js - Documentation</title>
+    <title>HashMap - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -34,99 +34,118 @@
 
 <div id="main">
     
-    <h1 class="page-title">utils/index.js</h1>
+    <h1 class="page-title">HashMap</h1>
     
 
     
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>/**
- * Utils - Utility functions
- * @namespace Mootable.Utils
- * @author Jack Moxley &lt;https://github.com/jackmoxley>
- * @version 0.15.0
- * Homepage: https://github.com/mootable/hashmap
- */
-/**
- * Is the passed value not null and a function
- * @param func
- * @returns {boolean}
- */
-export function isFunction(func) {
-    return !!(func &amp;&amp; func.constructor &amp;&amp; func.call &amp;&amp; func.apply);
-}
+        <h2>
+            <span class="ancestors"><a href="Mootable.html">Mootable</a>.</span>
+        
+        HashMap
+        </h2>
+        
+    
+</header>
 
-/**
- * Is the passed object iterable
- * @param iterable
- * @return {boolean}
- */
-export function isIterable(iterable) {
-    return !!(iterable &amp;&amp; isFunction(iterable[Symbol.iterator]));
-}
+<article>
+    
+        <div class="container-overview">
+        
+            
 
-/**
- * Is the passed value not null and a string
- * @param str
- * @returns {boolean}
- */
-export function isString(str) { // jshint ignore:line
-    return !!(str &amp;&amp; (typeof str === 'string' || str instanceof String));
-}
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="hashmap_container.js.html">hashmap/container.js</a>, <a href="hashmap_container.js.html#line3">line 3</a>
+    </li></ul></dd>
+    
+
+    
+    <dt class="tag-version">Version:</dt>
+    <dd class="tag-version"><ul class="dummy"><li>0.15.0
+Homepage: https://github.com/mootable/hashmap</li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-author">Author:</dt>
+    <dd class="tag-author">
+        <ul>
+            <li>Jack Moxley &lt;https://github.com/jackmoxley></li>
+        </ul>
+    </dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
 
 
-/**
- * sameValue is the result of Object.is.
- * The only difference between sameValue and sameValueZero is that +0 and -0 are considered different with sameValue.
- * @see {@link https://262.ecma-international.org/6.0/#sec-samevalue sameValue}
- * @function
- * @param x - the first object to compare
- * @param y - the second object to compare
- * @returns {boolean} - if they are equals according to {@link https://262.ecma-international.org/6.0/#sec-samevalue ECMA Spec for Same Value}
- */
-export const sameValue = Object.is;
 
-/**
- * sameValueZero is the equality method used by Map, Array, Set etc.
- * The only difference between === and sameValueZero is that NaN counts as equal on sameValueZero
- * @see {@link https://262.ecma-international.org/6.0/#sec-samevaluezero saveValueZero}
- * @param x - the first object to compare
- * @param y - the second object to compare
- * @returns {boolean} - if they are equals according to {@link https://262.ecma-international.org/6.0/#sec-samevaluezero ECMA Spec for Same Value Zero}
- */
-export function sameValueZero(x, y) {
-    return x === y || (Number.isNaN(x) &amp;&amp; Number.isNaN(y));
-}
 
-/**
- * The abstract Equals method &lt;code>==&lt;/code>.
- * Simply does an abstract equality comparison &lt;code>==&lt;/code> against 2 values
- * @see {@link https://262.ecma-international.org/6.0/#sec-abstract-equality-comparison abstractEquals}
- * @param x - the first object to compare
- * @param y - the second object to compare
- * @returns {boolean} - if they are equals according to {@link https://262.ecma-international.org/6.0/#sec-abstract-equality-comparison ECMA Spec for Abstract Equality}
- */
-export function abstractEquals(x, y) {
-    return x == y; // jshint ignore:line
-}
+            
+                <div class="description usertext"><p>HashMap - HashMap Container Implementation for JavaScript</p></div>
+            
 
-/**
- * The strict Equals method &lt;code>===&lt;/code>.
- * Simply does a strict equality comparison &lt;code>===&lt;/code> against 2 values
- * @see {@link https://262.ecma-international.org/6.0/#sec-strict-equality-comparison strictEquals}
- * @param x - the first object to compare
- * @param y - the second object to compare
- * @returns {boolean} - if they are equals according to {@link https://262.ecma-international.org/6.0/#sec-strict-equality-comparison ECMA Spec for Strict Equality}
- */
-export function strictEquals(x, y) {
-    return x === y;
-}</code></pre>
-        </article>
-    </section>
+            
+        
+        </div>
+    
+
+    
+
+    
+
+    
+    
+    
+
+     
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 

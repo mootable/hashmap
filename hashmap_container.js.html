@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>utils/index.js - Documentation</title>
+    <title>hashmap/container.js - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -34,7 +34,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">utils/index.js</h1>
+    <h1 class="page-title">hashmap/container.js</h1>
     
 
     
@@ -44,86 +44,194 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/**
- * Utils - Utility functions
- * @namespace Mootable.Utils
+            <pre class="prettyprint source linenums"><code>import {none, some} from '../option/';
+
+/**
+ * HashMap - HashMap Container Implementation for JavaScript
+ * @namespace Mootable.HashMap
  * @author Jack Moxley &lt;https://github.com/jackmoxley>
  * @version 0.15.0
  * Homepage: https://github.com/mootable/hashmap
  */
-/**
- * Is the passed value not null and a function
- * @param func
- * @returns {boolean}
- */
-export function isFunction(func) {
-    return !!(func &amp;&amp; func.constructor &amp;&amp; func.call &amp;&amp; func.apply);
-}
 
 /**
- * Is the passed object iterable
- * @param iterable
- * @return {boolean}
+ * Using an array this container stores key value pairs for our map.
+ * This collection of entries is a leaf node of our Hash Array Trie.
+ * As such all entries in the container will have the same hash. In most cases this will be single entry.
+ * @private
  */
-export function isIterable(iterable) {
-    return !!(iterable &amp;&amp; isFunction(iterable[Symbol.iterator]));
-}
+export class Container {
 
-/**
- * Is the passed value not null and a string
- * @param str
- * @returns {boolean}
- */
-export function isString(str) { // jshint ignore:line
-    return !!(str &amp;&amp; (typeof str === 'string' || str instanceof String));
-}
+    /**
+     * Constructs an empty container.
+     *
+     * @param [HashMap] map - the map this container belongs too.
+     * @param hash - the hash code for the keys in this container.
+     */
+    constructor(map, parent, hash) {
+        this.size = 0;
+        this.contents = [];
+        this.map = map;
+        this.parent = parent;
+        this.hash = hash;
+    }
 
+    /**
+     * Does the provided hash conflict with this one, i.e. is it different.
+     * This is used for ensuring only the correct keys are added.
+     *
+     * @param hash
+     * @return {boolean}
+     */
+    hashConflicts(hash) {
+        return hash !== this.hash;
+    }
 
-/**
- * sameValue is the result of Object.is.
- * The only difference between sameValue and sameValueZero is that +0 and -0 are considered different with sameValue.
- * @see {@link https://262.ecma-international.org/6.0/#sec-samevalue sameValue}
- * @function
- * @param x - the first object to compare
- * @param y - the second object to compare
- * @returns {boolean} - if they are equals according to {@link https://262.ecma-international.org/6.0/#sec-samevalue ECMA Spec for Same Value}
- */
-export const sameValue = Object.is;
+    /**
+     * Used to fetch the key and value.
+     *
+     * @param {*} key the key we use to retrieve the value.
+     * @param options must contain the equals function for this key.
+     * @return {*|undefined} the value for the key, or undefined if none available.
+     */
+    get(key, options) {
+        if (this.size !== 0) {
+            const equals = options.equals;
+            for (const entry of this.contents) {
+                if (entry &amp;&amp; equals(key, entry[0])) {
+                    return entry[1];
+                }
+            }
+        }
+        return undefined;
+    }
 
-/**
- * sameValueZero is the equality method used by Map, Array, Set etc.
- * The only difference between === and sameValueZero is that NaN counts as equal on sameValueZero
- * @see {@link https://262.ecma-international.org/6.0/#sec-samevaluezero saveValueZero}
- * @param x - the first object to compare
- * @param y - the second object to compare
- * @returns {boolean} - if they are equals according to {@link https://262.ecma-international.org/6.0/#sec-samevaluezero ECMA Spec for Same Value Zero}
- */
-export function sameValueZero(x, y) {
-    return x === y || (Number.isNaN(x) &amp;&amp; Number.isNaN(y));
-}
+    optionalGet(key, options) {
+        if (this.size !== 0) {
+            const equals = options.equals;
+            const entry = this.contents.find(entry => equals(key, entry[0]));
+            if (entry) {
+                return some(entry[1]);
+            }
+        }
+        return none;
+    }
 
-/**
- * The abstract Equals method &lt;code>==&lt;/code>.
- * Simply does an abstract equality comparison &lt;code>==&lt;/code> against 2 values
- * @see {@link https://262.ecma-international.org/6.0/#sec-abstract-equality-comparison abstractEquals}
- * @param x - the first object to compare
- * @param y - the second object to compare
- * @returns {boolean} - if they are equals according to {@link https://262.ecma-international.org/6.0/#sec-abstract-equality-comparison ECMA Spec for Abstract Equality}
- */
-export function abstractEquals(x, y) {
-    return x == y; // jshint ignore:line
-}
+    set(key, value, options) {
+        const equals = options.equals;
+        for (const entry of this.contents) {
+            if (equals(key, entry[0])) {
+                this.updateEntry(entry, value, options);
+                return;
+            }
+        }
+        this.createEntry(key, value, options);
+    }
 
-/**
- * The strict Equals method &lt;code>===&lt;/code>.
- * Simply does a strict equality comparison &lt;code>===&lt;/code> against 2 values
- * @see {@link https://262.ecma-international.org/6.0/#sec-strict-equality-comparison strictEquals}
- * @param x - the first object to compare
- * @param y - the second object to compare
- * @returns {boolean} - if they are equals according to {@link https://262.ecma-international.org/6.0/#sec-strict-equality-comparison ECMA Spec for Strict Equality}
- */
-export function strictEquals(x, y) {
-    return x === y;
+    emplace(key, handler, options) {
+        const equals = options.equals;
+        for (const entry of this.contents) {
+            if (equals(key, entry[0])) {
+                const value = 'update' in handler ? handler.update(entry[1], key, this.map)
+                    : handler.insert(key, this.map);
+                this.updateEntry(entry, value, options);
+                return value;
+            }
+        }
+        const value = handler.insert(key, this.map);
+        this.createEntry(key, value, options);
+        return value;
+    }
+
+    createEntry(key, value, options) {
+        const entry = [key, value];
+        entry.parent = this;
+        this.contents.push(entry);
+        this.size += 1;
+        return entry;
+    }
+
+    updateEntry(entry, newValue, options) {
+        entry[1] = newValue;
+    }
+
+    deleteEntry(entry) {
+        const idx = this.contents.indexOf(entry);
+        if (idx !== -1) {
+            this.deleteIndex(idx);
+            let parent = this.parent;
+            while (parent) {
+                parent.size -= 1;
+                parent = this.parent;
+            }
+        }
+    }
+
+    deleteIndex(idx) {
+        this.size -= 1;
+        if (idx === 0) {
+            return this.contents.shift();
+        } else if (idx === this.size) {
+            return this.contents.pop();
+        } else {
+            return this.contents.splice(idx, 1)[0];
+        }
+    }
+
+    has(key, options) {
+        if (this.size !== 0) {
+            const equals = options.equals;
+            return this.contents.some(entry => equals(key, entry[0]));
+        }
+        return false;
+    }
+
+    delete(key, options) {
+        const equals = options.equals;
+        const idx = this.contents.findIndex(entry => equals(key, entry[0]));
+
+        if (idx === -1) {
+            return false;
+        }
+        this.deleteIndex(idx);
+        return true;
+    }
+
+    * [Symbol.iterator]() {
+        for (const entry of this.contents) {
+            yield entry.slice();
+        }
+    }
+
+    * entriesRight() {
+        for (let idx = this.contents.length - 1; idx >= 0; idx--) {
+            yield this.contents[idx].slice();
+        }
+    }
+
+    * keys() {
+        for (const entry of this.contents) {
+            yield entry[0];
+        }
+    }
+
+    * values() {
+        for (const entry of this.contents) {
+            yield entry[1];
+        }
+    }
+
+    * keysRight() {
+        for (let idx = this.contents.length - 1; idx >= 0; idx--) {
+            yield this.contents[idx][0];
+        }
+    }
+
+    * valuesRight() {
+        for (let idx = this.contents.length - 1; idx >= 0; idx--) {
+            yield this.contents[idx][1];
+        }
+    }
 }</code></pre>
         </article>
     </section>

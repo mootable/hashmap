@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>utils/index.js - Documentation</title>
+    <title>hashmap/hashbuckets.js - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -34,7 +34,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">utils/index.js</h1>
+    <h1 class="page-title">hashmap/hashbuckets.js</h1>
     
 
     
@@ -44,87 +44,368 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/**
- * Utils - Utility functions
- * @namespace Mootable.Utils
- * @author Jack Moxley &lt;https://github.com/jackmoxley>
- * @version 0.15.0
- * Homepage: https://github.com/mootable/hashmap
- */
+            <pre class="prettyprint source linenums"><code>import {none} from '../option/';
+
+const SHIFT = 7;
+const WIDTH = 1 &lt;&lt; SHIFT;
+const MASK = WIDTH - 1;
+const DEPTH = 5;
+
+const SHIFT_HAMT = 5;
+const WIDTH_HAMT = 1 &lt;&lt; SHIFT_HAMT;
+const MASK_HAMT = WIDTH_HAMT - 1;
+const DEPTH_HAMT = DEPTH - 1;
+
 /**
- * Is the passed value not null and a function
- * @param func
- * @returns {boolean}
+ * @private
  */
-export function isFunction(func) {
-    return !!(func &amp;&amp; func.constructor &amp;&amp; func.call &amp;&amp; func.apply);
+export class HashBuckets {
+    constructor(map) {
+        this.map = map;
+        this.buckets = [];
+        this.size = 0;
+    }
+
+    clear() {
+        this.buckets = [];
+        this.size = 0;
+    }
+
+    bucketFor(hash) {
+        const idx = hash &amp; MASK;
+        if (idx &lt; this.buckets.length) {
+            return this.buckets[idx];
+        }
+        return undefined;
+    }
+
+    set(key, value, options) {
+        const hash = options.hash;
+        const idx = hash &amp; MASK;
+        let bucket = this.buckets[idx];
+        if (!bucket) {
+            bucket = this.map.createContainer(this, hash);
+            bucket.createEntry(key, value,options);
+            this.buckets[idx] = bucket;
+            this.size += 1;
+            return;
+        } else if (bucket.hashConflicts(hash)) {
+            bucket = new HamtBuckets(this.map, this, DEPTH_HAMT, SHIFT).replacing(bucket);
+            this.buckets[idx] = bucket;
+        }
+        this.size -= bucket.size;
+        bucket.set(key, value, options);
+        this.size += bucket.size;
+    }
+
+    emplace(key, handler, options) {
+        const hash = options.hash;
+        const idx = hash &amp; MASK;
+        let bucket = this.buckets[idx];
+        if (!bucket) {
+            bucket = this.map.createContainer(this, hash);
+            this.buckets[idx] = bucket;
+        } else if (bucket.hashConflicts(hash)) {
+            bucket = new HamtBuckets(this.map, this, DEPTH_HAMT, SHIFT).replacing(bucket);
+            this.buckets[idx] = bucket;
+        }
+        this.size -= bucket.size;
+        const value = bucket.emplace(key, handler, options);
+        this.size += bucket.size;
+        return value;
+    }
+
+    delete(key, options) {
+        const hash = options.hash;
+        const idx = hash &amp; MASK;
+        const bucket = this.buckets[idx];
+        if (bucket) {
+            const deleted = bucket.delete(key, options);
+            if (deleted) {
+                this.size -= 1;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    get(key, options) {
+        const hash = options.hash;
+        const bucket = this.bucketFor(hash);
+        if (bucket) {
+            return bucket.get(key, options);
+        }
+        return undefined;
+    }
+
+    optionalGet(key, options) {
+        const hash = options.hash;
+        const bucket = this.bucketFor(hash);
+        if (bucket) {
+            return bucket.optionalGet(key, options);
+        }
+        return none;
+    }
+
+    has(key, options) {
+        const hash = options.hash;
+        const bucket = this.bucketFor(hash);
+        if (bucket) {
+            return bucket.has(key, options);
+        }
+        return false;
+    }
+
+    * [Symbol.iterator]() {
+        for (const bucket of this.buckets) {
+            if (bucket) {
+                yield* bucket;
+            }
+        }
+    }
+
+    * entriesRight() {
+        for (let idx = this.buckets.length - 1; idx >= 0; idx--) {
+            const bucket = this.buckets[idx];
+            if (bucket) {
+                yield* bucket.entriesRight();
+            }
+        }
+    }
+
+    * keys() {
+        for (const bucket of this.buckets) {
+            if (bucket) {
+                yield* bucket.keys();
+            }
+        }
+    }
+
+    * values() {
+        for (const bucket of this.buckets) {
+            if (bucket) {
+                yield* bucket.values();
+            }
+        }
+    }
+
+    * keysRight() {
+        for (let idx = this.buckets.length - 1; idx >= 0; idx--) {
+            const bucket = this.buckets[idx];
+            if (bucket) {
+                yield* bucket.keysRight();
+            }
+        }
+    }
+
+    * valuesRight() {
+        for (let idx = this.buckets.length - 1; idx >= 0; idx--) {
+            const bucket = this.buckets[idx];
+            if (bucket) {
+                yield* bucket.valuesRight();
+            }
+        }
+    }
 }
 
 /**
- * Is the passed object iterable
- * @param iterable
- * @return {boolean}
+ * @private
  */
-export function isIterable(iterable) {
-    return !!(iterable &amp;&amp; isFunction(iterable[Symbol.iterator]));
+export class HamtBuckets {
+    constructor(map, parent, depth, shift) {
+        this.map = map;
+        this.parent = parent;
+        this.buckets = [];
+        this.size = 0;
+        this.idxFlags = 0;
+        this.depth = depth;
+        this.shift = shift;
+    }
+
+    hashConflicts() {
+        return false;
+    }
+
+    clear() {
+        this.size = 0;
+        this.buckets = [];
+        this.idxFlags = 0;
+    }
+
+    bucketFor(hash) {
+        const idxFlags = this.idxFlags;
+        const hashIdx = (hash >>> this.shift) &amp; MASK_HAMT;
+        const flag = 1 &lt;&lt; hashIdx;
+        const idx = hammingWeight(idxFlags &amp; (flag - 1));
+
+        if (idxFlags &amp; flag) {
+            return this.buckets[idx];
+        }
+        return undefined;
+    }
+
+    replacing(oldBucket) {
+        const new_flag = 1 &lt;&lt; ((oldBucket.hash >>> this.shift) &amp; MASK_HAMT);
+        this.idxFlags |= new_flag;
+        // shift the old bucket up a level. no need to splice its always going to be the first item.
+        this.buckets[0] = oldBucket;
+        this.size = oldBucket.size;
+        oldBucket.parent = this;
+        return this;
+    }
+
+    set(key, value, options) {
+        const hash = options.hash;
+        const idxFlags = this.idxFlags;
+        const hashIdx = (hash >>> this.shift) &amp; MASK_HAMT;
+        const flag = 1 &lt;&lt; hashIdx;
+        const idx = hammingWeight(idxFlags &amp; (flag - 1));
+        let bucket;
+        if (idxFlags &amp; flag) {
+            bucket = this.buckets[idx];
+            if (this.depth &amp;&amp; bucket.hashConflicts(hash)) {
+                bucket = new HamtBuckets(this.map, this, this.depth - 1, this.shift + SHIFT_HAMT)
+                    .replacing(bucket);
+                this.buckets[idx] = bucket;
+            }
+            this.size -= bucket.size;
+            bucket.set(key, value, options);
+            this.size += bucket.size;
+        } else {
+            bucket = this.map.createContainer(this, hash);
+            bucket.createEntry(key, value,options);
+            this.buckets.splice(idx, 0, bucket);
+            this.idxFlags |= flag;
+            this.size += 1;
+        }
+    }
+
+    emplace(key, handler, options) {
+        const hash = options.hash;
+        const idxFlags = this.idxFlags;
+        const hashIdx = (hash >>> this.shift) &amp; MASK_HAMT;
+        const flag = 1 &lt;&lt; hashIdx;
+        const idx = hammingWeight(idxFlags &amp; (flag - 1));
+        let bucket;
+        if (idxFlags &amp; flag) {
+            bucket = this.buckets[idx];
+            if (this.depth &amp;&amp; bucket.hashConflicts(hash)) {
+                bucket = new HamtBuckets(this.map, this, this.depth - 1, this.shift + SHIFT_HAMT)
+                    .replacing(bucket);
+                this.buckets[idx] = bucket;
+            }
+        } else {
+            bucket = this.map.createContainer(this, hash);
+            this.buckets.splice(idx, 0, bucket);
+            this.idxFlags |= flag;
+        }
+        this.size -= bucket.size;
+        const value = bucket.emplace(key, handler, options);
+        this.size += bucket.size;
+        return value;
+    }
+
+    delete(key, options) {
+        const hash = options.hash;
+        const idxFlags = this.idxFlags;
+        const hashIdx = (hash >>> this.shift) &amp; MASK_HAMT;
+        const flag = 1 &lt;&lt; hashIdx;
+        if (idxFlags &amp; flag) {
+            const idx = hammingWeight(idxFlags &amp; (flag - 1));
+            const bucket = this.buckets[idx];
+            const deleted = bucket.delete(key, options);
+            if (deleted) {
+                this.size -= 1;
+                if (bucket.size === 0) {
+                    if (idx === 0) {
+                        this.buckets.shift();
+                    } else if (this.buckets.length === idx+1) {
+                        this.buckets.pop();
+                    } else {
+                        this.buckets.splice(idx, 1);
+                    }
+                    this.idxFlags ^= flag;
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    get(key, options) {
+        const hash = options.hash;
+        const bucket = this.bucketFor(hash);
+        if (bucket) {
+            return bucket.get(key, options);
+        }
+        return undefined;
+    }
+
+    optionalGet(key, options) {
+        const hash = options.hash;
+        const bucket = this.bucketFor(hash);
+        if (bucket) {
+            return bucket.optionalGet(key, options);
+        }
+        return none;
+    }
+
+    has(key, options) {
+        const hash = options.hash;
+        const bucket = this.bucketFor(hash);
+        if (bucket) {
+            return bucket.has(key, options);
+        }
+        return false;
+    }
+
+    * [Symbol.iterator]() {
+        for (const bucket of this.buckets) {
+            yield* bucket;
+        }
+    }
+
+    * entriesRight() {
+        for (let idx = this.buckets.length - 1; idx >= 0; idx--) {
+            yield* this.buckets[idx].entriesRight();
+        }
+    }
+
+    * keys() {
+        for (const bucket of this.buckets) {
+            yield* bucket.keys();
+        }
+    }
+
+    * values() {
+        for (const bucket of this.buckets) {
+            yield* bucket.values();
+        }
+    }
+    * keysRight() {
+        for (let idx = this.buckets.length - 1; idx >= 0; idx--) {
+            yield* this.buckets[idx].keysRight();
+        }
+    }
+
+    * valuesRight() {
+        for (let idx = this.buckets.length - 1; idx >= 0; idx--) {
+            yield* this.buckets[idx].valuesRight();
+        }
+    }
 }
 
 /**
- * Is the passed value not null and a string
- * @param str
- * @returns {boolean}
+ * Counts the number of ones in a 32 bit integer.
+ *
+ * @param {number} flags 32 bit integet
+ * @return {number} amount of ones.
  */
-export function isString(str) { // jshint ignore:line
-    return !!(str &amp;&amp; (typeof str === 'string' || str instanceof String));
-}
-
-
-/**
- * sameValue is the result of Object.is.
- * The only difference between sameValue and sameValueZero is that +0 and -0 are considered different with sameValue.
- * @see {@link https://262.ecma-international.org/6.0/#sec-samevalue sameValue}
- * @function
- * @param x - the first object to compare
- * @param y - the second object to compare
- * @returns {boolean} - if they are equals according to {@link https://262.ecma-international.org/6.0/#sec-samevalue ECMA Spec for Same Value}
- */
-export const sameValue = Object.is;
-
-/**
- * sameValueZero is the equality method used by Map, Array, Set etc.
- * The only difference between === and sameValueZero is that NaN counts as equal on sameValueZero
- * @see {@link https://262.ecma-international.org/6.0/#sec-samevaluezero saveValueZero}
- * @param x - the first object to compare
- * @param y - the second object to compare
- * @returns {boolean} - if they are equals according to {@link https://262.ecma-international.org/6.0/#sec-samevaluezero ECMA Spec for Same Value Zero}
- */
-export function sameValueZero(x, y) {
-    return x === y || (Number.isNaN(x) &amp;&amp; Number.isNaN(y));
-}
-
-/**
- * The abstract Equals method &lt;code>==&lt;/code>.
- * Simply does an abstract equality comparison &lt;code>==&lt;/code> against 2 values
- * @see {@link https://262.ecma-international.org/6.0/#sec-abstract-equality-comparison abstractEquals}
- * @param x - the first object to compare
- * @param y - the second object to compare
- * @returns {boolean} - if they are equals according to {@link https://262.ecma-international.org/6.0/#sec-abstract-equality-comparison ECMA Spec for Abstract Equality}
- */
-export function abstractEquals(x, y) {
-    return x == y; // jshint ignore:line
-}
-
-/**
- * The strict Equals method &lt;code>===&lt;/code>.
- * Simply does a strict equality comparison &lt;code>===&lt;/code> against 2 values
- * @see {@link https://262.ecma-international.org/6.0/#sec-strict-equality-comparison strictEquals}
- * @param x - the first object to compare
- * @param y - the second object to compare
- * @returns {boolean} - if they are equals according to {@link https://262.ecma-international.org/6.0/#sec-strict-equality-comparison ECMA Spec for Strict Equality}
- */
-export function strictEquals(x, y) {
-    return x === y;
-}</code></pre>
+export const hammingWeight = (flags) => {
+    flags -= ((flags >> 1) &amp; 0x55555555);
+    flags = (flags &amp; 0x33333333) + ((flags >> 2) &amp; 0x33333333);
+    return ((flags + (flags >> 4) &amp; 0xF0F0F0F) * 0x1010101) >> 24;
+};</code></pre>
         </article>
     </section>
 
