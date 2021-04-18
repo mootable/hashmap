@@ -1021,6 +1021,46 @@
   }
   });
 
+  var fails = function (exec) {
+    try {
+      return !!exec();
+    } catch (error) {
+      return true;
+    }
+  };
+
+  var toString$1 = {}.toString;
+
+  var classofRaw = function (it) {
+    return toString$1.call(it).slice(8, -1);
+  };
+
+  var split = ''.split;
+
+  // fallback for non-array-like ES3 and non-enumerable old V8 strings
+  var indexedObject = fails(function () {
+    // throws an error in rhino, see https://github.com/mozilla/rhino/issues/346
+    // eslint-disable-next-line no-prototype-builtins -- safe
+    return !Object('z').propertyIsEnumerable(0);
+  }) ? function (it) {
+    return classofRaw(it) == 'String' ? split.call(it, '') : Object(it);
+  } : Object;
+
+  // `RequireObjectCoercible` abstract operation
+  // https://tc39.es/ecma262/#sec-requireobjectcoercible
+  var requireObjectCoercible = function (it) {
+    if (it == undefined) throw TypeError("Can't call method on " + it);
+    return it;
+  };
+
+  // toObject with fallback for non-array-like ES3 strings
+
+
+
+  var toIndexedObject = function (it) {
+    return indexedObject(requireObjectCoercible(it));
+  };
+
   var check = function (it) {
     return it && it.Math == Math && it;
   };
@@ -1035,22 +1075,6 @@
     check(typeof commonjsGlobal == 'object' && commonjsGlobal) ||
     // eslint-disable-next-line no-new-func -- fallback
     (function () { return this; })() || Function('return this')();
-
-  var path = global$1;
-
-  var hasOwnProperty = {}.hasOwnProperty;
-
-  var has$1 = function (it, key) {
-    return hasOwnProperty.call(it, key);
-  };
-
-  var fails = function (exec) {
-    try {
-      return !!exec();
-    } catch (error) {
-      return true;
-    }
-  };
 
   // Detect IE8's incomplete defineProperty implementation
   var descriptors = !fails(function () {
@@ -1157,6 +1181,12 @@
   });
   });
 
+  var hasOwnProperty = {}.hasOwnProperty;
+
+  var has$1 = function (it, key) {
+    return hasOwnProperty.call(it, key);
+  };
+
   var id = 0;
   var postfix = Math.random();
 
@@ -1164,13 +1194,9 @@
     return 'Symbol(' + String(key === undefined ? '' : key) + ')_' + (++id + postfix).toString(36);
   };
 
-  var toString$1 = {}.toString;
-
-  var classofRaw = function (it) {
-    return toString$1.call(it).slice(8, -1);
-  };
-
   var engineIsNode = classofRaw(global$1.process) == 'process';
+
+  var path = global$1;
 
   var aFunction$1 = function (variable) {
     return typeof variable == 'function' ? variable : undefined;
@@ -1228,51 +1254,6 @@
         WellKnownSymbolsStore$1[name] = createWellKnownSymbol('Symbol.' + name);
       }
     } return WellKnownSymbolsStore$1[name];
-  };
-
-  var f$5 = wellKnownSymbol;
-
-  var wellKnownSymbolWrapped = {
-  	f: f$5
-  };
-
-  var defineProperty$5 = objectDefineProperty.f;
-
-  var defineWellKnownSymbol = function (NAME) {
-    var Symbol = path.Symbol || (path.Symbol = {});
-    if (!has$1(Symbol, NAME)) defineProperty$5(Symbol, NAME, {
-      value: wellKnownSymbolWrapped.f(NAME)
-    });
-  };
-
-  // `Symbol.iterator` well-known symbol
-  // https://tc39.es/ecma262/#sec-symbol.iterator
-  defineWellKnownSymbol('iterator');
-
-  var split = ''.split;
-
-  // fallback for non-array-like ES3 and non-enumerable old V8 strings
-  var indexedObject = fails(function () {
-    // throws an error in rhino, see https://github.com/mozilla/rhino/issues/346
-    // eslint-disable-next-line no-prototype-builtins -- safe
-    return !Object('z').propertyIsEnumerable(0);
-  }) ? function (it) {
-    return classofRaw(it) == 'String' ? split.call(it, '') : Object(it);
-  } : Object;
-
-  // `RequireObjectCoercible` abstract operation
-  // https://tc39.es/ecma262/#sec-requireobjectcoercible
-  var requireObjectCoercible = function (it) {
-    if (it == undefined) throw TypeError("Can't call method on " + it);
-    return it;
-  };
-
-  // toObject with fallback for non-array-like ES3 strings
-
-
-
-  var toIndexedObject = function (it) {
-    return indexedObject(requireObjectCoercible(it));
   };
 
   var ceil = Math.ceil;
@@ -1559,13 +1540,13 @@
 
   // `Object.prototype.propertyIsEnumerable` method implementation
   // https://tc39.es/ecma262/#sec-object.prototype.propertyisenumerable
-  var f$4 = NASHORN_BUG ? function propertyIsEnumerable(V) {
+  var f$5 = NASHORN_BUG ? function propertyIsEnumerable(V) {
     var descriptor = getOwnPropertyDescriptor$2(this, V);
     return !!descriptor && descriptor.enumerable;
   } : $propertyIsEnumerable$1;
 
   var objectPropertyIsEnumerable = {
-  	f: f$4
+  	f: f$5
   };
 
   // eslint-disable-next-line es/no-object-getownpropertydescriptor -- safe
@@ -1573,7 +1554,7 @@
 
   // `Object.getOwnPropertyDescriptor` method
   // https://tc39.es/ecma262/#sec-object.getownpropertydescriptor
-  var f$3 = descriptors ? $getOwnPropertyDescriptor$1 : function getOwnPropertyDescriptor(O, P) {
+  var f$4 = descriptors ? $getOwnPropertyDescriptor$1 : function getOwnPropertyDescriptor(O, P) {
     O = toIndexedObject(O);
     P = toPrimitive(P, true);
     if (ie8DomDefine) try {
@@ -1583,7 +1564,7 @@
   };
 
   var objectGetOwnPropertyDescriptor = {
-  	f: f$3
+  	f: f$4
   };
 
   var redefine = createCommonjsModule(function (module) {
@@ -1627,19 +1608,19 @@
   // `Object.getOwnPropertyNames` method
   // https://tc39.es/ecma262/#sec-object.getownpropertynames
   // eslint-disable-next-line es/no-object-getownpropertynames -- safe
-  var f$2 = Object.getOwnPropertyNames || function getOwnPropertyNames(O) {
+  var f$3 = Object.getOwnPropertyNames || function getOwnPropertyNames(O) {
     return objectKeysInternal(O, hiddenKeys);
   };
 
   var objectGetOwnPropertyNames = {
-  	f: f$2
+  	f: f$3
   };
 
   // eslint-disable-next-line es/no-object-getownpropertysymbols -- safe
-  var f$1 = Object.getOwnPropertySymbols;
+  var f$2 = Object.getOwnPropertySymbols;
 
   var objectGetOwnPropertySymbols = {
-  	f: f$1
+  	f: f$2
   };
 
   // all object keys, includes non-enumerable and symbols
@@ -1798,7 +1779,7 @@
     BUGGY_SAFARI_ITERATORS: BUGGY_SAFARI_ITERATORS$1
   };
 
-  var defineProperty$4 = objectDefineProperty.f;
+  var defineProperty$5 = objectDefineProperty.f;
 
 
 
@@ -1806,7 +1787,7 @@
 
   var setToStringTag = function (it, TAG, STATIC) {
     if (it && !has$1(it = STATIC ? it : it.prototype, TO_STRING_TAG$3)) {
-      defineProperty$4(it, TO_STRING_TAG$3, { configurable: true, value: TAG });
+      defineProperty$5(it, TO_STRING_TAG$3, { configurable: true, value: TAG });
     }
   };
 
@@ -2023,60 +2004,6 @@
     redefine(Object.prototype, 'toString', objectToString, { unsafe: true });
   }
 
-  // `String.prototype.{ codePointAt, at }` methods implementation
-  var createMethod$2 = function (CONVERT_TO_STRING) {
-    return function ($this, pos) {
-      var S = String(requireObjectCoercible($this));
-      var position = toInteger(pos);
-      var size = S.length;
-      var first, second;
-      if (position < 0 || position >= size) return CONVERT_TO_STRING ? '' : undefined;
-      first = S.charCodeAt(position);
-      return first < 0xD800 || first > 0xDBFF || position + 1 === size
-        || (second = S.charCodeAt(position + 1)) < 0xDC00 || second > 0xDFFF
-          ? CONVERT_TO_STRING ? S.charAt(position) : first
-          : CONVERT_TO_STRING ? S.slice(position, position + 2) : (first - 0xD800 << 10) + (second - 0xDC00) + 0x10000;
-    };
-  };
-
-  var stringMultibyte = {
-    // `String.prototype.codePointAt` method
-    // https://tc39.es/ecma262/#sec-string.prototype.codepointat
-    codeAt: createMethod$2(false),
-    // `String.prototype.at` method
-    // https://github.com/mathiasbynens/String.prototype.at
-    charAt: createMethod$2(true)
-  };
-
-  var charAt = stringMultibyte.charAt;
-
-
-
-  var STRING_ITERATOR = 'String Iterator';
-  var setInternalState$3 = internalState.set;
-  var getInternalState$1 = internalState.getterFor(STRING_ITERATOR);
-
-  // `String.prototype[@@iterator]` method
-  // https://tc39.es/ecma262/#sec-string.prototype-@@iterator
-  defineIterator(String, 'String', function (iterated) {
-    setInternalState$3(this, {
-      type: STRING_ITERATOR,
-      string: String(iterated),
-      index: 0
-    });
-  // `%StringIteratorPrototype%.next` method
-  // https://tc39.es/ecma262/#sec-%stringiteratorprototype%.next
-  }, function next() {
-    var state = getInternalState$1(this);
-    var string = state.string;
-    var index = state.index;
-    var point;
-    if (index >= string.length) return { value: undefined, done: true };
-    point = charAt(string, index);
-    state.index += point.length;
-    return { value: point, done: false };
-  });
-
   // iterable DOM collections
   // flag - `iterable` interface - 'entries', 'keys', 'values', 'forEach' methods
   var domIterables = {
@@ -2141,41 +2068,6 @@
     }
   }
 
-  // `IsArray` abstract operation
-  // https://tc39.es/ecma262/#sec-isarray
-  // eslint-disable-next-line es/no-array-isarray -- safe
-  var isArray = Array.isArray || function isArray(arg) {
-    return classofRaw(arg) == 'Array';
-  };
-
-  /* eslint-disable es/no-object-getownpropertynames -- safe */
-
-  var $getOwnPropertyNames$1 = objectGetOwnPropertyNames.f;
-
-  var toString = {}.toString;
-
-  var windowNames = typeof window == 'object' && window && Object.getOwnPropertyNames
-    ? Object.getOwnPropertyNames(window) : [];
-
-  var getWindowNames = function (it) {
-    try {
-      return $getOwnPropertyNames$1(it);
-    } catch (error) {
-      return windowNames.slice();
-    }
-  };
-
-  // fallback for IE11 buggy Object.getOwnPropertyNames with iframe and window
-  var f = function getOwnPropertyNames(it) {
-    return windowNames && toString.call(it) == '[object Window]'
-      ? getWindowNames(it)
-      : $getOwnPropertyNames$1(toIndexedObject(it));
-  };
-
-  var objectGetOwnPropertyNamesExternal = {
-  	f: f
-  };
-
   var aFunction = function (it) {
     if (typeof it != 'function') {
       throw TypeError(String(it) + ' is not a function');
@@ -2205,6 +2097,13 @@
     };
   };
 
+  // `IsArray` abstract operation
+  // https://tc39.es/ecma262/#sec-isarray
+  // eslint-disable-next-line es/no-array-isarray -- safe
+  var isArray = Array.isArray || function isArray(arg) {
+    return classofRaw(arg) == 'Array';
+  };
+
   var SPECIES$3 = wellKnownSymbol('species');
 
   // `ArraySpeciesCreate` abstract operation
@@ -2225,7 +2124,7 @@
   var push = [].push;
 
   // `Array.prototype.{ forEach, map, filter, some, every, find, findIndex, filterOut }` methods implementation
-  var createMethod$1 = function (TYPE) {
+  var createMethod$2 = function (TYPE) {
     var IS_MAP = TYPE == 1;
     var IS_FILTER = TYPE == 2;
     var IS_SOME = TYPE == 3;
@@ -2265,31 +2164,163 @@
   var arrayIteration = {
     // `Array.prototype.forEach` method
     // https://tc39.es/ecma262/#sec-array.prototype.foreach
-    forEach: createMethod$1(0),
+    forEach: createMethod$2(0),
     // `Array.prototype.map` method
     // https://tc39.es/ecma262/#sec-array.prototype.map
-    map: createMethod$1(1),
+    map: createMethod$2(1),
     // `Array.prototype.filter` method
     // https://tc39.es/ecma262/#sec-array.prototype.filter
-    filter: createMethod$1(2),
+    filter: createMethod$2(2),
     // `Array.prototype.some` method
     // https://tc39.es/ecma262/#sec-array.prototype.some
-    some: createMethod$1(3),
+    some: createMethod$2(3),
     // `Array.prototype.every` method
     // https://tc39.es/ecma262/#sec-array.prototype.every
-    every: createMethod$1(4),
+    every: createMethod$2(4),
     // `Array.prototype.find` method
     // https://tc39.es/ecma262/#sec-array.prototype.find
-    find: createMethod$1(5),
+    find: createMethod$2(5),
     // `Array.prototype.findIndex` method
     // https://tc39.es/ecma262/#sec-array.prototype.findIndex
-    findIndex: createMethod$1(6),
+    findIndex: createMethod$2(6),
     // `Array.prototype.filterOut` method
     // https://github.com/tc39/proposal-array-filtering
-    filterOut: createMethod$1(7)
+    filterOut: createMethod$2(7)
+  };
+
+  var arrayMethodIsStrict = function (METHOD_NAME, argument) {
+    var method = [][METHOD_NAME];
+    return !!method && fails(function () {
+      // eslint-disable-next-line no-useless-call,no-throw-literal -- required for testing
+      method.call(null, argument || function () { throw 1; }, 1);
+    });
   };
 
   var $forEach$1 = arrayIteration.forEach;
+
+
+  var STRICT_METHOD = arrayMethodIsStrict('forEach');
+
+  // `Array.prototype.forEach` method implementation
+  // https://tc39.es/ecma262/#sec-array.prototype.foreach
+  var arrayForEach = !STRICT_METHOD ? function forEach(callbackfn /* , thisArg */) {
+    return $forEach$1(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
+  // eslint-disable-next-line es/no-array-prototype-foreach -- safe
+  } : [].forEach;
+
+  for (var COLLECTION_NAME in domIterables) {
+    var Collection = global$1[COLLECTION_NAME];
+    var CollectionPrototype = Collection && Collection.prototype;
+    // some Chrome versions have non-configurable methods on DOMTokenList
+    if (CollectionPrototype && CollectionPrototype.forEach !== arrayForEach) try {
+      createNonEnumerableProperty(CollectionPrototype, 'forEach', arrayForEach);
+    } catch (error) {
+      CollectionPrototype.forEach = arrayForEach;
+    }
+  }
+
+  var f$1 = wellKnownSymbol;
+
+  var wellKnownSymbolWrapped = {
+  	f: f$1
+  };
+
+  var defineProperty$4 = objectDefineProperty.f;
+
+  var defineWellKnownSymbol = function (NAME) {
+    var Symbol = path.Symbol || (path.Symbol = {});
+    if (!has$1(Symbol, NAME)) defineProperty$4(Symbol, NAME, {
+      value: wellKnownSymbolWrapped.f(NAME)
+    });
+  };
+
+  // `Symbol.iterator` well-known symbol
+  // https://tc39.es/ecma262/#sec-symbol.iterator
+  defineWellKnownSymbol('iterator');
+
+  // `String.prototype.{ codePointAt, at }` methods implementation
+  var createMethod$1 = function (CONVERT_TO_STRING) {
+    return function ($this, pos) {
+      var S = String(requireObjectCoercible($this));
+      var position = toInteger(pos);
+      var size = S.length;
+      var first, second;
+      if (position < 0 || position >= size) return CONVERT_TO_STRING ? '' : undefined;
+      first = S.charCodeAt(position);
+      return first < 0xD800 || first > 0xDBFF || position + 1 === size
+        || (second = S.charCodeAt(position + 1)) < 0xDC00 || second > 0xDFFF
+          ? CONVERT_TO_STRING ? S.charAt(position) : first
+          : CONVERT_TO_STRING ? S.slice(position, position + 2) : (first - 0xD800 << 10) + (second - 0xDC00) + 0x10000;
+    };
+  };
+
+  var stringMultibyte = {
+    // `String.prototype.codePointAt` method
+    // https://tc39.es/ecma262/#sec-string.prototype.codepointat
+    codeAt: createMethod$1(false),
+    // `String.prototype.at` method
+    // https://github.com/mathiasbynens/String.prototype.at
+    charAt: createMethod$1(true)
+  };
+
+  var charAt = stringMultibyte.charAt;
+
+
+
+  var STRING_ITERATOR = 'String Iterator';
+  var setInternalState$3 = internalState.set;
+  var getInternalState$1 = internalState.getterFor(STRING_ITERATOR);
+
+  // `String.prototype[@@iterator]` method
+  // https://tc39.es/ecma262/#sec-string.prototype-@@iterator
+  defineIterator(String, 'String', function (iterated) {
+    setInternalState$3(this, {
+      type: STRING_ITERATOR,
+      string: String(iterated),
+      index: 0
+    });
+  // `%StringIteratorPrototype%.next` method
+  // https://tc39.es/ecma262/#sec-%stringiteratorprototype%.next
+  }, function next() {
+    var state = getInternalState$1(this);
+    var string = state.string;
+    var index = state.index;
+    var point;
+    if (index >= string.length) return { value: undefined, done: true };
+    point = charAt(string, index);
+    state.index += point.length;
+    return { value: point, done: false };
+  });
+
+  /* eslint-disable es/no-object-getownpropertynames -- safe */
+
+  var $getOwnPropertyNames$1 = objectGetOwnPropertyNames.f;
+
+  var toString = {}.toString;
+
+  var windowNames = typeof window == 'object' && window && Object.getOwnPropertyNames
+    ? Object.getOwnPropertyNames(window) : [];
+
+  var getWindowNames = function (it) {
+    try {
+      return $getOwnPropertyNames$1(it);
+    } catch (error) {
+      return windowNames.slice();
+    }
+  };
+
+  // fallback for IE11 buggy Object.getOwnPropertyNames with iframe and window
+  var f = function getOwnPropertyNames(it) {
+    return windowNames && toString.call(it) == '[object Window]'
+      ? getWindowNames(it)
+      : $getOwnPropertyNames$1(toIndexedObject(it));
+  };
+
+  var objectGetOwnPropertyNamesExternal = {
+  	f: f
+  };
+
+  var $forEach = arrayIteration.forEach;
 
   var HIDDEN = sharedKey('hidden');
   var SYMBOL = 'Symbol';
@@ -2364,7 +2395,7 @@
     anObject(O);
     var properties = toIndexedObject(Properties);
     var keys = objectKeys(properties).concat($getOwnPropertySymbols(properties));
-    $forEach$1(keys, function (key) {
+    $forEach(keys, function (key) {
       if (!descriptors || $propertyIsEnumerable.call(properties, key)) $defineProperty(O, key, properties[key]);
     });
     return O;
@@ -2395,7 +2426,7 @@
   var $getOwnPropertyNames = function getOwnPropertyNames(O) {
     var names = nativeGetOwnPropertyNames(toIndexedObject(O));
     var result = [];
-    $forEach$1(names, function (key) {
+    $forEach(names, function (key) {
       if (!has$1(AllSymbols, key) && !has$1(hiddenKeys$1, key)) result.push(key);
     });
     return result;
@@ -2405,7 +2436,7 @@
     var IS_OBJECT_PROTOTYPE = O === ObjectPrototype;
     var names = nativeGetOwnPropertyNames(IS_OBJECT_PROTOTYPE ? ObjectPrototypeSymbols : toIndexedObject(O));
     var result = [];
-    $forEach$1(names, function (key) {
+    $forEach(names, function (key) {
       if (has$1(AllSymbols, key) && (!IS_OBJECT_PROTOTYPE || has$1(ObjectPrototype, key))) {
         result.push(AllSymbols[key]);
       }
@@ -2465,7 +2496,7 @@
     Symbol: $Symbol
   });
 
-  $forEach$1(objectKeys(WellKnownSymbolsStore), function (name) {
+  $forEach(objectKeys(WellKnownSymbolsStore), function (name) {
     defineWellKnownSymbol(name);
   });
 
@@ -2607,209 +2638,6 @@
       Symbol: SymbolWrapper
     });
   }
-
-  var arrayMethodIsStrict = function (METHOD_NAME, argument) {
-    var method = [][METHOD_NAME];
-    return !!method && fails(function () {
-      // eslint-disable-next-line no-useless-call,no-throw-literal -- required for testing
-      method.call(null, argument || function () { throw 1; }, 1);
-    });
-  };
-
-  var $forEach = arrayIteration.forEach;
-
-
-  var STRICT_METHOD = arrayMethodIsStrict('forEach');
-
-  // `Array.prototype.forEach` method implementation
-  // https://tc39.es/ecma262/#sec-array.prototype.foreach
-  var arrayForEach = !STRICT_METHOD ? function forEach(callbackfn /* , thisArg */) {
-    return $forEach(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
-  // eslint-disable-next-line es/no-array-prototype-foreach -- safe
-  } : [].forEach;
-
-  for (var COLLECTION_NAME in domIterables) {
-    var Collection = global$1[COLLECTION_NAME];
-    var CollectionPrototype = Collection && Collection.prototype;
-    // some Chrome versions have non-configurable methods on DOMTokenList
-    if (CollectionPrototype && CollectionPrototype.forEach !== arrayForEach) try {
-      createNonEnumerableProperty(CollectionPrototype, 'forEach', arrayForEach);
-    } catch (error) {
-      CollectionPrototype.forEach = arrayForEach;
-    }
-  }
-
-  var SPECIES$2 = wellKnownSymbol('species');
-
-  var arrayMethodHasSpeciesSupport = function (METHOD_NAME) {
-    // We can't use this feature detection in V8 since it causes
-    // deoptimization and serious performance degradation
-    // https://github.com/zloirock/core-js/issues/677
-    return engineV8Version >= 51 || !fails(function () {
-      var array = [];
-      var constructor = array.constructor = {};
-      constructor[SPECIES$2] = function () {
-        return { foo: 1 };
-      };
-      return array[METHOD_NAME](Boolean).foo !== 1;
-    });
-  };
-
-  var $map = arrayIteration.map;
-
-
-  var HAS_SPECIES_SUPPORT$2 = arrayMethodHasSpeciesSupport('map');
-
-  // `Array.prototype.map` method
-  // https://tc39.es/ecma262/#sec-array.prototype.map
-  // with adding support of @@species
-  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$2 }, {
-    map: function map(callbackfn /* , thisArg */) {
-      return $map(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
-    }
-  });
-
-  var createProperty = function (object, key, value) {
-    var propertyKey = toPrimitive(key);
-    if (propertyKey in object) objectDefineProperty.f(object, propertyKey, createPropertyDescriptor(0, value));
-    else object[propertyKey] = value;
-  };
-
-  var HAS_SPECIES_SUPPORT$1 = arrayMethodHasSpeciesSupport('splice');
-
-  var max$1 = Math.max;
-  var min = Math.min;
-  var MAX_SAFE_INTEGER$1 = 0x1FFFFFFFFFFFFF;
-  var MAXIMUM_ALLOWED_LENGTH_EXCEEDED = 'Maximum allowed length exceeded';
-
-  // `Array.prototype.splice` method
-  // https://tc39.es/ecma262/#sec-array.prototype.splice
-  // with adding support of @@species
-  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$1 }, {
-    splice: function splice(start, deleteCount /* , ...items */) {
-      var O = toObject(this);
-      var len = toLength(O.length);
-      var actualStart = toAbsoluteIndex(start, len);
-      var argumentsLength = arguments.length;
-      var insertCount, actualDeleteCount, A, k, from, to;
-      if (argumentsLength === 0) {
-        insertCount = actualDeleteCount = 0;
-      } else if (argumentsLength === 1) {
-        insertCount = 0;
-        actualDeleteCount = len - actualStart;
-      } else {
-        insertCount = argumentsLength - 2;
-        actualDeleteCount = min(max$1(toInteger(deleteCount), 0), len - actualStart);
-      }
-      if (len + insertCount - actualDeleteCount > MAX_SAFE_INTEGER$1) {
-        throw TypeError(MAXIMUM_ALLOWED_LENGTH_EXCEEDED);
-      }
-      A = arraySpeciesCreate(O, actualDeleteCount);
-      for (k = 0; k < actualDeleteCount; k++) {
-        from = actualStart + k;
-        if (from in O) createProperty(A, k, O[from]);
-      }
-      A.length = actualDeleteCount;
-      if (insertCount < actualDeleteCount) {
-        for (k = actualStart; k < len - actualDeleteCount; k++) {
-          from = k + actualDeleteCount;
-          to = k + insertCount;
-          if (from in O) O[to] = O[from];
-          else delete O[to];
-        }
-        for (k = len; k > len - actualDeleteCount + insertCount; k--) delete O[k - 1];
-      } else if (insertCount > actualDeleteCount) {
-        for (k = len - actualDeleteCount; k > actualStart; k--) {
-          from = k + actualDeleteCount - 1;
-          to = k + insertCount - 1;
-          if (from in O) O[to] = O[from];
-          else delete O[to];
-        }
-      }
-      for (k = 0; k < insertCount; k++) {
-        O[k + actualStart] = arguments[k + 2];
-      }
-      O.length = len - actualDeleteCount + insertCount;
-      return A;
-    }
-  });
-
-  var $find = arrayIteration.find;
-
-
-  var FIND = 'find';
-  var SKIPS_HOLES$1 = true;
-
-  // Shouldn't skip holes
-  if (FIND in []) Array(1)[FIND](function () { SKIPS_HOLES$1 = false; });
-
-  // `Array.prototype.find` method
-  // https://tc39.es/ecma262/#sec-array.prototype.find
-  _export({ target: 'Array', proto: true, forced: SKIPS_HOLES$1 }, {
-    find: function find(callbackfn /* , that = undefined */) {
-      return $find(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
-    }
-  });
-
-  // https://tc39.es/ecma262/#sec-array.prototype-@@unscopables
-  addToUnscopables(FIND);
-
-  var $findIndex = arrayIteration.findIndex;
-
-
-  var FIND_INDEX = 'findIndex';
-  var SKIPS_HOLES = true;
-
-  // Shouldn't skip holes
-  if (FIND_INDEX in []) Array(1)[FIND_INDEX](function () { SKIPS_HOLES = false; });
-
-  // `Array.prototype.findIndex` method
-  // https://tc39.es/ecma262/#sec-array.prototype.findindex
-  _export({ target: 'Array', proto: true, forced: SKIPS_HOLES }, {
-    findIndex: function findIndex(callbackfn /* , that = undefined */) {
-      return $findIndex(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
-    }
-  });
-
-  // https://tc39.es/ecma262/#sec-array.prototype-@@unscopables
-  addToUnscopables(FIND_INDEX);
-
-  var HAS_SPECIES_SUPPORT = arrayMethodHasSpeciesSupport('slice');
-
-  var SPECIES$1 = wellKnownSymbol('species');
-  var nativeSlice = [].slice;
-  var max = Math.max;
-
-  // `Array.prototype.slice` method
-  // https://tc39.es/ecma262/#sec-array.prototype.slice
-  // fallback for not array-like ES3 strings and DOM objects
-  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT }, {
-    slice: function slice(start, end) {
-      var O = toIndexedObject(this);
-      var length = toLength(O.length);
-      var k = toAbsoluteIndex(start, length);
-      var fin = toAbsoluteIndex(end === undefined ? length : end, length);
-      // inline `ArraySpeciesCreate` for usage native `Array#slice` where it's possible
-      var Constructor, result, n;
-      if (isArray(O)) {
-        Constructor = O.constructor;
-        // cross-realm fallback
-        if (typeof Constructor == 'function' && (Constructor === Array || isArray(Constructor.prototype))) {
-          Constructor = undefined;
-        } else if (isObject(Constructor)) {
-          Constructor = Constructor[SPECIES$1];
-          if (Constructor === null) Constructor = undefined;
-        }
-        if (Constructor === Array || Constructor === undefined) {
-          return nativeSlice.call(O, k, fin);
-        }
-      }
-      result = new (Constructor === undefined ? Array : Constructor)(max(fin - k, 0));
-      for (n = 0; k < fin; k++, n++) if (k in O) createProperty(result, n, O[k]);
-      result.length = n;
-      return result;
-    }
-  });
 
   // `SameValue` abstract operation
   // https://tc39.es/ecma262/#sec-samevalue
@@ -3108,14 +2936,14 @@
   	BROKEN_CARET: BROKEN_CARET
   };
 
-  var SPECIES = wellKnownSymbol('species');
+  var SPECIES$2 = wellKnownSymbol('species');
 
   var setSpecies = function (CONSTRUCTOR_NAME) {
     var Constructor = getBuiltIn(CONSTRUCTOR_NAME);
     var defineProperty = objectDefineProperty.f;
 
-    if (descriptors && Constructor && !Constructor[SPECIES]) {
-      defineProperty(Constructor, SPECIES, {
+    if (descriptors && Constructor && !Constructor[SPECIES$2]) {
+      defineProperty(Constructor, SPECIES$2, {
         configurable: true,
         get: function () { return this; }
       });
@@ -3792,20 +3620,30 @@
    * @return {{hash: number, equals: function}} - the hash code and equals function.
    */
 
-  function equalsAndHash(key) {
-    var toSetOn = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  function equalsAndHash(key, options) {
+    if (options) {
+      var _hash = options.hash;
+      var equals = options.equals;
 
-    if (toSetOn.hash) {
-      if (toSetOn.equals) {
-        return toSetOn;
+      if (isFunction(_hash)) {
+        _hash = _hash(key);
       }
 
-      toSetOn.equals = equalsFor(key);
-      return toSetOn;
-    } else if (toSetOn.equals) {
-      toSetOn.hash = hashCodeFor(key);
-      return toSetOn;
+      if (!Number.isSafeInteger(_hash)) {
+        _hash = hashCodeFor(key);
+      }
+
+      if (!isFunction(equals)) {
+        equals = equalsFor(key);
+      }
+
+      return {
+        hash: _hash,
+        equals: equals
+      };
     }
+
+    var toSetOn = {};
 
     var keyType = _typeof(key);
 
@@ -3914,6 +3752,2548 @@
         }
     }
   }
+
+  var SPECIES$1 = wellKnownSymbol('species');
+
+  var arrayMethodHasSpeciesSupport = function (METHOD_NAME) {
+    // We can't use this feature detection in V8 since it causes
+    // deoptimization and serious performance degradation
+    // https://github.com/zloirock/core-js/issues/677
+    return engineV8Version >= 51 || !fails(function () {
+      var array = [];
+      var constructor = array.constructor = {};
+      constructor[SPECIES$1] = function () {
+        return { foo: 1 };
+      };
+      return array[METHOD_NAME](Boolean).foo !== 1;
+    });
+  };
+
+  var $map = arrayIteration.map;
+
+
+  var HAS_SPECIES_SUPPORT$2 = arrayMethodHasSpeciesSupport('map');
+
+  // `Array.prototype.map` method
+  // https://tc39.es/ecma262/#sec-array.prototype.map
+  // with adding support of @@species
+  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$2 }, {
+    map: function map(callbackfn /* , thisArg */) {
+      return $map(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
+    }
+  });
+
+  var $find = arrayIteration.find;
+
+
+  var FIND = 'find';
+  var SKIPS_HOLES$1 = true;
+
+  // Shouldn't skip holes
+  if (FIND in []) Array(1)[FIND](function () { SKIPS_HOLES$1 = false; });
+
+  // `Array.prototype.find` method
+  // https://tc39.es/ecma262/#sec-array.prototype.find
+  _export({ target: 'Array', proto: true, forced: SKIPS_HOLES$1 }, {
+    find: function find(callbackfn /* , that = undefined */) {
+      return $find(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
+    }
+  });
+
+  // https://tc39.es/ecma262/#sec-array.prototype-@@unscopables
+  addToUnscopables(FIND);
+
+  var createProperty = function (object, key, value) {
+    var propertyKey = toPrimitive(key);
+    if (propertyKey in object) objectDefineProperty.f(object, propertyKey, createPropertyDescriptor(0, value));
+    else object[propertyKey] = value;
+  };
+
+  var HAS_SPECIES_SUPPORT$1 = arrayMethodHasSpeciesSupport('splice');
+
+  var max$1 = Math.max;
+  var min = Math.min;
+  var MAX_SAFE_INTEGER$1 = 0x1FFFFFFFFFFFFF;
+  var MAXIMUM_ALLOWED_LENGTH_EXCEEDED = 'Maximum allowed length exceeded';
+
+  // `Array.prototype.splice` method
+  // https://tc39.es/ecma262/#sec-array.prototype.splice
+  // with adding support of @@species
+  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$1 }, {
+    splice: function splice(start, deleteCount /* , ...items */) {
+      var O = toObject(this);
+      var len = toLength(O.length);
+      var actualStart = toAbsoluteIndex(start, len);
+      var argumentsLength = arguments.length;
+      var insertCount, actualDeleteCount, A, k, from, to;
+      if (argumentsLength === 0) {
+        insertCount = actualDeleteCount = 0;
+      } else if (argumentsLength === 1) {
+        insertCount = 0;
+        actualDeleteCount = len - actualStart;
+      } else {
+        insertCount = argumentsLength - 2;
+        actualDeleteCount = min(max$1(toInteger(deleteCount), 0), len - actualStart);
+      }
+      if (len + insertCount - actualDeleteCount > MAX_SAFE_INTEGER$1) {
+        throw TypeError(MAXIMUM_ALLOWED_LENGTH_EXCEEDED);
+      }
+      A = arraySpeciesCreate(O, actualDeleteCount);
+      for (k = 0; k < actualDeleteCount; k++) {
+        from = actualStart + k;
+        if (from in O) createProperty(A, k, O[from]);
+      }
+      A.length = actualDeleteCount;
+      if (insertCount < actualDeleteCount) {
+        for (k = actualStart; k < len - actualDeleteCount; k++) {
+          from = k + actualDeleteCount;
+          to = k + insertCount;
+          if (from in O) O[to] = O[from];
+          else delete O[to];
+        }
+        for (k = len; k > len - actualDeleteCount + insertCount; k--) delete O[k - 1];
+      } else if (insertCount > actualDeleteCount) {
+        for (k = len - actualDeleteCount; k > actualStart; k--) {
+          from = k + actualDeleteCount - 1;
+          to = k + insertCount - 1;
+          if (from in O) O[to] = O[from];
+          else delete O[to];
+        }
+      }
+      for (k = 0; k < insertCount; k++) {
+        O[k + actualStart] = arguments[k + 2];
+      }
+      O.length = len - actualDeleteCount + insertCount;
+      return A;
+    }
+  });
+
+  var $findIndex = arrayIteration.findIndex;
+
+
+  var FIND_INDEX = 'findIndex';
+  var SKIPS_HOLES = true;
+
+  // Shouldn't skip holes
+  if (FIND_INDEX in []) Array(1)[FIND_INDEX](function () { SKIPS_HOLES = false; });
+
+  // `Array.prototype.findIndex` method
+  // https://tc39.es/ecma262/#sec-array.prototype.findindex
+  _export({ target: 'Array', proto: true, forced: SKIPS_HOLES }, {
+    findIndex: function findIndex(callbackfn /* , that = undefined */) {
+      return $findIndex(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
+    }
+  });
+
+  // https://tc39.es/ecma262/#sec-array.prototype-@@unscopables
+  addToUnscopables(FIND_INDEX);
+
+  var HAS_SPECIES_SUPPORT = arrayMethodHasSpeciesSupport('slice');
+
+  var SPECIES = wellKnownSymbol('species');
+  var nativeSlice = [].slice;
+  var max = Math.max;
+
+  // `Array.prototype.slice` method
+  // https://tc39.es/ecma262/#sec-array.prototype.slice
+  // fallback for not array-like ES3 strings and DOM objects
+  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT }, {
+    slice: function slice(start, end) {
+      var O = toIndexedObject(this);
+      var length = toLength(O.length);
+      var k = toAbsoluteIndex(start, length);
+      var fin = toAbsoluteIndex(end === undefined ? length : end, length);
+      // inline `ArraySpeciesCreate` for usage native `Array#slice` where it's possible
+      var Constructor, result, n;
+      if (isArray(O)) {
+        Constructor = O.constructor;
+        // cross-realm fallback
+        if (typeof Constructor == 'function' && (Constructor === Array || isArray(Constructor.prototype))) {
+          Constructor = undefined;
+        } else if (isObject(Constructor)) {
+          Constructor = Constructor[SPECIES];
+          if (Constructor === null) Constructor = undefined;
+        }
+        if (Constructor === Array || Constructor === undefined) {
+          return nativeSlice.call(O, k, fin);
+        }
+      }
+      result = new (Constructor === undefined ? Array : Constructor)(max(fin - k, 0));
+      for (n = 0; k < fin; k++, n++) if (k in O) createProperty(result, n, O[k]);
+      result.length = n;
+      return result;
+    }
+  });
+
+  /**
+   * HashMap - HashMap Container Implementation for JavaScript
+   * @namespace Mootable.HashMap
+   * @author Jack Moxley <https://github.com/jackmoxley>
+   * @version 0.15.0
+   * Homepage: https://github.com/mootable/hashmap
+   */
+
+  /**
+   * Using an array this container stores key value pairs for our map.
+   * This collection of entries is a leaf node of our Hash Array Trie.
+   * As such all entries in the container will have the same hash. In most cases this will be single entry.
+   * @private
+   */
+
+  var Container = /*#__PURE__*/function () {
+    /**
+     * Constructs an empty container.
+     *
+     * @param [HashMap] map - the map this container belongs too.
+     * @param hash - the hash code for the keys in this container.
+     */
+    function Container(map, parent, hash) {
+      _classCallCheck(this, Container);
+
+      this.size = 0;
+      this.contents = [];
+      this.map = map;
+      this.parent = parent;
+      this.hash = hash;
+    }
+    /**
+     * Does the provided hash conflict with this one, i.e. is it different.
+     * This is used for ensuring only the correct keys are added.
+     *
+     * @param hash
+     * @return {boolean}
+     */
+
+
+    _createClass(Container, [{
+      key: "hashConflicts",
+      value: function hashConflicts(hash) {
+        return hash !== this.hash;
+      }
+      /**
+       * Used to fetch the key and value.
+       *
+       * @param {*} key the key we use to retrieve the value.
+       * @param options must contain the equals function for this key.
+       * @return {*|undefined} the value for the key, or undefined if none available.
+       */
+
+    }, {
+      key: "get",
+      value: function get(key, options) {
+        if (this.size !== 0) {
+          var equals = options.equals;
+
+          var _iterator = _createForOfIteratorHelper(this.contents),
+              _step;
+
+          try {
+            for (_iterator.s(); !(_step = _iterator.n()).done;) {
+              var entry = _step.value;
+
+              if (entry && equals(key, entry[0])) {
+                return entry[1];
+              }
+            }
+          } catch (err) {
+            _iterator.e(err);
+          } finally {
+            _iterator.f();
+          }
+        }
+
+        return undefined;
+      }
+    }, {
+      key: "optionalGet",
+      value: function optionalGet(key, options) {
+        if (this.size !== 0) {
+          var equals = options.equals;
+          var entry = this.contents.find(function (entry) {
+            return equals(key, entry[0]);
+          });
+
+          if (entry) {
+            return _some(entry[1]);
+          }
+        }
+
+        return none;
+      }
+    }, {
+      key: "set",
+      value: function set(key, value, options) {
+        var equals = options.equals;
+
+        var _iterator2 = _createForOfIteratorHelper(this.contents),
+            _step2;
+
+        try {
+          for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+            var entry = _step2.value;
+
+            if (equals(key, entry[0])) {
+              this.updateEntry(entry, value, options);
+              return;
+            }
+          }
+        } catch (err) {
+          _iterator2.e(err);
+        } finally {
+          _iterator2.f();
+        }
+
+        this.createEntry(key, value, options);
+      }
+    }, {
+      key: "emplace",
+      value: function emplace(key, handler, options) {
+        var equals = options.equals;
+
+        var _iterator3 = _createForOfIteratorHelper(this.contents),
+            _step3;
+
+        try {
+          for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+            var entry = _step3.value;
+
+            if (equals(key, entry[0])) {
+              var _value = 'update' in handler ? handler.update(entry[1], key, this.map) : handler.insert(key, this.map);
+
+              this.updateEntry(entry, _value, options);
+              return _value;
+            }
+          }
+        } catch (err) {
+          _iterator3.e(err);
+        } finally {
+          _iterator3.f();
+        }
+
+        var value = handler.insert(key, this.map);
+        this.createEntry(key, value, options);
+        return value;
+      }
+    }, {
+      key: "createEntry",
+      value: function createEntry(key, value, options) {
+        var entry = [key, value];
+        entry.parent = this;
+        this.contents.push(entry);
+        this.size += 1;
+        return entry;
+      }
+    }, {
+      key: "updateEntry",
+      value: function updateEntry(entry, newValue, options) {
+        entry[1] = newValue;
+      }
+    }, {
+      key: "deleteEntry",
+      value: function deleteEntry(entry) {
+        var idx = this.contents.indexOf(entry);
+
+        if (idx !== -1) {
+          this.deleteIndex(idx);
+          var parent = this.parent;
+
+          while (parent) {
+            parent.size -= 1;
+            parent = this.parent;
+          }
+        }
+      }
+    }, {
+      key: "deleteIndex",
+      value: function deleteIndex(idx) {
+        this.size -= 1;
+
+        if (idx === 0) {
+          return this.contents.shift();
+        } else if (idx === this.size) {
+          return this.contents.pop();
+        } else {
+          return this.contents.splice(idx, 1)[0];
+        }
+      }
+    }, {
+      key: "has",
+      value: function has(key, options) {
+        if (this.size !== 0) {
+          var equals = options.equals;
+          return this.contents.some(function (entry) {
+            return equals(key, entry[0]);
+          });
+        }
+
+        return false;
+      }
+    }, {
+      key: "delete",
+      value: function _delete(key, options) {
+        var equals = options.equals;
+        var idx = this.contents.findIndex(function (entry) {
+          return equals(key, entry[0]);
+        });
+
+        if (idx === -1) {
+          return false;
+        }
+
+        this.deleteIndex(idx);
+        return true;
+      }
+    }, {
+      key: Symbol.iterator,
+      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
+        var _iterator4, _step4, entry;
+
+        return regeneratorRuntime.wrap(function value$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _iterator4 = _createForOfIteratorHelper(this.contents);
+                _context.prev = 1;
+
+                _iterator4.s();
+
+              case 3:
+                if ((_step4 = _iterator4.n()).done) {
+                  _context.next = 9;
+                  break;
+                }
+
+                entry = _step4.value;
+                _context.next = 7;
+                return entry.slice();
+
+              case 7:
+                _context.next = 3;
+                break;
+
+              case 9:
+                _context.next = 14;
+                break;
+
+              case 11:
+                _context.prev = 11;
+                _context.t0 = _context["catch"](1);
+
+                _iterator4.e(_context.t0);
+
+              case 14:
+                _context.prev = 14;
+
+                _iterator4.f();
+
+                return _context.finish(14);
+
+              case 17:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, value, this, [[1, 11, 14, 17]]);
+      })
+    }, {
+      key: "entriesRight",
+      value: /*#__PURE__*/regeneratorRuntime.mark(function entriesRight() {
+        var idx;
+        return regeneratorRuntime.wrap(function entriesRight$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                idx = this.contents.length - 1;
+
+              case 1:
+                if (!(idx >= 0)) {
+                  _context2.next = 7;
+                  break;
+                }
+
+                _context2.next = 4;
+                return this.contents[idx].slice();
+
+              case 4:
+                idx--;
+                _context2.next = 1;
+                break;
+
+              case 7:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, entriesRight, this);
+      })
+    }, {
+      key: "keys",
+      value: /*#__PURE__*/regeneratorRuntime.mark(function keys() {
+        var _iterator5, _step5, entry;
+
+        return regeneratorRuntime.wrap(function keys$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                _iterator5 = _createForOfIteratorHelper(this.contents);
+                _context3.prev = 1;
+
+                _iterator5.s();
+
+              case 3:
+                if ((_step5 = _iterator5.n()).done) {
+                  _context3.next = 9;
+                  break;
+                }
+
+                entry = _step5.value;
+                _context3.next = 7;
+                return entry[0];
+
+              case 7:
+                _context3.next = 3;
+                break;
+
+              case 9:
+                _context3.next = 14;
+                break;
+
+              case 11:
+                _context3.prev = 11;
+                _context3.t0 = _context3["catch"](1);
+
+                _iterator5.e(_context3.t0);
+
+              case 14:
+                _context3.prev = 14;
+
+                _iterator5.f();
+
+                return _context3.finish(14);
+
+              case 17:
+              case "end":
+                return _context3.stop();
+            }
+          }
+        }, keys, this, [[1, 11, 14, 17]]);
+      })
+    }, {
+      key: "values",
+      value: /*#__PURE__*/regeneratorRuntime.mark(function values() {
+        var _iterator6, _step6, entry;
+
+        return regeneratorRuntime.wrap(function values$(_context4) {
+          while (1) {
+            switch (_context4.prev = _context4.next) {
+              case 0:
+                _iterator6 = _createForOfIteratorHelper(this.contents);
+                _context4.prev = 1;
+
+                _iterator6.s();
+
+              case 3:
+                if ((_step6 = _iterator6.n()).done) {
+                  _context4.next = 9;
+                  break;
+                }
+
+                entry = _step6.value;
+                _context4.next = 7;
+                return entry[1];
+
+              case 7:
+                _context4.next = 3;
+                break;
+
+              case 9:
+                _context4.next = 14;
+                break;
+
+              case 11:
+                _context4.prev = 11;
+                _context4.t0 = _context4["catch"](1);
+
+                _iterator6.e(_context4.t0);
+
+              case 14:
+                _context4.prev = 14;
+
+                _iterator6.f();
+
+                return _context4.finish(14);
+
+              case 17:
+              case "end":
+                return _context4.stop();
+            }
+          }
+        }, values, this, [[1, 11, 14, 17]]);
+      })
+    }, {
+      key: "keysRight",
+      value: /*#__PURE__*/regeneratorRuntime.mark(function keysRight() {
+        var idx;
+        return regeneratorRuntime.wrap(function keysRight$(_context5) {
+          while (1) {
+            switch (_context5.prev = _context5.next) {
+              case 0:
+                idx = this.contents.length - 1;
+
+              case 1:
+                if (!(idx >= 0)) {
+                  _context5.next = 7;
+                  break;
+                }
+
+                _context5.next = 4;
+                return this.contents[idx][0];
+
+              case 4:
+                idx--;
+                _context5.next = 1;
+                break;
+
+              case 7:
+              case "end":
+                return _context5.stop();
+            }
+          }
+        }, keysRight, this);
+      })
+    }, {
+      key: "valuesRight",
+      value: /*#__PURE__*/regeneratorRuntime.mark(function valuesRight() {
+        var idx;
+        return regeneratorRuntime.wrap(function valuesRight$(_context6) {
+          while (1) {
+            switch (_context6.prev = _context6.next) {
+              case 0:
+                idx = this.contents.length - 1;
+
+              case 1:
+                if (!(idx >= 0)) {
+                  _context6.next = 7;
+                  break;
+                }
+
+                _context6.next = 4;
+                return this.contents[idx][1];
+
+              case 4:
+                idx--;
+                _context6.next = 1;
+                break;
+
+              case 7:
+              case "end":
+                return _context6.stop();
+            }
+          }
+        }, valuesRight, this);
+      })
+    }]);
+
+    return Container;
+  }();
+
+  var SHIFT = 7;
+  var WIDTH = 1 << SHIFT;
+  var MASK = WIDTH - 1;
+  var DEPTH = 5;
+  var SHIFT_HAMT = 5;
+  var WIDTH_HAMT = 1 << SHIFT_HAMT;
+  var MASK_HAMT = WIDTH_HAMT - 1;
+  var DEPTH_HAMT = DEPTH - 1;
+  /**
+   * @private
+   */
+
+  var HashBuckets = /*#__PURE__*/function () {
+    function HashBuckets(map) {
+      _classCallCheck(this, HashBuckets);
+
+      this.map = map;
+      this.buckets = [];
+      this.size = 0;
+    }
+
+    _createClass(HashBuckets, [{
+      key: "clear",
+      value: function clear() {
+        this.buckets = [];
+        this.size = 0;
+      }
+    }, {
+      key: "bucketFor",
+      value: function bucketFor(hash) {
+        var idx = hash & MASK;
+
+        if (idx < this.buckets.length) {
+          return this.buckets[idx];
+        }
+
+        return undefined;
+      }
+    }, {
+      key: "set",
+      value: function set(key, value, options) {
+        var hash = options.hash;
+        var idx = hash & MASK;
+        var bucket = this.buckets[idx];
+
+        if (!bucket) {
+          bucket = this.map.createContainer(this, hash);
+          bucket.createEntry(key, value, options);
+          this.buckets[idx] = bucket;
+          this.size += 1;
+          return;
+        } else if (bucket.hashConflicts(hash)) {
+          bucket = new HamtBuckets(this.map, this, DEPTH_HAMT, SHIFT).replacing(bucket);
+          this.buckets[idx] = bucket;
+        }
+
+        this.size -= bucket.size;
+        bucket.set(key, value, options);
+        this.size += bucket.size;
+      }
+    }, {
+      key: "emplace",
+      value: function emplace(key, handler, options) {
+        var hash = options.hash;
+        var idx = hash & MASK;
+        var bucket = this.buckets[idx];
+
+        if (!bucket) {
+          bucket = this.map.createContainer(this, hash);
+          this.buckets[idx] = bucket;
+        } else if (bucket.hashConflicts(hash)) {
+          bucket = new HamtBuckets(this.map, this, DEPTH_HAMT, SHIFT).replacing(bucket);
+          this.buckets[idx] = bucket;
+        }
+
+        this.size -= bucket.size;
+        var value = bucket.emplace(key, handler, options);
+        this.size += bucket.size;
+        return value;
+      }
+    }, {
+      key: "delete",
+      value: function _delete(key, options) {
+        var hash = options.hash;
+        var idx = hash & MASK;
+        var bucket = this.buckets[idx];
+
+        if (bucket) {
+          var deleted = bucket.delete(key, options);
+
+          if (deleted) {
+            this.size -= 1;
+            return true;
+          }
+        }
+
+        return false;
+      }
+    }, {
+      key: "get",
+      value: function get(key, options) {
+        var hash = options.hash;
+        var bucket = this.bucketFor(hash);
+
+        if (bucket) {
+          return bucket.get(key, options);
+        }
+
+        return undefined;
+      }
+    }, {
+      key: "optionalGet",
+      value: function optionalGet(key, options) {
+        var hash = options.hash;
+        var bucket = this.bucketFor(hash);
+
+        if (bucket) {
+          return bucket.optionalGet(key, options);
+        }
+
+        return none;
+      }
+    }, {
+      key: "has",
+      value: function has(key, options) {
+        var hash = options.hash;
+        var bucket = this.bucketFor(hash);
+
+        if (bucket) {
+          return bucket.has(key, options);
+        }
+
+        return false;
+      }
+    }, {
+      key: Symbol.iterator,
+      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
+        var _iterator, _step, bucket;
+
+        return regeneratorRuntime.wrap(function value$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _iterator = _createForOfIteratorHelper(this.buckets);
+                _context.prev = 1;
+
+                _iterator.s();
+
+              case 3:
+                if ((_step = _iterator.n()).done) {
+                  _context.next = 9;
+                  break;
+                }
+
+                bucket = _step.value;
+
+                if (!bucket) {
+                  _context.next = 7;
+                  break;
+                }
+
+                return _context.delegateYield(bucket, "t0", 7);
+
+              case 7:
+                _context.next = 3;
+                break;
+
+              case 9:
+                _context.next = 14;
+                break;
+
+              case 11:
+                _context.prev = 11;
+                _context.t1 = _context["catch"](1);
+
+                _iterator.e(_context.t1);
+
+              case 14:
+                _context.prev = 14;
+
+                _iterator.f();
+
+                return _context.finish(14);
+
+              case 17:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, value, this, [[1, 11, 14, 17]]);
+      })
+    }, {
+      key: "entriesRight",
+      value: /*#__PURE__*/regeneratorRuntime.mark(function entriesRight() {
+        var idx, bucket;
+        return regeneratorRuntime.wrap(function entriesRight$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                idx = this.buckets.length - 1;
+
+              case 1:
+                if (!(idx >= 0)) {
+                  _context2.next = 8;
+                  break;
+                }
+
+                bucket = this.buckets[idx];
+
+                if (!bucket) {
+                  _context2.next = 5;
+                  break;
+                }
+
+                return _context2.delegateYield(bucket.entriesRight(), "t0", 5);
+
+              case 5:
+                idx--;
+                _context2.next = 1;
+                break;
+
+              case 8:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, entriesRight, this);
+      })
+    }, {
+      key: "keys",
+      value: /*#__PURE__*/regeneratorRuntime.mark(function keys() {
+        var _iterator2, _step2, bucket;
+
+        return regeneratorRuntime.wrap(function keys$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                _iterator2 = _createForOfIteratorHelper(this.buckets);
+                _context3.prev = 1;
+
+                _iterator2.s();
+
+              case 3:
+                if ((_step2 = _iterator2.n()).done) {
+                  _context3.next = 9;
+                  break;
+                }
+
+                bucket = _step2.value;
+
+                if (!bucket) {
+                  _context3.next = 7;
+                  break;
+                }
+
+                return _context3.delegateYield(bucket.keys(), "t0", 7);
+
+              case 7:
+                _context3.next = 3;
+                break;
+
+              case 9:
+                _context3.next = 14;
+                break;
+
+              case 11:
+                _context3.prev = 11;
+                _context3.t1 = _context3["catch"](1);
+
+                _iterator2.e(_context3.t1);
+
+              case 14:
+                _context3.prev = 14;
+
+                _iterator2.f();
+
+                return _context3.finish(14);
+
+              case 17:
+              case "end":
+                return _context3.stop();
+            }
+          }
+        }, keys, this, [[1, 11, 14, 17]]);
+      })
+    }, {
+      key: "values",
+      value: /*#__PURE__*/regeneratorRuntime.mark(function values() {
+        var _iterator3, _step3, bucket;
+
+        return regeneratorRuntime.wrap(function values$(_context4) {
+          while (1) {
+            switch (_context4.prev = _context4.next) {
+              case 0:
+                _iterator3 = _createForOfIteratorHelper(this.buckets);
+                _context4.prev = 1;
+
+                _iterator3.s();
+
+              case 3:
+                if ((_step3 = _iterator3.n()).done) {
+                  _context4.next = 9;
+                  break;
+                }
+
+                bucket = _step3.value;
+
+                if (!bucket) {
+                  _context4.next = 7;
+                  break;
+                }
+
+                return _context4.delegateYield(bucket.values(), "t0", 7);
+
+              case 7:
+                _context4.next = 3;
+                break;
+
+              case 9:
+                _context4.next = 14;
+                break;
+
+              case 11:
+                _context4.prev = 11;
+                _context4.t1 = _context4["catch"](1);
+
+                _iterator3.e(_context4.t1);
+
+              case 14:
+                _context4.prev = 14;
+
+                _iterator3.f();
+
+                return _context4.finish(14);
+
+              case 17:
+              case "end":
+                return _context4.stop();
+            }
+          }
+        }, values, this, [[1, 11, 14, 17]]);
+      })
+    }, {
+      key: "keysRight",
+      value: /*#__PURE__*/regeneratorRuntime.mark(function keysRight() {
+        var idx, bucket;
+        return regeneratorRuntime.wrap(function keysRight$(_context5) {
+          while (1) {
+            switch (_context5.prev = _context5.next) {
+              case 0:
+                idx = this.buckets.length - 1;
+
+              case 1:
+                if (!(idx >= 0)) {
+                  _context5.next = 8;
+                  break;
+                }
+
+                bucket = this.buckets[idx];
+
+                if (!bucket) {
+                  _context5.next = 5;
+                  break;
+                }
+
+                return _context5.delegateYield(bucket.keysRight(), "t0", 5);
+
+              case 5:
+                idx--;
+                _context5.next = 1;
+                break;
+
+              case 8:
+              case "end":
+                return _context5.stop();
+            }
+          }
+        }, keysRight, this);
+      })
+    }, {
+      key: "valuesRight",
+      value: /*#__PURE__*/regeneratorRuntime.mark(function valuesRight() {
+        var idx, bucket;
+        return regeneratorRuntime.wrap(function valuesRight$(_context6) {
+          while (1) {
+            switch (_context6.prev = _context6.next) {
+              case 0:
+                idx = this.buckets.length - 1;
+
+              case 1:
+                if (!(idx >= 0)) {
+                  _context6.next = 8;
+                  break;
+                }
+
+                bucket = this.buckets[idx];
+
+                if (!bucket) {
+                  _context6.next = 5;
+                  break;
+                }
+
+                return _context6.delegateYield(bucket.valuesRight(), "t0", 5);
+
+              case 5:
+                idx--;
+                _context6.next = 1;
+                break;
+
+              case 8:
+              case "end":
+                return _context6.stop();
+            }
+          }
+        }, valuesRight, this);
+      })
+    }]);
+
+    return HashBuckets;
+  }();
+  /**
+   * @private
+   */
+
+  var HamtBuckets = /*#__PURE__*/function () {
+    function HamtBuckets(map, parent, depth, shift) {
+      _classCallCheck(this, HamtBuckets);
+
+      this.map = map;
+      this.parent = parent;
+      this.buckets = [];
+      this.size = 0;
+      this.idxFlags = 0;
+      this.depth = depth;
+      this.shift = shift;
+    }
+
+    _createClass(HamtBuckets, [{
+      key: "hashConflicts",
+      value: function hashConflicts() {
+        return false;
+      }
+    }, {
+      key: "clear",
+      value: function clear() {
+        this.size = 0;
+        this.buckets = [];
+        this.idxFlags = 0;
+      }
+    }, {
+      key: "bucketFor",
+      value: function bucketFor(hash) {
+        var idxFlags = this.idxFlags;
+        var hashIdx = hash >>> this.shift & MASK_HAMT;
+        var flag = 1 << hashIdx;
+        var idx = hammingWeight(idxFlags & flag - 1);
+
+        if (idxFlags & flag) {
+          return this.buckets[idx];
+        }
+
+        return undefined;
+      }
+    }, {
+      key: "replacing",
+      value: function replacing(oldBucket) {
+        var new_flag = 1 << (oldBucket.hash >>> this.shift & MASK_HAMT);
+        this.idxFlags |= new_flag; // shift the old bucket up a level. no need to splice its always going to be the first item.
+
+        this.buckets[0] = oldBucket;
+        this.size = oldBucket.size;
+        oldBucket.parent = this;
+        return this;
+      }
+    }, {
+      key: "set",
+      value: function set(key, value, options) {
+        var hash = options.hash;
+        var idxFlags = this.idxFlags;
+        var hashIdx = hash >>> this.shift & MASK_HAMT;
+        var flag = 1 << hashIdx;
+        var idx = hammingWeight(idxFlags & flag - 1);
+        var bucket;
+
+        if (idxFlags & flag) {
+          bucket = this.buckets[idx];
+
+          if (this.depth && bucket.hashConflicts(hash)) {
+            bucket = new HamtBuckets(this.map, this, this.depth - 1, this.shift + SHIFT_HAMT).replacing(bucket);
+            this.buckets[idx] = bucket;
+          }
+
+          this.size -= bucket.size;
+          bucket.set(key, value, options);
+          this.size += bucket.size;
+        } else {
+          bucket = this.map.createContainer(this, hash);
+          bucket.createEntry(key, value, options);
+          this.buckets.splice(idx, 0, bucket);
+          this.idxFlags |= flag;
+          this.size += 1;
+        }
+      }
+    }, {
+      key: "emplace",
+      value: function emplace(key, handler, options) {
+        var hash = options.hash;
+        var idxFlags = this.idxFlags;
+        var hashIdx = hash >>> this.shift & MASK_HAMT;
+        var flag = 1 << hashIdx;
+        var idx = hammingWeight(idxFlags & flag - 1);
+        var bucket;
+
+        if (idxFlags & flag) {
+          bucket = this.buckets[idx];
+
+          if (this.depth && bucket.hashConflicts(hash)) {
+            bucket = new HamtBuckets(this.map, this, this.depth - 1, this.shift + SHIFT_HAMT).replacing(bucket);
+            this.buckets[idx] = bucket;
+          }
+        } else {
+          bucket = this.map.createContainer(this, hash);
+          this.buckets.splice(idx, 0, bucket);
+          this.idxFlags |= flag;
+        }
+
+        this.size -= bucket.size;
+        var value = bucket.emplace(key, handler, options);
+        this.size += bucket.size;
+        return value;
+      }
+    }, {
+      key: "delete",
+      value: function _delete(key, options) {
+        var hash = options.hash;
+        var idxFlags = this.idxFlags;
+        var hashIdx = hash >>> this.shift & MASK_HAMT;
+        var flag = 1 << hashIdx;
+
+        if (idxFlags & flag) {
+          var idx = hammingWeight(idxFlags & flag - 1);
+          var bucket = this.buckets[idx];
+          var deleted = bucket.delete(key, options);
+
+          if (deleted) {
+            this.size -= 1;
+
+            if (bucket.size === 0) {
+              if (idx === 0) {
+                this.buckets.shift();
+              } else if (this.buckets.length === idx + 1) {
+                this.buckets.pop();
+              } else {
+                this.buckets.splice(idx, 1);
+              }
+
+              this.idxFlags ^= flag;
+            }
+
+            return true;
+          }
+        }
+
+        return false;
+      }
+    }, {
+      key: "get",
+      value: function get(key, options) {
+        var hash = options.hash;
+        var bucket = this.bucketFor(hash);
+
+        if (bucket) {
+          return bucket.get(key, options);
+        }
+
+        return undefined;
+      }
+    }, {
+      key: "optionalGet",
+      value: function optionalGet(key, options) {
+        var hash = options.hash;
+        var bucket = this.bucketFor(hash);
+
+        if (bucket) {
+          return bucket.optionalGet(key, options);
+        }
+
+        return none;
+      }
+    }, {
+      key: "has",
+      value: function has(key, options) {
+        var hash = options.hash;
+        var bucket = this.bucketFor(hash);
+
+        if (bucket) {
+          return bucket.has(key, options);
+        }
+
+        return false;
+      }
+    }, {
+      key: Symbol.iterator,
+      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
+        var _iterator4, _step4, bucket;
+
+        return regeneratorRuntime.wrap(function value$(_context7) {
+          while (1) {
+            switch (_context7.prev = _context7.next) {
+              case 0:
+                _iterator4 = _createForOfIteratorHelper(this.buckets);
+                _context7.prev = 1;
+
+                _iterator4.s();
+
+              case 3:
+                if ((_step4 = _iterator4.n()).done) {
+                  _context7.next = 8;
+                  break;
+                }
+
+                bucket = _step4.value;
+                return _context7.delegateYield(bucket, "t0", 6);
+
+              case 6:
+                _context7.next = 3;
+                break;
+
+              case 8:
+                _context7.next = 13;
+                break;
+
+              case 10:
+                _context7.prev = 10;
+                _context7.t1 = _context7["catch"](1);
+
+                _iterator4.e(_context7.t1);
+
+              case 13:
+                _context7.prev = 13;
+
+                _iterator4.f();
+
+                return _context7.finish(13);
+
+              case 16:
+              case "end":
+                return _context7.stop();
+            }
+          }
+        }, value, this, [[1, 10, 13, 16]]);
+      })
+    }, {
+      key: "entriesRight",
+      value: /*#__PURE__*/regeneratorRuntime.mark(function entriesRight() {
+        var idx;
+        return regeneratorRuntime.wrap(function entriesRight$(_context8) {
+          while (1) {
+            switch (_context8.prev = _context8.next) {
+              case 0:
+                idx = this.buckets.length - 1;
+
+              case 1:
+                if (!(idx >= 0)) {
+                  _context8.next = 6;
+                  break;
+                }
+
+                return _context8.delegateYield(this.buckets[idx].entriesRight(), "t0", 3);
+
+              case 3:
+                idx--;
+                _context8.next = 1;
+                break;
+
+              case 6:
+              case "end":
+                return _context8.stop();
+            }
+          }
+        }, entriesRight, this);
+      })
+    }, {
+      key: "keys",
+      value: /*#__PURE__*/regeneratorRuntime.mark(function keys() {
+        var _iterator5, _step5, bucket;
+
+        return regeneratorRuntime.wrap(function keys$(_context9) {
+          while (1) {
+            switch (_context9.prev = _context9.next) {
+              case 0:
+                _iterator5 = _createForOfIteratorHelper(this.buckets);
+                _context9.prev = 1;
+
+                _iterator5.s();
+
+              case 3:
+                if ((_step5 = _iterator5.n()).done) {
+                  _context9.next = 8;
+                  break;
+                }
+
+                bucket = _step5.value;
+                return _context9.delegateYield(bucket.keys(), "t0", 6);
+
+              case 6:
+                _context9.next = 3;
+                break;
+
+              case 8:
+                _context9.next = 13;
+                break;
+
+              case 10:
+                _context9.prev = 10;
+                _context9.t1 = _context9["catch"](1);
+
+                _iterator5.e(_context9.t1);
+
+              case 13:
+                _context9.prev = 13;
+
+                _iterator5.f();
+
+                return _context9.finish(13);
+
+              case 16:
+              case "end":
+                return _context9.stop();
+            }
+          }
+        }, keys, this, [[1, 10, 13, 16]]);
+      })
+    }, {
+      key: "values",
+      value: /*#__PURE__*/regeneratorRuntime.mark(function values() {
+        var _iterator6, _step6, bucket;
+
+        return regeneratorRuntime.wrap(function values$(_context10) {
+          while (1) {
+            switch (_context10.prev = _context10.next) {
+              case 0:
+                _iterator6 = _createForOfIteratorHelper(this.buckets);
+                _context10.prev = 1;
+
+                _iterator6.s();
+
+              case 3:
+                if ((_step6 = _iterator6.n()).done) {
+                  _context10.next = 8;
+                  break;
+                }
+
+                bucket = _step6.value;
+                return _context10.delegateYield(bucket.values(), "t0", 6);
+
+              case 6:
+                _context10.next = 3;
+                break;
+
+              case 8:
+                _context10.next = 13;
+                break;
+
+              case 10:
+                _context10.prev = 10;
+                _context10.t1 = _context10["catch"](1);
+
+                _iterator6.e(_context10.t1);
+
+              case 13:
+                _context10.prev = 13;
+
+                _iterator6.f();
+
+                return _context10.finish(13);
+
+              case 16:
+              case "end":
+                return _context10.stop();
+            }
+          }
+        }, values, this, [[1, 10, 13, 16]]);
+      })
+    }, {
+      key: "keysRight",
+      value: /*#__PURE__*/regeneratorRuntime.mark(function keysRight() {
+        var idx;
+        return regeneratorRuntime.wrap(function keysRight$(_context11) {
+          while (1) {
+            switch (_context11.prev = _context11.next) {
+              case 0:
+                idx = this.buckets.length - 1;
+
+              case 1:
+                if (!(idx >= 0)) {
+                  _context11.next = 6;
+                  break;
+                }
+
+                return _context11.delegateYield(this.buckets[idx].keysRight(), "t0", 3);
+
+              case 3:
+                idx--;
+                _context11.next = 1;
+                break;
+
+              case 6:
+              case "end":
+                return _context11.stop();
+            }
+          }
+        }, keysRight, this);
+      })
+    }, {
+      key: "valuesRight",
+      value: /*#__PURE__*/regeneratorRuntime.mark(function valuesRight() {
+        var idx;
+        return regeneratorRuntime.wrap(function valuesRight$(_context12) {
+          while (1) {
+            switch (_context12.prev = _context12.next) {
+              case 0:
+                idx = this.buckets.length - 1;
+
+              case 1:
+                if (!(idx >= 0)) {
+                  _context12.next = 6;
+                  break;
+                }
+
+                return _context12.delegateYield(this.buckets[idx].valuesRight(), "t0", 3);
+
+              case 3:
+                idx--;
+                _context12.next = 1;
+                break;
+
+              case 6:
+              case "end":
+                return _context12.stop();
+            }
+          }
+        }, valuesRight, this);
+      })
+    }]);
+
+    return HamtBuckets;
+  }();
+  /**
+   * Counts the number of ones in a 32 bit integer.
+   *
+   * @param {number} flags 32 bit integet
+   * @return {number} amount of ones.
+   */
+
+  var hammingWeight = function hammingWeight(flags) {
+    flags -= flags >> 1 & 0x55555555;
+    flags = (flags & 0x33333333) + (flags >> 2 & 0x33333333);
+    return (flags + (flags >> 4) & 0xF0F0F0F) * 0x1010101 >> 24;
+  };
+
+  /**
+   * HashMap - HashMap Implementation for JavaScript
+   * @namespace Mootable
+   * @author Jack Moxley <https://github.com/jackmoxley>
+   * @version 0.15.0
+   * Homepage: https://github.com/mootable/hashmap
+   */
+
+  /**
+   * This HashMap is backed by a hashtrie, and can be tuned to specific use cases.
+   *
+   */
+
+  var HashMap = /*#__PURE__*/function () {
+    /**
+     * This HashMap is backed by a hashtrie, and can be tuned to specific use cases.
+     * - `new HashMap()` creates an empty hashmap
+     * - `new HashMap(copy:Iterable)` creates a hashmap which is a copy of the provided iterable.
+     *   1) `copy` either
+     *      - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
+     *      - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
+     * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>)} [copy]
+     */
+    function HashMap(copy) {
+      _classCallCheck(this, HashMap);
+
+      this.buckets = new HashBuckets(this);
+
+      if (copy) {
+        this.copy(copy);
+      }
+    }
+    /**
+     * Returns the number of elements in this hashmap
+     * @return {number}
+     */
+
+
+    _createClass(HashMap, [{
+      key: "size",
+      get: function get() {
+        return this.buckets.size;
+      }
+      /**
+       * Returns the number of elements in this hashmap
+       * @return {number}
+       */
+
+    }, {
+      key: "length",
+      get: function get() {
+        return this.buckets.size;
+      }
+      /**
+       * User Defined Equals Method
+       * A user defined function to define an equals method against 2 keys.
+       * @callback HashMap.methodOptionsEquals
+       * @param {*} firstKey - the first key.
+       * @param {*} secondKey - the second key
+       * @returns {boolean} is it equal or not
+       */
+
+      /**
+       * User Defined Hash Method
+       * A user defined function to describe how to hash a key.
+       * @callback HashMap.methodOptionsHash
+       * @param {*} key - the first key.
+       * @returns {number} a 32 bit integer as a hash.
+       */
+
+      /**
+       * User defined hashing and equals methods
+       * HashMap will find the best fit for your objects, and if your keys themselves have the appropriate methods,
+       * then it will use them. However if you want to override that functionality this options object allows you to do it.
+       * @typedef {Object} HashMap.methodOptions
+       * @property {number|HashMap.methodOptionsHash} [hash] - The optional hash value, or method to use.
+       * @property {HashMap.methodOptionsEquals} [equals] - The optional equals method to use
+       */
+
+      /**
+       * Create a container for this hashmap, overriden by {@link LinkedHashMap}
+       * @package
+       * @param hash
+       * @return {Container}
+       */
+
+    }, {
+      key: "createContainer",
+      value: function createContainer(parent, hash) {
+        return new Container(this, parent, hash);
+      }
+      /**
+       * Does the map have this key.
+       * - return true if the <code>key</code> is in the map.
+       * - if no elements match, it returns false.
+       * - it is legitimate for keys to be null or undefined.
+       *
+       * Maps typically index keys, and so is generally a fast operation.
+       * @example <caption>>Does this contain a key that is there</caption>
+       * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+       * const hasResult = hashmap.has(1);
+       * // hasResult === true
+       * @example <caption>Does this contain a key that isn't there</caption>
+       * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+       * const hasResult = hashmap.has(4);
+       * // hasResult === false
+       * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/has|Map.has}
+       * @param {*} key - the matching key we use to identify if we have a match.
+       * @param {HashMap.methodOptions} [options] - a set of optional options to allow a user to define the hashcode and equals methods, rather than them being looked up.
+       * @returns {boolean} - if it holds the key or not.
+       */
+
+    }, {
+      key: "has",
+      value: function has(key, options) {
+        var op = equalsAndHash(key, options);
+        return this.buckets.has(key, op);
+      }
+      /**
+       * Get a value from the map using this key.
+       * - return the first <code>value</code> from the <code>[key,value]</code> pair that matches the key.
+       * - if no elements match, it returns undefined.
+       * - it is legitimate for keys to be null or undefined, and if set, will find a value.
+       * - it is also legitimate for values to be null or undefined, as such get should never be used as an existence check. {@see HashMap#optionalGet}
+       *
+       * Maps typically index keys, and so is generally a fast operation.
+       * @example <caption>>What is the value for a key</caption>
+       * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+       * const getResult = hashmap.get(1);
+       * // getResult === 'value1'
+       * @example <caption>What is the value for a key that isn't there</caption>
+       * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+       * const getResult = hashmap.get(4);
+       * // getResult === undefined
+       * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/get|Map.get}
+       * @param {*} key - the matching key we use to identify if we have a match.
+       * @param {HashMap.methodOptions} [options] - a set of optional options to allow a user to define the hashcode and equals methods, rather than them being looked up.
+       * @returns {*} - the value of the element that matches.
+       */
+
+    }, {
+      key: "get",
+      value: function get(key, options) {
+        var op = equalsAndHash(key, options);
+        return this.buckets.get(key, op);
+      }
+      /**
+       * Get an optional value from the map. This is effectively a more efficent combination of calling has and get at the same time.
+       * - return the first <code>some(value)</code> from the <code>[key,value]</code> pair that matches
+       * - if no elements match, it returns <code>none()</code>.
+       * - it is legitimate for keys to be null or undefined, and if set, will still acknowledge it exists, against the key.
+       *
+       * Maps typically index keys, and so is generally a fast operation.
+       * @example <caption>>What is the value for a key</caption>
+       * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+       * const getResult = hashmap.optionalGet(1);
+       * // getResult === {value:'value1',has:true}
+       * @example <caption>What is the value for a key that isn't there</caption>
+       * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+       * const getResult = hashmap.optionalGet(4);
+       * // getResult === {has:false}
+       * @example <caption>What is the value for a key with an undefined value</caption>
+       * const hashmap = new HashMap([[1,'value1'],[2,undefined],[3,'value3']]);
+       * const getResult = hashmap.optionalGet(2);
+       * // getResult === {value:undefined,has:true}
+       * @see {@link Option.some}
+       * @see {@link Option.none}
+       * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/get|Map.get}
+       * @param {*} key - the key we use to identify if we have a match.
+       * @param {HashMap.methodOptions} [options] - a set of optional options to allow a user to define the hashcode and equals methods, rather than them being looked up.
+       * @returns {Option} - an optional result.
+       */
+
+    }, {
+      key: "optionalGet",
+      value: function optionalGet(key, options) {
+        var op = equalsAndHash(key, options);
+        return this.buckets.optionalGet(key, op);
+      }
+      /**
+       * Sets a value onto this map, using the key as its reference.
+       *
+       * @param {*} key - the key we want to key our value to
+       * @param {*} value - the value we are setting
+       * @param {HashMap.methodOptions} [options] - a set of optional options to allow a user to define the hashcode and equals methods, rather than them being looked up.
+       * @return {HashMap}
+       */
+
+    }, {
+      key: "set",
+      value: function set(key, value, options) {
+        var op = equalsAndHash(key, options);
+        this.buckets.set(key, value, op);
+        return this;
+      }
+      /**
+       *
+       * @param {*} key - the key we want to key our value to
+       * @param handler
+       * @param {HashMap.methodOptions} [options] - a set of optional options to allow a user to define the hashcode and equals methods, rather than them being looked up.
+       * @return {*} the new value
+       */
+
+    }, {
+      key: "emplace",
+      value: function emplace(key, handler, options) {
+        var op = equalsAndHash(key, options);
+        return this.buckets.emplace(key, handler, op);
+      }
+      /**
+       * Copies the keys and values from the iterable, into this one.
+       *
+       * @param {Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>|Array.<Array.<key,value>>} other - the iterable to copy
+       * @return {HashMap} this hashmap, with the values copied to it.
+       * @throws {TypeError} if the provided object other is null or not iterable.
+       */
+
+    }, {
+      key: "copy",
+      value: function copy(other) {
+        var map = this;
+
+        if (isIterable(other)) {
+          var _iterator = _createForOfIteratorHelper(other),
+              _step;
+
+          try {
+            for (_iterator.s(); !(_step = _iterator.n()).done;) {
+              var _step$value = _slicedToArray(_step.value, 2),
+                  key = _step$value[0],
+                  value = _step$value[1];
+
+              map.set(key, value);
+            }
+          } catch (err) {
+            _iterator.e(err);
+          } finally {
+            _iterator.f();
+          }
+
+          return this;
+        } else if (isFunction(other.entries)) {
+          var _iterator2 = _createForOfIteratorHelper(other.entries()),
+              _step2;
+
+          try {
+            for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+              var _step2$value = _slicedToArray(_step2.value, 2),
+                  _key = _step2$value[0],
+                  _value = _step2$value[1];
+
+              map.set(_key, _value);
+            }
+          } catch (err) {
+            _iterator2.e(err);
+          } finally {
+            _iterator2.f();
+          }
+
+          return this;
+        } else if (isFunction(other.forEach)) {
+          other.forEach(function (value, key) {
+            map.set(key, value);
+          });
+          return this;
+        }
+
+        throw new TypeError('HashMap.copy expects an object which is iterable, has an entries iterable function, or has a forEach function on it');
+      }
+      /**
+       * Makes a copy of this hashmap and returns a new one.
+       * @return {HashMap}
+       */
+
+    }, {
+      key: "clone",
+      value: function clone() {
+        return new HashMap(this);
+      }
+      /**
+       * Deletes an entry from this hashmap, using the provided key
+       * @param key
+       * @param {HashMap.methodOptions} [options] - a set of optional options to allow a user to define the hashcode and equals methods, rather than them being looked up.
+       * @return {HashMap}
+       */
+
+    }, {
+      key: "delete",
+      value: function _delete(key, options) {
+        var op = equalsAndHash(key, options);
+        this.buckets.delete(key, op);
+        return this;
+      }
+      /**
+       * clears the data from this hashmap.
+       * @return {HashMap}
+       */
+
+    }, {
+      key: "clear",
+      value: function clear() {
+        this.buckets.clear();
+        return this;
+      }
+      /**
+       * For Each Function
+       * A callback to execute on every <code>[key,value]</code> pair of this map iterable.
+       * @example <caption>log the keys and values</caption>
+       * const forEachFunction = (value, key) => console.log(key,value)
+       * @callback HashMap#ForEachCallback
+       * @param {*} [value] - the entry value.
+       * @param {*} [key] - the entry key
+       * @param {HashMap} [map] - the calling Map Iterable.
+       */
+
+      /**
+       * Execute the provided callback on every <code>[key,value]</code> pair of this map iterable.
+       * @example <caption>Log all the keys and values.</caption>
+       * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+       * mapIterable.forEach((value) => console.log(key, value));
+       * // will log to the console:
+       * // 1 value1
+       * // 2 value2
+       * // 3 value3
+       * // Ordering is deterministic on paper, but from a usability point of view effectively random
+       * // as it is ordered by a mix of the hash of the key, and order of insertion.
+       * @param {HashMap#ForEachCallback} [callback=(value, key, map) => {}]
+       * @param {*} [thisArg=this] Value to use as <code>this</code> when executing <code>forEachCallback</code>
+       * @returns {HashMap} the hashmap you are foreaching on..
+       */
+
+    }, {
+      key: "forEach",
+      value: function forEach(callback) {
+        var thisArg = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this;
+
+        var _iterator3 = _createForOfIteratorHelper(this.entries()),
+            _step3;
+
+        try {
+          for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+            var entry = _step3.value;
+            callback.call(thisArg, entry[1], entry[0], this);
+          }
+        } catch (err) {
+          _iterator3.e(err);
+        } finally {
+          _iterator3.f();
+        }
+
+        return this;
+      }
+      /**
+       * Execute the provided callback on every <code>[key,value]</code> pair of this map iterable in reverse.
+       * @example <caption>Log all the keys and values.</caption>
+       * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+       * mapIterable.forEachRight((value) => console.log(key, value));
+       * // will log to the console:
+       * // 3 value3
+       * // 2 value2
+       * // 1 value1
+       * // Ordering is deterministic on paper, but from a usability point of view effectively random
+       * // as it is ordered by a mix of the hash of the key, and order of insertion.
+       * @param {HashMap#ForEachCallback} [callback=(value, key, map) => {}]
+       * @param {*} [thisArg=this] Value to use as <code>this</code> when executing <code>forEachCallback</code>
+       * @returns {HashMap} the hashmap you are foreaching on..
+       */
+
+    }, {
+      key: "forEachRight",
+      value: function forEachRight(callback) {
+        var thisArg = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this;
+
+        var _iterator4 = _createForOfIteratorHelper(this.entriesRight()),
+            _step4;
+
+        try {
+          for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+            var entry = _step4.value;
+            callback.call(thisArg, entry[1], entry[0], this);
+          }
+        } catch (err) {
+          _iterator4.e(err);
+        } finally {
+          _iterator4.f();
+        }
+
+        return this;
+      }
+      /**
+       * Iterates over all the entries in the map.
+       *
+       * @return {Generator<any, void, any>}
+       */
+
+    }, {
+      key: Symbol.iterator,
+      value:
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function value() {
+        return regeneratorRuntime.wrap(function value$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                return _context.delegateYield(this.entries(), "t0", 1);
+
+              case 1:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, value, this);
+      })
+      /**
+       * Iterates over all the entries in the map in reverse.
+       *
+       * @return {Generator<any, void, any>}
+       */
+
+    }, {
+      key: "entriesRight",
+      value:
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function entriesRight() {
+        return regeneratorRuntime.wrap(function entriesRight$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                return _context2.delegateYield(this.buckets.entriesRight(), "t0", 1);
+
+              case 1:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, entriesRight, this);
+      })
+      /**
+       * Iterates over all the entries in the map.
+       *
+       * @return {Generator<any, void, any>}
+       */
+
+    }, {
+      key: "entries",
+      value:
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function entries() {
+        return regeneratorRuntime.wrap(function entries$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                return _context3.delegateYield(this.buckets, "t0", 1);
+
+              case 1:
+              case "end":
+                return _context3.stop();
+            }
+          }
+        }, entries, this);
+      })
+      /**
+       * Iterates over all the keys in the map.
+       *
+       * @return {Generator<any, void, any>}
+       */
+
+    }, {
+      key: "keys",
+      value:
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function keys() {
+        return regeneratorRuntime.wrap(function keys$(_context4) {
+          while (1) {
+            switch (_context4.prev = _context4.next) {
+              case 0:
+                return _context4.delegateYield(this.buckets.keys(), "t0", 1);
+
+              case 1:
+              case "end":
+                return _context4.stop();
+            }
+          }
+        }, keys, this);
+      })
+      /**
+       * Iterates over all the values in the map.
+       *
+       * @return {Generator<any, void, any>}
+       */
+
+    }, {
+      key: "values",
+      value:
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function values() {
+        return regeneratorRuntime.wrap(function values$(_context5) {
+          while (1) {
+            switch (_context5.prev = _context5.next) {
+              case 0:
+                return _context5.delegateYield(this.buckets.values(), "t0", 1);
+
+              case 1:
+              case "end":
+                return _context5.stop();
+            }
+          }
+        }, values, this);
+      })
+      /**
+       * Iterates over all the keys in the map in reverse.
+       * @return {Generator<any, void, any>}
+       */
+
+    }, {
+      key: "keysRight",
+      value:
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function keysRight() {
+        return regeneratorRuntime.wrap(function keysRight$(_context6) {
+          while (1) {
+            switch (_context6.prev = _context6.next) {
+              case 0:
+                return _context6.delegateYield(this.buckets.keysRight(), "t0", 1);
+
+              case 1:
+              case "end":
+                return _context6.stop();
+            }
+          }
+        }, keysRight, this);
+      })
+      /**
+       * Iterates over all the values in the map in reverse.
+       * @return {Generator<any, void, any>}
+       */
+
+    }, {
+      key: "valuesRight",
+      value:
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function valuesRight() {
+        return regeneratorRuntime.wrap(function valuesRight$(_context7) {
+          while (1) {
+            switch (_context7.prev = _context7.next) {
+              case 0:
+                return _context7.delegateYield(this.buckets.valuesRight(), "t0", 1);
+
+              case 1:
+              case "end":
+                return _context7.stop();
+            }
+          }
+        }, valuesRight, this);
+      })
+    }]);
+
+    return HashMap;
+  }();
+
+  /**
+   * HashMap - LinkedHashMap Implementation for JavaScript
+   * @namespace Mootable
+   * @author Jack Moxley <https://github.com/jackmoxley>
+   * @version 0.15.0
+   * Homepage: https://github.com/mootable/hashmap
+   */
+
+  /**
+   * This LinkedHashMap is is an extension of {@link HashMap} however LinkedHashMap also maintains insertion order of keys, and guarantees to iterate over them in that order.
+   * @extends HashMap
+   */
+
+  var LinkedHashMap = /*#__PURE__*/function (_HashMap) {
+    _inherits(LinkedHashMap, _HashMap);
+
+    var _super = _createSuper(LinkedHashMap);
+
+    /**
+     * This LinkedHashMap is is an extension of {@link HashMap} however LinkedHashMap also maintains insertion order of keys, and guarantees to iterate over them in that order.
+     * - `new LinkedHashMap()` creates an empty linked hashmap
+     * - `new LinkedHashMap(copy:Iterable)` creates a linked hashmap which is a copy of the provided iterable.
+     *   1) `copy` either
+     *      - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
+     *      - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
+     * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>)} [copy]
+     */
+    function LinkedHashMap(copy) {
+      var _this;
+
+      _classCallCheck(this, LinkedHashMap);
+
+      _this = _super.call(this, copy);
+
+      if (_this.size === 0) {
+        _this.start = undefined;
+        _this.end = undefined;
+      }
+
+      return _this;
+    }
+
+    _createClass(LinkedHashMap, [{
+      key: "clear",
+      value: function clear() {
+        this.start = undefined;
+        this.end = undefined;
+        return _get(_getPrototypeOf(LinkedHashMap.prototype), "clear", this).call(this);
+      }
+    }, {
+      key: "createContainer",
+      value: function createContainer(parent, hash) {
+        return new LinkedContainer(this, parent, hash);
+      }
+    }, {
+      key: "push",
+      value: function push(key, value, options) {
+        var op = equalsAndHash(key, options);
+
+        if (!(options && options.allowOverwriting)) {
+          op.forceInsert = true;
+        }
+
+        this.buckets.set(key, value, op);
+        return this;
+      }
+    }, {
+      key: "pushEmplace",
+      value: function pushEmplace(key, handler, options) {
+        var op = equalsAndHash(key, options);
+
+        if (!(options && options.allowOverwriting)) {
+          op.forceInsert = true;
+        }
+
+        return this.buckets.emplace(key, handler, op);
+      }
+    }, {
+      key: "unshift",
+      value: function unshift(key, value, options) {
+        var op = equalsAndHash(key, options);
+
+        if (!(options && options.allowOverwriting)) {
+          op.forceInsert = true;
+        }
+
+        op.addToStart = true;
+        this.buckets.set(key, value, op);
+        return this;
+      }
+    }, {
+      key: "unshiftEmplace",
+      value: function unshiftEmplace(key, handler, options) {
+        var op = equalsAndHash(key, options);
+
+        if (!(options && options.allowOverwriting)) {
+          op.forceInsert = true;
+        }
+
+        op.addToStart = true;
+        return this.buckets.emplace(key, handler, op);
+      }
+    }, {
+      key: "shift",
+      value: function shift() {
+        var entry = this.start;
+
+        if (entry) {
+          entry.parent.deleteEntry(entry);
+          return entry.slice();
+        }
+
+        return undefined;
+      }
+    }, {
+      key: "pop",
+      value: function pop() {
+        var entry = this.end;
+
+        if (entry) {
+          entry.parent.deleteEntry(entry);
+          return entry.slice();
+        }
+
+        return undefined;
+      }
+      /**
+       * Makes a copy of this LinkedHashMap
+       * @return {LinkedHashMap}
+       */
+
+    }, {
+      key: "clone",
+      value: function clone() {
+        return new LinkedHashMap(this);
+      }
+      /**
+       * Iterates over all the entries in the map.
+       *
+       * @return {Generator<any, void, any>}
+       */
+
+    }, {
+      key: Symbol.iterator,
+      value:
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function value() {
+        return regeneratorRuntime.wrap(function value$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                return _context.delegateYield(this.entries(), "t0", 1);
+
+              case 1:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, value, this);
+      })
+    }, {
+      key: "entries",
+      value: /*#__PURE__*/regeneratorRuntime.mark(function entries() {
+        var entry;
+        return regeneratorRuntime.wrap(function entries$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                entry = this.start;
+
+              case 1:
+                if (!entry) {
+                  _context2.next = 7;
+                  break;
+                }
+
+                _context2.next = 4;
+                return entry.slice();
+
+              case 4:
+                entry = entry.next;
+                _context2.next = 1;
+                break;
+
+              case 7:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, entries, this);
+      })
+    }, {
+      key: "entriesRight",
+      value: /*#__PURE__*/regeneratorRuntime.mark(function entriesRight() {
+        var entry;
+        return regeneratorRuntime.wrap(function entriesRight$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                entry = this.end;
+
+              case 1:
+                if (!entry) {
+                  _context3.next = 7;
+                  break;
+                }
+
+                _context3.next = 4;
+                return entry.slice();
+
+              case 4:
+                entry = entry.previous;
+                _context3.next = 1;
+                break;
+
+              case 7:
+              case "end":
+                return _context3.stop();
+            }
+          }
+        }, entriesRight, this);
+      })
+      /**
+       * Iterates over all the keys in the map.
+       *
+       * @return {Generator<any, void, any>}
+       */
+
+    }, {
+      key: "keys",
+      value:
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function keys() {
+        var entry;
+        return regeneratorRuntime.wrap(function keys$(_context4) {
+          while (1) {
+            switch (_context4.prev = _context4.next) {
+              case 0:
+                entry = this.start;
+
+              case 1:
+                if (!entry) {
+                  _context4.next = 7;
+                  break;
+                }
+
+                _context4.next = 4;
+                return entry[0];
+
+              case 4:
+                entry = entry.next;
+                _context4.next = 1;
+                break;
+
+              case 7:
+              case "end":
+                return _context4.stop();
+            }
+          }
+        }, keys, this);
+      })
+      /**
+       * Iterates over all the values in the map.
+       *
+       * @return {Generator<any, void, any>}
+       */
+
+    }, {
+      key: "values",
+      value:
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function values() {
+        var entry;
+        return regeneratorRuntime.wrap(function values$(_context5) {
+          while (1) {
+            switch (_context5.prev = _context5.next) {
+              case 0:
+                entry = this.start;
+
+              case 1:
+                if (!entry) {
+                  _context5.next = 7;
+                  break;
+                }
+
+                _context5.next = 4;
+                return entry[1];
+
+              case 4:
+                entry = entry.next;
+                _context5.next = 1;
+                break;
+
+              case 7:
+              case "end":
+                return _context5.stop();
+            }
+          }
+        }, values, this);
+      })
+      /**
+       * Iterates over all the keys in the map in reverse.
+       * @return {Generator<any, void, any>}
+       */
+
+    }, {
+      key: "keysRight",
+      value:
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function keysRight() {
+        var entry;
+        return regeneratorRuntime.wrap(function keysRight$(_context6) {
+          while (1) {
+            switch (_context6.prev = _context6.next) {
+              case 0:
+                entry = this.end;
+
+              case 1:
+                if (!entry) {
+                  _context6.next = 7;
+                  break;
+                }
+
+                _context6.next = 4;
+                return entry[0];
+
+              case 4:
+                entry = entry.previous;
+                _context6.next = 1;
+                break;
+
+              case 7:
+              case "end":
+                return _context6.stop();
+            }
+          }
+        }, keysRight, this);
+      })
+      /**
+       * Iterates over all the values in the map in reverse.
+       * @return {Generator<any, void, any>}
+       */
+
+    }, {
+      key: "valuesRight",
+      value:
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function valuesRight() {
+        var entry;
+        return regeneratorRuntime.wrap(function valuesRight$(_context7) {
+          while (1) {
+            switch (_context7.prev = _context7.next) {
+              case 0:
+                entry = this.end;
+
+              case 1:
+                if (!entry) {
+                  _context7.next = 7;
+                  break;
+                }
+
+                _context7.next = 4;
+                return entry[1];
+
+              case 4:
+                entry = entry.previous;
+                _context7.next = 1;
+                break;
+
+              case 7:
+              case "end":
+                return _context7.stop();
+            }
+          }
+        }, valuesRight, this);
+      })
+    }]);
+
+    return LinkedHashMap;
+  }(HashMap);
+  /**
+   * Holds multiple entries, but shrinks to a single container if reduced to a size of one.
+   */
+
+  var LinkedContainer = /*#__PURE__*/function (_Container) {
+    _inherits(LinkedContainer, _Container);
+
+    var _super2 = _createSuper(LinkedContainer);
+
+    function LinkedContainer(map, parent, hash) {
+      _classCallCheck(this, LinkedContainer);
+
+      return _super2.call(this, map, parent, hash);
+    }
+
+    _createClass(LinkedContainer, [{
+      key: "createEntry",
+      value: function createEntry(key, value, options) {
+        var entry = _get(_getPrototypeOf(LinkedContainer.prototype), "createEntry", this).call(this, key, value, options);
+
+        var map = this.map;
+
+        if (options.addToStart && map.start) {
+          map.start.previous = entry;
+          entry.next = map.start;
+          map.start = entry;
+        } else if (map.end) {
+          map.end.next = entry;
+          entry.previous = map.end;
+          map.end = entry;
+        } else {
+          map.end = map.start = entry;
+        }
+
+        return entry;
+      }
+    }, {
+      key: "updateEntry",
+      value: function updateEntry(entry, newValue, options) {
+        _get(_getPrototypeOf(LinkedContainer.prototype), "updateEntry", this).call(this, entry, newValue, options);
+
+        if (options.forceInsert) {
+          if (options.addToStart) {
+            if (entry !== this.map.start) {
+              if (entry.next) {
+                entry.next.previous = entry.previous;
+              }
+
+              if (entry.previous) {
+                entry.previous.next = entry.next;
+                entry.previous = undefined;
+              }
+
+              this.map.start.previous = entry;
+              entry.next = this.map.start;
+              this.map.start = entry;
+            }
+          } else if (entry !== this.map.end) {
+            if (entry.previous) {
+              entry.previous.next = entry.next;
+            }
+
+            if (entry.next) {
+              entry.next.previous = entry.previous;
+              entry.next = undefined;
+            }
+
+            this.map.end.next = entry;
+            entry.previous = this.map.end;
+            this.map.end = entry;
+          }
+        }
+      }
+    }, {
+      key: "deleteIndex",
+      value: function deleteIndex(idx) {
+        var oldEntry = _get(_getPrototypeOf(LinkedContainer.prototype), "deleteIndex", this).call(this, idx);
+
+        var map = this.map;
+
+        if (oldEntry.previous) {
+          oldEntry.previous.next = oldEntry.next;
+        } else {
+          map.start = oldEntry.next;
+        }
+
+        if (oldEntry.next) {
+          oldEntry.next.previous = oldEntry.previous;
+        } else {
+          map.end = oldEntry.previous;
+        }
+      }
+    }]);
+
+    return LinkedContainer;
+  }(Container);
 
   var IS_CONCAT_SPREADABLE = wellKnownSymbol('isConcatSpreadable');
   var MAX_SAFE_INTEGER = 0x1FFFFFFFFFFFFF;
@@ -7198,1366 +9578,6 @@
 
     return SetFilter;
   }(SetIterableWrapper);
-
-  var SHIFT = 7;
-  var WIDTH = 1 << SHIFT;
-  var MASK = WIDTH - 1;
-  var DEPTH = 5;
-  var SHIFT_HAMT = 5;
-  var WIDTH_HAMT = 1 << SHIFT_HAMT;
-  var MASK_HAMT = WIDTH_HAMT - 1;
-  var DEPTH_HAMT = DEPTH - 1;
-  var SHIFT_HAMT_1 = SHIFT_HAMT + SHIFT;
-  /**
-   * HashMap - HashMap Implementation for JavaScript
-   * @namespace Mootable
-   * @author Jack Moxley <https://github.com/jackmoxley>
-   * @version 0.15.0
-   * Homepage: https://github.com/mootable/hashmap
-   */
-
-  /**
-   * This HashMap is backed by a hashtrie, and can be tuned to specific use cases.
-   * @extends {MapIterable}
-   */
-
-  var HashMap = /*#__PURE__*/function (_MapIterable) {
-    _inherits(HashMap, _MapIterable);
-
-    var _super = _createSuper(HashMap);
-
-    /**
-     * This HashMap is backed by a hashtrie, and can be tuned to specific use cases.
-     * - `new HashMap()` creates an empty hashmap
-     * - `new HashMap(copy:Iterable)` creates a hashmap which is a copy of the provided iterable.
-     *   1) `copy` either
-     *      - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
-     *      - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
-     * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>)} [copy]
-     */
-    function HashMap(copy) {
-      var _this;
-
-      _classCallCheck(this, HashMap);
-
-      _this = _super.call(this);
-
-      _this.clear();
-
-      if (copy && (copy[Symbol.iterator] || copy.forEach)) {
-        _this.copy(copy);
-      }
-
-      return _this;
-    }
-
-    _createClass(HashMap, [{
-      key: "size",
-      get: function get() {
-        return this.length;
-      }
-    }, {
-      key: "__createContainer",
-      value: function __createContainer(hash) {
-        return new Container(this, hash);
-      }
-    }, {
-      key: "has",
-      value: function has(key) {
-        var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-        equalsAndHash(key, options);
-        return this.buckets.has(key, options, 0);
-      }
-    }, {
-      key: "get",
-      value: function get(key) {
-        var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-        equalsAndHash(key, options);
-        return this.buckets.get(key, options, 0);
-      } // noinspection JSCheckFunctionSignatures
-
-    }, {
-      key: "optionalGet",
-      value: function optionalGet(key) {
-        var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-        equalsAndHash(key, options);
-        return this.buckets.optionalGet(key, options, 0);
-      }
-      /**
-       * Sets a value onto this map, using the key as its reference.
-       *
-       * @param {*} key - the key we want to key our value to
-       * @param {*} value - the value we are setting
-       * @return {HashMap}
-       */
-
-    }, {
-      key: "set",
-      value: function set(key, value) {
-        var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-        equalsAndHash(key, options);
-        this.buckets.set(key, value, options, 0);
-        this.length = this.buckets.size;
-        return this;
-      }
-      /**
-       *
-       * @param {Map|HashMap|LinkedHashMap|MapIterable|SetIterable.<Array.<key,value>>|Iterator.<Array.<key,value>>|Array.<Array.<key,value>>} other - the iterable to copy
-       * @return {HashMap} this hashmap, with the values copied to it.
-       * @throws {TypeError} if the provided object other is null or not iterable.
-       */
-
-    }, {
-      key: "copy",
-      value: function copy(other) {
-        var map = this;
-
-        if (isIterable(other)) {
-          var _iterator = _createForOfIteratorHelper(other),
-              _step;
-
-          try {
-            for (_iterator.s(); !(_step = _iterator.n()).done;) {
-              var _step$value = _slicedToArray(_step.value, 2),
-                  key = _step$value[0],
-                  value = _step$value[1];
-
-              map.set(key, value);
-            }
-          } catch (err) {
-            _iterator.e(err);
-          } finally {
-            _iterator.f();
-          }
-
-          return this;
-        } else if (isFunction(other.entries)) {
-          var _iterator2 = _createForOfIteratorHelper(other.entries()),
-              _step2;
-
-          try {
-            for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-              var _step2$value = _slicedToArray(_step2.value, 2),
-                  _key = _step2$value[0],
-                  _value = _step2$value[1];
-
-              map.set(_key, _value);
-            }
-          } catch (err) {
-            _iterator2.e(err);
-          } finally {
-            _iterator2.f();
-          }
-
-          return this;
-        } else if (isFunction(other.forEach)) {
-          other.forEach(function (value, key) {
-            map.set(key, value);
-          });
-          return this;
-        }
-
-        throw new TypeError('HashMap.copy expects an object which is iterable or has a forEach function on it');
-      }
-      /**
-       * Makes a copy of this hashmap and returns a new one.
-       * @return {HashMap}
-       */
-
-    }, {
-      key: "clone",
-      value: function clone() {
-        return new HashMap(this);
-      }
-      /**
-       * Deletes an entry from this hashmap, using the provided key
-       * @param key
-       * @return {HashMap}
-       */
-
-    }, {
-      key: "delete",
-      value: function _delete(key) {
-        var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-        equalsAndHash(key, options);
-
-        if (this.buckets.delete(key, options, 0)) {
-          this.length = this.buckets.size;
-        }
-
-        return this;
-      }
-      /**
-       * clears the data from this hashmap.
-       * @return {HashMap}
-       */
-
-    }, {
-      key: "clear",
-      value: function clear() {
-        this.buckets = new HashBuckets(this);
-        this.length = 0;
-        return this;
-      }
-    }, {
-      key: Symbol.iterator,
-      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        var _iterator3, _step3, entry;
-
-        return regeneratorRuntime.wrap(function value$(_context) {
-          while (1) {
-            switch (_context.prev = _context.next) {
-              case 0:
-                _iterator3 = _createForOfIteratorHelper(this.buckets);
-                _context.prev = 1;
-
-                _iterator3.s();
-
-              case 3:
-                if ((_step3 = _iterator3.n()).done) {
-                  _context.next = 9;
-                  break;
-                }
-
-                entry = _step3.value;
-                _context.next = 7;
-                return entry;
-
-              case 7:
-                _context.next = 3;
-                break;
-
-              case 9:
-                _context.next = 14;
-                break;
-
-              case 11:
-                _context.prev = 11;
-                _context.t0 = _context["catch"](1);
-
-                _iterator3.e(_context.t0);
-
-              case 14:
-                _context.prev = 14;
-
-                _iterator3.f();
-
-                return _context.finish(14);
-
-              case 17:
-              case "end":
-                return _context.stop();
-            }
-          }
-        }, value, this, [[1, 11, 14, 17]]);
-      })
-    }, {
-      key: "reverse",
-      value: /*#__PURE__*/regeneratorRuntime.mark(function reverse() {
-        var _iterator4, _step4, entry;
-
-        return regeneratorRuntime.wrap(function reverse$(_context2) {
-          while (1) {
-            switch (_context2.prev = _context2.next) {
-              case 0:
-                _iterator4 = _createForOfIteratorHelper(this.buckets.reverse());
-                _context2.prev = 1;
-
-                _iterator4.s();
-
-              case 3:
-                if ((_step4 = _iterator4.n()).done) {
-                  _context2.next = 9;
-                  break;
-                }
-
-                entry = _step4.value;
-                _context2.next = 7;
-                return entry;
-
-              case 7:
-                _context2.next = 3;
-                break;
-
-              case 9:
-                _context2.next = 14;
-                break;
-
-              case 11:
-                _context2.prev = 11;
-                _context2.t0 = _context2["catch"](1);
-
-                _iterator4.e(_context2.t0);
-
-              case 14:
-                _context2.prev = 14;
-
-                _iterator4.f();
-
-                return _context2.finish(14);
-
-              case 17:
-              case "end":
-                return _context2.stop();
-            }
-          }
-        }, reverse, this, [[1, 11, 14, 17]]);
-      })
-    }]);
-
-    return HashMap;
-  }(MapIterable);
-  /**
-   * @private
-   */
-
-  var HashBuckets = /*#__PURE__*/function () {
-    function HashBuckets(map) {
-      _classCallCheck(this, HashBuckets);
-
-      this.map = map;
-      this.clear();
-    }
-
-    _createClass(HashBuckets, [{
-      key: "hashConflicts",
-      value: function hashConflicts() {
-        return false;
-      }
-    }, {
-      key: "clear",
-      value: function clear() {
-        this.buckets = [];
-        this.size = 0;
-      }
-    }, {
-      key: "bucketFor",
-      value: function bucketFor(hash) {
-        var idx = this.indexFor(hash);
-
-        if (idx < this.buckets.length) {
-          return this.buckets[idx];
-        }
-
-        return undefined;
-      }
-    }, {
-      key: "indexFor",
-      value: function indexFor(hash) {
-        return hash >>> SHIFT & MASK;
-      }
-    }, {
-      key: "set",
-      value: function set(key, value, options) {
-        var hash = options.hash;
-        var idx = this.indexFor(hash);
-        var bucket = this.buckets[idx];
-
-        if (!bucket) {
-          bucket = this.map.__createContainer(hash);
-          bucket.createEntry(key, value);
-          this.buckets[idx] = bucket;
-          this.size += 1;
-          return true;
-        } else if (bucket.hashConflicts(hash)) {
-          bucket = new HamtBuckets(this.map, DEPTH_HAMT, SHIFT_HAMT_1).replacing(bucket);
-          this.buckets[idx] = bucket;
-        }
-
-        if (bucket.set(key, value, options)) {
-          this.size += 1;
-          return true;
-        }
-
-        return false;
-      }
-    }, {
-      key: "emplace",
-      value: function emplace(key, handler, options) {
-        var hash = options.hash;
-        var idx = this.indexFor(hash);
-        var bucket = this.buckets[idx];
-
-        if (!bucket) {
-          bucket = this.map.__createContainer(hash);
-          this.buckets[idx] = bucket;
-        } else if (bucket.hashConflicts(hash)) {
-          bucket = new HamtBuckets(this.map, DEPTH_HAMT, SHIFT_HAMT_1).replacing(bucket);
-          this.buckets[idx] = bucket;
-        }
-
-        var response = bucket.emplace(key, handler, options);
-
-        if (response.resized) {
-          this.size += 1;
-        }
-
-        return response;
-      }
-    }, {
-      key: "delete",
-      value: function _delete(key, options) {
-        var hash = options.hash;
-        var idx = this.indexFor(hash);
-        var bucket = this.buckets[idx];
-
-        if (bucket) {
-          var deleted = bucket.delete(key, options);
-
-          if (deleted) {
-            // if (bucket.size === 0) {
-            //     this.buckets[idx] = undefined;
-            // }
-            this.size -= 1;
-            return true;
-          }
-        }
-
-        return false;
-      }
-    }, {
-      key: "get",
-      value: function get(key, options) {
-        var hash = options.hash;
-        var bucket = this.bucketFor(hash);
-
-        if (bucket) {
-          return bucket.get(key, options);
-        }
-
-        return undefined;
-      }
-    }, {
-      key: "optionalGet",
-      value: function optionalGet(key, options) {
-        var hash = options.hash;
-        var bucket = this.bucketFor(hash);
-
-        if (bucket) {
-          return bucket.optionalGet(key, options);
-        }
-
-        return none;
-      }
-    }, {
-      key: "has",
-      value: function has(key, options) {
-        var hash = options.hash;
-        var bucket = this.bucketFor(hash);
-
-        if (bucket) {
-          return bucket.has(key, options);
-        }
-
-        return false;
-      }
-    }, {
-      key: Symbol.iterator,
-      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        var _iterator5, _step5, bucket, _iterator6, _step6, entry;
-
-        return regeneratorRuntime.wrap(function value$(_context3) {
-          while (1) {
-            switch (_context3.prev = _context3.next) {
-              case 0:
-                _iterator5 = _createForOfIteratorHelper(this.buckets);
-                _context3.prev = 1;
-
-                _iterator5.s();
-
-              case 3:
-                if ((_step5 = _iterator5.n()).done) {
-                  _context3.next = 25;
-                  break;
-                }
-
-                bucket = _step5.value;
-
-                if (!bucket) {
-                  _context3.next = 23;
-                  break;
-                }
-
-                _iterator6 = _createForOfIteratorHelper(bucket);
-                _context3.prev = 7;
-
-                _iterator6.s();
-
-              case 9:
-                if ((_step6 = _iterator6.n()).done) {
-                  _context3.next = 15;
-                  break;
-                }
-
-                entry = _step6.value;
-                _context3.next = 13;
-                return entry;
-
-              case 13:
-                _context3.next = 9;
-                break;
-
-              case 15:
-                _context3.next = 20;
-                break;
-
-              case 17:
-                _context3.prev = 17;
-                _context3.t0 = _context3["catch"](7);
-
-                _iterator6.e(_context3.t0);
-
-              case 20:
-                _context3.prev = 20;
-
-                _iterator6.f();
-
-                return _context3.finish(20);
-
-              case 23:
-                _context3.next = 3;
-                break;
-
-              case 25:
-                _context3.next = 30;
-                break;
-
-              case 27:
-                _context3.prev = 27;
-                _context3.t1 = _context3["catch"](1);
-
-                _iterator5.e(_context3.t1);
-
-              case 30:
-                _context3.prev = 30;
-
-                _iterator5.f();
-
-                return _context3.finish(30);
-
-              case 33:
-              case "end":
-                return _context3.stop();
-            }
-          }
-        }, value, this, [[1, 27, 30, 33], [7, 17, 20, 23]]);
-      })
-    }, {
-      key: "reverse",
-      value: /*#__PURE__*/regeneratorRuntime.mark(function reverse() {
-        var idx, bucket, _iterator7, _step7, entry;
-
-        return regeneratorRuntime.wrap(function reverse$(_context4) {
-          while (1) {
-            switch (_context4.prev = _context4.next) {
-              case 0:
-                idx = this.buckets.length - 1;
-
-              case 1:
-                if (!(idx >= 0)) {
-                  _context4.next = 24;
-                  break;
-                }
-
-                bucket = this.buckets[idx];
-
-                if (!bucket) {
-                  _context4.next = 21;
-                  break;
-                }
-
-                _iterator7 = _createForOfIteratorHelper(bucket.reverse());
-                _context4.prev = 5;
-
-                _iterator7.s();
-
-              case 7:
-                if ((_step7 = _iterator7.n()).done) {
-                  _context4.next = 13;
-                  break;
-                }
-
-                entry = _step7.value;
-                _context4.next = 11;
-                return entry;
-
-              case 11:
-                _context4.next = 7;
-                break;
-
-              case 13:
-                _context4.next = 18;
-                break;
-
-              case 15:
-                _context4.prev = 15;
-                _context4.t0 = _context4["catch"](5);
-
-                _iterator7.e(_context4.t0);
-
-              case 18:
-                _context4.prev = 18;
-
-                _iterator7.f();
-
-                return _context4.finish(18);
-
-              case 21:
-                idx--;
-                _context4.next = 1;
-                break;
-
-              case 24:
-              case "end":
-                return _context4.stop();
-            }
-          }
-        }, reverse, this, [[5, 15, 18, 21]]);
-      })
-    }]);
-
-    return HashBuckets;
-  }();
-  /**
-   * @private
-   */
-
-  var HamtBuckets = /*#__PURE__*/function (_HashBuckets) {
-    _inherits(HamtBuckets, _HashBuckets);
-
-    var _super2 = _createSuper(HamtBuckets);
-
-    function HamtBuckets(map, depth, shift) {
-      var _this2;
-
-      _classCallCheck(this, HamtBuckets);
-
-      _this2 = _super2.call(this, map);
-      _this2.depth = depth;
-      _this2.shift = shift;
-      return _this2;
-    }
-
-    _createClass(HamtBuckets, [{
-      key: "clear",
-      value: function clear() {
-        this.size = 0;
-        this.buckets = [];
-        this.idxFlags = 0;
-      }
-    }, {
-      key: "indexFor",
-      value: function indexFor(hash) {
-        var idxFlags = this.idxFlags;
-        var hashIdx = hash >>> this.shift & MASK_HAMT;
-        var flag = 1 << hashIdx;
-        return hammingWeight(idxFlags & flag - 1);
-      }
-    }, {
-      key: "bucketFor",
-      value: function bucketFor(hash) {
-        var idxFlags = this.idxFlags;
-        var hashIdx = hash >>> this.shift & MASK_HAMT;
-        var flag = 1 << hashIdx;
-        var idx = hammingWeight(idxFlags & flag - 1);
-
-        if (idxFlags & flag) {
-          return this.buckets[idx];
-        }
-
-        return undefined;
-      }
-    }, {
-      key: "replacing",
-      value: function replacing(oldBucket) {
-        var new_flag = 1 << (oldBucket.hash >>> this.shift & MASK_HAMT);
-        this.idxFlags |= new_flag; // shift the old bucket up a level. no need to splice its always going to be the first item.
-
-        this.buckets[0] = oldBucket;
-        this.size = oldBucket.size;
-        return this;
-      }
-    }, {
-      key: "set",
-      value: function set(key, value, options) {
-        var hash = options.hash;
-        var idxFlags = this.idxFlags;
-        var hashIdx = hash >>> this.shift & MASK_HAMT;
-        var flag = 1 << hashIdx;
-        var idx = hammingWeight(idxFlags & flag - 1);
-        var bucket;
-
-        if (idxFlags & flag) {
-          bucket = this.buckets[idx];
-
-          if (this.depth && bucket.hashConflicts(hash)) {
-            bucket = new HamtBuckets(this.map, this.depth - 1, this.shift + SHIFT_HAMT).replacing(bucket);
-            this.buckets[idx] = bucket;
-          }
-        } else {
-          bucket = this.map.__createContainer(hash);
-          bucket.createEntry(key, value);
-          this.buckets.splice(idx, 0, bucket);
-          this.idxFlags |= flag;
-          this.size += 1;
-          return true;
-        }
-
-        if (bucket.set(key, value, options)) {
-          this.size += 1;
-          return true;
-        }
-
-        return false;
-      } // emplace(key, handler, options) {
-      //     const idx = (options.hash >>> this.shift) & this.map.mask;
-      //     let bucket = this.buckets[idx];
-      //     if (!bucket) {
-      //         bucket = this.depth ? new HamtBuckets(this.options, this.depth - 1) : new Container(this.options);
-      //         this.buckets[idx] = bucket;
-      //     }
-      //     options.hash >>>= this.options.widthAs2sExponent;
-      //     const response = bucket.emplace(key, handler, options);
-      //     if (response.resized) {
-      //         this.size += 1;
-      //     }
-      //     return response;
-      // }
-
-    }, {
-      key: "delete",
-      value: function _delete(key, options) {
-        var hash = options.hash;
-        var idxFlags = this.idxFlags;
-        var hashIdx = hash >>> this.shift & MASK_HAMT;
-        var flag = 1 << hashIdx;
-
-        if (idxFlags & flag) {
-          var idx = hammingWeight(idxFlags & flag - 1);
-          var bucket = this.buckets[idx];
-          var deleted = bucket.delete(key, options);
-
-          if (deleted) {
-            this.size -= 1;
-
-            if (bucket.size === 0) {
-              if (idx === 0) {
-                this.buckets.shift();
-              } else if (this.buckets.size === idx) {
-                this.buckets.pop();
-              } else {
-                this.buckets.splice(idx, 1);
-              }
-
-              this.idxFlags ^= flag;
-            }
-
-            return true;
-          }
-        }
-
-        return false;
-      }
-    }, {
-      key: Symbol.iterator,
-      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        var _iterator8, _step8, bucket, _iterator9, _step9, entry;
-
-        return regeneratorRuntime.wrap(function value$(_context5) {
-          while (1) {
-            switch (_context5.prev = _context5.next) {
-              case 0:
-                _iterator8 = _createForOfIteratorHelper(this.buckets);
-                _context5.prev = 1;
-
-                _iterator8.s();
-
-              case 3:
-                if ((_step8 = _iterator8.n()).done) {
-                  _context5.next = 24;
-                  break;
-                }
-
-                bucket = _step8.value;
-                _iterator9 = _createForOfIteratorHelper(bucket);
-                _context5.prev = 6;
-
-                _iterator9.s();
-
-              case 8:
-                if ((_step9 = _iterator9.n()).done) {
-                  _context5.next = 14;
-                  break;
-                }
-
-                entry = _step9.value;
-                _context5.next = 12;
-                return entry;
-
-              case 12:
-                _context5.next = 8;
-                break;
-
-              case 14:
-                _context5.next = 19;
-                break;
-
-              case 16:
-                _context5.prev = 16;
-                _context5.t0 = _context5["catch"](6);
-
-                _iterator9.e(_context5.t0);
-
-              case 19:
-                _context5.prev = 19;
-
-                _iterator9.f();
-
-                return _context5.finish(19);
-
-              case 22:
-                _context5.next = 3;
-                break;
-
-              case 24:
-                _context5.next = 29;
-                break;
-
-              case 26:
-                _context5.prev = 26;
-                _context5.t1 = _context5["catch"](1);
-
-                _iterator8.e(_context5.t1);
-
-              case 29:
-                _context5.prev = 29;
-
-                _iterator8.f();
-
-                return _context5.finish(29);
-
-              case 32:
-              case "end":
-                return _context5.stop();
-            }
-          }
-        }, value, this, [[1, 26, 29, 32], [6, 16, 19, 22]]);
-      })
-    }, {
-      key: "reverse",
-      value: /*#__PURE__*/regeneratorRuntime.mark(function reverse() {
-        var idx, bucket, _iterator10, _step10, entry;
-
-        return regeneratorRuntime.wrap(function reverse$(_context6) {
-          while (1) {
-            switch (_context6.prev = _context6.next) {
-              case 0:
-                idx = this.buckets.length - 1;
-
-              case 1:
-                if (!(idx >= 0)) {
-                  _context6.next = 23;
-                  break;
-                }
-
-                bucket = this.buckets[idx];
-                _iterator10 = _createForOfIteratorHelper(bucket.reverse());
-                _context6.prev = 4;
-
-                _iterator10.s();
-
-              case 6:
-                if ((_step10 = _iterator10.n()).done) {
-                  _context6.next = 12;
-                  break;
-                }
-
-                entry = _step10.value;
-                _context6.next = 10;
-                return entry;
-
-              case 10:
-                _context6.next = 6;
-                break;
-
-              case 12:
-                _context6.next = 17;
-                break;
-
-              case 14:
-                _context6.prev = 14;
-                _context6.t0 = _context6["catch"](4);
-
-                _iterator10.e(_context6.t0);
-
-              case 17:
-                _context6.prev = 17;
-
-                _iterator10.f();
-
-                return _context6.finish(17);
-
-              case 20:
-                idx--;
-                _context6.next = 1;
-                break;
-
-              case 23:
-              case "end":
-                return _context6.stop();
-            }
-          }
-        }, reverse, this, [[4, 14, 17, 20]]);
-      })
-    }]);
-
-    return HamtBuckets;
-  }(HashBuckets);
-  /**
-   * Holds multiple entries, but shrinks to a single container if reduced to a size of one.
-   */
-
-  var Container = /*#__PURE__*/function () {
-    function Container(map, hash) {
-      _classCallCheck(this, Container);
-
-      this.size = 0;
-      this.contents = [];
-      this.map = map;
-      this.hash = hash;
-    }
-
-    _createClass(Container, [{
-      key: "hashConflicts",
-      value: function hashConflicts(hash) {
-        return hash !== this.hash;
-      }
-    }, {
-      key: "get",
-      value: function get(key, options) {
-        if (this.size !== 0) {
-          var equals = options.equals;
-
-          var _iterator11 = _createForOfIteratorHelper(this.contents),
-              _step11;
-
-          try {
-            for (_iterator11.s(); !(_step11 = _iterator11.n()).done;) {
-              var entry = _step11.value;
-
-              if (entry && equals(key, entry[0])) {
-                return entry[1];
-              }
-            }
-          } catch (err) {
-            _iterator11.e(err);
-          } finally {
-            _iterator11.f();
-          }
-        }
-
-        return undefined;
-      }
-    }, {
-      key: "optionalGet",
-      value: function optionalGet(key, options) {
-        if (this.size !== 0) {
-          var equals = options.equals;
-          var entry = this.contents.find(function (entry) {
-            return equals(key, entry[0]);
-          });
-
-          if (entry) {
-            return _some(entry[1]);
-          }
-        }
-
-        return none;
-      }
-    }, {
-      key: "set",
-      value: function set(key, value, options) {
-        var equals = options.equals;
-
-        var _iterator12 = _createForOfIteratorHelper(this.contents),
-            _step12;
-
-        try {
-          for (_iterator12.s(); !(_step12 = _iterator12.n()).done;) {
-            var entry = _step12.value;
-
-            if (equals(key, entry[0])) {
-              entry[1] = value;
-              return false;
-            }
-          }
-        } catch (err) {
-          _iterator12.e(err);
-        } finally {
-          _iterator12.f();
-        }
-
-        this.createEntry(key, value);
-        return true;
-      }
-    }, {
-      key: "createEntry",
-      value: function createEntry(key, value) {
-        var entry = [key, value];
-        this.contents.push(entry);
-        this.size += 1;
-        return entry;
-      }
-    }, {
-      key: "deleteEntry",
-      value: function deleteEntry(idx) {
-        this.size -= 1;
-
-        if (idx === 0) {
-          return this.contents.shift();
-        } else if (idx === this.size) {
-          return this.contents.pop();
-        } else {
-          return this.contents.splice(idx, 1)[0];
-        }
-      }
-    }, {
-      key: "emplace",
-      value: function emplace(key, handler, options) {
-        var equals = options.equals;
-
-        var _iterator13 = _createForOfIteratorHelper(this.contents),
-            _step13;
-
-        try {
-          for (_iterator13.s(); !(_step13 = _iterator13.n()).done;) {
-            var entry = _step13.value;
-
-            if (equals(key, entry[0])) {
-              var _value2 = handler.update(entry[1], key, this.map);
-
-              entry[1] = _value2;
-              return {
-                value: _value2,
-                resized: false
-              };
-            }
-          }
-        } catch (err) {
-          _iterator13.e(err);
-        } finally {
-          _iterator13.f();
-        }
-
-        var value = handler.insert(key, this.map);
-        this.createEntry(key, value);
-        return {
-          value: value,
-          resized: true
-        };
-      }
-    }, {
-      key: "has",
-      value: function has(key, options) {
-        if (this.size !== 0) {
-          var equals = options.equals;
-          return this.contents.some(function (entry) {
-            return equals(key, entry[0]);
-          });
-        }
-
-        return false;
-      }
-    }, {
-      key: "delete",
-      value: function _delete(key, options) {
-        var equals = options.equals;
-        var idx = this.contents.findIndex(function (entry) {
-          return equals(key, entry[0]);
-        });
-
-        if (idx === -1) {
-          return false;
-        }
-
-        this.deleteEntry(idx);
-        return true;
-      }
-    }, {
-      key: Symbol.iterator,
-      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        var _iterator14, _step14, entry;
-
-        return regeneratorRuntime.wrap(function value$(_context7) {
-          while (1) {
-            switch (_context7.prev = _context7.next) {
-              case 0:
-                _iterator14 = _createForOfIteratorHelper(this.contents);
-                _context7.prev = 1;
-
-                _iterator14.s();
-
-              case 3:
-                if ((_step14 = _iterator14.n()).done) {
-                  _context7.next = 9;
-                  break;
-                }
-
-                entry = _step14.value;
-                _context7.next = 7;
-                return entry.slice();
-
-              case 7:
-                _context7.next = 3;
-                break;
-
-              case 9:
-                _context7.next = 14;
-                break;
-
-              case 11:
-                _context7.prev = 11;
-                _context7.t0 = _context7["catch"](1);
-
-                _iterator14.e(_context7.t0);
-
-              case 14:
-                _context7.prev = 14;
-
-                _iterator14.f();
-
-                return _context7.finish(14);
-
-              case 17:
-              case "end":
-                return _context7.stop();
-            }
-          }
-        }, value, this, [[1, 11, 14, 17]]);
-      })
-    }, {
-      key: "reverse",
-      value: /*#__PURE__*/regeneratorRuntime.mark(function reverse() {
-        var idx, entry;
-        return regeneratorRuntime.wrap(function reverse$(_context8) {
-          while (1) {
-            switch (_context8.prev = _context8.next) {
-              case 0:
-                idx = this.contents.length - 1;
-
-              case 1:
-                if (!(idx >= 0)) {
-                  _context8.next = 8;
-                  break;
-                }
-
-                entry = this.contents[idx];
-                _context8.next = 5;
-                return entry.slice();
-
-              case 5:
-                idx--;
-                _context8.next = 1;
-                break;
-
-              case 8:
-              case "end":
-                return _context8.stop();
-            }
-          }
-        }, reverse, this);
-      })
-    }]);
-
-    return Container;
-  }();
-  /**
-   * Counts the number of ones in a 32 bit integer.
-   *
-   * @param {number} flags 32 bit integet
-   * @return {number} amount of ones.
-   */
-
-  var hammingWeight = function hammingWeight(flags) {
-    flags -= flags >> 1 & 0x55555555;
-    flags = (flags & 0x33333333) + (flags >> 2 & 0x33333333);
-    return (flags + (flags >> 4) & 0xF0F0F0F) * 0x1010101 >> 24;
-  };
-
-  /**
-   * HashMap - LinkedHashMap Implementation for JavaScript
-   * @namespace Mootable
-   * @author Jack Moxley <https://github.com/jackmoxley>
-   * @version 0.15.0
-   * Homepage: https://github.com/mootable/hashmap
-   */
-
-  /**
-   * This LinkedHashMap is is an extension of {@link HashMap} however LinkedHashMap also maintains insertion order of keys, and guarantees to iterate over them in that order.
-   * @extends HashMap
-   */
-
-  var LinkedHashMap = /*#__PURE__*/function (_HashMap) {
-    _inherits(LinkedHashMap, _HashMap);
-
-    var _super = _createSuper(LinkedHashMap);
-
-    /**
-     * This LinkedHashMap is is an extension of {@link HashMap} however LinkedHashMap also maintains insertion order of keys, and guarantees to iterate over them in that order.
-     * - `new LinkedHashMap()` creates an empty linked hashmap
-     * - `new LinkedHashMap(copy:Iterable)` creates a linked hashmap which is a copy of the provided iterable.
-     *   1) `copy` either
-     *      - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
-     *      - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
-     * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>)} [copy]
-     */
-    function LinkedHashMap(copy) {
-      var _this;
-
-      _classCallCheck(this, LinkedHashMap);
-
-      _this = _super.call(this, copy);
-      _this.start = undefined;
-      _this.end = undefined;
-      return _this;
-    }
-
-    _createClass(LinkedHashMap, [{
-      key: "__createContainer",
-      value: function __createContainer(hash) {
-        return new LinkedContainer(this, hash);
-      }
-      /**
-       * Makes a copy of this LinkedHashMap
-       * @return {LinkedHashMap}
-       */
-
-    }, {
-      key: "clone",
-      value: function clone() {
-        return new LinkedHashMap(this);
-      }
-    }, {
-      key: Symbol.iterator,
-      value: /*#__PURE__*/regeneratorRuntime.mark(function value() {
-        var entry;
-        return regeneratorRuntime.wrap(function value$(_context) {
-          while (1) {
-            switch (_context.prev = _context.next) {
-              case 0:
-                entry = this.start;
-
-              case 1:
-                if (!entry) {
-                  _context.next = 7;
-                  break;
-                }
-
-                _context.next = 4;
-                return entry.slice();
-
-              case 4:
-                entry = entry.next;
-                _context.next = 1;
-                break;
-
-              case 7:
-              case "end":
-                return _context.stop();
-            }
-          }
-        }, value, this);
-      })
-    }, {
-      key: "reverse",
-      value: /*#__PURE__*/regeneratorRuntime.mark(function reverse() {
-        var entry;
-        return regeneratorRuntime.wrap(function reverse$(_context2) {
-          while (1) {
-            switch (_context2.prev = _context2.next) {
-              case 0:
-                entry = this.end;
-
-              case 1:
-                if (!entry) {
-                  _context2.next = 7;
-                  break;
-                }
-
-                _context2.next = 4;
-                return entry.slice();
-
-              case 4:
-                entry = entry.previous;
-                _context2.next = 1;
-                break;
-
-              case 7:
-              case "end":
-                return _context2.stop();
-            }
-          }
-        }, reverse, this);
-      })
-    }]);
-
-    return LinkedHashMap;
-  }(HashMap);
-  /**
-   * Holds multiple entries, but shrinks to a single container if reduced to a size of one.
-   */
-
-  var LinkedContainer = /*#__PURE__*/function (_Container) {
-    _inherits(LinkedContainer, _Container);
-
-    var _super2 = _createSuper(LinkedContainer);
-
-    function LinkedContainer(map, hash) {
-      _classCallCheck(this, LinkedContainer);
-
-      return _super2.call(this, map, hash);
-    }
-
-    _createClass(LinkedContainer, [{
-      key: "createEntry",
-      value: function createEntry(key, value) {
-        var entry = _get(_getPrototypeOf(LinkedContainer.prototype), "createEntry", this).call(this, key, value);
-
-        var map = this.map;
-
-        if (map.end) {
-          map.end.next = entry;
-          entry.previous = map.end;
-          map.end = entry;
-        } else {
-          map.end = map.start = entry;
-        }
-
-        return entry;
-      }
-    }, {
-      key: "deleteEntry",
-      value: function deleteEntry(idx) {
-        var oldEntry = _get(_getPrototypeOf(LinkedContainer.prototype), "deleteEntry", this).call(this, idx);
-
-        var map = this.map;
-
-        if (oldEntry.previous) {
-          oldEntry.previous.next = oldEntry.next;
-        } else if (map.start === oldEntry) {
-          map.start = oldEntry.next;
-        }
-
-        if (oldEntry.next) {
-          oldEntry.next.previous = oldEntry.previous;
-        } else if (map.end === oldEntry) {
-          map.end = oldEntry.previous;
-        }
-      }
-    }]);
-
-    return LinkedContainer;
-  }(Container);
 
   var Mootable = {
     HashMap: HashMap,
