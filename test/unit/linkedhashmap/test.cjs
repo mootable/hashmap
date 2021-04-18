@@ -202,6 +202,7 @@ describe('LinkedHashMap Class', function () {
         });
 
     });
+
     context('has()', function () {
         it('has() with key ', function () {
             // Given
@@ -239,6 +240,7 @@ describe('LinkedHashMap Class', function () {
         });
 
     });
+
     context('get()', function () {
         it('get() with key ', function () {
             // Given
@@ -275,6 +277,317 @@ describe('LinkedHashMap Class', function () {
             expect(ret).to.be.undefined;
         });
 
+    });
+    context('head()', function () {
+
+        it('head() with no entry ', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            expect(linkedHashmap.size).to.equal(0);
+            // When
+            const ret = linkedHashmap.head();
+            // Then
+            expect(linkedHashmap.size).to.equal(0);
+            expect(ret).to.be.undefined;
+        });
+
+        it('head() with one entry ', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key', 'value')
+            expect(linkedHashmap.size).to.equal(1);
+            // When
+            const ret = linkedHashmap.head();
+            // Then
+            expect(linkedHashmap.size).to.equal(1);
+            expect(ret).to.equal('value');
+        });
+
+        it('head() with two entries', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key1', 'value1')
+            linkedHashmap.set('key2', 'value2')
+            expect(linkedHashmap.size).to.equal(2);
+            // When
+            const ret = linkedHashmap.head();
+            // Then
+            expect(linkedHashmap.size).to.equal(2);
+            expect(ret).to.equal('value1');
+        });
+    });
+    context('headKey()', function () {
+
+        it('headKey() with no entry ', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            expect(linkedHashmap.size).to.equal(0);
+            // When
+            const ret = linkedHashmap.headKey();
+            // Then
+            expect(linkedHashmap.size).to.equal(0);
+            expect(ret).to.be.undefined;
+        });
+
+        it('headKey() with one entry ', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key', 'value')
+            expect(linkedHashmap.size).to.equal(1);
+            // When
+            const ret = linkedHashmap.headKey();
+            // Then
+            expect(linkedHashmap.size).to.equal(1);
+            expect(ret).to.equal('key');
+        });
+
+        it('headKey() with two entries', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key1', 'value1')
+            linkedHashmap.set('key2', 'value2')
+            expect(linkedHashmap.size).to.equal(2);
+            // When
+            const ret = linkedHashmap.headKey();
+            // Then
+            expect(linkedHashmap.size).to.equal(2);
+            expect(ret).to.equal('key1');
+        });
+    });
+    context('tail()', function () {
+
+        it('tail() with no entry ', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            expect(linkedHashmap.size).to.equal(0);
+            // When
+            const ret = linkedHashmap.tail();
+            // Then
+            expect(linkedHashmap.size).to.equal(0);
+            expect(ret).to.be.undefined;
+        });
+
+        it('tail() with one entry ', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key', 'value')
+            expect(linkedHashmap.size).to.equal(1);
+            // When
+            const ret = linkedHashmap.tail();
+            // Then
+            expect(linkedHashmap.size).to.equal(1);
+            expect(ret).to.equal('value');
+        });
+
+        it('tail() with two entries', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key1', 'value1')
+            linkedHashmap.set('key2', 'value2')
+            expect(linkedHashmap.size).to.equal(2);
+            // When
+            const ret = linkedHashmap.tail();
+            // Then
+            expect(linkedHashmap.size).to.equal(2);
+            expect(ret).to.equal('value2');
+        });
+    });
+    context('tailKey()', function () {
+
+        it('tailKey() with no entry ', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            expect(linkedHashmap.size).to.equal(0);
+            // When
+            const ret = linkedHashmap.tailKey();
+            // Then
+            expect(linkedHashmap.size).to.equal(0);
+            expect(ret).to.be.undefined;
+        });
+
+        it('tailKey() with one entry ', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key', 'value')
+            expect(linkedHashmap.size).to.equal(1);
+            // When
+            const ret = linkedHashmap.tailKey();
+            // Then
+            expect(linkedHashmap.size).to.equal(1);
+            expect(ret).to.equal('key');
+        });
+
+        it('tailKey() with two entries', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key1', 'value1')
+            linkedHashmap.set('key2', 'value2')
+            expect(linkedHashmap.size).to.equal(2);
+            // When
+            const ret = linkedHashmap.tailKey();
+            // Then
+            expect(linkedHashmap.size).to.equal(2);
+            expect(ret).to.equal('key2');
+        });
+    });
+    context('optionalHead()', function () {
+        it('optionalHead() with no entry ', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            expect(linkedHashmap.size).to.equal(0);
+            // When
+            const ret = linkedHashmap.optionalHead();
+            // Then
+            expect(linkedHashmap.size).to.equal(0);
+            expect(ret.has).to.be.false;
+        });
+
+        it('optionalHead() with one entry ', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key', 'value')
+            expect(linkedHashmap.size).to.equal(1);
+            // When
+            const ret = linkedHashmap.optionalHead();
+            // Then
+            expect(linkedHashmap.size).to.equal(1);
+            expect(ret.has).to.be.true;
+            expect(ret.value).to.equal('value');
+        });
+
+        it('optionalHead() with two entries', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key1', 'value1')
+            linkedHashmap.set('key2', 'value2')
+            expect(linkedHashmap.size).to.equal(2);
+            // When
+            const ret = linkedHashmap.optionalHead();
+            // Then
+            expect(linkedHashmap.size).to.equal(2);
+            expect(ret.has).to.be.true;
+            expect(ret.value).to.equal('value1');
+        });
+    });
+    context('optionalHeadKey()', function () {
+
+        it('optionalHeadKey() with no entry ', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            expect(linkedHashmap.size).to.equal(0);
+            // When
+            const ret = linkedHashmap.optionalHeadKey();
+            // Then
+            expect(linkedHashmap.size).to.equal(0);
+            expect(ret.has).to.be.false;
+        });
+
+        it('optionalHeadKey() with one entry ', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key', 'value')
+            expect(linkedHashmap.size).to.equal(1);
+            // When
+            const ret = linkedHashmap.optionalHeadKey();
+            // Then
+            expect(linkedHashmap.size).to.equal(1);
+            expect(ret.has).to.be.true;
+            expect(ret.value).to.equal('key');
+        });
+
+        it('optionalHeadKey() with two entries', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key1', 'value1')
+            linkedHashmap.set('key2', 'value2')
+            expect(linkedHashmap.size).to.equal(2);
+            // When
+            const ret = linkedHashmap.optionalHeadKey();
+            // Then
+            expect(linkedHashmap.size).to.equal(2);
+            expect(ret.has).to.be.true;
+            expect(ret.value).to.equal('key1');
+        });
+    });
+    context('optionalTail()', function () {
+
+        it('optionalTail() with no entry ', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            expect(linkedHashmap.size).to.equal(0);
+            // When
+            const ret = linkedHashmap.optionalTail();
+            // Then
+            expect(linkedHashmap.size).to.equal(0);
+            expect(ret.has).to.be.false;
+        });
+
+        it('optionalTail() with one entry ', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key', 'value')
+            expect(linkedHashmap.size).to.equal(1);
+            // When
+            const ret = linkedHashmap.optionalTail();
+            // Then
+            expect(linkedHashmap.size).to.equal(1);
+            expect(ret.has).to.be.true;
+            expect(ret.value).to.equal('value');
+        });
+
+        it('optionalTail() with two entries', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key1', 'value1')
+            linkedHashmap.set('key2', 'value2')
+            expect(linkedHashmap.size).to.equal(2);
+            // When
+            const ret = linkedHashmap.optionalTail();
+            // Then
+            expect(linkedHashmap.size).to.equal(2);
+            expect(ret.has).to.be.true;
+            expect(ret.value).to.equal('value2');
+        });
+    });
+    context('optionalTailKey()', function () {
+
+        it('optionalTailKey() with no entry ', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            expect(linkedHashmap.size).to.equal(0);
+            // When
+            const ret = linkedHashmap.optionalTailKey();
+            // Then
+            expect(linkedHashmap.size).to.equal(0);
+            expect(ret.has).to.be.false;
+        });
+
+        it('optionalTailKey() with one entry ', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key', 'value')
+            expect(linkedHashmap.size).to.equal(1);
+            // When
+            const ret = linkedHashmap.optionalTailKey();
+            // Then
+            expect(linkedHashmap.size).to.equal(1);
+            expect(ret.has).to.be.true;
+            expect(ret.value).to.equal('key');
+        });
+
+        it('optionalTailKey() with two entries', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key1', 'value1')
+            linkedHashmap.set('key2', 'value2')
+            expect(linkedHashmap.size).to.equal(2);
+            // When
+            const ret = linkedHashmap.optionalTailKey();
+            // Then
+            expect(linkedHashmap.size).to.equal(2);
+            expect(ret.has).to.be.true;
+            expect(ret.value).to.equal('key2');
+        });
     });
     context('optionalGet()', function () {
         it('optionalGet() with key ', function () {
@@ -314,6 +627,7 @@ describe('LinkedHashMap Class', function () {
         });
 
     });
+
     context('set()', function () {
         it('set() insert key empty Map ', function () {
             // Given
@@ -372,6 +686,268 @@ describe('LinkedHashMap Class', function () {
             expect(linkedHashmap.end.previous).to.be.undefined;
         });
 
+        it('setLeft() overwrite key 2 entries (shouldn not move)', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key', 'value')
+            linkedHashmap.set('key2', 'value2')
+            expect(linkedHashmap.size).to.equal(2);
+            // When & Then
+            expect(linkedHashmap.set('key', 'other')).to.be.equal(linkedHashmap);
+            // Then
+            expect(linkedHashmap.size).to.equal(2);
+            expect(linkedHashmap.get('key')).to.be.equal('other');
+
+            expect(linkedHashmap.start).to.deep.equal(["key", "other"]);
+            expect(linkedHashmap.end).to.deep.equal(["key2", "value2"]);
+
+            expect(linkedHashmap.start.next).to.deep.equal(linkedHashmap.end);
+            expect(linkedHashmap.end.previous).to.deep.equal(linkedHashmap.start);
+
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.end.next).to.be.undefined;
+        });
+    });
+    context('setLeft()', function () {
+        it('setLeft() insert key empty Map ', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            // When & Then
+            expect(linkedHashmap.setLeft('key', 'value')).to.be.equal(linkedHashmap);
+            // Then
+            expect(linkedHashmap.size).to.equal(1);
+            expect(linkedHashmap.get('key')).to.be.equal('value');
+
+            expect(linkedHashmap.start).to.deep.equal(["key", "value"]);
+            expect(linkedHashmap.end).to.deep.equal(["key", "value"]);
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.start.next).to.be.undefined;
+            expect(linkedHashmap.end.next).to.be.undefined;
+            expect(linkedHashmap.end.previous).to.be.undefined;
+        });
+
+        it('setLeft() insert second key ', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key1', 'value1')
+            expect(linkedHashmap.size).to.equal(1);
+            // When & Then
+            expect(linkedHashmap.setLeft('key2', 'value2')).to.be.equal(linkedHashmap);
+            // Then
+            expect(linkedHashmap.size).to.equal(2);
+            expect(linkedHashmap.get('key1')).to.be.equal('value1');
+            expect(linkedHashmap.get('key2')).to.be.equal('value2');
+
+            expect(linkedHashmap.start).to.deep.equal(["key2", "value2"]);
+            expect(linkedHashmap.end).to.deep.equal(["key1", "value1"]);
+            expect(linkedHashmap.start.next).to.deep.equal(linkedHashmap.end);
+            expect(linkedHashmap.end.previous).to.deep.equal(linkedHashmap.start);
+
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.end.next).to.be.undefined;
+        });
+
+        it('setLeft() overwrite key ', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key', 'value')
+            expect(linkedHashmap.size).to.equal(1);
+            // When & Then
+            expect(linkedHashmap.setLeft('key', 'value2')).to.be.equal(linkedHashmap);
+            // Then
+            expect(linkedHashmap.size).to.equal(1);
+            expect(linkedHashmap.get('key')).to.be.equal('value2');
+
+            expect(linkedHashmap.start).to.deep.equal(["key", "value2"]);
+            expect(linkedHashmap.end).to.deep.equal(["key", "value2"]);
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.start.next).to.be.undefined;
+            expect(linkedHashmap.end.next).to.be.undefined;
+            expect(linkedHashmap.end.previous).to.be.undefined;
+        });
+
+        it('setLeft() overwrite key 2 entries (shouldn not move)', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key', 'value')
+            linkedHashmap.set('key2', 'value2')
+            expect(linkedHashmap.size).to.equal(2);
+            // When & Then
+            expect(linkedHashmap.setLeft('key2', 'other')).to.be.equal(linkedHashmap);
+            // Then
+            expect(linkedHashmap.size).to.equal(2);
+            expect(linkedHashmap.get('key2')).to.be.equal('other');
+
+            expect(linkedHashmap.start).to.deep.equal(["key", "value"]);
+            expect(linkedHashmap.end).to.deep.equal(["key2", "other"]);
+
+            expect(linkedHashmap.start.next).to.deep.equal(linkedHashmap.end);
+            expect(linkedHashmap.end.previous).to.deep.equal(linkedHashmap.start);
+
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.end.next).to.be.undefined;
+        });
+
+    });
+    context('push()', function () {
+        it('push() insert key empty Map ', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            // When & Then
+            expect(linkedHashmap.push('key', 'value')).to.be.equal(linkedHashmap);
+            // Then
+            expect(linkedHashmap.size).to.equal(1);
+            expect(linkedHashmap.get('key')).to.be.equal('value');
+
+            expect(linkedHashmap.start).to.deep.equal(["key", "value"]);
+            expect(linkedHashmap.end).to.deep.equal(["key", "value"]);
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.start.next).to.be.undefined;
+            expect(linkedHashmap.end.next).to.be.undefined;
+            expect(linkedHashmap.end.previous).to.be.undefined;
+        });
+
+        it('push() insert key ', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key', 'value')
+            expect(linkedHashmap.size).to.equal(1);
+            // When & Then
+            expect(linkedHashmap.push('key2', 'value2')).to.be.equal(linkedHashmap);
+            // Then
+            expect(linkedHashmap.size).to.equal(2);
+            expect(linkedHashmap.get('key')).to.be.equal('value');
+            expect(linkedHashmap.get('key2')).to.be.equal('value2');
+
+            expect(linkedHashmap.start).to.deep.equal(["key", "value"]);
+            expect(linkedHashmap.end).to.deep.equal(["key2", "value2"]);
+            expect(linkedHashmap.start.next).to.deep.equal(linkedHashmap.end);
+            expect(linkedHashmap.end.previous).to.deep.equal(linkedHashmap.start);
+
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.end.next).to.be.undefined;
+        });
+
+        it('push() overwrite key ', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key', 'value')
+            expect(linkedHashmap.size).to.equal(1);
+            // When & Then
+            expect(linkedHashmap.push('key', 'value2')).to.be.equal(linkedHashmap);
+            // Then
+            expect(linkedHashmap.size).to.equal(1);
+            expect(linkedHashmap.get('key')).to.be.equal('value2');
+
+            expect(linkedHashmap.start).to.deep.equal(["key", "value2"]);
+            expect(linkedHashmap.end).to.deep.equal(["key", "value2"]);
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.start.next).to.be.undefined;
+            expect(linkedHashmap.end.next).to.be.undefined;
+            expect(linkedHashmap.end.previous).to.be.undefined;
+        });
+
+        it('push() overwrite key 2 entries (should move)', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key', 'value')
+            linkedHashmap.set('key2', 'value2')
+            expect(linkedHashmap.size).to.equal(2);
+            // When & Then
+            expect(linkedHashmap.push('key', 'other')).to.be.equal(linkedHashmap);
+            // Then
+            expect(linkedHashmap.size).to.equal(2);
+            expect(linkedHashmap.get('key')).to.be.equal('other');
+
+            expect(linkedHashmap.start).to.deep.equal(["key2", "value2"]);
+            expect(linkedHashmap.end).to.deep.equal(["key", "other"]);
+
+            expect(linkedHashmap.start.next).to.deep.equal(linkedHashmap.end);
+            expect(linkedHashmap.end.previous).to.deep.equal(linkedHashmap.start);
+
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.end.next).to.be.undefined;
+        });
+    });
+    context('unshift()', function () {
+        it('unshift() insert key empty Map ', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            // When & Then
+            expect(linkedHashmap.unshift('key', 'value')).to.be.equal(linkedHashmap);
+            // Then
+            expect(linkedHashmap.size).to.equal(1);
+            expect(linkedHashmap.get('key')).to.be.equal('value');
+
+            expect(linkedHashmap.start).to.deep.equal(["key", "value"]);
+            expect(linkedHashmap.end).to.deep.equal(["key", "value"]);
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.start.next).to.be.undefined;
+            expect(linkedHashmap.end.next).to.be.undefined;
+            expect(linkedHashmap.end.previous).to.be.undefined;
+        });
+
+        it('unshift() insert second key ', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key1', 'value1')
+            expect(linkedHashmap.size).to.equal(1);
+            // When & Then
+            expect(linkedHashmap.unshift('key2', 'value2')).to.be.equal(linkedHashmap);
+            // Then
+            expect(linkedHashmap.size).to.equal(2);
+            expect(linkedHashmap.get('key1')).to.be.equal('value1');
+            expect(linkedHashmap.get('key2')).to.be.equal('value2');
+
+            expect(linkedHashmap.start).to.deep.equal(["key2", "value2"]);
+            expect(linkedHashmap.end).to.deep.equal(["key1", "value1"]);
+            expect(linkedHashmap.start.next).to.deep.equal(linkedHashmap.end);
+            expect(linkedHashmap.end.previous).to.deep.equal(linkedHashmap.start);
+
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.end.next).to.be.undefined;
+        });
+
+        it('unshift() overwrite key ', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key', 'value')
+            expect(linkedHashmap.size).to.equal(1);
+            // When & Then
+            expect(linkedHashmap.unshift('key', 'value2')).to.be.equal(linkedHashmap);
+            // Then
+            expect(linkedHashmap.size).to.equal(1);
+            expect(linkedHashmap.get('key')).to.be.equal('value2');
+
+            expect(linkedHashmap.start).to.deep.equal(["key", "value2"]);
+            expect(linkedHashmap.end).to.deep.equal(["key", "value2"]);
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.start.next).to.be.undefined;
+            expect(linkedHashmap.end.next).to.be.undefined;
+            expect(linkedHashmap.end.previous).to.be.undefined;
+        });
+
+        it('unshift() overwrite key 2 entries (should move)', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key', 'value')
+            linkedHashmap.set('key2', 'value2')
+            expect(linkedHashmap.size).to.equal(2);
+            // When & Then
+            expect(linkedHashmap.unshift('key2', 'other')).to.be.equal(linkedHashmap);
+            // Then
+            expect(linkedHashmap.size).to.equal(2);
+            expect(linkedHashmap.get('key2')).to.be.equal('other');
+
+            expect(linkedHashmap.start).to.deep.equal(["key2", "other"]);
+            expect(linkedHashmap.end).to.deep.equal(["key", "value"]);
+
+            expect(linkedHashmap.start.next).to.deep.equal(linkedHashmap.end);
+            expect(linkedHashmap.end.previous).to.deep.equal(linkedHashmap.start);
+
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.end.next).to.be.undefined;
+        });
     });
     context('emplace()', function () {
         it('emplace(), insert', function () {
@@ -382,25 +958,25 @@ describe('LinkedHashMap Class', function () {
             const handler = {
                 update: (oldValue, key, map) => {
                     updateCalled++;
-                    return "value3";
+                    return "update";
                 },
                 insert: (key, map) => {
                     expect(key).to.equal("key");
                     expect(map).to.equal(linkedHashmap);
                     insertCalled++;
-                    return "value2";
+                    return "insert";
                 }
             };
             const ret = linkedHashmap.emplace('key', handler)
-            expect(ret).to.equal("value2");
+            expect(ret).to.equal("insert");
             expect(updateCalled).to.equal(0);
             expect(insertCalled).to.equal(1);
             expect(linkedHashmap.size).to.equal(1);
             expect(linkedHashmap.has('key')).to.be.true;
-            expect(linkedHashmap.get('key')).to.be.equal("value2");
+            expect(linkedHashmap.get('key')).to.be.equal("insert");
 
-            expect(linkedHashmap.start).to.deep.equal(["key", "value2"]);
-            expect(linkedHashmap.end).to.deep.equal(["key", "value2"]);
+            expect(linkedHashmap.start).to.deep.equal(["key", "insert"]);
+            expect(linkedHashmap.end).to.deep.equal(["key", "insert"]);
             expect(linkedHashmap.start.previous).to.be.undefined;
             expect(linkedHashmap.start.next).to.be.undefined;
             expect(linkedHashmap.end.next).to.be.undefined;
@@ -420,30 +996,30 @@ describe('LinkedHashMap Class', function () {
                     expect(key).to.equal("key");
                     expect(map).to.equal(linkedHashmap);
                     updateCalled++;
-                    return "value3";
+                    return "update";
                 },
                 insert: (key, map) => {
                     insertCalled++;
-                    return "value2";
+                    return "insert";
                 }
             };
             const ret = linkedHashmap.emplace('key', handler)
             expect(linkedHashmap.size).to.equal(1);
-            expect(ret).to.equal("value3");
+            expect(ret).to.equal("update");
             expect(updateCalled).to.equal(1);
             expect(insertCalled).to.equal(0);
             expect(linkedHashmap.has('key')).to.be.true;
-            expect(linkedHashmap.get('key')).to.be.equal("value3");
+            expect(linkedHashmap.get('key')).to.be.equal("update");
 
-            expect(linkedHashmap.start).to.deep.equal(["key", "value3"]);
-            expect(linkedHashmap.end).to.deep.equal(["key", "value3"]);
+            expect(linkedHashmap.start).to.deep.equal(["key", "update"]);
+            expect(linkedHashmap.end).to.deep.equal(["key", "update"]);
             expect(linkedHashmap.start.previous).to.be.undefined;
             expect(linkedHashmap.start.next).to.be.undefined;
             expect(linkedHashmap.end.next).to.be.undefined;
             expect(linkedHashmap.end.previous).to.be.undefined;
         });
 
-        it('emplace has keyed entry but no update method', function () {
+        it('emplace() has keyed entry but no update method', function () {
             const linkedHashmap = new LinkedHashMap();
             linkedHashmap.set('key', 'value')
             let insertCalled = 0;
@@ -452,25 +1028,596 @@ describe('LinkedHashMap Class', function () {
                     expect(key).to.equal("key");
                     expect(map).to.equal(linkedHashmap);
                     insertCalled++;
-                    return "value2";
+                    return "insert";
                 }
             };
             const ret = linkedHashmap.emplace("key", handler);
-            expect(ret).to.equal("value2");
+            expect(ret).to.equal("insert");
             expect(insertCalled).to.equal(1);
             const value = linkedHashmap.get("key");
-            expect(value).to.equal("value2");
+            expect(value).to.equal("insert");
             expect(linkedHashmap.size).to.equal(1);
 
-            expect(linkedHashmap.start).to.deep.equal(["key", "value2"]);
-            expect(linkedHashmap.end).to.deep.equal(["key", "value2"]);
+            expect(linkedHashmap.start).to.deep.equal(["key", "insert"]);
+            expect(linkedHashmap.end).to.deep.equal(["key", "insert"]);
             expect(linkedHashmap.start.previous).to.be.undefined;
             expect(linkedHashmap.start.next).to.be.undefined;
             expect(linkedHashmap.end.next).to.be.undefined;
             expect(linkedHashmap.end.previous).to.be.undefined;
         });
 
+        it('emplace(), insert  2 entries', function () {
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key1','value1')
+            let updateCalled = 0;
+            let insertCalled = 0;
+            const handler = {
+                update: (oldValue, key, map) => {
+                    updateCalled++;
+                    return "update";
+                },
+                insert: (key, map) => {
+                    expect(key).to.equal("key2");
+                    expect(map).to.equal(linkedHashmap);
+                    insertCalled++;
+                    return "insert";
+                }
+            };
+            const ret = linkedHashmap.emplace('key2', handler)
+            expect(ret).to.equal("insert");
+            expect(updateCalled).to.equal(0);
+            expect(insertCalled).to.equal(1);
+            expect(linkedHashmap.size).to.equal(2);
+            expect(linkedHashmap.has('key2')).to.be.true;
+            expect(linkedHashmap.get('key2')).to.be.equal("insert");
+
+            expect(linkedHashmap.start).to.deep.equal(["key1", "value1"]);
+            expect(linkedHashmap.end).to.deep.equal(["key2", "insert"]);
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.start.next).to.deep.equal(linkedHashmap.end);
+            expect(linkedHashmap.end.next).to.be.undefined;
+            expect(linkedHashmap.end.previous).to.deep.equal(linkedHashmap.start);
+        });
+        it('emplace(), update 2 entries (should not move)', function () {
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key1','value1')
+            linkedHashmap.set('key2','value2')
+            expect(linkedHashmap.size).to.equal(2);
+
+            let updateCalled = 0;
+            let insertCalled = 0;
+            const handler = {
+                update: (oldValue, key, map) => {
+                    expect(oldValue).to.equal("value1");
+                    expect(key).to.equal("key1");
+                    expect(map).to.equal(linkedHashmap);
+                    updateCalled++;
+                    return "update";
+                },
+                insert: (key, map) => {
+                    insertCalled++;
+                    return "insert";
+                }
+            };
+            const ret = linkedHashmap.emplace('key1', handler)
+            expect(linkedHashmap.size).to.equal(2);
+            expect(ret).to.equal("update");
+            expect(updateCalled).to.equal(1);
+            expect(insertCalled).to.equal(0);
+            expect(linkedHashmap.has('key1')).to.be.true;
+            expect(linkedHashmap.get('key1')).to.be.equal("update");
+
+            expect(linkedHashmap.start).to.deep.equal(["key1", "update"]);
+            expect(linkedHashmap.end).to.deep.equal(["key2", "value2"]);
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.start.next).to.deep.equal(linkedHashmap.end);
+            expect(linkedHashmap.end.next).to.be.undefined;
+            expect(linkedHashmap.end.previous).to.deep.equal(linkedHashmap.start);
+        });
+
     });
+    context('emplaceLeft()', function () {
+        it('emplaceLeft(), insert', function () {
+            const linkedHashmap = new LinkedHashMap();
+
+            let updateCalled = 0;
+            let insertCalled = 0;
+            const handler = {
+                update: (oldValue, key, map) => {
+                    updateCalled++;
+                    return "update";
+                },
+                insert: (key, map) => {
+                    expect(key).to.equal("key");
+                    expect(map).to.equal(linkedHashmap);
+                    insertCalled++;
+                    return "insert";
+                }
+            };
+            const ret = linkedHashmap.emplaceLeft('key', handler)
+            expect(ret).to.equal("insert");
+            expect(updateCalled).to.equal(0);
+            expect(insertCalled).to.equal(1);
+            expect(linkedHashmap.size).to.equal(1);
+            expect(linkedHashmap.has('key')).to.be.true;
+            expect(linkedHashmap.get('key')).to.be.equal("insert");
+
+            expect(linkedHashmap.start).to.deep.equal(["key", "insert"]);
+            expect(linkedHashmap.end).to.deep.equal(["key", "insert"]);
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.start.next).to.be.undefined;
+            expect(linkedHashmap.end.next).to.be.undefined;
+            expect(linkedHashmap.end.previous).to.be.undefined;
+        });
+
+        it('emplaceLeft(), update', function () {
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key', 'value')
+            expect(linkedHashmap.size).to.equal(1);
+
+            let updateCalled = 0;
+            let insertCalled = 0;
+            const handler = {
+                update: (oldValue, key, map) => {
+                    expect(oldValue).to.equal("value");
+                    expect(key).to.equal("key");
+                    expect(map).to.equal(linkedHashmap);
+                    updateCalled++;
+                    return "update";
+                },
+                insert: (key, map) => {
+                    insertCalled++;
+                    return "insert";
+                }
+            };
+            const ret = linkedHashmap.emplaceLeft('key', handler)
+            expect(linkedHashmap.size).to.equal(1);
+            expect(ret).to.equal("update");
+            expect(updateCalled).to.equal(1);
+            expect(insertCalled).to.equal(0);
+            expect(linkedHashmap.has('key')).to.be.true;
+            expect(linkedHashmap.get('key')).to.be.equal("update");
+
+            expect(linkedHashmap.start).to.deep.equal(["key", "update"]);
+            expect(linkedHashmap.end).to.deep.equal(["key", "update"]);
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.start.next).to.be.undefined;
+            expect(linkedHashmap.end.next).to.be.undefined;
+            expect(linkedHashmap.end.previous).to.be.undefined;
+        });
+
+        it('emplaceLeft() has keyed entry but no update method', function () {
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key', 'value')
+            let insertCalled = 0;
+            const handler = {
+                insert: (key, map) => {
+                    expect(key).to.equal("key");
+                    expect(map).to.equal(linkedHashmap);
+                    insertCalled++;
+                    return "insert";
+                }
+            };
+            const ret = linkedHashmap.emplaceLeft("key", handler);
+            expect(ret).to.equal("insert");
+            expect(insertCalled).to.equal(1);
+            const value = linkedHashmap.get("key");
+            expect(value).to.equal("insert");
+            expect(linkedHashmap.size).to.equal(1);
+
+            expect(linkedHashmap.start).to.deep.equal(["key", "insert"]);
+            expect(linkedHashmap.end).to.deep.equal(["key", "insert"]);
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.start.next).to.be.undefined;
+            expect(linkedHashmap.end.next).to.be.undefined;
+            expect(linkedHashmap.end.previous).to.be.undefined;
+        });
+
+        it('emplaceLeft(), insert  2 entries', function () {
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key1','value1')
+            let updateCalled = 0;
+            let insertCalled = 0;
+            const handler = {
+                update: (oldValue, key, map) => {
+                    updateCalled++;
+                    return "update";
+                },
+                insert: (key, map) => {
+                    expect(key).to.equal("key2");
+                    expect(map).to.equal(linkedHashmap);
+                    insertCalled++;
+                    return "insert";
+                }
+            };
+            const ret = linkedHashmap.emplaceLeft('key2', handler)
+            expect(ret).to.equal("insert");
+            expect(updateCalled).to.equal(0);
+            expect(insertCalled).to.equal(1);
+            expect(linkedHashmap.size).to.equal(2);
+            expect(linkedHashmap.has('key2')).to.be.true;
+            expect(linkedHashmap.get('key2')).to.be.equal("insert");
+
+            expect(linkedHashmap.start).to.deep.equal(["key2", "insert"]);
+            expect(linkedHashmap.end).to.deep.equal(["key1", "value1"]);
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.start.next).to.deep.equal(linkedHashmap.end);
+            expect(linkedHashmap.end.next).to.be.undefined;
+            expect(linkedHashmap.end.previous).to.deep.equal(linkedHashmap.start);
+        });
+        it('emplaceLeft(), update 2 entries, (should not move)', function () {
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key1','value1')
+            linkedHashmap.set('key2','value2')
+            expect(linkedHashmap.size).to.equal(2);
+
+            let updateCalled = 0;
+            let insertCalled = 0;
+            const handler = {
+                update: (oldValue, key, map) => {
+                    expect(oldValue).to.equal("value2");
+                    expect(key).to.equal("key2");
+                    expect(map).to.equal(linkedHashmap);
+                    updateCalled++;
+                    return "update";
+                },
+                insert: (key, map) => {
+                    insertCalled++;
+                    return "insert";
+                }
+            };
+            const ret = linkedHashmap.emplaceLeft('key2', handler)
+            expect(linkedHashmap.size).to.equal(2);
+            expect(ret).to.equal("update");
+            expect(updateCalled).to.equal(1);
+            expect(insertCalled).to.equal(0);
+            expect(linkedHashmap.has('key2')).to.be.true;
+            expect(linkedHashmap.get('key2')).to.be.equal("update");
+
+            expect(linkedHashmap.start).to.deep.equal(["key1", "value1"]);
+            expect(linkedHashmap.end).to.deep.equal(["key2", "update"]);
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.start.next).to.deep.equal(linkedHashmap.end);
+            expect(linkedHashmap.end.next).to.be.undefined;
+            expect(linkedHashmap.end.previous).to.deep.equal(linkedHashmap.start);
+        });
+
+    });
+    context('pushEmplace()', function () {
+        it('pushEmplace(), insert', function () {
+            const linkedHashmap = new LinkedHashMap();
+
+            let updateCalled = 0;
+            let insertCalled = 0;
+            const handler = {
+                update: (oldValue, key, map) => {
+                    updateCalled++;
+                    return "update";
+                },
+                insert: (key, map) => {
+                    expect(key).to.equal("key");
+                    expect(map).to.equal(linkedHashmap);
+                    insertCalled++;
+                    return "insert";
+                }
+            };
+            const ret = linkedHashmap.pushEmplace('key', handler)
+            expect(ret).to.equal("insert");
+            expect(updateCalled).to.equal(0);
+            expect(insertCalled).to.equal(1);
+            expect(linkedHashmap.size).to.equal(1);
+            expect(linkedHashmap.has('key')).to.be.true;
+            expect(linkedHashmap.get('key')).to.be.equal("insert");
+
+            expect(linkedHashmap.start).to.deep.equal(["key", "insert"]);
+            expect(linkedHashmap.end).to.deep.equal(["key", "insert"]);
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.start.next).to.be.undefined;
+            expect(linkedHashmap.end.next).to.be.undefined;
+            expect(linkedHashmap.end.previous).to.be.undefined;
+        });
+
+        it('pushEmplace(), update', function () {
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key', 'value')
+            expect(linkedHashmap.size).to.equal(1);
+
+            let updateCalled = 0;
+            let insertCalled = 0;
+            const handler = {
+                update: (oldValue, key, map) => {
+                    expect(oldValue).to.equal("value");
+                    expect(key).to.equal("key");
+                    expect(map).to.equal(linkedHashmap);
+                    updateCalled++;
+                    return "update";
+                },
+                insert: (key, map) => {
+                    insertCalled++;
+                    return "insert";
+                }
+            };
+            const ret = linkedHashmap.pushEmplace('key', handler)
+            expect(linkedHashmap.size).to.equal(1);
+            expect(ret).to.equal("update");
+            expect(updateCalled).to.equal(1);
+            expect(insertCalled).to.equal(0);
+            expect(linkedHashmap.has('key')).to.be.true;
+            expect(linkedHashmap.get('key')).to.be.equal("update");
+
+            expect(linkedHashmap.start).to.deep.equal(["key", "update"]);
+            expect(linkedHashmap.end).to.deep.equal(["key", "update"]);
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.start.next).to.be.undefined;
+            expect(linkedHashmap.end.next).to.be.undefined;
+            expect(linkedHashmap.end.previous).to.be.undefined;
+        });
+
+        it('pushEmplace() has keyed entry but no update method', function () {
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key', 'value')
+            let insertCalled = 0;
+            const handler = {
+                insert: (key, map) => {
+                    expect(key).to.equal("key");
+                    expect(map).to.equal(linkedHashmap);
+                    insertCalled++;
+                    return "insert";
+                }
+            };
+            const ret = linkedHashmap.pushEmplace("key", handler);
+            expect(ret).to.equal("insert");
+            expect(insertCalled).to.equal(1);
+            const value = linkedHashmap.get("key");
+            expect(value).to.equal("insert");
+            expect(linkedHashmap.size).to.equal(1);
+
+            expect(linkedHashmap.start).to.deep.equal(["key", "insert"]);
+            expect(linkedHashmap.end).to.deep.equal(["key", "insert"]);
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.start.next).to.be.undefined;
+            expect(linkedHashmap.end.next).to.be.undefined;
+            expect(linkedHashmap.end.previous).to.be.undefined;
+        });
+
+        it('pushEmplace(), insert  2 entries', function () {
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key1','value1')
+            let updateCalled = 0;
+            let insertCalled = 0;
+            const handler = {
+                update: (oldValue, key, map) => {
+                    updateCalled++;
+                    return "update";
+                },
+                insert: (key, map) => {
+                    expect(key).to.equal("key2");
+                    expect(map).to.equal(linkedHashmap);
+                    insertCalled++;
+                    return "insert";
+                }
+            };
+            const ret = linkedHashmap.pushEmplace('key2', handler)
+            expect(ret).to.equal("insert");
+            expect(updateCalled).to.equal(0);
+            expect(insertCalled).to.equal(1);
+            expect(linkedHashmap.size).to.equal(2);
+            expect(linkedHashmap.has('key2')).to.be.true;
+            expect(linkedHashmap.get('key2')).to.be.equal("insert");
+
+            expect(linkedHashmap.start).to.deep.equal(["key1", "value1"]);
+            expect(linkedHashmap.end).to.deep.equal(["key2", "insert"]);
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.start.next).to.deep.equal(linkedHashmap.end);
+            expect(linkedHashmap.end.next).to.be.undefined;
+            expect(linkedHashmap.end.previous).to.deep.equal(linkedHashmap.start);
+        });
+        it('pushEmplace(), update 2 entries (should move)', function () {
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key1','value1')
+            linkedHashmap.set('key2','value2')
+            expect(linkedHashmap.size).to.equal(2);
+
+            let updateCalled = 0;
+            let insertCalled = 0;
+            const handler = {
+                update: (oldValue, key, map) => {
+                    expect(oldValue).to.equal("value1");
+                    expect(key).to.equal("key1");
+                    expect(map).to.equal(linkedHashmap);
+                    updateCalled++;
+                    return "update";
+                },
+                insert: (key, map) => {
+                    insertCalled++;
+                    return "insert";
+                }
+            };
+            const ret = linkedHashmap.pushEmplace('key1', handler)
+            expect(linkedHashmap.size).to.equal(2);
+            expect(ret).to.equal("update");
+            expect(updateCalled).to.equal(1);
+            expect(insertCalled).to.equal(0);
+            expect(linkedHashmap.has('key1')).to.be.true;
+            expect(linkedHashmap.get('key1')).to.be.equal("update");
+
+            expect(linkedHashmap.start).to.deep.equal(["key2", "value2"]);
+            expect(linkedHashmap.end).to.deep.equal(["key1", "update"]);
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.start.next).to.deep.equal(linkedHashmap.end);
+            expect(linkedHashmap.end.next).to.be.undefined;
+            expect(linkedHashmap.end.previous).to.deep.equal(linkedHashmap.start);
+        });
+
+    });
+    context('unshiftEmplace()', function () {
+        it('unshiftEmplace(), insert', function () {
+            const linkedHashmap = new LinkedHashMap();
+
+            let updateCalled = 0;
+            let insertCalled = 0;
+            const handler = {
+                update: (oldValue, key, map) => {
+                    updateCalled++;
+                    return "update";
+                },
+                insert: (key, map) => {
+                    expect(key).to.equal("key");
+                    expect(map).to.equal(linkedHashmap);
+                    insertCalled++;
+                    return "insert";
+                }
+            };
+            const ret = linkedHashmap.unshiftEmplace('key', handler)
+            expect(ret).to.equal("insert");
+            expect(updateCalled).to.equal(0);
+            expect(insertCalled).to.equal(1);
+            expect(linkedHashmap.size).to.equal(1);
+            expect(linkedHashmap.has('key')).to.be.true;
+            expect(linkedHashmap.get('key')).to.be.equal("insert");
+
+            expect(linkedHashmap.start).to.deep.equal(["key", "insert"]);
+            expect(linkedHashmap.end).to.deep.equal(["key", "insert"]);
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.start.next).to.be.undefined;
+            expect(linkedHashmap.end.next).to.be.undefined;
+            expect(linkedHashmap.end.previous).to.be.undefined;
+        });
+
+        it('unshiftEmplace(), update', function () {
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key', 'value')
+            expect(linkedHashmap.size).to.equal(1);
+
+            let updateCalled = 0;
+            let insertCalled = 0;
+            const handler = {
+                update: (oldValue, key, map) => {
+                    expect(oldValue).to.equal("value");
+                    expect(key).to.equal("key");
+                    expect(map).to.equal(linkedHashmap);
+                    updateCalled++;
+                    return "update";
+                },
+                insert: (key, map) => {
+                    insertCalled++;
+                    return "insert";
+                }
+            };
+            const ret = linkedHashmap.unshiftEmplace('key', handler)
+            expect(linkedHashmap.size).to.equal(1);
+            expect(ret).to.equal("update");
+            expect(updateCalled).to.equal(1);
+            expect(insertCalled).to.equal(0);
+            expect(linkedHashmap.has('key')).to.be.true;
+            expect(linkedHashmap.get('key')).to.be.equal("update");
+
+            expect(linkedHashmap.start).to.deep.equal(["key", "update"]);
+            expect(linkedHashmap.end).to.deep.equal(["key", "update"]);
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.start.next).to.be.undefined;
+            expect(linkedHashmap.end.next).to.be.undefined;
+            expect(linkedHashmap.end.previous).to.be.undefined;
+        });
+
+        it('unshiftEmplace() has keyed entry but no update method', function () {
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key', 'value')
+            let insertCalled = 0;
+            const handler = {
+                insert: (key, map) => {
+                    expect(key).to.equal("key");
+                    expect(map).to.equal(linkedHashmap);
+                    insertCalled++;
+                    return "insert";
+                }
+            };
+            const ret = linkedHashmap.unshiftEmplace("key", handler);
+            expect(ret).to.equal("insert");
+            expect(insertCalled).to.equal(1);
+            const value = linkedHashmap.get("key");
+            expect(value).to.equal("insert");
+            expect(linkedHashmap.size).to.equal(1);
+
+            expect(linkedHashmap.start).to.deep.equal(["key", "insert"]);
+            expect(linkedHashmap.end).to.deep.equal(["key", "insert"]);
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.start.next).to.be.undefined;
+            expect(linkedHashmap.end.next).to.be.undefined;
+            expect(linkedHashmap.end.previous).to.be.undefined;
+        });
+
+        it('unshiftEmplace(), insert  2 entries', function () {
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key1','value1')
+            let updateCalled = 0;
+            let insertCalled = 0;
+            const handler = {
+                update: (oldValue, key, map) => {
+                    updateCalled++;
+                    return "update";
+                },
+                insert: (key, map) => {
+                    expect(key).to.equal("key2");
+                    expect(map).to.equal(linkedHashmap);
+                    insertCalled++;
+                    return "insert";
+                }
+            };
+            const ret = linkedHashmap.unshiftEmplace('key2', handler)
+            expect(ret).to.equal("insert");
+            expect(updateCalled).to.equal(0);
+            expect(insertCalled).to.equal(1);
+            expect(linkedHashmap.size).to.equal(2);
+            expect(linkedHashmap.has('key2')).to.be.true;
+            expect(linkedHashmap.get('key2')).to.be.equal("insert");
+
+            expect(linkedHashmap.start).to.deep.equal(["key2", "insert"]);
+            expect(linkedHashmap.end).to.deep.equal(["key1", "value1"]);
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.start.next).to.deep.equal(linkedHashmap.end);
+            expect(linkedHashmap.end.next).to.be.undefined;
+            expect(linkedHashmap.end.previous).to.deep.equal(linkedHashmap.start);
+        });
+        it('unshiftEmplace(), update 2 entries, (should move)', function () {
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key1','value1')
+            linkedHashmap.set('key2','value2')
+            expect(linkedHashmap.size).to.equal(2);
+
+            let updateCalled = 0;
+            let insertCalled = 0;
+            const handler = {
+                update: (oldValue, key, map) => {
+                    expect(oldValue).to.equal("value2");
+                    expect(key).to.equal("key2");
+                    expect(map).to.equal(linkedHashmap);
+                    updateCalled++;
+                    return "update";
+                },
+                insert: (key, map) => {
+                    insertCalled++;
+                    return "insert";
+                }
+            };
+            const ret = linkedHashmap.unshiftEmplace('key2', handler)
+            expect(linkedHashmap.size).to.equal(2);
+            expect(ret).to.equal("update");
+            expect(updateCalled).to.equal(1);
+            expect(insertCalled).to.equal(0);
+            expect(linkedHashmap.has('key2')).to.be.true;
+            expect(linkedHashmap.get('key2')).to.be.equal("update");
+
+            expect(linkedHashmap.start).to.deep.equal(["key2", "update"]);
+            expect(linkedHashmap.end).to.deep.equal(["key1", "value1"]);
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.start.next).to.deep.equal(linkedHashmap.end);
+            expect(linkedHashmap.end.next).to.be.undefined;
+            expect(linkedHashmap.end.previous).to.deep.equal(linkedHashmap.start);
+        });
+
+    });
+
     context('delete()', function () {
         it('delete() empty map ', function () {
             // Given
@@ -591,6 +1738,120 @@ describe('LinkedHashMap Class', function () {
         });
 
     });
+    context('shift()', function () {
+        it('shift() empty map ', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            // When & Then
+            expect(linkedHashmap.shift()).is.undefined;
+            // Then
+            expect(linkedHashmap.size).to.equal(0);
+            expect(linkedHashmap.has('key')).to.be.false;
+
+            expect(linkedHashmap.end).to.be.undefined;
+            expect(linkedHashmap.start).to.be.undefined;
+        });
+
+        it('shift() existing key', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key', 'value')
+            expect(linkedHashmap.size).to.equal(1);
+            expect(linkedHashmap.has('key')).to.be.true;
+            // When & Then
+            expect(linkedHashmap.shift()).to.deep.equal(['key', 'value']);
+            // Then
+            expect(linkedHashmap.size).to.equal(0);
+            expect(linkedHashmap.has('key')).to.be.false;
+
+            expect(linkedHashmap.end).to.be.undefined;
+            expect(linkedHashmap.start).to.be.undefined;
+        });
+
+        it('shift with 3 keys', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key1', 'value1')
+            linkedHashmap.set('key2', 'value2')
+            linkedHashmap.set('key3', 'value3')
+            expect(linkedHashmap.size).to.equal(3);
+            // When & Then
+            expect(linkedHashmap.shift()).to.deep.equal(['key1', 'value1']);
+            // Then
+            expect(linkedHashmap.size).to.equal(2);
+            expect(linkedHashmap.has('key1')).to.be.false;
+            expect(linkedHashmap.has('key2')).to.be.true;
+            expect(linkedHashmap.get('key2')).to.be.equal("value2");
+            expect(linkedHashmap.has('key3')).to.be.true;
+            expect(linkedHashmap.get('key3')).to.be.equal("value3");
+
+            expect(linkedHashmap.start).to.deep.equal(["key2", "value2"]);
+            expect(linkedHashmap.end).to.deep.equal(["key3", "value3"]);
+            expect(linkedHashmap.start.next).to.deep.equal(linkedHashmap.end);
+            expect(linkedHashmap.end.previous).to.deep.equal(linkedHashmap.start);
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.end.next).to.be.undefined;
+        });
+
+    });
+    context('pop()', function () {
+        it('pop() empty map ', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            // When & Then
+            expect(linkedHashmap.pop()).to.be.undefined;
+            // Then
+            expect(linkedHashmap.size).to.equal(0);
+            expect(linkedHashmap.has('key')).to.be.false;
+
+            expect(linkedHashmap.end).to.be.undefined;
+            expect(linkedHashmap.start).to.be.undefined;
+        });
+
+        it('pop() existing key', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key', 'value')
+            expect(linkedHashmap.size).to.equal(1);
+            expect(linkedHashmap.has('key')).to.be.true;
+            // When & Then
+            expect(linkedHashmap.pop()).to.deep.equal(['key', 'value']);
+            // Then
+            expect(linkedHashmap.size).to.equal(0);
+            expect(linkedHashmap.has('key')).to.be.false;
+
+            expect(linkedHashmap.end).to.be.undefined;
+            expect(linkedHashmap.start).to.be.undefined;
+        });
+
+        it('pop() with 3 keys', function () {
+            //Given
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key1', 'value1')
+            linkedHashmap.set('key2', 'value2')
+            linkedHashmap.set('key3', 'value3')
+            expect(linkedHashmap.size).to.equal(3);
+            expect(linkedHashmap.size).to.equal(3);
+            // When & Then
+            expect(linkedHashmap.pop()).to.deep.equal(['key3', 'value3']);
+            // Then
+            expect(linkedHashmap.size).to.equal(2);
+            expect(linkedHashmap.has('key1')).to.be.true;
+            expect(linkedHashmap.get('key1')).to.be.equal("value1");
+            expect(linkedHashmap.has('key2')).to.be.true;
+            expect(linkedHashmap.get('key2')).to.be.equal("value2");
+            expect(linkedHashmap.has('key3')).to.be.false;
+
+            expect(linkedHashmap.start).to.deep.equal(["key1", "value1"]);
+            expect(linkedHashmap.end).to.deep.equal(["key2", "value2"]);
+            expect(linkedHashmap.start.next).to.deep.equal(linkedHashmap.end);
+            expect(linkedHashmap.end.previous).to.deep.equal(linkedHashmap.start);
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.end.next).to.be.undefined;
+        });
+
+    });
+
     context('copy()', function () {
         it('copy() map', function () {
             // Given
@@ -760,15 +2021,14 @@ describe('LinkedHashMap Class', function () {
         it('forEach', function () {
             // Given
             const linkedHashmap = new LinkedHashMap();
-            // numbers are generally ordered in the linkedHashmap
-            linkedHashmap.set(1, "value1");
-            linkedHashmap.set(2, "value2");
-            linkedHashmap.set(3, "value3");
+            linkedHashmap.set('key1', "value1");
+            linkedHashmap.set('key2', "value2");
+            linkedHashmap.set('key3', "value3");
             let executedCount = 0;
             const forEachCallback = (value, key, map) => {
                 executedCount++;
                 // Then
-                expect(key).to.equal(executedCount);
+                expect(key).to.equal("key" +executedCount);
                 expect(value).to.equal("value" + executedCount);
                 expect(map).to.equal(linkedHashmap);
             };
@@ -783,15 +2043,13 @@ describe('LinkedHashMap Class', function () {
         it('forEachRight', function () {
             // Given
             const linkedHashmap = new LinkedHashMap();
-            // numbers are generally ordered in this linkedHashmap, so taking advantage.
-            // If this breaks check for changes to how numbers are hashed, or it maybe a symptom of a bigger issue.
-            linkedHashmap.set(1, "value1");
-            linkedHashmap.set(2, "value2");
-            linkedHashmap.set(3, "value3");
+            linkedHashmap.set('key1', "value1");
+            linkedHashmap.set('key2', "value2");
+            linkedHashmap.set('key3', "value3");
             let executedCount = 3;
             const forEachCallback = (value, key, map) => {
                 // Then
-                expect(key).to.equal(executedCount);
+                expect(key).to.equal("key" + executedCount);
                 expect(value).to.equal("value" + executedCount);
                 expect(map).to.equal(linkedHashmap);
                 executedCount--;
@@ -805,6 +2063,179 @@ describe('LinkedHashMap Class', function () {
         });
 
     });
+    context('reverse()', function () {
+        it('reverse() 0', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            expect(linkedHashmap.size).to.equal(0);
+
+            // When & Then
+            expect(linkedHashmap.reverse()).to.equal(linkedHashmap)
+
+            // Then
+            expect(linkedHashmap.size).to.equal(0);
+            expect(linkedHashmap.start).to.be.undefined;
+            expect(linkedHashmap.end).to.be.undefined;
+
+            // When --- reverse back
+            expect(linkedHashmap.reverse()).to.equal(linkedHashmap)
+
+            // Then
+            expect(linkedHashmap.start).to.be.undefined;
+            expect(linkedHashmap.end).to.be.undefined;
+            expect(linkedHashmap.size).to.equal(0);
+        });
+        it('reverse() 1', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key1', "value1");
+            expect(linkedHashmap.size).to.equal(1);
+            expect(linkedHashmap.start).to.deep.equal(['key1','value1']);
+            expect(linkedHashmap.end).to.deep.equal(['key1','value1']);
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.end.next).to.be.undefined;
+
+            // When & Then
+            expect(linkedHashmap.reverse()).to.equal(linkedHashmap)
+
+            // Then
+            expect(linkedHashmap.size).to.equal(1);
+            expect(linkedHashmap.start).to.deep.equal(['key1','value1']);
+            expect(linkedHashmap.end).to.deep.equal(['key1','value1']);
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.end.next).to.be.undefined;
+
+            // When --- reverse back
+            expect(linkedHashmap.reverse()).to.equal(linkedHashmap)
+
+            // Then
+            expect(linkedHashmap.start).to.deep.equal(['key1','value1']);
+            expect(linkedHashmap.end).to.deep.equal(['key1','value1']);
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.end.next).to.be.undefined;
+            expect(linkedHashmap.size).to.equal(1);
+        });
+
+        it('reverse() 2', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key1', "value1");
+            linkedHashmap.set('key2', "value2");
+            expect(linkedHashmap.size).to.equal(2);
+            expect(linkedHashmap.start).to.deep.equal(['key1','value1']);
+            expect(linkedHashmap.end).to.deep.equal(['key2','value2']);
+
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.end.next).to.be.undefined;
+            expect(linkedHashmap.start.next).to.deep.equal(['key2','value2']);
+            expect(linkedHashmap.end.previous).to.deep.equal(['key1','value1']);
+
+            // When & Then
+            expect(linkedHashmap.reverse()).to.equal(linkedHashmap)
+
+            // Then
+            expect(linkedHashmap.size).to.equal(2);
+            let executedCount = 2;
+            const forEachCallbackBackward = (value, key, map) => {
+                expect(key).to.equal("key" + executedCount);
+                expect(value).to.equal("value" + executedCount);
+                expect(map).to.equal(linkedHashmap);
+                executedCount--;
+            };
+            linkedHashmap.forEach(forEachCallbackBackward);
+            expect(linkedHashmap.start).to.deep.equal(['key2','value2']);
+            expect(linkedHashmap.end).to.deep.equal(['key1','value1']);
+
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.end.next).to.be.undefined;
+            expect(linkedHashmap.start.next).to.deep.equal(['key1','value1']);
+            expect(linkedHashmap.end.previous).to.deep.equal(['key2','value2']);
+            expect(executedCount).to.equal(0);
+
+            // When --- reverse back
+            expect(linkedHashmap.reverse()).to.equal(linkedHashmap)
+
+            // Then
+            const forEachCallbackForward = (value, key, map) => {
+                executedCount++;
+                expect(key).to.equal("key" +executedCount);
+                expect(value).to.equal("value" + executedCount);
+            };
+            linkedHashmap.forEach(forEachCallbackForward);
+            expect(linkedHashmap.start).to.deep.equal(['key1','value1']);
+            expect(linkedHashmap.end).to.deep.equal(['key2','value2']);
+            expect(executedCount).to.equal(2);
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.end.next).to.be.undefined;
+            expect(linkedHashmap.start.next).to.deep.equal(['key2','value2']);
+            expect(linkedHashmap.end.previous).to.deep.equal(['key1','value1']);
+        });
+
+        it('reverse() 3', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key1', "value1");
+            linkedHashmap.set('key2', "value2");
+            linkedHashmap.set('key3', "value3");
+            expect(linkedHashmap.size).to.equal(3);
+            expect(linkedHashmap.start).to.deep.equal(['key1','value1']);
+            expect(linkedHashmap.end).to.deep.equal(['key3','value3']);
+
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.end.next).to.be.undefined;
+            expect(linkedHashmap.start.next).to.deep.equal(['key2','value2']);
+            expect(linkedHashmap.start.next.next).to.deep.equal(['key3','value3']);
+            expect(linkedHashmap.end.previous).to.deep.equal(['key2','value2']);
+            expect(linkedHashmap.end.previous.previous).to.deep.equal(['key1','value1']);
+
+            // When & Then
+            expect(linkedHashmap.reverse()).to.equal(linkedHashmap)
+
+            // Then
+            expect(linkedHashmap.size).to.equal(3);
+            let executedCount = 3;
+            const forEachCallbackBackward = (value, key, map) => {
+                expect(key).to.equal("key" + executedCount);
+                expect(value).to.equal("value" + executedCount);
+                expect(map).to.equal(linkedHashmap);
+                executedCount--;
+            };
+            linkedHashmap.forEach(forEachCallbackBackward);
+            expect(linkedHashmap.start).to.deep.equal(['key3','value3']);
+            expect(linkedHashmap.end).to.deep.equal(['key1','value1']);
+
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.end.next).to.be.undefined;
+            expect(linkedHashmap.start.next).to.deep.equal(['key2','value2']);
+            expect(linkedHashmap.start.next.next).to.deep.equal(['key1','value1']);
+            expect(linkedHashmap.end.previous).to.deep.equal(['key2','value2']);
+            expect(linkedHashmap.end.previous.previous).to.deep.equal(['key3','value3']);
+            expect(executedCount).to.equal(0);
+
+            // When --- reverse back
+            expect(linkedHashmap.reverse()).to.equal(linkedHashmap)
+
+            // Then
+            const forEachCallbackForward = (value, key, map) => {
+                executedCount++;
+                expect(key).to.equal("key" +executedCount);
+                expect(value).to.equal("value" + executedCount);
+            };
+            linkedHashmap.forEach(forEachCallbackForward);
+            expect(linkedHashmap.start).to.deep.equal(['key1','value1']);
+            expect(linkedHashmap.end).to.deep.equal(['key3','value3']);
+            expect(executedCount).to.equal(3);
+            expect(linkedHashmap.start.previous).to.be.undefined;
+            expect(linkedHashmap.end.next).to.be.undefined;
+            expect(linkedHashmap.start.next).to.deep.equal(['key2','value2']);
+            expect(linkedHashmap.start.next.next).to.deep.equal(['key3','value3']);
+            expect(linkedHashmap.end.previous).to.deep.equal(['key2','value2']);
+            expect(linkedHashmap.end.previous.previous).to.deep.equal(['key1','value1']);
+
+        });
+
+    });
+
     context('Iterators', function () {
         it('[Symbol.iterator]', function () {
             // Given

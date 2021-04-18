@@ -652,7 +652,7 @@ class Container {
             let parent = this.parent;
             while (parent) {
                 parent.size -= 1;
-                parent = this.parent;
+                parent = parent.parent;
             }
         }
     }
@@ -1503,20 +1503,20 @@ class LinkedHashMap extends HashMap {
 
     push(key, value, options) {
         const op = equalsAndHash(key, options);
-        op.forceInsert = true;
+        op.moveOnUpdate = true;
         this.buckets.set(key, value, op);
         return this;
     }
 
     pushEmplace(key, handler, options) {
         const op = equalsAndHash(key, options);
-        op.forceInsert = true;
+        op.moveOnUpdate = true;
         return this.buckets.emplace(key, handler, op);
     }
 
     unshift(key, value, options) {
         const op = equalsAndHash(key, options);
-        op.forceInsert = true;
+        op.moveOnUpdate = true;
         op.addToStart = true;
         this.buckets.set(key, value, op);
         return this;
@@ -1524,7 +1524,7 @@ class LinkedHashMap extends HashMap {
 
     unshiftEmplace(key, handler, options) {
         const op = equalsAndHash(key, options);
-        op.forceInsert = true;
+        op.moveOnUpdate = true;
         op.addToStart = true;
         return this.buckets.emplace(key, handler, op);
     }
@@ -1547,6 +1547,87 @@ class LinkedHashMap extends HashMap {
         return undefined;
     }
 
+
+    head() {
+        const entry = this.start;
+        if (entry) {
+            return entry[1];
+        }
+        return undefined;
+    }
+
+    tail() {
+        const entry = this.end;
+        if (entry) {
+            return entry[1];
+        }
+        return undefined;
+    }
+
+    optionalHead() {
+        const entry = this.start;
+        if (entry) {
+            return some(entry[1]);
+        }
+        return none;
+    }
+
+    optionalTail() {
+        const entry = this.end;
+        if (entry) {
+            return some(entry[1]);
+        }
+        return none;
+    }
+
+    headKey() {
+        const entry = this.start;
+        if (entry) {
+            return entry[0];
+        }
+        return undefined;
+    }
+
+    tailKey() {
+        const entry = this.end;
+        if (entry) {
+            return entry[0];
+        }
+        return undefined;
+    }
+
+    optionalHeadKey() {
+        const entry = this.start;
+        if (entry) {
+            return some(entry[0]);
+        }
+        return none;
+    }
+
+    optionalTailKey() {
+        const entry = this.end;
+        if (entry) {
+            return some(entry[0]);
+        }
+        return none;
+    }
+
+    reverse(){
+        if(this.size > 1){
+            let entry = this.start;
+            do {
+                const previous = entry.previous;
+                const next = entry.next;
+                entry.previous = next;
+                entry.next = previous;
+                entry = next;
+            } while(entry);
+            const start = this.start;
+            this.start = this.end;
+            this.end = start;
+        }
+        return this;
+    }
     /**
      * Makes a copy of this LinkedHashMap
      * @return {LinkedHashMap}
@@ -1644,48 +1725,50 @@ class LinkedContainer extends Container {
     createEntry(key, value, options) {
         const entry = super.createEntry(key, value, options);
         const map = this.map;
-        if (options.addToStart && map.start) {
+        if (map.start === undefined) {
+            map.end = map.start = entry;
+        } else if (options.addToStart) {
             map.start.previous = entry;
             entry.next = map.start;
             map.start = entry;
-        } else if (map.end) {
+        } else {
             map.end.next = entry;
             entry.previous = map.end;
             map.end = entry;
-        } else {
-            map.end = map.start = entry;
         }
         return entry;
     }
 
     updateEntry(entry, newValue, options) {
         super.updateEntry(entry, newValue, options);
-        if (options.forceInsert) {
+        if (options.moveOnUpdate) {
             if (options.addToStart) {
-                if (entry !== this.map.start) {
+                if (entry.previous) {
                     if (entry.next) {
                         entry.next.previous = entry.previous;
                     }
-                    if (entry.previous) {
-                        entry.previous.next = entry.next;
-                        entry.previous = undefined;
+                    entry.previous.next = entry.next;
+                    if (entry === this.map.end) {
+                        this.map.end = entry.previous;
                     }
+                    entry.previous = undefined;
                     this.map.start.previous = entry;
                     entry.next = this.map.start;
                     this.map.start = entry;
                 }
-            } else if (entry !== this.map.end) {
-                    if (entry.previous) {
-                        entry.previous.next = entry.next;
-                    }
-                    if (entry.next) {
-                        entry.next.previous = entry.previous;
-                        entry.next = undefined;
-                    }
-                    this.map.end.next = entry;
-                    entry.previous = this.map.end;
-                    this.map.end = entry;
+            } else if (entry.next) {
+                if (entry.previous) {
+                    entry.previous.next = entry.next;
                 }
+                entry.next.previous = entry.previous;
+                if (entry === this.map.start) {
+                    this.map.start = entry.next;
+                }
+                entry.next = undefined;
+                this.map.end.next = entry;
+                entry.previous = this.map.end;
+                this.map.end = entry;
+            }
         }
     }
 

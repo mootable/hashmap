@@ -23,6 +23,29 @@ describe('LinkedContainer Class', function () {
             expect(container.map).to.equal(defaultMap);
         });
     });
+    context('has()', function () {
+        it('has key', function () {
+            const container = new LinkedContainer(defaultMap);
+            container.createEntry("key", "value", {});
+            container.set("key2", "value2", defaultMethodOptions);
+            const ret = container.has("key", defaultMethodOptions);
+            expect(ret).to.be.true;
+            const ret2 = container.has("key2", defaultMethodOptions);
+            expect(ret2).to.be.true;
+        });
+        it('has not got key', function () {
+            const container = new LinkedContainer(defaultMap);
+            container.createEntry("key", "value", {});
+            container.set("key2", "value2", defaultMethodOptions);
+            const ret = container.has("other", defaultMethodOptions);
+            expect(ret).to.be.false;
+        });
+        it('has when empty', function () {
+            const container = new LinkedContainer(defaultMap);
+            const ret = container.has("key", defaultMethodOptions);
+            expect(ret).to.be.false;
+        });
+    });
     context('get()', function () {
         it('get with prefil', function () {
 
@@ -190,29 +213,6 @@ describe('LinkedContainer Class', function () {
             expect(defaultMap.end.previous).to.equal(defaultMap.start);
         });
 
-    });
-    context('has()', function () {
-        it('has key', function () {
-            const container = new LinkedContainer(defaultMap);
-            container.createEntry("key", "value", {});
-            container.set("key2", "value2", defaultMethodOptions);
-            const ret = container.has("key", defaultMethodOptions);
-            expect(ret).to.be.true;
-            const ret2 = container.has("key2", defaultMethodOptions);
-            expect(ret2).to.be.true;
-        });
-        it('has not got key', function () {
-            const container = new LinkedContainer(defaultMap);
-            container.createEntry("key", "value", {});
-            container.set("key2", "value2", defaultMethodOptions);
-            const ret = container.has("other", defaultMethodOptions);
-            expect(ret).to.be.false;
-        });
-        it('has when empty', function () {
-            const container = new LinkedContainer(defaultMap);
-            const ret = container.has("key", defaultMethodOptions);
-            expect(ret).to.be.false;
-        });
     });
     context('delete()', function () {
         it('delete has key', function () {
@@ -453,14 +453,404 @@ describe('LinkedContainer Class', function () {
         });
 
     });
-    context('hashConflicts()', function () {
+    context('internals', function () {
         it('hashConflicts', function () {
+            // Given
             const container = new LinkedContainer(defaultMap, undefined, 1);
-
+            // When & Then
             expect(container.hashConflicts(1)).to.be.false;
             expect(container.hashConflicts(2)).to.be.true;
         });
+        it('createEntry on empty', function () {
+            // Given
+            const container = new LinkedContainer(defaultMap, undefined, 1);
+            // When
+            const ret = container.createEntry('key','value', {});
+            // Then
+            expect(container.size).to.equal(1);
+            expect(container.contents[0]).to.deep.equal(ret);
+            expect(ret).to.deep.equal(['key','value']);
+        });
+        it('createEntry on has values', function () {
+            // Given
+            const container = new LinkedContainer(defaultMap, undefined, 1);
+            container.createEntry('key1','value1', {});
+            // When
+            const ret = container.createEntry('key2','value2', {});
+            // Then
+            expect(container.size).to.equal(2);
+            expect(container.contents[0]).to.deep.equal(['key1','value1']);
+            expect(container.contents[1]).to.deep.equal(['key2','value2']);
+            expect(container.contents[1]).to.deep.equal(ret);
+            expect(container.contents[0]).to.deep.equal(defaultMap.start);
+            expect(container.contents[1]).to.deep.equal(defaultMap.end);
+        });
 
+        it('createEntry addToStart on empty', function () {
+            // Given
+            const container = new LinkedContainer(defaultMap, undefined, 1);
+            // When
+            const ret = container.createEntry('key','value', {addToStart:true});
+            // Then
+            expect(container.size).to.equal(1);
+            expect(container.contents[0]).to.deep.equal(ret);
+            expect(ret).to.deep.equal(['key','value']);
+        });
+        it('createEntry addToStart on has values', function () {
+            // Given
+            const container = new LinkedContainer(defaultMap, undefined, 1);
+            const first = container.createEntry('key1','value1', {});
+            defaultMap.start = first;
+            defaultMap.end = first;
+            // When
+            const ret = container.createEntry('key2','value2', {addToStart:true});
+            // Then
+            expect(container.size).to.equal(2);
+            expect(container.contents[0]).to.deep.equal(['key1','value1']);
+            expect(container.contents[1]).to.deep.equal(['key2','value2']);
+            expect(container.contents[1]).to.deep.equal(ret);
+            expect(container.contents[0]).to.deep.equal(defaultMap.end);
+            expect(container.contents[1]).to.deep.equal(defaultMap.start);
+        });
+        it('updateEntry', function () {
+            // Given
+            const container = new LinkedContainer(defaultMap, undefined, 1);
+            const entry = container.createEntry('key1','value1', {});
+            // When
+            container.updateEntry(entry,'value2', {});
+            // Then
+            expect(container.size).to.equal(1);
+            expect(container.contents[0]).to.deep.equal(['key1','value2']);
+            expect(container.contents[0]).to.deep.equal(entry);
+            expect(defaultMap.start).to.deep.equal(entry);
+            expect(defaultMap.end).to.deep.equal(entry);
+        });
+        it('updateEntry two entries', function () {
+            // Given
+            const container = new LinkedContainer(defaultMap, undefined, 1);
+            const first = container.createEntry('key1','value1', {} );
+            const second = container.createEntry('key2','value2', {});
+            // When
+            container.updateEntry(first,'value2', {});
+            // Then
+            expect(container.size).to.equal(2);
+            expect(container.contents[0]).to.deep.equal(['key1','value2']);
+            expect(container.contents[0]).to.deep.equal(first);
+            expect(container.contents[1]).to.deep.equal(['key2','value2']);
+            expect(container.contents[1]).to.deep.equal(second);
+            expect(defaultMap.start).to.deep.equal(first);
+            expect(defaultMap.end).to.deep.equal(second);
+        });
+        it('updateEntry three entries, update first', function () {
+            // Given
+            const container = new LinkedContainer(defaultMap, undefined, 1);
+            const first = container.createEntry('key1','value1', {} );
+            const second = container.createEntry('key2','value2', {});
+            const third = container.createEntry('key3','value3', {});
+            // When
+            container.updateEntry(first,'other', {});
+            // Then
+            expect(container.size).to.equal(3);
+            expect(container.contents[0]).to.deep.equal(['key1','other']);
+            expect(container.contents[0]).to.deep.equal(first);
+            expect(container.contents[1]).to.deep.equal(['key2','value2']);
+            expect(container.contents[1]).to.deep.equal(second);
+            expect(container.contents[2]).to.deep.equal(['key3','value3']);
+            expect(container.contents[2]).to.deep.equal(third);
+            expect(defaultMap.start).to.deep.equal(first);
+            expect(defaultMap.end).to.deep.equal(third);
+        });
+        it('updateEntry three entries, update second', function () {
+            // Given
+            const container = new LinkedContainer(defaultMap, undefined, 1);
+            const first = container.createEntry('key1','value1', {} );
+            const second = container.createEntry('key2','value2', {});
+            const third = container.createEntry('key3','value3', {});
+            // When
+            container.updateEntry(second,'other', {});
+            // Then
+            expect(container.size).to.equal(3);
+            expect(container.contents[0]).to.deep.equal(['key1','value1']);
+            expect(container.contents[0]).to.deep.equal(first);
+            expect(container.contents[1]).to.deep.equal(['key2','other']);
+            expect(container.contents[1]).to.deep.equal(second);
+            expect(container.contents[2]).to.deep.equal(['key3','value3']);
+            expect(container.contents[2]).to.deep.equal(third);
+            expect(defaultMap.start).to.deep.equal(first);
+            expect(defaultMap.end).to.deep.equal(third);
+        });
+        it('updateEntry three entries, update third', function () {
+            // Given
+            const container = new LinkedContainer(defaultMap, undefined, 1);
+            const first = container.createEntry('key1','value1', {} );
+            const second = container.createEntry('key2','value2', {});
+            const third = container.createEntry('key3','value3', {});
+            // When
+            container.updateEntry(third,'other', {});
+            // Then
+            expect(container.size).to.equal(3);
+            expect(container.contents[0]).to.deep.equal(['key1','value1']);
+            expect(container.contents[0]).to.deep.equal(first);
+            expect(container.contents[1]).to.deep.equal(['key2','value2']);
+            expect(container.contents[1]).to.deep.equal(second);
+            expect(container.contents[2]).to.deep.equal(['key3','other']);
+            expect(container.contents[2]).to.deep.equal(third);
+            expect(defaultMap.start).to.deep.equal(first);
+            expect(defaultMap.end).to.deep.equal(third);
+        });
+        it('updateEntry moveOnUpdate just one entry', function () {
+            // Given
+            const container = new LinkedContainer(defaultMap, undefined, 1);
+            const entry = container.createEntry('key1','value1', {});
+            // When
+            container.updateEntry(entry,'value2', {moveOnUpdate:true});
+            // Then
+            expect(container.size).to.equal(1);
+            expect(container.contents[0]).to.deep.equal(['key1','value2']);
+            expect(container.contents[0]).to.deep.equal(entry);
+            expect(defaultMap.start).to.deep.equal(entry);
+            expect(defaultMap.end).to.deep.equal(entry);
+        });
+        it('updateEntry moveOnUpdate two entries', function () {
+            // Given
+            const container = new LinkedContainer(defaultMap, undefined, 1);
+            const first = container.createEntry('key1','value1', {} );
+            const second = container.createEntry('key2','value2', {});
+            // When
+            container.updateEntry(first,'value2', {moveOnUpdate:true});
+            // Then
+            expect(container.size).to.equal(2);
+            expect(container.contents[0]).to.deep.equal(['key1','value2']);
+            expect(container.contents[0]).to.deep.equal(first);
+            expect(container.contents[1]).to.deep.equal(['key2','value2']);
+            expect(container.contents[1]).to.deep.equal(second);
+            expect(defaultMap.start).to.deep.equal(second);
+            expect(defaultMap.end).to.deep.equal(first);
+        });
+        it('updateEntry moveOnUpdate three entries, update first', function () {
+            // Given
+            const container = new LinkedContainer(defaultMap, undefined, 1);
+            const first = container.createEntry('key1','value1', {} );
+            const second = container.createEntry('key2','value2', {});
+            const third = container.createEntry('key3','value3', {});
+            // When
+            container.updateEntry(first,'other', {moveOnUpdate:true});
+            // Then
+            expect(container.size).to.equal(3);
+            expect(container.contents[0]).to.deep.equal(['key1','other']);
+            expect(container.contents[0]).to.deep.equal(first);
+            expect(container.contents[1]).to.deep.equal(['key2','value2']);
+            expect(container.contents[1]).to.deep.equal(second);
+            expect(container.contents[2]).to.deep.equal(['key3','value3']);
+            expect(container.contents[2]).to.deep.equal(third);
+            expect(defaultMap.start).to.deep.equal(second);
+            expect(defaultMap.end).to.deep.equal(first);
+        });
+        it('updateEntry moveOnUpdate three entries, update second', function () {
+            // Given
+            const container = new LinkedContainer(defaultMap, undefined, 1);
+            const first = container.createEntry('key1','value1', {} );
+            const second = container.createEntry('key2','value2', {});
+            const third = container.createEntry('key3','value3', {});
+            // When
+            container.updateEntry(second,'other', {moveOnUpdate:true});
+            // Then
+            expect(container.size).to.equal(3);
+            expect(container.contents[0]).to.deep.equal(['key1','value1']);
+            expect(container.contents[0]).to.deep.equal(first);
+            expect(container.contents[1]).to.deep.equal(['key2','other']);
+            expect(container.contents[1]).to.deep.equal(second);
+            expect(container.contents[2]).to.deep.equal(['key3','value3']);
+            expect(container.contents[2]).to.deep.equal(third);
+            expect(defaultMap.start).to.deep.equal(first);
+            expect(defaultMap.end).to.deep.equal(second);
+        });
+        it('updateEntry moveOnUpdate three entries, update third', function () {
+            // Given
+            const container = new LinkedContainer(defaultMap, undefined, 1);
+            const first = container.createEntry('key1','value1', {} );
+            const second = container.createEntry('key2','value2', {});
+            const third = container.createEntry('key3','value3', {});
+            // When
+            container.updateEntry(third,'other', {moveOnUpdate:true});
+            // Then
+            expect(container.size).to.equal(3);
+            expect(container.contents[0]).to.deep.equal(['key1','value1']);
+            expect(container.contents[0]).to.deep.equal(first);
+            expect(container.contents[1]).to.deep.equal(['key2','value2']);
+            expect(container.contents[1]).to.deep.equal(second);
+            expect(container.contents[2]).to.deep.equal(['key3','other']);
+            expect(container.contents[2]).to.deep.equal(third);
+            expect(defaultMap.start).to.deep.equal(first);
+            expect(defaultMap.end).to.deep.equal(third);
+        });
+
+        it('updateEntry addToStart & moveOnUpdate just one entry', function () {
+            // Given
+            const container = new LinkedContainer(defaultMap, undefined, 1);
+            const entry = container.createEntry('key1','value1', {});
+            // When
+            container.updateEntry(entry,'value2', {addToStart: true, moveOnUpdate:true});
+            // Then
+            expect(container.size).to.equal(1);
+            expect(container.contents[0]).to.deep.equal(['key1','value2']);
+            expect(container.contents[0]).to.deep.equal(entry);
+            expect(defaultMap.start).to.deep.equal(entry);
+            expect(defaultMap.end).to.deep.equal(entry);
+        });
+        it('updateEntry addToStart & moveOnUpdate two entries', function () {
+            // Given
+            const container = new LinkedContainer(defaultMap, undefined, 1);
+            const first = container.createEntry('key1','value1', {} );
+            const second = container.createEntry('key2','value2', {});
+            // When
+            container.updateEntry(first,'value2', {addToStart: true, moveOnUpdate:true});
+            // Then
+            expect(container.size).to.equal(2);
+            expect(container.contents[0]).to.deep.equal(['key1','value2']);
+            expect(container.contents[0]).to.deep.equal(first);
+            expect(container.contents[1]).to.deep.equal(['key2','value2']);
+            expect(container.contents[1]).to.deep.equal(second);
+            expect(defaultMap.start).to.deep.equal(first);
+            expect(defaultMap.end).to.deep.equal(second);
+        });
+        it('updateEntry addToStart &  moveOnUpdate three entries, update first', function () {
+            // Given
+            const container = new LinkedContainer(defaultMap, undefined, 1);
+            const first = container.createEntry('key1','value1', {} );
+            const second = container.createEntry('key2','value2', {});
+            const third = container.createEntry('key3','value3', {});
+            // When
+            container.updateEntry(first,'other', {addToStart: true, moveOnUpdate:true});
+            // Then
+            expect(container.size).to.equal(3);
+            expect(container.contents[0]).to.deep.equal(['key1','other']);
+            expect(container.contents[0]).to.deep.equal(first);
+            expect(container.contents[1]).to.deep.equal(['key2','value2']);
+            expect(container.contents[1]).to.deep.equal(second);
+            expect(container.contents[2]).to.deep.equal(['key3','value3']);
+            expect(container.contents[2]).to.deep.equal(third);
+            expect(defaultMap.start).to.deep.equal(first);
+            expect(defaultMap.end).to.deep.equal(third);
+        });
+        it('updateEntry addToStart & moveOnUpdate three entries, update second', function () {
+            // Given
+            const container = new LinkedContainer(defaultMap, undefined, 1);
+            const first = container.createEntry('key1','value1', {} );
+            const second = container.createEntry('key2','value2', {});
+            const third = container.createEntry('key3','value3', {});
+            // When
+            container.updateEntry(second,'other', {addToStart: true, moveOnUpdate:true});
+            // Then
+            expect(container.size).to.equal(3);
+            expect(container.contents[0]).to.deep.equal(['key1','value1']);
+            expect(container.contents[0]).to.deep.equal(first);
+            expect(container.contents[1]).to.deep.equal(['key2','other']);
+            expect(container.contents[1]).to.deep.equal(second);
+            expect(container.contents[2]).to.deep.equal(['key3','value3']);
+            expect(container.contents[2]).to.deep.equal(third);
+            expect(defaultMap.start).to.deep.equal(second);
+            expect(defaultMap.end).to.deep.equal(third);
+        });
+        it('updateEntry addToStart & moveOnUpdate three entries, update third', function () {
+            // Given
+            const container = new LinkedContainer(defaultMap, undefined, 1);
+            const first = container.createEntry('key1','value1', {} );
+            const second = container.createEntry('key2','value2', {});
+            const third = container.createEntry('key3','value3', {});
+            // When
+            container.updateEntry(third,'other', {addToStart: true, moveOnUpdate:true});
+            // Then
+            expect(container.size).to.equal(3);
+            expect(container.contents[0]).to.deep.equal(['key1','value1']);
+            expect(container.contents[0]).to.deep.equal(first);
+            expect(container.contents[1]).to.deep.equal(['key2','value2']);
+            expect(container.contents[1]).to.deep.equal(second);
+            expect(container.contents[2]).to.deep.equal(['key3','other']);
+            expect(container.contents[2]).to.deep.equal(third);
+            expect(defaultMap.start).to.deep.equal(third);
+            expect(defaultMap.end).to.deep.equal(second);
+        });
+
+        it('deleteEntry', function () {
+            // Given
+            const containerGrandParent = new LinkedContainer(defaultMap, undefined, 1);
+            containerGrandParent.size=7;
+            const containerParent = new LinkedContainer(defaultMap, containerGrandParent, 1);
+            containerParent.size=5;
+            const container = new LinkedContainer(defaultMap, containerParent, 1);
+            const entry = container.createEntry('key1','value1', {});
+            // When
+            container.deleteEntry(entry);
+            // Then
+            expect(container.size).to.equal(0);
+            expect(containerParent.size).to.equal(4);
+            expect(containerGrandParent.size).to.equal(6);
+        });
+        it('deleteEntry with more than one', function () {
+            // Given
+            const containerGrandParent = new LinkedContainer(defaultMap, undefined, 1);
+            containerGrandParent.size=7;
+            const containerParent = new LinkedContainer(defaultMap, containerGrandParent, 1);
+            containerParent.size=5;
+            const container = new LinkedContainer(defaultMap, containerParent, 1);
+            container.createEntry('key1','value1', {});
+            const entry = container.createEntry('key2','value2', {});
+            // When
+            container.deleteEntry(entry);
+            // Then
+            expect(container.size).to.equal(1);
+            expect(containerParent.size).to.equal(4);
+            expect(containerGrandParent.size).to.equal(6);
+        });
+        it('deleteEntry entry not there', function () {
+            // Given
+            const containerGrandParent = new LinkedContainer(defaultMap, undefined, 1);
+            containerGrandParent.size=7;
+            const containerParent = new LinkedContainer(defaultMap, containerGrandParent, 1);
+            containerParent.size=5;
+            const container = new LinkedContainer(defaultMap, containerParent, 1);
+            container.createEntry('key1','value1', {});
+            // just reusing the parent to create a non existing entry. this will up the size.
+            const entry = containerGrandParent.createEntry('key2','value2', {});
+            // When
+            container.deleteEntry(entry);
+            // Then
+            expect(container.size).to.equal(1);
+            expect(containerParent.size).to.equal(5);
+            expect(containerGrandParent.size).to.equal(8);
+        });
+        it('deleteIndex', function () {
+            // Given
+            const container = new LinkedContainer(defaultMap, 1);
+            container.createEntry('key1','value1', {});
+            // When
+            container.deleteIndex(0);
+            // Then
+            expect(container.size).to.equal(0);
+        });
+        it('deleteIndex last of 2', function () {
+            // Given
+            const container = new LinkedContainer(defaultMap, 1);
+            container.createEntry('key1','value1', {});
+            container.createEntry('key2','value2', {});
+            // When
+            container.deleteIndex(1);
+            // Then
+            expect(container.size).to.equal(1);
+            expect(container.contents[0]).to.deep.equal(['key1','value1']);
+        });
+        it('deleteIndex first of 2', function () {
+            // Given
+            const container = new LinkedContainer(defaultMap, 1);
+            container.createEntry('key1','value1', {});
+            container.createEntry('key2','value2', {});
+            // When
+            container.deleteIndex(0);
+            // Then
+            expect(container.size).to.equal(1);
+            expect(container.contents[0]).to.deep.equal(['key2','value2']);
+        });
     });
 });
 

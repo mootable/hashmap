@@ -4099,7 +4099,7 @@
 
           while (parent) {
             parent.size -= 1;
-            parent = this.parent;
+            parent = parent.parent;
           }
         }
       }
@@ -5891,7 +5891,7 @@
       key: "push",
       value: function push(key, value, options) {
         var op = equalsAndHash(key, options);
-        op.forceInsert = true;
+        op.moveOnUpdate = true;
         this.buckets.set(key, value, op);
         return this;
       }
@@ -5899,14 +5899,14 @@
       key: "pushEmplace",
       value: function pushEmplace(key, handler, options) {
         var op = equalsAndHash(key, options);
-        op.forceInsert = true;
+        op.moveOnUpdate = true;
         return this.buckets.emplace(key, handler, op);
       }
     }, {
       key: "unshift",
       value: function unshift(key, value, options) {
         var op = equalsAndHash(key, options);
-        op.forceInsert = true;
+        op.moveOnUpdate = true;
         op.addToStart = true;
         this.buckets.set(key, value, op);
         return this;
@@ -5915,7 +5915,7 @@
       key: "unshiftEmplace",
       value: function unshiftEmplace(key, handler, options) {
         var op = equalsAndHash(key, options);
-        op.forceInsert = true;
+        op.moveOnUpdate = true;
         op.addToStart = true;
         return this.buckets.emplace(key, handler, op);
       }
@@ -5942,6 +5942,115 @@
         }
 
         return undefined;
+      }
+    }, {
+      key: "head",
+      value: function head() {
+        var entry = this.start;
+
+        if (entry) {
+          return entry[1];
+        }
+
+        return undefined;
+      }
+    }, {
+      key: "tail",
+      value: function tail() {
+        var entry = this.end;
+
+        if (entry) {
+          return entry[1];
+        }
+
+        return undefined;
+      }
+    }, {
+      key: "optionalHead",
+      value: function optionalHead() {
+        var entry = this.start;
+
+        if (entry) {
+          return _some(entry[1]);
+        }
+
+        return none;
+      }
+    }, {
+      key: "optionalTail",
+      value: function optionalTail() {
+        var entry = this.end;
+
+        if (entry) {
+          return _some(entry[1]);
+        }
+
+        return none;
+      }
+    }, {
+      key: "headKey",
+      value: function headKey() {
+        var entry = this.start;
+
+        if (entry) {
+          return entry[0];
+        }
+
+        return undefined;
+      }
+    }, {
+      key: "tailKey",
+      value: function tailKey() {
+        var entry = this.end;
+
+        if (entry) {
+          return entry[0];
+        }
+
+        return undefined;
+      }
+    }, {
+      key: "optionalHeadKey",
+      value: function optionalHeadKey() {
+        var entry = this.start;
+
+        if (entry) {
+          return _some(entry[0]);
+        }
+
+        return none;
+      }
+    }, {
+      key: "optionalTailKey",
+      value: function optionalTailKey() {
+        var entry = this.end;
+
+        if (entry) {
+          return _some(entry[0]);
+        }
+
+        return none;
+      }
+    }, {
+      key: "reverse",
+      value: function reverse() {
+        if (this.size > 1) {
+          var entry = this.start;
+
+          do {
+            var previous = entry.previous;
+            var next = entry.next;
+            entry.previous = next;
+            entry.next = previous;
+            entry = next;
+          } while (entry);
+
+          var start = this.start;
+          this.start = this.end;
+          this.end = start;
+        }
+
+        return this;
       }
       /**
        * Makes a copy of this LinkedHashMap
@@ -6219,16 +6328,16 @@
 
         var map = this.map;
 
-        if (options.addToStart && map.start) {
+        if (map.start === undefined) {
+          map.end = map.start = entry;
+        } else if (options.addToStart) {
           map.start.previous = entry;
           entry.next = map.start;
           map.start = entry;
-        } else if (map.end) {
+        } else {
           map.end.next = entry;
           entry.previous = map.end;
           map.end = entry;
-        } else {
-          map.end = map.start = entry;
         }
 
         return entry;
@@ -6238,32 +6347,36 @@
       value: function updateEntry(entry, newValue, options) {
         _get(_getPrototypeOf(LinkedContainer.prototype), "updateEntry", this).call(this, entry, newValue, options);
 
-        if (options.forceInsert) {
+        if (options.moveOnUpdate) {
           if (options.addToStart) {
-            if (entry !== this.map.start) {
+            if (entry.previous) {
               if (entry.next) {
                 entry.next.previous = entry.previous;
               }
 
-              if (entry.previous) {
-                entry.previous.next = entry.next;
-                entry.previous = undefined;
+              entry.previous.next = entry.next;
+
+              if (entry === this.map.end) {
+                this.map.end = entry.previous;
               }
 
+              entry.previous = undefined;
               this.map.start.previous = entry;
               entry.next = this.map.start;
               this.map.start = entry;
             }
-          } else if (entry !== this.map.end) {
+          } else if (entry.next) {
             if (entry.previous) {
               entry.previous.next = entry.next;
             }
 
-            if (entry.next) {
-              entry.next.previous = entry.previous;
-              entry.next = undefined;
+            entry.next.previous = entry.previous;
+
+            if (entry === this.map.start) {
+              this.map.start = entry.next;
             }
 
+            entry.next = undefined;
             this.map.end.next = entry;
             entry.previous = this.map.end;
             this.map.end = entry;
