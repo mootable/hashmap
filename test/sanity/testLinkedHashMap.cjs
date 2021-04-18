@@ -54,20 +54,20 @@ describe('linkedHashMap', function () {
             })).to.equal(linkedHashMap);
         });
 
-        it('should return an iterator on LinkedHashMap methods', function () {
-            expect(linkedHashMap.filter()).is.instanceOf(Mootable.MapIterable);
-            expect(linkedHashMap.mapKeys()).is.instanceOf(Mootable.MapIterable);
-            expect(linkedHashMap.mapValues()).is.instanceOf(Mootable.MapIterable);
-            expect(linkedHashMap.mapEntries()).is.instanceOf(Mootable.MapIterable);
-            expect(linkedHashMap.entries()).is.instanceOf(Mootable.MapIterable);
-            expect(linkedHashMap.concatMap()).is.instanceOf(Mootable.MapIterable);
-            expect(linkedHashMap.concat()).is.instanceOf(Mootable.MapIterable);
-
-            expect(linkedHashMap.concat([])).is.instanceOf(Mootable.SetIterable);
-            expect(linkedHashMap.map()).is.instanceOf(Mootable.SetIterable);
-            expect(linkedHashMap.keys()).is.instanceOf(Mootable.SetIterable);
-            expect(linkedHashMap.values()).is.instanceOf(Mootable.SetIterable);
-        });
+        // it('should return an iterator on LinkedHashMap methods', function () {
+        //     expect(linkedHashMap.filter()).is.instanceOf(Mootable.MapIterable);
+        //     expect(linkedHashMap.mapKeys()).is.instanceOf(Mootable.MapIterable);
+        //     expect(linkedHashMap.mapValues()).is.instanceOf(Mootable.MapIterable);
+        //     expect(linkedHashMap.mapEntries()).is.instanceOf(Mootable.MapIterable);
+        //     expect(linkedHashMap.entries()).is.instanceOf(Mootable.MapIterable);
+        //     expect(linkedHashMap.concatMap()).is.instanceOf(Mootable.MapIterable);
+        //     expect(linkedHashMap.concat()).is.instanceOf(Mootable.MapIterable);
+        //
+        //     expect(linkedHashMap.concat([])).is.instanceOf(Mootable.SetIterable);
+        //     expect(linkedHashMap.map()).is.instanceOf(Mootable.SetIterable);
+        //     expect(linkedHashMap.keys()).is.instanceOf(Mootable.SetIterable);
+        //     expect(linkedHashMap.values()).is.instanceOf(Mootable.SetIterable);
+        // });
     });
 
     describe('linkedHashMap.has()', function () {
@@ -83,16 +83,16 @@ describe('linkedHashMap', function () {
         // TODO: Check other types?
     });
 
-    describe('linkedHashMap.indexOf()', function () {
-        it('should return undefined when it does not have an entry with a value', function () {
-            expect(linkedHashMap.indexOf('value')).to.be.undefined;
-        });
-
-        it('should return key under which a value is stored', function () {
-            linkedHashMap.set('key', 'value');
-            expect(linkedHashMap.indexOf('value')).to.equal('key');
-        });
-    });
+    // describe('linkedHashMap.indexOf()', function () {
+    //     it('should return undefined when it does not have an entry with a value', function () {
+    //         expect(linkedHashMap.indexOf('value')).to.be.undefined;
+    //     });
+    //
+    //     it('should return key under which a value is stored', function () {
+    //         linkedHashMap.set('key', 'value');
+    //         expect(linkedHashMap.indexOf('value')).to.equal('key');
+    //     });
+    // });
 
     describe('linkedHashMap.delete()', function () {
         it('should delete an entry by key', function () {

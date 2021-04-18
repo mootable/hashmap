@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>linkedhashmap/index.js - Documentation</title>
+    <title>hashmap/container.js - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -34,7 +34,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">linkedhashmap/index.js</h1>
+    <h1 class="page-title">hashmap/container.js</h1>
     
 
     
@@ -44,258 +44,192 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import {HashMap} from '../hashmap/';
-import {Container} from '../hashmap/container';
-import {equalsAndHash} from "../hash";
+            <pre class="prettyprint source linenums"><code>import {none, some} from '../option/';
 
 /**
- * HashMap - LinkedHashMap Implementation for JavaScript
- * @namespace Mootable
+ * HashMap - HashMap Container Implementation for JavaScript
+ * @namespace Mootable.HashMap
  * @author Jack Moxley &lt;https://github.com/jackmoxley>
  * @version 0.15.0
  * Homepage: https://github.com/mootable/hashmap
  */
-/**
- * This LinkedHashMap is is an extension of {@link HashMap} however LinkedHashMap also maintains insertion order of keys, and guarantees to iterate over them in that order.
- * @extends HashMap
- */
-export class LinkedHashMap extends HashMap {
-
-    /**
-     * This LinkedHashMap is is an extension of {@link HashMap} however LinkedHashMap also maintains insertion order of keys, and guarantees to iterate over them in that order.
-     * - `new LinkedHashMap()` creates an empty linked hashmap
-     * - `new LinkedHashMap(copy:Iterable)` creates a linked hashmap which is a copy of the provided iterable.
-     *   1) `copy` either
-     *      - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
-     *      - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
-     * @param {(Map|HashMap|LinkedHashMap|Iterable.&lt;Array.&lt;key,value>>)} [copy]
-     */
-    constructor(copy) {
-        super(copy);
-        if (this.size === 0) {
-            this.start = undefined;
-            this.end = undefined;
-        }
-    }
-
-    clear() {
-        this.start = undefined;
-        this.end = undefined;
-        return super.clear();
-    }
-
-    createContainer(parent, hash) {
-        return new LinkedContainer(this, parent, hash);
-    }
-
-    push(key, value, options) {
-        const op = equalsAndHash(key, options);
-        if (!(options &amp;&amp; options.allowOverwriting)) {
-            op.forceInsert = true;
-        }
-        this.buckets.set(key, value, op);
-        return this;
-    }
-
-    pushEmplace(key, handler, options) {
-        const op = equalsAndHash(key, options);
-        if (!(options &amp;&amp; options.allowOverwriting)) {
-            op.forceInsert = true;
-        }
-        return this.buckets.emplace(key, handler, op);
-    }
-
-    unshift(key, value, options) {
-        const op = equalsAndHash(key, options);
-        if (!(options &amp;&amp; options.allowOverwriting)) {
-            op.forceInsert = true;
-        }
-        op.addToStart = true;
-        this.buckets.set(key, value, op);
-        return this;
-    }
-
-    unshiftEmplace(key, handler, options) {
-        const op = equalsAndHash(key, options);
-        if (!(options &amp;&amp; options.allowOverwriting)) {
-            op.forceInsert = true;
-        }
-        op.addToStart = true;
-        return this.buckets.emplace(key, handler, op);
-    }
-
-    shift() {
-        const entry = this.start;
-        if (entry) {
-            entry.parent.deleteEntry(entry);
-            return entry.slice();
-        }
-        return undefined;
-    }
-
-    pop() {
-        const entry = this.end;
-        if (entry) {
-            entry.parent.deleteEntry(entry);
-            return entry.slice();
-        }
-        return undefined;
-    }
-
-    /**
-     * Makes a copy of this LinkedHashMap
-     * @return {LinkedHashMap}
-     */
-    clone() {
-        return new LinkedHashMap(this);
-    }
-
-    /**
-     * Iterates over all the entries in the map.
-     *
-     * @return {Generator&lt;any, void, any>}
-     */
-    * [Symbol.iterator]() {
-        yield* this.entries();
-    }
-
-    * entries() {
-        let entry = this.start;
-        while (entry) {
-            yield entry.slice();
-            entry = entry.next;
-        }
-    }
-
-    * entriesRight() {
-        let entry = this.end;
-        while (entry) {
-            yield entry.slice();
-            entry = entry.previous;
-        }
-    }
-
-    /**
-     * Iterates over all the keys in the map.
-     *
-     * @return {Generator&lt;any, void, any>}
-     */
-    * keys() {
-        let entry = this.start;
-        while (entry) {
-            yield entry[0];
-            entry = entry.next;
-        }
-    }
-
-    /**
-     * Iterates over all the values in the map.
-     *
-     * @return {Generator&lt;any, void, any>}
-     */
-    * values() {
-        let entry = this.start;
-        while (entry) {
-            yield entry[1];
-            entry = entry.next;
-        }
-    }
-
-    /**
-     * Iterates over all the keys in the map in reverse.
-     * @return {Generator&lt;any, void, any>}
-     */
-    * keysRight() {
-        let entry = this.end;
-        while (entry) {
-            yield entry[0];
-            entry = entry.previous;
-        }
-    }
-
-    /**
-     * Iterates over all the values in the map in reverse.
-     * @return {Generator&lt;any, void, any>}
-     */
-    * valuesRight() {
-        let entry = this.end;
-        while (entry) {
-            yield entry[1];
-            entry = entry.previous;
-        }
-    }
-}
-
 
 /**
- * Holds multiple entries, but shrinks to a single container if reduced to a size of one.
+ * Using an array this container stores key value pairs for our map.
+ * This collection of entries is a leaf node of our Hash Array Trie.
+ * As such all entries in the container will have the same hash. In most cases this will be single entry.
+ * @private
  */
-export class LinkedContainer extends Container {
+export class Container {
 
+    /**
+     * Constructs an empty container.
+     *
+     * @param [HashMap] map - the map this container belongs too.
+     * @param hash - the hash code for the keys in this container.
+     */
     constructor(map, parent, hash) {
-        super(map, parent, hash);
+        this.size = 0;
+        this.contents = [];
+        this.map = map;
+        this.parent = parent;
+        this.hash = hash;
+    }
+
+    /**
+     * Does the provided hash conflict with this one, i.e. is it different.
+     * This is used for ensuring only the correct keys are added.
+     *
+     * @param hash
+     * @return {boolean}
+     */
+    hashConflicts(hash) {
+        return hash !== this.hash;
+    }
+
+    /**
+     * Used to fetch the key and value.
+     *
+     * @param {*} key the key we use to retrieve the value.
+     * @param options must contain the equals function for this key.
+     * @return {*|undefined} the value for the key, or undefined if none available.
+     */
+    get(key, options) {
+        if (this.size !== 0) {
+            const equals = options.equals;
+            for (const entry of this.contents) {
+                if (entry &amp;&amp; equals(key, entry[0])) {
+                    return entry[1];
+                }
+            }
+        }
+        return undefined;
+    }
+
+    optionalGet(key, options) {
+        if (this.size !== 0) {
+            const equals = options.equals;
+            const entry = this.contents.find(entry => equals(key, entry[0]));
+            if (entry) {
+                return some(entry[1]);
+            }
+        }
+        return none;
+    }
+
+    set(key, value, options) {
+        const equals = options.equals;
+        for (const entry of this.contents) {
+            if (equals(key, entry[0])) {
+                this.updateEntry(entry, value, options);
+                return;
+            }
+        }
+        this.createEntry(key, value, options);
+    }
+
+    emplace(key, handler, options) {
+        const equals = options.equals;
+        for (const entry of this.contents) {
+            if (equals(key, entry[0])) {
+                const value = 'update' in handler ? handler.update(entry[1], key, this.map)
+                    : handler.insert(key, this.map);
+                this.updateEntry(entry, value, options);
+                return value;
+            }
+        }
+        const value = handler.insert(key, this.map);
+        this.createEntry(key, value, options);
+        return value;
     }
 
     createEntry(key, value, options) {
-        const entry = super.createEntry(key, value, options);
-        const map = this.map;
-        if (options.addToStart &amp;&amp; map.start) {
-            map.start.previous = entry;
-            entry.next = map.start;
-            map.start = entry;
-        } else if (map.end) {
-            map.end.next = entry;
-            entry.previous = map.end;
-            map.end = entry;
-        } else {
-            map.end = map.start = entry;
-        }
+        const entry = [key, value];
+        entry.parent = this;
+        this.contents.push(entry);
+        this.size += 1;
         return entry;
     }
 
     updateEntry(entry, newValue, options) {
-        super.updateEntry(entry, newValue, options);
-        if (options.forceInsert) {
-            if (options.addToStart) {
-                if (entry !== this.map.start) {
-                    if (entry.next) {
-                        entry.next.previous = entry.previous;
-                    }
-                    if (entry.previous) {
-                        entry.previous.next = entry.next;
-                        entry.previous = undefined;
-                    }
-                    this.map.start.previous = entry;
-                    entry.next = this.map.start;
-                    this.map.start = entry;
-                }
-            } else if (entry !== this.map.end) {
-                    if (entry.previous) {
-                        entry.previous.next = entry.next;
-                    }
-                    if (entry.next) {
-                        entry.next.previous = entry.previous;
-                        entry.next = undefined;
-                    }
-                    this.map.end.next = entry;
-                    entry.previous = this.map.end;
-                    this.map.end = entry;
-                }
+        entry[1] = newValue;
+    }
+
+    deleteEntry(entry) {
+        const idx = this.contents.indexOf(entry);
+        if (idx !== -1) {
+            this.deleteIndex(idx);
+            let parent = this.parent;
+            while (parent) {
+                parent.size -= 1;
+                parent = this.parent;
+            }
         }
     }
 
     deleteIndex(idx) {
-        const oldEntry = super.deleteIndex(idx);
-        const map = this.map;
-        if (oldEntry.previous) {
-            oldEntry.previous.next = oldEntry.next;
+        this.size -= 1;
+        if (idx === 0) {
+            return this.contents.shift();
+        } else if (idx === this.size) {
+            return this.contents.pop();
         } else {
-            map.start = oldEntry.next;
+            return this.contents.splice(idx, 1)[0];
         }
-        if (oldEntry.next) {
-            oldEntry.next.previous = oldEntry.previous;
-        } else {
-            map.end = oldEntry.previous;
+    }
+
+    has(key, options) {
+        if (this.size !== 0) {
+            const equals = options.equals;
+            return this.contents.some(entry => equals(key, entry[0]));
+        }
+        return false;
+    }
+
+    delete(key, options) {
+        const equals = options.equals;
+        const idx = this.contents.findIndex(entry => equals(key, entry[0]));
+
+        if (idx === -1) {
+            return false;
+        }
+        this.deleteIndex(idx);
+        return true;
+    }
+
+    * [Symbol.iterator]() {
+        for (const entry of this.contents) {
+            yield entry.slice();
+        }
+    }
+
+    * entriesRight() {
+        for (let idx = this.contents.length - 1; idx >= 0; idx--) {
+            yield this.contents[idx].slice();
+        }
+    }
+
+    * keys() {
+        for (const entry of this.contents) {
+            yield entry[0];
+        }
+    }
+
+    * values() {
+        for (const entry of this.contents) {
+            yield entry[1];
+        }
+    }
+
+    * keysRight() {
+        for (let idx = this.contents.length - 1; idx >= 0; idx--) {
+            yield this.contents[idx][0];
+        }
+    }
+
+    * valuesRight() {
+        for (let idx = this.contents.length - 1; idx >= 0; idx--) {
+            yield this.contents[idx][1];
         }
     }
 }</code></pre>

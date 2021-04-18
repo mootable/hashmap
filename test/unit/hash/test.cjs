@@ -419,6 +419,14 @@ describe('Hash Functions', function () {
             expect(equalsAndHash.hash).to.be.equal(hash);
             expect(equalsAndHash.equals).to.be.equal(equals);
         });
+        it('Basic the key, equals and hash as a function', function () {
+            const key = 4;
+            const hash = () => 25;
+            const equals = (key1,key2) => key1 === key2;
+            const equalsAndHash = Hash.equalsAndHash(key, {equals, hash});
+            expect(equalsAndHash.hash).to.be.equal(25);
+            expect(equalsAndHash.equals).to.be.equal(equals);
+        });
 
         it('undefined', function () {
             expect(Hash.equalsAndHash(undefined)).to.be.deep.equal({hash:0,equals:strictEquals});

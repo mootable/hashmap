@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>linkedhashmap/index.js - Documentation</title>
+    <title>hashmap/hashbuckets.js - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -34,7 +34,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">linkedhashmap/index.js</h1>
+    <h1 class="page-title">hashmap/hashbuckets.js</h1>
     
 
     
@@ -44,261 +44,368 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import {HashMap} from '../hashmap/';
-import {Container} from '../hashmap/container';
-import {equalsAndHash} from "../hash";
+            <pre class="prettyprint source linenums"><code>import {none} from '../option/';
+
+const SHIFT = 7;
+const WIDTH = 1 &lt;&lt; SHIFT;
+const MASK = WIDTH - 1;
+const DEPTH = 5;
+
+const SHIFT_HAMT = 5;
+const WIDTH_HAMT = 1 &lt;&lt; SHIFT_HAMT;
+const MASK_HAMT = WIDTH_HAMT - 1;
+const DEPTH_HAMT = DEPTH - 1;
 
 /**
- * HashMap - LinkedHashMap Implementation for JavaScript
- * @namespace Mootable
- * @author Jack Moxley &lt;https://github.com/jackmoxley>
- * @version 0.15.0
- * Homepage: https://github.com/mootable/hashmap
+ * @private
  */
-/**
- * This LinkedHashMap is is an extension of {@link HashMap} however LinkedHashMap also maintains insertion order of keys, and guarantees to iterate over them in that order.
- * @extends HashMap
- */
-export class LinkedHashMap extends HashMap {
-
-    /**
-     * This LinkedHashMap is is an extension of {@link HashMap} however LinkedHashMap also maintains insertion order of keys, and guarantees to iterate over them in that order.
-     * - `new LinkedHashMap()` creates an empty linked hashmap
-     * - `new LinkedHashMap(copy:Iterable)` creates a linked hashmap which is a copy of the provided iterable.
-     *   1) `copy` either
-     *      - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
-     *      - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
-     * @param {(Map|HashMap|LinkedHashMap|Iterable.&lt;Array.&lt;key,value>>)} [copy]
-     */
-    constructor(copy) {
-        super(copy);
-        if (this.size === 0) {
-            this.start = undefined;
-            this.end = undefined;
-        }
+export class HashBuckets {
+    constructor(map) {
+        this.map = map;
+        this.buckets = [];
+        this.size = 0;
     }
 
     clear() {
-        this.start = undefined;
-        this.end = undefined;
-        return super.clear();
+        this.buckets = [];
+        this.size = 0;
     }
 
-    createContainer(parent, hash) {
-        return new LinkedContainer(this, parent, hash);
-    }
-
-    push(key, value, options) {
-        const op = equalsAndHash(key, options);
-        if (!(options &amp;&amp; options.allowOverwriting)) {
-            op.forceInsert = true;
-        }
-        this.buckets.set(key, value, op);
-        return this;
-    }
-
-    pushEmplace(key, handler, options) {
-        const op = equalsAndHash(key, options);
-        if (!(options &amp;&amp; options.allowOverwriting)) {
-            op.forceInsert = true;
-        }
-        return this.buckets.emplace(key, handler, op);
-    }
-
-    unshift(key, value, options) {
-        const op = equalsAndHash(key, options);
-        if (!(options &amp;&amp; options.allowOverwriting)) {
-            op.forceInsert = true;
-        }
-        op.addToStart = true;
-        this.buckets.set(key, value, op);
-        return this;
-    }
-
-    unshiftEmplace(key, handler, options) {
-        const op = equalsAndHash(key, options);
-        if (!(options &amp;&amp; options.allowOverwriting)) {
-            op.forceInsert = true;
-        }
-        op.addToStart = true;
-        return this.buckets.emplace(key, handler, op);
-    }
-
-    shift() {
-        const entry = this.start;
-        if (entry) {
-            entry.parent.deleteEntry(entry);
-            return entry.slice();
+    bucketFor(hash) {
+        const idx = hash &amp; MASK;
+        if (idx &lt; this.buckets.length) {
+            return this.buckets[idx];
         }
         return undefined;
     }
 
-    pop() {
-        const entry = this.end;
-        if (entry) {
-            entry.parent.deleteEntry(entry);
-            return entry.slice();
+    set(key, value, options) {
+        const hash = options.hash;
+        const idx = hash &amp; MASK;
+        let bucket = this.buckets[idx];
+        if (!bucket) {
+            bucket = this.map.createContainer(this, hash);
+            bucket.createEntry(key, value,options);
+            this.buckets[idx] = bucket;
+            this.size += 1;
+            return;
+        } else if (bucket.hashConflicts(hash)) {
+            bucket = new HamtBuckets(this.map, this, DEPTH_HAMT, SHIFT).replacing(bucket);
+            this.buckets[idx] = bucket;
+        }
+        this.size -= bucket.size;
+        bucket.set(key, value, options);
+        this.size += bucket.size;
+    }
+
+    emplace(key, handler, options) {
+        const hash = options.hash;
+        const idx = hash &amp; MASK;
+        let bucket = this.buckets[idx];
+        if (!bucket) {
+            bucket = this.map.createContainer(this, hash);
+            this.buckets[idx] = bucket;
+        } else if (bucket.hashConflicts(hash)) {
+            bucket = new HamtBuckets(this.map, this, DEPTH_HAMT, SHIFT).replacing(bucket);
+            this.buckets[idx] = bucket;
+        }
+        this.size -= bucket.size;
+        const value = bucket.emplace(key, handler, options);
+        this.size += bucket.size;
+        return value;
+    }
+
+    delete(key, options) {
+        const hash = options.hash;
+        const idx = hash &amp; MASK;
+        const bucket = this.buckets[idx];
+        if (bucket) {
+            const deleted = bucket.delete(key, options);
+            if (deleted) {
+                this.size -= 1;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    get(key, options) {
+        const hash = options.hash;
+        const bucket = this.bucketFor(hash);
+        if (bucket) {
+            return bucket.get(key, options);
         }
         return undefined;
     }
 
-    /**
-     * Makes a copy of this LinkedHashMap
-     * @return {LinkedHashMap}
-     */
-    clone() {
-        return new LinkedHashMap(this);
+    optionalGet(key, options) {
+        const hash = options.hash;
+        const bucket = this.bucketFor(hash);
+        if (bucket) {
+            return bucket.optionalGet(key, options);
+        }
+        return none;
     }
 
-    /**
-     * Iterates over all the entries in the map.
-     *
-     * @return {Generator&lt;any, void, any>}
-     */
+    has(key, options) {
+        const hash = options.hash;
+        const bucket = this.bucketFor(hash);
+        if (bucket) {
+            return bucket.has(key, options);
+        }
+        return false;
+    }
+
     * [Symbol.iterator]() {
-        yield* this.entries();
-    }
-
-    * entries() {
-        let entry = this.start;
-        while (entry) {
-            yield entry.slice();
-            entry = entry.next;
+        for (const bucket of this.buckets) {
+            if (bucket) {
+                yield* bucket;
+            }
         }
     }
 
     * entriesRight() {
-        let entry = this.end;
-        while (entry) {
-            yield entry.slice();
-            entry = entry.previous;
+        for (let idx = this.buckets.length - 1; idx >= 0; idx--) {
+            const bucket = this.buckets[idx];
+            if (bucket) {
+                yield* bucket.entriesRight();
+            }
         }
     }
 
-    /**
-     * Iterates over all the keys in the map.
-     *
-     * @return {Generator&lt;any, void, any>}
-     */
     * keys() {
-        let entry = this.start;
-        while (entry) {
-            yield entry[0];
-            entry = entry.next;
+        for (const bucket of this.buckets) {
+            if (bucket) {
+                yield* bucket.keys();
+            }
         }
     }
 
-    /**
-     * Iterates over all the values in the map.
-     *
-     * @return {Generator&lt;any, void, any>}
-     */
     * values() {
-        let entry = this.start;
-        while (entry) {
-            yield entry[1];
-            entry = entry.next;
+        for (const bucket of this.buckets) {
+            if (bucket) {
+                yield* bucket.values();
+            }
         }
     }
 
-    /**
-     * Iterates over all the keys in the map in reverse.
-     * @return {Generator&lt;any, void, any>}
-     */
     * keysRight() {
-        let entry = this.end;
-        while (entry) {
-            yield entry[0];
-            entry = entry.previous;
+        for (let idx = this.buckets.length - 1; idx >= 0; idx--) {
+            const bucket = this.buckets[idx];
+            if (bucket) {
+                yield* bucket.keysRight();
+            }
         }
     }
 
-    /**
-     * Iterates over all the values in the map in reverse.
-     * @return {Generator&lt;any, void, any>}
-     */
     * valuesRight() {
-        let entry = this.end;
-        while (entry) {
-            yield entry[1];
-            entry = entry.previous;
+        for (let idx = this.buckets.length - 1; idx >= 0; idx--) {
+            const bucket = this.buckets[idx];
+            if (bucket) {
+                yield* bucket.valuesRight();
+            }
         }
     }
 }
 
+/**
+ * @private
+ */
+export class HamtBuckets {
+    constructor(map, parent, depth, shift) {
+        this.map = map;
+        this.parent = parent;
+        this.buckets = [];
+        this.size = 0;
+        this.idxFlags = 0;
+        this.depth = depth;
+        this.shift = shift;
+    }
+
+    hashConflicts() {
+        return false;
+    }
+
+    clear() {
+        this.size = 0;
+        this.buckets = [];
+        this.idxFlags = 0;
+    }
+
+    bucketFor(hash) {
+        const idxFlags = this.idxFlags;
+        const hashIdx = (hash >>> this.shift) &amp; MASK_HAMT;
+        const flag = 1 &lt;&lt; hashIdx;
+        const idx = hammingWeight(idxFlags &amp; (flag - 1));
+
+        if (idxFlags &amp; flag) {
+            return this.buckets[idx];
+        }
+        return undefined;
+    }
+
+    replacing(oldBucket) {
+        const new_flag = 1 &lt;&lt; ((oldBucket.hash >>> this.shift) &amp; MASK_HAMT);
+        this.idxFlags |= new_flag;
+        // shift the old bucket up a level. no need to splice its always going to be the first item.
+        this.buckets[0] = oldBucket;
+        this.size = oldBucket.size;
+        oldBucket.parent = this;
+        return this;
+    }
+
+    set(key, value, options) {
+        const hash = options.hash;
+        const idxFlags = this.idxFlags;
+        const hashIdx = (hash >>> this.shift) &amp; MASK_HAMT;
+        const flag = 1 &lt;&lt; hashIdx;
+        const idx = hammingWeight(idxFlags &amp; (flag - 1));
+        let bucket;
+        if (idxFlags &amp; flag) {
+            bucket = this.buckets[idx];
+            if (this.depth &amp;&amp; bucket.hashConflicts(hash)) {
+                bucket = new HamtBuckets(this.map, this, this.depth - 1, this.shift + SHIFT_HAMT)
+                    .replacing(bucket);
+                this.buckets[idx] = bucket;
+            }
+            this.size -= bucket.size;
+            bucket.set(key, value, options);
+            this.size += bucket.size;
+        } else {
+            bucket = this.map.createContainer(this, hash);
+            bucket.createEntry(key, value,options);
+            this.buckets.splice(idx, 0, bucket);
+            this.idxFlags |= flag;
+            this.size += 1;
+        }
+    }
+
+    emplace(key, handler, options) {
+        const hash = options.hash;
+        const idxFlags = this.idxFlags;
+        const hashIdx = (hash >>> this.shift) &amp; MASK_HAMT;
+        const flag = 1 &lt;&lt; hashIdx;
+        const idx = hammingWeight(idxFlags &amp; (flag - 1));
+        let bucket;
+        if (idxFlags &amp; flag) {
+            bucket = this.buckets[idx];
+            if (this.depth &amp;&amp; bucket.hashConflicts(hash)) {
+                bucket = new HamtBuckets(this.map, this, this.depth - 1, this.shift + SHIFT_HAMT)
+                    .replacing(bucket);
+                this.buckets[idx] = bucket;
+            }
+        } else {
+            bucket = this.map.createContainer(this, hash);
+            this.buckets.splice(idx, 0, bucket);
+            this.idxFlags |= flag;
+        }
+        this.size -= bucket.size;
+        const value = bucket.emplace(key, handler, options);
+        this.size += bucket.size;
+        return value;
+    }
+
+    delete(key, options) {
+        const hash = options.hash;
+        const idxFlags = this.idxFlags;
+        const hashIdx = (hash >>> this.shift) &amp; MASK_HAMT;
+        const flag = 1 &lt;&lt; hashIdx;
+        if (idxFlags &amp; flag) {
+            const idx = hammingWeight(idxFlags &amp; (flag - 1));
+            const bucket = this.buckets[idx];
+            const deleted = bucket.delete(key, options);
+            if (deleted) {
+                this.size -= 1;
+                if (bucket.size === 0) {
+                    if (idx === 0) {
+                        this.buckets.shift();
+                    } else if (this.buckets.length === idx+1) {
+                        this.buckets.pop();
+                    } else {
+                        this.buckets.splice(idx, 1);
+                    }
+                    this.idxFlags ^= flag;
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    get(key, options) {
+        const hash = options.hash;
+        const bucket = this.bucketFor(hash);
+        if (bucket) {
+            return bucket.get(key, options);
+        }
+        return undefined;
+    }
+
+    optionalGet(key, options) {
+        const hash = options.hash;
+        const bucket = this.bucketFor(hash);
+        if (bucket) {
+            return bucket.optionalGet(key, options);
+        }
+        return none;
+    }
+
+    has(key, options) {
+        const hash = options.hash;
+        const bucket = this.bucketFor(hash);
+        if (bucket) {
+            return bucket.has(key, options);
+        }
+        return false;
+    }
+
+    * [Symbol.iterator]() {
+        for (const bucket of this.buckets) {
+            yield* bucket;
+        }
+    }
+
+    * entriesRight() {
+        for (let idx = this.buckets.length - 1; idx >= 0; idx--) {
+            yield* this.buckets[idx].entriesRight();
+        }
+    }
+
+    * keys() {
+        for (const bucket of this.buckets) {
+            yield* bucket.keys();
+        }
+    }
+
+    * values() {
+        for (const bucket of this.buckets) {
+            yield* bucket.values();
+        }
+    }
+    * keysRight() {
+        for (let idx = this.buckets.length - 1; idx >= 0; idx--) {
+            yield* this.buckets[idx].keysRight();
+        }
+    }
+
+    * valuesRight() {
+        for (let idx = this.buckets.length - 1; idx >= 0; idx--) {
+            yield* this.buckets[idx].valuesRight();
+        }
+    }
+}
 
 /**
- * Holds multiple entries, but shrinks to a single container if reduced to a size of one.
+ * Counts the number of ones in a 32 bit integer.
+ *
+ * @param {number} flags 32 bit integet
+ * @return {number} amount of ones.
  */
-export class LinkedContainer extends Container {
-
-    constructor(map, parent, hash) {
-        super(map, parent, hash);
-    }
-
-    createEntry(key, value, options) {
-        const entry = super.createEntry(key, value, options);
-        const map = this.map;
-        if (options.addToStart &amp;&amp; map.start) {
-            map.start.previous = entry;
-            entry.next = map.start;
-            map.start = entry;
-        } else if (map.end) {
-            map.end.next = entry;
-            entry.previous = map.end;
-            map.end = entry;
-        } else {
-            map.end = map.start = entry;
-        }
-        return entry;
-    }
-
-    updateEntry(entry, newValue, options) {
-        super.updateEntry(entry, newValue, options);
-        if (options.forceInsert) {
-            if (options.addToStart) {
-                if (entry !== this.map.start) {
-                    if (entry.next) {
-                        entry.next.previous = entry.previous;
-                    }
-                    if (entry.previous) {
-                        entry.previous.next = entry.next;
-                        entry.previous = undefined;
-                    }
-                    this.map.start.previous = entry;
-                    entry.next = this.map.start;
-                    this.map.start = entry;
-                }
-            } else if (entry !== this.map.end) {
-                    if (entry.previous) {
-                        entry.previous.next = entry.next;
-                    }
-                    if (entry.next) {
-                        entry.next.previous = entry.previous;
-                        entry.next = undefined;
-                    }
-                    this.map.end.next = entry;
-                    entry.previous = this.map.end;
-                    this.map.end = entry;
-                }
-        }
-    }
-
-    deleteIndex(idx) {
-        const oldEntry = super.deleteIndex(idx);
-        const map = this.map;
-        if (oldEntry.previous) {
-            oldEntry.previous.next = oldEntry.next;
-        } else {
-            map.start = oldEntry.next;
-        }
-        if (oldEntry.next) {
-            oldEntry.next.previous = oldEntry.previous;
-        } else {
-            map.end = oldEntry.previous;
-        }
-    }
-}</code></pre>
+export const hammingWeight = (flags) => {
+    flags -= ((flags >> 1) &amp; 0x55555555);
+    flags = (flags &amp; 0x33333333) + ((flags >> 2) &amp; 0x33333333);
+    return ((flags + (flags >> 4) &amp; 0xF0F0F0F) * 0x1010101) >> 24;
+};</code></pre>
         </article>
     </section>
 

@@ -222,17 +222,23 @@ export function equalsFor(key) {
  * @param {*} key - the key to get the hash code from
  * @return {{hash: number, equals: function}} - the hash code and equals function.
  */
-export function equalsAndHash(key, toSetOn = {}) {
-    if(toSetOn.hash){
-        if(toSetOn.equals) {
-            return toSetOn;
+export function equalsAndHash(key, options) {
+    if(options) {
+        let hash = options.hash;
+        let equals = options.equals;
+        if(isFunction(hash)){
+            hash = hash(key);
         }
-        toSetOn.equals = equalsFor(key);
-        return toSetOn;
-    } else if(toSetOn.equals){
-        toSetOn.hash = hashCodeFor(key);
-        return toSetOn;
+        if(!Number.isSafeInteger(hash)){
+            hash = hashCodeFor(key);
+        }
+        if(!isFunction(equals)) {
+            equals = equalsFor(key);
+        }
+        return {hash,equals};
     }
+
+    const toSetOn = {};
     const keyType = typeof key;
     switch (keyType) {
         case 'undefined':
