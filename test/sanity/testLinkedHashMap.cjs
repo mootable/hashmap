@@ -83,16 +83,16 @@ describe('linkedHashMap', function () {
         // TODO: Check other types?
     });
 
-    // describe('linkedHashMap.indexOf()', function () {
-    //     it('should return undefined when it does not have an entry with a value', function () {
-    //         expect(linkedHashMap.indexOf('value')).to.be.undefined;
-    //     });
-    //
-    //     it('should return key under which a value is stored', function () {
-    //         linkedHashMap.set('key', 'value');
-    //         expect(linkedHashMap.indexOf('value')).to.equal('key');
-    //     });
-    // });
+    describe('linkedHashMap.keyOf()', function () {
+        it('should return undefined when it does not have an entry with a value', function () {
+            expect(linkedHashMap.keyOf('value')).to.be.undefined;
+        });
+
+        it('should return key under which a value is stored', function () {
+            linkedHashMap.set('key', 'value');
+            expect(linkedHashMap.keyOf('value')).to.equal('key');
+        });
+    });
 
     describe('linkedHashMap.delete()', function () {
         it('should delete an entry by key', function () {

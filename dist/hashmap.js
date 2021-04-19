@@ -5405,6 +5405,70 @@
         return this.buckets.get(key, op);
       }
       /**
+       * Potentially Slow!
+       * @param value
+       * @param {HashMap.methodOptions} [options] - a set of optional options to allow a user to define the equals method, rather than them being looked up
+       * @return {*}
+       */
+
+    }, {
+      key: "keyOf",
+      value: function keyOf(value, options) {
+        var equals = options && isFunction(options.equals) ? options.equals : equalsFor(value);
+        var iterator = options && options.reverse ? this.entriesRight() : this.entries();
+
+        var _iterator = _createForOfIteratorHelper(iterator),
+            _step;
+
+        try {
+          for (_iterator.s(); !(_step = _iterator.n()).done;) {
+            var entry = _step.value;
+
+            if (equals(value, entry[1])) {
+              return entry[0];
+            }
+          }
+        } catch (err) {
+          _iterator.e(err);
+        } finally {
+          _iterator.f();
+        }
+
+        return undefined;
+      }
+      /**
+       * Slow!
+       * @param value
+       * @param {HashMap.methodOptions} [options] - a set of optional options to allow a user to define the equals method, rather than them being looked up
+       * @return {Option}
+       */
+
+    }, {
+      key: "optionalKeyOf",
+      value: function optionalKeyOf(value, options) {
+        var equals = options && isFunction(options.equals) ? options.equals : equalsFor(value);
+        var iterator = options && options.reverse ? this.entriesRight() : this.entries();
+
+        var _iterator2 = _createForOfIteratorHelper(iterator),
+            _step2;
+
+        try {
+          for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+            var entry = _step2.value;
+
+            if (equals(value, entry[1])) {
+              return _some(entry[0]);
+            }
+          }
+        } catch (err) {
+          _iterator2.e(err);
+        } finally {
+          _iterator2.f();
+        }
+
+        return none;
+      }
+      /**
        * Get an optional value from the map. This is effectively a more efficent combination of calling has and get at the same time.
        * - return the first <code>some(value)</code> from the <code>[key,value]</code> pair that matches
        * - if no elements match, it returns <code>none()</code>.
@@ -5481,40 +5545,40 @@
         var map = this;
 
         if (isIterable(other)) {
-          var _iterator = _createForOfIteratorHelper(other),
-              _step;
+          var _iterator3 = _createForOfIteratorHelper(other),
+              _step3;
 
           try {
-            for (_iterator.s(); !(_step = _iterator.n()).done;) {
-              var _step$value = _slicedToArray(_step.value, 2),
-                  key = _step$value[0],
-                  value = _step$value[1];
+            for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+              var _step3$value = _slicedToArray(_step3.value, 2),
+                  key = _step3$value[0],
+                  value = _step3$value[1];
 
               map.set(key, value);
             }
           } catch (err) {
-            _iterator.e(err);
+            _iterator3.e(err);
           } finally {
-            _iterator.f();
+            _iterator3.f();
           }
 
           return this;
         } else if (isFunction(other.entries)) {
-          var _iterator2 = _createForOfIteratorHelper(other.entries()),
-              _step2;
+          var _iterator4 = _createForOfIteratorHelper(other.entries()),
+              _step4;
 
           try {
-            for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-              var _step2$value = _slicedToArray(_step2.value, 2),
-                  _key = _step2$value[0],
-                  _value = _step2$value[1];
+            for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+              var _step4$value = _slicedToArray(_step4.value, 2),
+                  _key = _step4$value[0],
+                  _value = _step4$value[1];
 
               map.set(_key, _value);
             }
           } catch (err) {
-            _iterator2.e(err);
+            _iterator4.e(err);
           } finally {
-            _iterator2.f();
+            _iterator4.f();
           }
 
           return this;
@@ -5594,18 +5658,18 @@
       value: function forEach(callback) {
         var thisArg = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this;
 
-        var _iterator3 = _createForOfIteratorHelper(this.entries()),
-            _step3;
+        var _iterator5 = _createForOfIteratorHelper(this.entries()),
+            _step5;
 
         try {
-          for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
-            var entry = _step3.value;
+          for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
+            var entry = _step5.value;
             callback.call(thisArg, entry[1], entry[0], this);
           }
         } catch (err) {
-          _iterator3.e(err);
+          _iterator5.e(err);
         } finally {
-          _iterator3.f();
+          _iterator5.f();
         }
 
         return this;
@@ -5631,18 +5695,18 @@
       value: function forEachRight(callback) {
         var thisArg = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this;
 
-        var _iterator4 = _createForOfIteratorHelper(this.entriesRight()),
-            _step4;
+        var _iterator6 = _createForOfIteratorHelper(this.entriesRight()),
+            _step6;
 
         try {
-          for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
-            var entry = _step4.value;
+          for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
+            var entry = _step6.value;
             callback.call(thisArg, entry[1], entry[0], this);
           }
         } catch (err) {
-          _iterator4.e(err);
+          _iterator6.e(err);
         } finally {
-          _iterator4.f();
+          _iterator6.f();
         }
 
         return this;

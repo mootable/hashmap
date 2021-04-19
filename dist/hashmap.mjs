@@ -1217,6 +1217,40 @@ class HashMap {
     }
 
     /**
+     * Potentially Slow!
+     * @param value
+     * @param {HashMap.methodOptions} [options] - a set of optional options to allow a user to define the equals method, rather than them being looked up
+     * @return {*}
+     */
+    keyOf(value, options) {
+        const equals = options && isFunction(options.equals) ? options.equals : equalsFor(value);
+        const iterator = options && options.reverse ? this.entriesRight() : this.entries();
+        for (const entry of iterator) {
+            if(equals(value, entry[1])){
+                return entry[0];
+            }
+        }
+        return undefined;
+    }
+
+    /**
+     * Slow!
+     * @param value
+     * @param {HashMap.methodOptions} [options] - a set of optional options to allow a user to define the equals method, rather than them being looked up
+     * @return {Option}
+     */
+    optionalKeyOf(value, options) {
+        const equals = options && isFunction(options.equals) ? options.equals : equalsFor(value);
+        const iterator = options && options.reverse ? this.entriesRight() : this.entries();
+        for (const entry of iterator) {
+            if(equals(value, entry[1])){
+                return some(entry[0]);
+            }
+        }
+        return none;
+    }
+
+    /**
      * Get an optional value from the map. This is effectively a more efficent combination of calling has and get at the same time.
      * - return the first <code>some(value)</code> from the <code>[key,value]</code> pair that matches
      * - if no elements match, it returns <code>none()</code>.

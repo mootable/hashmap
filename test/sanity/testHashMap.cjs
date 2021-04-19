@@ -80,16 +80,16 @@ describe('hashmap', function () {
         // TODO: Check other types?
     });
 
-    // describe('hashmap.indexOf()', function () {
-    //     it('should return undefined when it does not have an entry with a value', function () {
-    //         expect(hashmap.indexOf('value')).to.be.undefined;
-    //     });
-    //
-    //     it('should return key under which a value is stored', function () {
-    //         hashmap.set('key', 'value');
-    //         expect(hashmap.indexOf('value')).to.equal('key');
-    //     });
-    // });
+    describe('hashmap.keyOf()', function () {
+        it('should return undefined when it does not have an entry with a value', function () {
+            expect(hashmap.keyOf('value')).to.be.undefined;
+        });
+
+        it('should return key under which a value is stored', function () {
+            hashmap.set('key', 'value');
+            expect(hashmap.keyOf('value')).to.equal('key');
+        });
+    });
 
     describe('hashmap.delete()', function () {
         it('should delete an entry by key', function () {

@@ -1,4 +1,49 @@
 # Changelog
+## Current
+- Breaking Changes
+- Functionality
+  - HashMap & LinkedHashMap
+    - Iterators
+      - Added **entries()** iterator
+      - Added **entriesRight()** reverse of **entries()** iterator
+      - Added **keys()** iterator
+      - Added **keysRight()** reverse of **keys()** iterator
+      - Added **values()** iterator
+      - Added **valuesRight()** reverse of **values()** iterator
+    - Emplace
+      - added **emplace()** method as per the proposed map spec
+    - Get
+      - added **keyOf()** which retrieves the key for a provided value.
+      - added **optionalKeyOf()** which retrieves the key for a provided value, and wraps it in an option.
+    - Parameters
+      - length and size are now both derived.
+  - LinkedHashMap only
+    - Set
+      - Added **setLeft()** to add to the head of the map, overwrites don't move
+      - Added **push()** to add to the tail of the map, forces a move on overwrite, to the tail.
+      - Added **unshift()** to add to the head of the map, forces a move on overwrite, to the head.
+    - Emplace
+      - Added **emplaceLeft()** to add to the head of the map, overwrites don't move
+      - Added **pushEmplace()** to add to the tail of the map, forces a move on overwrite, to the tail.
+      - Added **unshiftEmplace()** to add to the head of the map, forces a move on overwrite, to the head.
+    - Get
+      - added **tail()** which retrieves the value at the end of the map.
+      - added **head()** which retrieves the value at the start of the map.
+      - added **tailKey()** which retrieves the key at the end of the map.
+      - added **headKey()** which retrieves the key at the start of the map.
+      - added **optionalTail()** which retrieves the value at the end of the map. and wraps it in an Option
+      - added **optionalHead()** which retrieves the value at the start of the map. and wraps it in an Option
+      - added **optionalTailKey()** which retrieves the key at the end of the map. and wraps it in an Option
+      - added **optionalHeadKey()** which retrieves the key at the start of the map. and wraps it in an Option
+    - Delete
+      - added **shift()** to remove the first element on the map. This is a very fast method.
+      - added **pop()** to remove the last element on the map. This is a very fast method.
+    - Reverse
+      - Added **reverse()** method, this modifies the map, and reverses the order of its elements.
+  
+- Testing
+  - 100% Code Coverage on HashMaps and LinkedHashMaps
+  - Some minor defects fixed as part of the process, these will improve performance.
 ## 0.15.0
 - Functionality
   - Breaking changes

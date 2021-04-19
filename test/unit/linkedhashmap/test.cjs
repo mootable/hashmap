@@ -430,6 +430,44 @@ describe('LinkedHashMap Class', function () {
             expect(ret).to.equal('key2');
         });
     });
+    context('optionalGet()', function () {
+        it('optionalGet() with key ', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key', 'value')
+            expect(linkedHashmap.size).to.equal(1);
+            // When
+            const ret = linkedHashmap.optionalGet('key');
+            // Then
+            expect(linkedHashmap.size).to.equal(1);
+            expect(ret.value).to.be.equal('value');
+            expect(ret.has).to.be.true;
+        });
+
+        it('optionalGet() with no key ', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            expect(linkedHashmap.size).to.equal(0);
+            // When
+            const ret = linkedHashmap.optionalGet('key');
+            // Then
+            expect(linkedHashmap.size).to.equal(0);
+            expect(ret.has).to.be.false;
+        });
+
+        it('optionalGet() with other key', function () {
+            // Given
+            const linkedHashmap = new LinkedHashMap();
+            linkedHashmap.set('key', 'value')
+            expect(linkedHashmap.size).to.equal(1);
+            // When
+            const ret = linkedHashmap.optionalGet('other');
+            // Then
+            expect(linkedHashmap.size).to.equal(1);
+            expect(ret.has).to.be.false;
+        });
+
+    });
     context('optionalHead()', function () {
         it('optionalHead() with no entry ', function () {
             // Given
@@ -588,44 +626,6 @@ describe('LinkedHashMap Class', function () {
             expect(ret.has).to.be.true;
             expect(ret.value).to.equal('key2');
         });
-    });
-    context('optionalGet()', function () {
-        it('optionalGet() with key ', function () {
-            // Given
-            const linkedHashmap = new LinkedHashMap();
-            linkedHashmap.set('key', 'value')
-            expect(linkedHashmap.size).to.equal(1);
-            // When
-            const ret = linkedHashmap.optionalGet('key');
-            // Then
-            expect(linkedHashmap.size).to.equal(1);
-            expect(ret.value).to.be.equal('value');
-            expect(ret.has).to.be.true;
-        });
-
-        it('optionalGet() with no key ', function () {
-            // Given
-            const linkedHashmap = new LinkedHashMap();
-            expect(linkedHashmap.size).to.equal(0);
-            // When
-            const ret = linkedHashmap.optionalGet('key');
-            // Then
-            expect(linkedHashmap.size).to.equal(0);
-            expect(ret.has).to.be.false;
-        });
-
-        it('optionalGet() with other key', function () {
-            // Given
-            const linkedHashmap = new LinkedHashMap();
-            linkedHashmap.set('key', 'value')
-            expect(linkedHashmap.size).to.equal(1);
-            // When
-            const ret = linkedHashmap.optionalGet('other');
-            // Then
-            expect(linkedHashmap.size).to.equal(1);
-            expect(ret.has).to.be.false;
-        });
-
     });
 
     context('set()', function () {

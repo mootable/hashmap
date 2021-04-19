@@ -1,7 +1,8 @@
 import {isFunction, isIterable} from '../utils/';
-import {equalsAndHash} from '../hash';
+import {equalsAndHash, equalsFor} from '../hash';
 import {Container} from "./container";
 import {HashBuckets} from "./hashbuckets";
+import {some, none} from "../option";
 
 /**
  * HashMap - HashMap Implementation for JavaScript
@@ -132,6 +133,40 @@ export class HashMap {
     get(key, options) {
         const op = equalsAndHash(key, options);
         return this.buckets.get(key, op);
+    }
+
+    /**
+     * Potentially Slow!
+     * @param value
+     * @param {HashMap.methodOptions} [options] - a set of optional options to allow a user to define the equals method, rather than them being looked up
+     * @return {*}
+     */
+    keyOf(value, options) {
+        const equals = options && isFunction(options.equals) ? options.equals : equalsFor(value);
+        const iterator = options && options.reverse ? this.entriesRight() : this.entries();
+        for (const entry of iterator) {
+            if(equals(value, entry[1])){
+                return entry[0];
+            }
+        }
+        return undefined;
+    }
+
+    /**
+     * Slow!
+     * @param value
+     * @param {HashMap.methodOptions} [options] - a set of optional options to allow a user to define the equals method, rather than them being looked up
+     * @return {Option}
+     */
+    optionalKeyOf(value, options) {
+        const equals = options && isFunction(options.equals) ? options.equals : equalsFor(value);
+        const iterator = options && options.reverse ? this.entriesRight() : this.entries();
+        for (const entry of iterator) {
+            if(equals(value, entry[1])){
+                return some(entry[0]);
+            }
+        }
+        return none;
     }
 
     /**

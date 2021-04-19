@@ -257,6 +257,164 @@ describe('HashMap Class', function () {
         });
 
     });
+
+    context('keyOf()', function () {
+        it('keyOf() with value ', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 'value')
+            expect(hashmap.size).to.equal(1);
+            // When
+            const ret = hashmap.keyOf('value');
+            // Then
+            expect(hashmap.size).to.equal(1);
+            expect(ret).to.be.equal('key');
+        });
+
+        it('keyOf() with no value ', function () {
+            // Given
+            const hashmap = new HashMap();
+            expect(hashmap.size).to.equal(0);
+            // When
+            const ret = hashmap.keyOf('value');
+            // Then
+            expect(hashmap.size).to.equal(0);
+            expect(ret).to.be.undefined;
+        });
+
+        it('keyOf() with other value', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 'value')
+            expect(hashmap.size).to.equal(1);
+            // When
+            const ret = hashmap.keyOf('other');
+            // Then
+            expect(hashmap.size).to.equal(1);
+            expect(ret).to.be.undefined;
+        });
+        it('keyOf() with 3 values ', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key1', 'value1')
+            hashmap.set('key2', 'value2')
+            hashmap.set('key3', 'value3')
+            expect(hashmap.size).to.equal(3);
+            // When
+            const ret = hashmap.keyOf('value2');
+            // Then
+            expect(hashmap.size).to.equal(3);
+            expect(ret).to.be.equal('key2');
+        });
+        it('keyOf() with 3 values reverse search ', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key1', 'value1')
+            hashmap.set('key2', 'value2')
+            hashmap.set('key3', 'value3')
+            expect(hashmap.size).to.equal(3);
+            // When
+            const ret = hashmap.keyOf('value2', {reverse:true});
+            // Then
+            expect(hashmap.size).to.equal(3);
+            expect(ret).to.be.equal('key2');
+        });
+        it('keyOf() with 3 values explict equals', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key1', 'value1')
+            hashmap.set('key2', 'value2')
+            hashmap.set('key3', 'value3')
+            expect(hashmap.size).to.equal(3, );
+            // When
+            const ret = hashmap.keyOf('value2', {equals:(value1,value2)=> value2 === 'value3'});
+            // Then
+            expect(hashmap.size).to.equal(3);
+            expect(ret).to.be.equal('key3');
+        });
+
+    });
+    context('optionalKeyOf()', function () {
+        it('optionalKeyOf() with value ', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 'value')
+            expect(hashmap.size).to.equal(1);
+            // When
+            const ret = hashmap.optionalKeyOf('value');
+            // Then
+            expect(hashmap.size).to.equal(1);
+            expect(ret.value).to.be.equal('key');
+            expect(ret.has).to.be.true;
+        });
+
+        it('optionalKeyOf() with no value ', function () {
+            // Given
+            const hashmap = new HashMap();
+            expect(hashmap.size).to.equal(0);
+            // When
+            const ret = hashmap.optionalKeyOf('value');
+            // Then
+            expect(hashmap.size).to.equal(0);
+            expect(ret.has).to.be.false;
+        });
+
+        it('optionalKeyOf() with other value', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 'value')
+            expect(hashmap.size).to.equal(1);
+            // When
+            const ret = hashmap.optionalKeyOf('other');
+            // Then
+            expect(hashmap.size).to.equal(1);
+            expect(ret.has).to.be.false;
+        });
+        it('optionalKeyOf() with 3 values', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key1', 'value1')
+            hashmap.set('key2', 'value2')
+            hashmap.set('key3', 'value3')
+            expect(hashmap.size).to.equal(3);
+            // When
+            const ret = hashmap.optionalKeyOf('value2');
+            // Then
+            expect(hashmap.size).to.equal(3);
+            expect(ret.value).to.be.equal('key2');
+            expect(ret.has).to.be.true;
+        });
+
+        it('optionalKeyOf() with 3 values reverse search', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key1', 'value1')
+            hashmap.set('key2', 'value2')
+            hashmap.set('key3', 'value3')
+            expect(hashmap.size).to.equal(3);
+            // When
+            const ret = hashmap.optionalKeyOf('value2',{reverse:true});
+            // Then
+            expect(hashmap.size).to.equal(3);
+            expect(ret.value).to.be.equal('key2');
+            expect(ret.has).to.be.true;
+        });
+        it('optionalKeyOf() with 3 values explict equals', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key1', 'value1')
+            hashmap.set('key2', 'value2')
+            hashmap.set('key3', 'value3')
+            expect(hashmap.size).to.equal(3);
+            // When
+            const ret = hashmap.optionalKeyOf('value2', {equals:(value1,value2)=> value2 === 'value3'});
+            // Then
+            expect(hashmap.size).to.equal(3);
+            expect(ret.value).to.be.equal('key3');
+            expect(ret.has).to.be.true;
+        });
+    });
+
     context('set()', function () {
         it('set() insert key empty Map ', function () {
             // Given
