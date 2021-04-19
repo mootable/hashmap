@@ -196,7 +196,7 @@ describe('hashmap', function () {
                 expect(value).to.equal('value');
                 expect(key).to.equal('key');
                 expect(this).to.equal(hashmap);
-            });
+            },hashmap);
             expect(called).to.equal(1);
         });
 

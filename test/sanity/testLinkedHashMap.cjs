@@ -195,7 +195,7 @@ describe('linkedHashMap', function () {
                 expect(value).to.equal('value');
                 expect(key).to.equal('key');
                 expect(this).to.equal(linkedHashMap);
-            });
+            },linkedHashMap);
             expect(called).to.equal(1);
         });
 

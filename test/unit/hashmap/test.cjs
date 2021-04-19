@@ -9,7 +9,6 @@ if (process.env.UNDER_TEST_UNIT !== 'true') {
 }
 
 describe('HashMap Class', function () {
-
     context('constructor()', function () {
         it('constructor(), basic', function () {
             // Given & When
@@ -219,45 +218,6 @@ describe('HashMap Class', function () {
         });
 
     });
-    context('optionalGet()', function () {
-        it('optionalGet() with key ', function () {
-            // Given
-            const hashmap = new HashMap();
-            hashmap.set('key', 'value')
-            expect(hashmap.size).to.equal(1);
-            // When
-            const ret = hashmap.optionalGet('key');
-            // Then
-            expect(hashmap.size).to.equal(1);
-            expect(ret.value).to.be.equal('value');
-            expect(ret.has).to.be.true;
-        });
-
-        it('optionalGet() with no key ', function () {
-            // Given
-            const hashmap = new HashMap();
-            expect(hashmap.size).to.equal(0);
-            // When
-            const ret = hashmap.optionalGet('key');
-            // Then
-            expect(hashmap.size).to.equal(0);
-            expect(ret.has).to.be.false;
-        });
-
-        it('optionalGet() with other key', function () {
-            // Given
-            const hashmap = new HashMap();
-            hashmap.set('key', 'value')
-            expect(hashmap.size).to.equal(1);
-            // When
-            const ret = hashmap.optionalGet('other');
-            // Then
-            expect(hashmap.size).to.equal(1);
-            expect(ret.has).to.be.false;
-        });
-
-    });
-
     context('keyOf()', function () {
         it('keyOf() with value ', function () {
             // Given
@@ -306,20 +266,20 @@ describe('HashMap Class', function () {
             expect(hashmap.size).to.equal(3);
             expect(ret).to.be.equal('key2');
         });
-        it('keyOf() with 3 values reverse search ', function () {
+        it('keyOf() with 3 values first key', function () {
             // Given
             const hashmap = new HashMap();
-            hashmap.set('key1', 'value1')
-            hashmap.set('key2', 'value2')
-            hashmap.set('key3', 'value3')
+            hashmap.set(1, 'value1')
+            hashmap.set(2, 'value2')
+            hashmap.set(3, 'value3')
             expect(hashmap.size).to.equal(3);
             // When
-            const ret = hashmap.keyOf('value2', {reverse:true});
+            const ret = hashmap.keyOf('value2',{equals:()=> true});
             // Then
             expect(hashmap.size).to.equal(3);
-            expect(ret).to.be.equal('key2');
+            expect(ret).to.be.equal(1);
         });
-        it('keyOf() with 3 values explict equals', function () {
+        it('keyOf() with 3 values explicit equals', function () {
             // Given
             const hashmap = new HashMap();
             hashmap.set('key1', 'value1')
@@ -331,6 +291,526 @@ describe('HashMap Class', function () {
             // Then
             expect(hashmap.size).to.equal(3);
             expect(ret).to.be.equal('key3');
+        });
+
+    });
+    context('lastKeyOf()', function () {
+        it('lastKeyOf() with value ', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 'value')
+            expect(hashmap.size).to.equal(1);
+            // When
+            const ret = hashmap.lastKeyOf('value');
+            // Then
+            expect(hashmap.size).to.equal(1);
+            expect(ret).to.be.equal('key');
+        });
+
+        it('lastKeyOf() with no value ', function () {
+            // Given
+            const hashmap = new HashMap();
+            expect(hashmap.size).to.equal(0);
+            // When
+            const ret = hashmap.lastKeyOf('value');
+            // Then
+            expect(hashmap.size).to.equal(0);
+            expect(ret).to.be.undefined;
+        });
+
+        it('lastKeyOf() with other value', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 'value')
+            expect(hashmap.size).to.equal(1);
+            // When
+            const ret = hashmap.lastKeyOf('other');
+            // Then
+            expect(hashmap.size).to.equal(1);
+            expect(ret).to.be.undefined;
+        });
+        it('lastKeyOf() with 3 values ', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key1', 'value1')
+            hashmap.set('key2', 'value2')
+            hashmap.set('key3', 'value3')
+            expect(hashmap.size).to.equal(3);
+            // When
+            const ret = hashmap.lastKeyOf('value2');
+            // Then
+            expect(hashmap.size).to.equal(3);
+            expect(ret).to.be.equal('key2');
+        });
+        it('lastKeyOf() with 3 values first key', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set(1, 'value1')
+            hashmap.set(2, 'value2')
+            hashmap.set(3, 'value3')
+            expect(hashmap.size).to.equal(3);
+            // When
+            const ret = hashmap.lastKeyOf('value2',{equals:()=> true});
+            // Then
+            expect(hashmap.size).to.equal(3);
+            expect(ret).to.be.equal(3);
+        });
+        it('lastKeyOf() with 3 values explict equals', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key1', 'value1')
+            hashmap.set('key2', 'value2')
+            hashmap.set('key3', 'value3')
+            expect(hashmap.size).to.equal(3, );
+            // When
+            const ret = hashmap.lastKeyOf('value2', {equals:(value1,value2)=> value2 === 'value3'});
+            // Then
+            expect(hashmap.size).to.equal(3);
+            expect(ret).to.be.equal('key3');
+        });
+
+    });
+    context('find()', function () {
+        it('find() with value ', function () {
+            // Given
+            const myThis = {ctx:'myCtx'};
+            const hashmap = new HashMap();
+            const callback = function(value, key, map) {
+                expect(this).to.deep.equal({ctx:'myCtx'});
+                expect(key).to.equal('key');
+                expect(value).to.equal('value');
+                expect(map).to.equal(hashmap);
+                return key === 'key';
+            }
+            hashmap.set('key', 'value')
+            expect(hashmap.size).to.equal(1);
+            // When
+            const ret = hashmap.find(callback,myThis);
+            // Then
+            expect(hashmap.size).to.equal(1);
+            expect(ret).to.be.equal('value');
+        });
+
+        it('find() with no value ', function () {
+            // Given
+            const hashmap = new HashMap();
+            let executionCount = 0;
+            const callback = function() {
+                executionCount++;
+                return true;
+            }
+            expect(hashmap.size).to.equal(0);
+            // When
+            const ret = hashmap.find(callback);
+            expect(executionCount).to.equal(0);
+            // Then
+            expect(hashmap.size).to.equal(0);
+            expect(ret).to.be.undefined;
+        });
+
+        it('find() with other value', function () {
+            // Given
+            const hashmap = new HashMap();
+            let executionCount = 0;
+            const callback = function(value) {
+                executionCount++;
+                return value === 'other';
+            }
+            hashmap.set('key', 'value')
+            expect(hashmap.size).to.equal(1);
+            // When
+            const ret = hashmap.find(callback);
+            // Then
+            expect(executionCount).to.equal(1);
+            expect(hashmap.size).to.equal(1);
+            expect(ret).to.be.undefined;
+        });
+        it('find() with 3 values first key', function () {
+            // Given
+            const hashmap = new HashMap();
+            const callback = function() {
+                return true;
+            }
+            hashmap.set(1, 'value1')
+            hashmap.set(2, 'value2')
+            hashmap.set(3, 'value3')
+            expect(hashmap.size).to.equal(3);
+            // When
+            const ret = hashmap.find(callback);
+            // Then
+            expect(hashmap.size).to.equal(3);
+            expect(ret).to.be.equal('value1');
+        });
+        it('find() with 3 values second key', function () {
+            // Given
+            const hashmap = new HashMap();
+            const callback = function(value, key) {
+                return key === 2;
+            }
+            hashmap.set(1, 'value1')
+            hashmap.set(2, 'value2')
+            hashmap.set(3, 'value3')
+            expect(hashmap.size).to.equal(3);
+            // When
+            const ret = hashmap.find(callback);
+            // Then
+            expect(hashmap.size).to.equal(3);
+            expect(ret).to.be.equal('value2');
+        });
+        it('find() with 3 values without callback', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set(1, 'value1')
+            hashmap.set(2, 'value2')
+            hashmap.set(3, 'value3')
+            expect(hashmap.size).to.equal(3, );
+            // When
+            const ret = hashmap.find();
+            // Then
+            expect(hashmap.size).to.equal(3);
+            expect(ret).to.be.equal('value1');
+        });
+
+    });
+    context('findLast()', function () {
+        it('findLast() with value ', function () {
+            // Given
+            const myThis = {ctx:'myCtx'};
+            const hashmap = new HashMap();
+            const callback = function(value, key, map) {
+                expect(this).to.deep.equal({ctx:'myCtx'});
+                expect(key).to.equal('key');
+                expect(value).to.equal('value');
+                expect(map).to.equal(hashmap);
+                return key === 'key';
+            }
+            hashmap.set('key', 'value')
+            expect(hashmap.size).to.equal(1);
+            // When
+            const ret = hashmap.findLast(callback,myThis);
+            // Then
+            expect(hashmap.size).to.equal(1);
+            expect(ret).to.be.equal('value');
+        });
+
+        it('findLast() with no value ', function () {
+            // Given
+            const hashmap = new HashMap();
+            let executionCount = 0;
+            const callback = function() {
+                executionCount++;
+                return true;
+            }
+            expect(hashmap.size).to.equal(0);
+            // When
+            const ret = hashmap.findLast(callback);
+            expect(executionCount).to.equal(0);
+            // Then
+            expect(hashmap.size).to.equal(0);
+            expect(ret).to.be.undefined;
+        });
+
+        it('findLast() with other value', function () {
+            // Given
+            const hashmap = new HashMap();
+            let executionCount = 0;
+            const callback = function(value) {
+                executionCount++;
+                return value === 'other';
+            }
+            hashmap.set('key', 'value')
+            expect(hashmap.size).to.equal(1);
+            // When
+            const ret = hashmap.findLast(callback);
+            // Then
+            expect(executionCount).to.equal(1);
+            expect(hashmap.size).to.equal(1);
+            expect(ret).to.be.undefined;
+        });
+        it('findLast() with 3 values first key', function () {
+            // Given
+            const hashmap = new HashMap();
+            const callback = function() {
+                return true;
+            }
+            hashmap.set(1, 'value1')
+            hashmap.set(2, 'value2')
+            hashmap.set(3, 'value3')
+            expect(hashmap.size).to.equal(3);
+            // When
+            const ret = hashmap.findLast(callback);
+            // Then
+            expect(hashmap.size).to.equal(3);
+            expect(ret).to.be.equal('value3');
+        });
+        it('findLast() with 3 values second key', function () {
+            // Given
+            const hashmap = new HashMap();
+            const callback = function(value, key) {
+                return key === 2;
+            }
+            hashmap.set(1, 'value1')
+            hashmap.set(2, 'value2')
+            hashmap.set(3, 'value3')
+            expect(hashmap.size).to.equal(3);
+            // When
+            const ret = hashmap.findLast(callback);
+            // Then
+            expect(hashmap.size).to.equal(3);
+            expect(ret).to.be.equal('value2');
+        });
+        it('findLast() with 3 values without callback', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set(1, 'value1')
+            hashmap.set(2, 'value2')
+            hashmap.set(3, 'value3')
+            expect(hashmap.size).to.equal(3, );
+            // When
+            const ret = hashmap.findLast();
+            // Then
+            expect(hashmap.size).to.equal(3);
+            expect(ret).to.be.equal('value3');
+        });
+
+    });
+    context('findKey()', function () {
+        it('findKey() with value ', function () {
+            // Given
+            const myThis = {ctx:'myCtx'};
+            const hashmap = new HashMap();
+            const callback = function(value, key, map) {
+                expect(this).to.deep.equal({ctx:'myCtx'});
+                expect(key).to.equal('key');
+                expect(value).to.equal('value');
+                expect(map).to.equal(hashmap);
+                return key === 'key';
+            }
+            hashmap.set('key', 'value')
+            expect(hashmap.size).to.equal(1);
+            // When
+            const ret = hashmap.findKey(callback,myThis);
+            // Then
+            expect(hashmap.size).to.equal(1);
+            expect(ret).to.be.equal('key');
+        });
+
+        it('findKey() with no value ', function () {
+            // Given
+            const hashmap = new HashMap();
+            let executionCount = 0;
+            const callback = function() {
+                executionCount++;
+                return true;
+            }
+            expect(hashmap.size).to.equal(0);
+            // When
+            const ret = hashmap.findKey(callback);
+            expect(executionCount).to.equal(0);
+            // Then
+            expect(hashmap.size).to.equal(0);
+            expect(ret).to.be.undefined;
+        });
+
+        it('findKey() with other value', function () {
+            // Given
+            const hashmap = new HashMap();
+            let executionCount = 0;
+            const callback = function(value) {
+                executionCount++;
+                return value === 'other';
+            }
+            hashmap.set('key', 'value')
+            expect(hashmap.size).to.equal(1);
+            // When
+            const ret = hashmap.findKey(callback);
+            // Then
+            expect(executionCount).to.equal(1);
+            expect(hashmap.size).to.equal(1);
+            expect(ret).to.be.undefined;
+        });
+        it('findKey() with 3 values first key', function () {
+            // Given
+            const hashmap = new HashMap();
+            const callback = function() {
+                return true;
+            }
+            hashmap.set(1, 'value1')
+            hashmap.set(2, 'value2')
+            hashmap.set(3, 'value3')
+            expect(hashmap.size).to.equal(3);
+            // When
+            const ret = hashmap.findKey(callback);
+            // Then
+            expect(hashmap.size).to.equal(3);
+            expect(ret).to.be.equal(1);
+        });
+        it('findKey() with 3 values second key', function () {
+            // Given
+            const hashmap = new HashMap();
+            const callback = function(value, key) {
+                return key === 2;
+            }
+            hashmap.set(1, 'value1')
+            hashmap.set(2, 'value2')
+            hashmap.set(3, 'value3')
+            expect(hashmap.size).to.equal(3);
+            // When
+            const ret = hashmap.findKey(callback);
+            // Then
+            expect(hashmap.size).to.equal(3);
+            expect(ret).to.be.equal(2);
+        });
+        it('findKey() with 3 values without callback', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set(1, 'value1')
+            hashmap.set(2, 'value2')
+            hashmap.set(3, 'value3')
+            expect(hashmap.size).to.equal(3, );
+            // When
+            const ret = hashmap.findKey();
+            // Then
+            expect(hashmap.size).to.equal(3);
+            expect(ret).to.be.equal(1);
+        });
+    });
+    context('findLastKey()', function () {
+        it('findLastKey() with value ', function () {
+            // Given
+            const myThis = {ctx:'myCtx'};
+            const hashmap = new HashMap();
+            const callback = function(value, key, map) {
+                expect(this).to.deep.equal({ctx:'myCtx'});
+                expect(key).to.equal('key');
+                expect(value).to.equal('value');
+                expect(map).to.equal(hashmap);
+                return key === 'key';
+            }
+            hashmap.set('key', 'value')
+            expect(hashmap.size).to.equal(1);
+            // When
+            const ret = hashmap.findLastKey(callback,myThis);
+            // Then
+            expect(hashmap.size).to.equal(1);
+            expect(ret).to.be.equal('key');
+        });
+
+        it('findLastKey() with no value ', function () {
+            // Given
+            const hashmap = new HashMap();
+            let executionCount = 0;
+            const callback = function() {
+                executionCount++;
+                return true;
+            }
+            expect(hashmap.size).to.equal(0);
+            // When
+            const ret = hashmap.findLastKey(callback);
+            expect(executionCount).to.equal(0);
+            // Then
+            expect(hashmap.size).to.equal(0);
+            expect(ret).to.be.undefined;
+        });
+
+        it('findLastKey() with other value', function () {
+            // Given
+            const hashmap = new HashMap();
+            let executionCount = 0;
+            const callback = function(value) {
+                executionCount++;
+                return value === 'other';
+            }
+            hashmap.set('key', 'value')
+            expect(hashmap.size).to.equal(1);
+            // When
+            const ret = hashmap.findLastKey(callback);
+            // Then
+            expect(executionCount).to.equal(1);
+            expect(hashmap.size).to.equal(1);
+            expect(ret).to.be.undefined;
+        });
+        it('findLastKey() with 3 values first key', function () {
+            // Given
+            const hashmap = new HashMap();
+            const callback = function() {
+                return true;
+            }
+            hashmap.set(1, 'value1')
+            hashmap.set(2, 'value2')
+            hashmap.set(3, 'value3')
+            expect(hashmap.size).to.equal(3);
+            // When
+            const ret = hashmap.findLastKey(callback);
+            // Then
+            expect(hashmap.size).to.equal(3);
+            expect(ret).to.be.equal(3);
+        });
+        it('findLastKey() with 3 values second key', function () {
+            // Given
+            const hashmap = new HashMap();
+            const callback = function(value, key) {
+                return key === 2;
+            }
+            hashmap.set(1, 'value1')
+            hashmap.set(2, 'value2')
+            hashmap.set(3, 'value3')
+            expect(hashmap.size).to.equal(3);
+            // When
+            const ret = hashmap.findLastKey(callback);
+            // Then
+            expect(hashmap.size).to.equal(3);
+            expect(ret).to.be.equal(2);
+        });
+        it('findLastKey() with 3 values without callback', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set(1, 'value1')
+            hashmap.set(2, 'value2')
+            hashmap.set(3, 'value3')
+            expect(hashmap.size).to.equal(3, );
+            // When
+            const ret = hashmap.findLastKey();
+            // Then
+            expect(hashmap.size).to.equal(3);
+            expect(ret).to.be.equal(3);
+        });
+    });
+    context('optionalGet()', function () {
+        it('optionalGet() with key ', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 'value')
+            expect(hashmap.size).to.equal(1);
+            // When
+            const ret = hashmap.optionalGet('key');
+            // Then
+            expect(hashmap.size).to.equal(1);
+            expect(ret.value).to.be.equal('value');
+            expect(ret.has).to.be.true;
+        });
+
+        it('optionalGet() with no key ', function () {
+            // Given
+            const hashmap = new HashMap();
+            expect(hashmap.size).to.equal(0);
+            // When
+            const ret = hashmap.optionalGet('key');
+            // Then
+            expect(hashmap.size).to.equal(0);
+            expect(ret.has).to.be.false;
+        });
+
+        it('optionalGet() with other key', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 'value')
+            expect(hashmap.size).to.equal(1);
+            // When
+            const ret = hashmap.optionalGet('other');
+            // Then
+            expect(hashmap.size).to.equal(1);
+            expect(ret.has).to.be.false;
         });
 
     });
@@ -385,21 +865,21 @@ describe('HashMap Class', function () {
             expect(ret.has).to.be.true;
         });
 
-        it('optionalKeyOf() with 3 values reverse search', function () {
+        it('optionalKeyOf() with 3 values returns first', function () {
             // Given
             const hashmap = new HashMap();
-            hashmap.set('key1', 'value1')
-            hashmap.set('key2', 'value2')
-            hashmap.set('key3', 'value3')
+            hashmap.set(1, 'value1')
+            hashmap.set(2, 'value2')
+            hashmap.set(3, 'value3')
             expect(hashmap.size).to.equal(3);
             // When
-            const ret = hashmap.optionalKeyOf('value2',{reverse:true});
+            const ret = hashmap.optionalKeyOf('value2',{equals:()=> true});
             // Then
             expect(hashmap.size).to.equal(3);
-            expect(ret.value).to.be.equal('key2');
+            expect(ret.value).to.be.equal(1);
             expect(ret.has).to.be.true;
         });
-        it('optionalKeyOf() with 3 values explict equals', function () {
+        it('optionalKeyOf() with 3 values explicit equals', function () {
             // Given
             const hashmap = new HashMap();
             hashmap.set('key1', 'value1')
@@ -414,7 +894,522 @@ describe('HashMap Class', function () {
             expect(ret.has).to.be.true;
         });
     });
+    context('optionalLastKeyOf()', function () {
+        it('optionalLastKeyOf() with value ', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 'value')
+            expect(hashmap.size).to.equal(1);
+            // When
+            const ret = hashmap.optionalLastKeyOf('value');
+            // Then
+            expect(hashmap.size).to.equal(1);
+            expect(ret.value).to.be.equal('key');
+            expect(ret.has).to.be.true;
+        });
 
+        it('optionalLastKeyOf() with no value ', function () {
+            // Given
+            const hashmap = new HashMap();
+            expect(hashmap.size).to.equal(0);
+            // When
+            const ret = hashmap.optionalLastKeyOf('value');
+            // Then
+            expect(hashmap.size).to.equal(0);
+            expect(ret.has).to.be.false;
+        });
+
+        it('optionalLastKeyOf() with other value', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 'value')
+            expect(hashmap.size).to.equal(1);
+            // When
+            const ret = hashmap.optionalLastKeyOf('other');
+            // Then
+            expect(hashmap.size).to.equal(1);
+            expect(ret.has).to.be.false;
+        });
+        it('optionalLastKeyOf() with 3 values', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key1', 'value1')
+            hashmap.set('key2', 'value2')
+            hashmap.set('key3', 'value3')
+            expect(hashmap.size).to.equal(3);
+            // When
+            const ret = hashmap.optionalLastKeyOf('value2');
+            // Then
+            expect(hashmap.size).to.equal(3);
+            expect(ret.value).to.be.equal('key2');
+            expect(ret.has).to.be.true;
+        });
+
+        it('optionalLastKeyOf() with 3 values returns first', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set(1, 'value1')
+            hashmap.set(2, 'value2')
+            hashmap.set(3, 'value3')
+            expect(hashmap.size).to.equal(3);
+            // When
+            const ret = hashmap.optionalLastKeyOf('value2',{equals:()=> true});
+            // Then
+            expect(hashmap.size).to.equal(3);
+            expect(ret.value).to.be.equal(3);
+            expect(ret.has).to.be.true;
+        });
+        it('optionalLastKeyOf() with 3 values explicit equals', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key1', 'value1')
+            hashmap.set('key2', 'value2')
+            hashmap.set('key3', 'value3')
+            expect(hashmap.size).to.equal(3);
+            // When
+            const ret = hashmap.optionalLastKeyOf('value2', {equals:(value1,value2)=> value2 === 'value3'});
+            // Then
+            expect(hashmap.size).to.equal(3);
+            expect(ret.value).to.be.equal('key3');
+            expect(ret.has).to.be.true;
+        });
+    });
+    context('optionalFind()', function () {
+        it('optionalFind() with value ', function () {
+            // Given
+            const myThis = {ctx:'myCtx'};
+            const hashmap = new HashMap();
+            const callback = function(value, key, map) {
+                expect(this).to.deep.equal({ctx:'myCtx'});
+                expect(key).to.equal('key');
+                expect(value).to.equal('value');
+                expect(map).to.equal(hashmap);
+                return key === 'key';
+            }
+            hashmap.set('key', 'value')
+            expect(hashmap.size).to.equal(1);
+            // When
+            const ret = hashmap.optionalFind(callback,myThis);
+            // Then
+            expect(hashmap.size).to.equal(1);
+            expect(ret.value).to.be.equal('value');
+            expect(ret.has).to.be.true;
+        });
+
+        it('optionalFind() with no value ', function () {
+            // Given
+            const hashmap = new HashMap();
+            let executionCount = 0;
+            const callback = function() {
+                executionCount++;
+                return true;
+            }
+            expect(hashmap.size).to.equal(0);
+            // When
+            const ret = hashmap.optionalFind(callback);
+            expect(executionCount).to.equal(0);
+            // Then
+            expect(hashmap.size).to.equal(0);
+            expect(ret.has).to.be.false;
+        });
+
+        it('optionalFind() with other value', function () {
+            // Given
+            const hashmap = new HashMap();
+            let executionCount = 0;
+            const callback = function(value) {
+                executionCount++;
+                return value === 'other';
+            }
+            hashmap.set('key', 'value')
+            expect(hashmap.size).to.equal(1);
+            // When
+            const ret = hashmap.optionalFind(callback);
+            // Then
+            expect(executionCount).to.equal(1);
+            expect(hashmap.size).to.equal(1);
+            expect(ret.has).to.be.false;
+        });
+        it('optionalFind() with 3 values first key', function () {
+            // Given
+            const hashmap = new HashMap();
+            const callback = function() {
+                return true;
+            }
+            hashmap.set(1, 'value1')
+            hashmap.set(2, 'value2')
+            hashmap.set(3, 'value3')
+            expect(hashmap.size).to.equal(3);
+            // When
+            const ret = hashmap.optionalFind(callback);
+            // Then
+            expect(hashmap.size).to.equal(3);
+
+            expect(ret.value).to.be.equal('value1');
+            expect(ret.has).to.be.true;
+        });
+        it('optionalFind() with 3 values second key', function () {
+            // Given
+            const hashmap = new HashMap();
+            const callback = function(value, key) {
+                return key === 2;
+            }
+            hashmap.set(1, 'value1')
+            hashmap.set(2, 'value2')
+            hashmap.set(3, 'value3')
+            expect(hashmap.size).to.equal(3);
+            // When
+            const ret = hashmap.optionalFind(callback);
+            // Then
+            expect(hashmap.size).to.equal(3);
+
+            expect(ret.value).to.be.equal('value2');
+            expect(ret.has).to.be.true;
+        });
+        it('optionalFind() with 3 values without callback', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set(1, 'value1')
+            hashmap.set(2, 'value2')
+            hashmap.set(3, 'value3')
+            expect(hashmap.size).to.equal(3, );
+            // When
+            const ret = hashmap.optionalFind();
+            // Then
+            expect(hashmap.size).to.equal(3);
+
+            expect(ret.value).to.be.equal('value1');
+            expect(ret.has).to.be.true;
+        });
+
+    });
+    context('optionalFindLast()', function () {
+        it('optionalFindLast() with value ', function () {
+            // Given
+            const myThis = {ctx:'myCtx'};
+            const hashmap = new HashMap();
+            const callback = function(value, key, map) {
+                expect(this).to.deep.equal({ctx:'myCtx'});
+                expect(key).to.equal('key');
+                expect(value).to.equal('value');
+                expect(map).to.equal(hashmap);
+                return key === 'key';
+            }
+            hashmap.set('key', 'value')
+            expect(hashmap.size).to.equal(1);
+            // When
+            const ret = hashmap.optionalFindLast(callback,myThis);
+            // Then
+            expect(hashmap.size).to.equal(1);
+            expect(ret.value).to.be.equal('value');
+            expect(ret.has).to.be.true;
+        });
+
+        it('optionalFindLast() with no value ', function () {
+            // Given
+            const hashmap = new HashMap();
+            let executionCount = 0;
+            const callback = function() {
+                executionCount++;
+                return true;
+            }
+            expect(hashmap.size).to.equal(0);
+            // When
+            const ret = hashmap.optionalFindLast(callback);
+            expect(executionCount).to.equal(0);
+            // Then
+            expect(hashmap.size).to.equal(0);
+            expect(ret.has).to.be.false;
+        });
+
+        it('optionalFindLast() with other value', function () {
+            // Given
+            const hashmap = new HashMap();
+            let executionCount = 0;
+            const callback = function(value) {
+                executionCount++;
+                return value === 'other';
+            }
+            hashmap.set('key', 'value')
+            expect(hashmap.size).to.equal(1);
+            // When
+            const ret = hashmap.optionalFindLast(callback);
+            // Then
+            expect(executionCount).to.equal(1);
+            expect(hashmap.size).to.equal(1);
+            expect(ret.has).to.be.false;
+        });
+        it('optionalFindLast() with 3 values first key', function () {
+            // Given
+            const hashmap = new HashMap();
+            const callback = function() {
+                return true;
+            }
+            hashmap.set(1, 'value1')
+            hashmap.set(2, 'value2')
+            hashmap.set(3, 'value3')
+            expect(hashmap.size).to.equal(3);
+            // When
+            const ret = hashmap.optionalFindLast(callback);
+            // Then
+            expect(hashmap.size).to.equal(3);
+
+            expect(ret.value).to.be.equal('value3');
+            expect(ret.has).to.be.true;
+        });
+        it('optionalFindLast() with 3 values second key', function () {
+            // Given
+            const hashmap = new HashMap();
+            const callback = function(value, key) {
+                return key === 2;
+            }
+            hashmap.set(1, 'value1')
+            hashmap.set(2, 'value2')
+            hashmap.set(3, 'value3')
+            expect(hashmap.size).to.equal(3);
+            // When
+            const ret = hashmap.optionalFindLast(callback);
+            // Then
+            expect(hashmap.size).to.equal(3);
+
+            expect(ret.value).to.be.equal('value2');
+            expect(ret.has).to.be.true;
+        });
+        it('optionalFindLast() with 3 values without callback', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set(1, 'value1')
+            hashmap.set(2, 'value2')
+            hashmap.set(3, 'value3')
+            expect(hashmap.size).to.equal(3, );
+            // When
+            const ret = hashmap.optionalFindLast();
+            // Then
+            expect(hashmap.size).to.equal(3);
+
+            expect(ret.value).to.be.equal('value3');
+            expect(ret.has).to.be.true;
+        });
+
+    });
+    context('optionalFindKey()', function () {
+        it('optionalFindKey() with value ', function () {
+            // Given
+            const myThis = {ctx:'myCtx'};
+            const hashmap = new HashMap();
+            const callback = function(value, key, map) {
+                expect(this).to.deep.equal({ctx:'myCtx'});
+                expect(key).to.equal('key');
+                expect(value).to.equal('value');
+                expect(map).to.equal(hashmap);
+                return key === 'key';
+            }
+            hashmap.set('key', 'value')
+            expect(hashmap.size).to.equal(1);
+            // When
+            const ret = hashmap.optionalFindKey(callback,myThis);
+            // Then
+            expect(hashmap.size).to.equal(1);
+            expect(ret.value).to.be.equal('key');
+            expect(ret.has).to.be.true;
+        });
+
+        it('optionalFindKey() with no value ', function () {
+            // Given
+            const hashmap = new HashMap();
+            let executionCount = 0;
+            const callback = function() {
+                executionCount++;
+                return true;
+            }
+            expect(hashmap.size).to.equal(0);
+            // When
+            const ret = hashmap.optionalFindKey(callback);
+            expect(executionCount).to.equal(0);
+            // Then
+            expect(hashmap.size).to.equal(0);
+            expect(ret.has).to.be.false;
+        });
+
+        it('optionalFindKey() with other value', function () {
+            // Given
+            const hashmap = new HashMap();
+            let executionCount = 0;
+            const callback = function(value) {
+                executionCount++;
+                return value === 'other';
+            }
+            hashmap.set('key', 'value')
+            expect(hashmap.size).to.equal(1);
+            // When
+            const ret = hashmap.optionalFindKey(callback);
+            // Then
+            expect(executionCount).to.equal(1);
+            expect(hashmap.size).to.equal(1);
+            expect(ret.has).to.be.false;
+        });
+        it('optionalFindKey() with 3 values first key', function () {
+            // Given
+            const hashmap = new HashMap();
+            const callback = function() {
+                return true;
+            }
+            hashmap.set(1, 'value1')
+            hashmap.set(2, 'value2')
+            hashmap.set(3, 'value3')
+            expect(hashmap.size).to.equal(3);
+            // When
+            const ret = hashmap.optionalFindKey(callback);
+            // Then
+            expect(hashmap.size).to.equal(3);
+
+            expect(ret.value).to.be.equal(1);
+            expect(ret.has).to.be.true;
+        });
+        it('optionalFindKey() with 3 values second key', function () {
+            // Given
+            const hashmap = new HashMap();
+            const callback = function(value, key) {
+                return key === 2;
+            }
+            hashmap.set(1, 'value1')
+            hashmap.set(2, 'value2')
+            hashmap.set(3, 'value3')
+            expect(hashmap.size).to.equal(3);
+            // When
+            const ret = hashmap.optionalFindKey(callback);
+            // Then
+            expect(hashmap.size).to.equal(3);
+
+            expect(ret.value).to.be.equal(2);
+            expect(ret.has).to.be.true;
+        });
+        it('optionalFindKey() with 3 values without callback', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set(1, 'value1')
+            hashmap.set(2, 'value2')
+            hashmap.set(3, 'value3')
+            expect(hashmap.size).to.equal(3, );
+            // When
+            const ret = hashmap.optionalFindKey();
+            // Then
+            expect(hashmap.size).to.equal(3);
+
+            expect(ret.value).to.be.equal(1);
+            expect(ret.has).to.be.true;
+        });
+
+    });
+    context('optionalFindLastKey()', function () {
+        it('optionalFindLastKey() with value ', function () {
+            // Given
+            const myThis = {ctx:'myCtx'};
+            const hashmap = new HashMap();
+            const callback = function(value, key, map) {
+                expect(this).to.deep.equal({ctx:'myCtx'});
+                expect(key).to.equal('key');
+                expect(value).to.equal('value');
+                expect(map).to.equal(hashmap);
+                return key === 'key';
+            }
+            hashmap.set('key', 'value')
+            expect(hashmap.size).to.equal(1);
+            // When
+            const ret = hashmap.optionalFindLastKey(callback,myThis);
+            // Then
+            expect(hashmap.size).to.equal(1);
+            expect(ret.value).to.be.equal('key');
+            expect(ret.has).to.be.true;
+        });
+
+        it('optionalFindLastKey() with no value ', function () {
+            // Given
+            const hashmap = new HashMap();
+            let executionCount = 0;
+            const callback = function() {
+                executionCount++;
+                return true;
+            }
+            expect(hashmap.size).to.equal(0);
+            // When
+            const ret = hashmap.optionalFindLastKey(callback);
+            expect(executionCount).to.equal(0);
+            // Then
+            expect(hashmap.size).to.equal(0);
+            expect(ret.has).to.be.false;
+        });
+
+        it('optionalFindLastKey() with other value', function () {
+            // Given
+            const hashmap = new HashMap();
+            let executionCount = 0;
+            const callback = function(value) {
+                executionCount++;
+                return value === 'other';
+            }
+            hashmap.set('key', 'value')
+            expect(hashmap.size).to.equal(1);
+            // When
+            const ret = hashmap.optionalFindLastKey(callback);
+            // Then
+            expect(executionCount).to.equal(1);
+            expect(hashmap.size).to.equal(1);
+            expect(ret.has).to.be.false;
+        });
+        it('optionalFindLastKey() with 3 values first key', function () {
+            // Given
+            const hashmap = new HashMap();
+            const callback = function() {
+                return true;
+            }
+            hashmap.set(1, 'value1')
+            hashmap.set(2, 'value2')
+            hashmap.set(3, 'value3')
+            expect(hashmap.size).to.equal(3);
+            // When
+            const ret = hashmap.optionalFindLastKey(callback);
+            // Then
+            expect(hashmap.size).to.equal(3);
+
+            expect(ret.value).to.be.equal(3);
+            expect(ret.has).to.be.true;
+        });
+        it('optionalFindLastKey() with 3 values second key', function () {
+            // Given
+            const hashmap = new HashMap();
+            const callback = function(value, key) {
+                return key === 2;
+            }
+            hashmap.set(1, 'value1')
+            hashmap.set(2, 'value2')
+            hashmap.set(3, 'value3')
+            expect(hashmap.size).to.equal(3);
+            // When
+            const ret = hashmap.optionalFindLastKey(callback);
+            // Then
+            expect(hashmap.size).to.equal(3);
+
+            expect(ret.value).to.be.equal(2);
+            expect(ret.has).to.be.true;
+        });
+        it('optionalFindLastKey() with 3 values without callback', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set(1, 'value1')
+            hashmap.set(2, 'value2')
+            hashmap.set(3, 'value3')
+            expect(hashmap.size).to.equal(3, );
+            // When
+            const ret = hashmap.optionalFindLastKey();
+            // Then
+            expect(hashmap.size).to.equal(3);
+
+            expect(ret.value).to.be.equal(3);
+            expect(ret.has).to.be.true;
+        });
+
+    });
     context('set()', function () {
         it('set() insert key empty Map ', function () {
             // Given
@@ -828,6 +1823,459 @@ describe('HashMap Class', function () {
 
         });
 
+    });
+    context('every()', function () {
+        it('every() should pass the basic test', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 'value');
+            let called = 0;
+            const every = hashmap.every(function (value, key, iterable) {
+                called++;
+                expect(value).to.be.equal('value');
+                expect(key).to.be.equal('key');
+                expect(this).to.equal(hashmap);
+                expect(iterable).to.equal(hashmap);
+                return true;
+            },hashmap);
+            expect(called).to.equal(1);
+            expect(every).to.be.true;
+        });
+
+        it('every() should call the callback once per key', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            let called1 = false;
+            let called2 = false;
+            let called = 0;
+            const every = hashmap.every(function (value, key) {
+                called++;
+                if (key === 'key') {
+                    called1 = true;
+                    expect(value).to.be.equal('value');
+                } else if (key === 'key2') {
+                    called2 = true;
+                    expect(value).to.be.equal('value2a');
+                }
+                return true;
+            });
+            expect(called).to.equal(2);
+            expect(every).to.be.true;
+            expect(called1).to.be.true;
+            expect(called2).to.be.true;
+        });
+
+        it('every() should be true on an empty map', function () {
+            // Given
+            const hashmap = new HashMap();
+            expect(hashmap.every(() => false)).to.be.true;
+            expect(hashmap.every(() => true)).to.be.true;
+        });
+
+        it('every() should return false if all are wrong', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            expect(hashmap.every(() => false)).to.be.false;
+        });
+
+        it('every() should return true if no predicate included', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            expect(hashmap.every()).to.be.true;
+        });
+
+        it('every() should true false if all are right', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            expect(hashmap.every(() => true)).to.be.true;
+        });
+        it('every() should return false if one is wrong', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            expect(hashmap.every((value) => value !== 'value2')).to.be.false;
+        });
+        it('every() should respect function context', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 'value');
+            let ctx = {};
+            hashmap.every(function () {
+                expect(this).to.equal(ctx);
+            }, ctx);
+        });
+    });
+    context('some()', function () {
+        it('some() should pass the basic test', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 'value');
+            let called = 0;
+            const some = hashmap.some(function (value, key, iterable) {
+                called++;
+                expect(value).to.equal('value');
+                expect(key).to.equal('key');
+                expect(this).to.equal(hashmap);
+                expect(iterable).to.equal(hashmap);
+                return false;
+            },hashmap);
+            expect(called).to.equal(1);
+            expect(some).to.be.false;
+        });
+
+        it('some() should call the callback once per key', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            let called1 = false;
+            let called2 = false;
+            let called = 0;
+            const some = hashmap.some(function (value, key) {
+                called++;
+                if (key === 'key') {
+                    called1 = true;
+                    expect(value).to.be.equal('value');
+                } else if (key === 'key2') {
+                    called2 = true;
+                    expect(value).to.be.equal('value2a');
+                }
+                return false;
+            });
+            expect(called).to.equal(2);
+            expect(some).to.be.false;
+            expect(called1).to.be.true;
+            expect(called2).to.be.true;
+        });
+
+        it('some() should return true on first', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set(1, 'value');
+            hashmap.set(2, 'value2');
+            hashmap.set(3, 'value3');
+            let called = 0;
+            const some = hashmap.some(function (value, key) {
+                called++;
+                expect(key).to.be.equal(1);
+                expect(value).to.be.equal('value');
+                return true;
+            });
+            expect(called).to.equal(1);
+            expect(some).to.be.true;
+        });
+
+        it('some() should return true on first in reverse', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set(1, 'value');
+            hashmap.set(2, 'value2');
+            hashmap.set(3, 'value3');
+            let called = 0;
+            const some = hashmap.some(function (value, key) {
+                called++;
+                expect(key).to.be.equal(3);
+                expect(value).to.be.equal('value3');
+                return true;
+            },undefined,{reverse:true});
+            expect(called).to.equal(1);
+            expect(some).to.be.true;
+        });
+        it('some() should return true on second', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set(1, 'value');
+            hashmap.set(2, 'value2');
+            hashmap.set(3, 'value3');
+            let called = 0;
+            const some = hashmap.some(function (value, key) {
+                called++;
+                if(key !== 2){
+                    return false;
+                }
+                expect(key).to.be.equal(2);
+                expect(value).to.be.equal('value2');
+                return true;
+            });
+            expect(called).to.equal(2);
+            expect(some).to.be.true;
+        });
+
+        it('some() should return true on second in reverse', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set(1, 'value');
+            hashmap.set(2, 'value2');
+            hashmap.set(3, 'value3');
+            let called = 0;
+            const some = hashmap.some(function (value, key) {
+                called++;
+                if(key !== 2){
+                    return false;
+                }
+                expect(key).to.be.equal(2);
+                expect(value).to.be.equal('value2');
+                return true;
+            },undefined,{reverse:true});
+            expect(called).to.equal(2);
+            expect(some).to.be.true;
+        });
+        it('some() should return true on third', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set(1, 'value');
+            hashmap.set(2, 'value2');
+            hashmap.set(3, 'value3');
+            let called = 0;
+            const some = hashmap.some(function (value, key) {
+                called++;
+                if(key !== 3){
+                    return false;
+                }
+                expect(key).to.be.equal(3);
+                expect(value).to.be.equal('value3');
+                return true;
+            });
+            expect(called).to.equal(3);
+            expect(some).to.be.true;
+        });
+
+        it('some() should return true on third in reverse', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set(1, 'value');
+            hashmap.set(2, 'value2');
+            hashmap.set(3, 'value3');
+            let called = 0;
+            const some = hashmap.some(function (value, key) {
+                called++;
+                if(key !== 1){
+                    return false;
+                }
+                expect(key).to.be.equal(1);
+                expect(value).to.be.equal('value');
+                return true;
+            },undefined,{reverse:true});
+            expect(called).to.equal(3);
+            expect(some).to.be.true;
+        });
+        it('some() should be false on an empty map', function () {
+            // Given
+            const hashmap = new HashMap();
+            expect(hashmap.some(() => false)).to.be.false;
+            expect(hashmap.some(() => true)).to.be.false;
+        });
+
+        it('some() should return true if no predicate included', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            expect(hashmap.some()).to.be.true;
+        });
+        it('some() should return false if all are wrong', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            expect(hashmap.some(() => false)).to.be.false;
+        });
+        it('some() should return true if all are right', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            expect(hashmap.some(() => true)).to.be.true;
+        });
+
+        it('some() should return true if only one is right', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            expect(hashmap.some((value) => value === 'value2')).to.be.true;
+        });
+        it('some() should respect function context', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 'value');
+            let ctx = {};
+            hashmap.some(function () {
+                expect(this).to.equal(ctx);
+                return true;
+            }, ctx);
+        });
+    });
+    context('reduce()', function () {
+        it('reduce() should pass the basic test', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 'value');
+            const called = hashmap.reduce(function (accumulator, value, key, iterable) {
+                expect(value).to.equal('value');
+                expect(key).to.equal('key');
+                expect(this).to.equal(hashmap);
+                expect(iterable).to.equal(hashmap);
+                return accumulator + 1;
+            }, 0,hashmap);
+            expect(called).to.equal(1);
+        });
+
+        it('reduce() should call the callback once per key', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            let called1 = false;
+            let called2 = false;
+            const calledPlus10 = hashmap.reduce(function (accumulator, value, key) {
+                if (key === 'key') {
+                    called1 = true;
+                    expect(value).to.be.equal('value');
+                } else if (key === 'key2') {
+                    called2 = true;
+                    expect(value).to.be.equal('value2a');
+                }
+                return accumulator + 2;
+            }, 10);
+            expect(calledPlus10).to.be.equal(14);
+            expect(called1).to.be.true;
+            expect(called2).to.be.true;
+        });
+
+        it('reduce() should be undefined on an empty map', function () {
+            // Given
+            const hashmap = new HashMap();
+            expect(hashmap.reduce(() => false)).to.be.undefined;
+            expect(hashmap.reduce(() => true)).to.be.undefined;
+        });
+
+        it('reduce() should use first value if intializer is undefined', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 3);
+            hashmap.set('key2', 5);
+            expect(hashmap.reduce((accumulator, value) => accumulator + value)).to.be.equal(8);
+        });
+
+        it('reduce() should accumulate all values', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 3);
+            hashmap.set('key2', 5);
+            expect(hashmap.reduce((accumulator, value) => accumulator + value, 1)).to.be.equal(9);
+        });
+
+        it('reduce() should accumulate all strings', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 'one');
+            hashmap.set('key2', 4);
+            expect(hashmap.reduce((accumulator, value) => accumulator + value, 'hi')).to.be.equal('hione4');
+        });
+
+        it('reduce() should respect function context', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 'value');
+            let ctx = {};
+            hashmap.reduce(function () {
+                expect(this).to.equal(ctx);
+                return true;
+            }, true, ctx);
+        });
+    });
+    context('reduceRight()', function () {
+        it('reduceRight() should pass the basic test', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 'value');
+            const called = hashmap.reduceRight(function (accumulator, value, key, iterable) {
+                expect(value).to.equal('value');
+                expect(key).to.equal('key');
+                expect(this).to.equal(hashmap);
+                expect(iterable).to.equal(hashmap);
+                return accumulator + 1;
+            }, 0,hashmap);
+            expect(called).to.equal(1);
+        });
+
+        it('reduceRight() should call the callback once per key', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            hashmap.set('key2', 'value2a');
+            let called1 = false;
+            let called2 = false;
+            const calledPlus10 = hashmap.reduceRight(function (accumulator, value, key) {
+                if (key === 'key') {
+                    called1 = true;
+                    expect(value).to.be.equal('value');
+                } else if (key === 'key2') {
+                    called2 = true;
+                    expect(value).to.be.equal('value2a');
+                }
+                return accumulator + 2;
+            }, 10);
+            expect(calledPlus10).to.be.equal(14);
+            expect(called1).to.be.true;
+            expect(called2).to.be.true;
+        });
+
+        it('reduceRight() should be undefined on an empty map', function () {
+            // Given
+            const hashmap = new HashMap();
+            expect(hashmap.reduceRight(() => false)).to.be.undefined;
+            expect(hashmap.reduceRight(() => true)).to.be.undefined;
+        });
+
+        it('reduceRight() should use first value if intializer is undefined', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 3);
+            hashmap.set('key2', 5);
+            expect(hashmap.reduceRight((accumulator, value) => accumulator + value)).to.be.equal(8);
+        });
+
+        it('reduceRight() should accumulate all values', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 3);
+            hashmap.set('key2', 5);
+            expect(hashmap.reduceRight((accumulator, value) => accumulator + value, 1)).to.be.equal(9);
+        });
+
+        it('reduceRight() should accumulate all strings', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 'one');
+            hashmap.set('key2', 4);
+            expect(hashmap.reduceRight((accumulator, value) => accumulator + value, 'hi')).to.be.equal('hi4one');
+        });
+
+        it('reduceRight() should respect function context', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 'value');
+            let ctx = {};
+            hashmap.reduceRight(function () {
+                expect(this).to.equal(ctx);
+                return true;
+            }, true, ctx);
+        });
     });
     context('Iterators', function () {
         it('[Symbol.iterator]', function () {

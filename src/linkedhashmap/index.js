@@ -183,6 +183,7 @@ export class LinkedHashMap extends HashMap {
         }
         return this;
     }
+
     /**
      * Makes a copy of this LinkedHashMap
      * @return {LinkedHashMap}
