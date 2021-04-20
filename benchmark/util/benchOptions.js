@@ -6,7 +6,7 @@
  */
 
 const benchOptions = {
-    delay: 0.05,
+    delay: 0.5,
     // initCount: 30,
     minSamples: 10,
 };
