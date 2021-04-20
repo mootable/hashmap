@@ -1,5 +1,5 @@
 # Changelog
-## Current
+## 1.0.0
 - Breaking Changes
 - Functionality
   - HashMap & LinkedHashMap
@@ -15,6 +15,23 @@
     - Get
       - added **keyOf()** which retrieves the key for a provided value.
       - added **optionalKeyOf()** which retrieves the key for a provided value, and wraps it in an option.
+    - Higher Order Functions
+      - Added **reduce()** similar to the array method
+      - Added **reduceRight()** similar to the array method
+      - Added **some()** similar to the array method
+      - Added **every()** similar to the array method
+      - Added **keyOf()** similar to the array method indexOf
+      - Added **lastKeyOf()** similar to the array method indexOf
+      - Added **find()** similar to the array method
+      - Added **findLast()** find in the opposite directory
+      - Added **findKey()** similar to the array method findIndex
+      - Added **findLastKey()** findKey in the opposite directory
+      - Added **optionalKeyOf()** an optional varient
+      - Added **optionalLastKeyOf()** an optional varient
+      - Added **optionalFind()** an optional varient
+      - Added **optionalFindLast()** an optional varient
+      - Added **optionalFindKey()** an optional varient
+      - Added **optionalFindLastKey()** an optional varient
     - Parameters
       - length and size are now both derived.
   - LinkedHashMap only
@@ -40,10 +57,12 @@
       - added **pop()** to remove the last element on the map. This is a very fast method.
     - Reverse
       - Added **reverse()** method, this modifies the map, and reverses the order of its elements.
-  
+  - MapIterator & SetIterator the higher order wrappers, have gone.
+     - They will be back at some point, but I want to focus on releasing hashmap and linkedhashmap first. I have migrated most functions to hashmap and linkedhashmap and there are plenty of libraries such as lodash that give similar functionality.
 - Testing
-  - 100% Code Coverage on HashMaps and LinkedHashMaps
+  - 100% Code Coverage on Everything.
   - Some minor defects fixed as part of the process, these will improve performance.
+  
 ## 0.15.0
 - Functionality
   - Breaking changes

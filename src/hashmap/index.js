@@ -1,5 +1,5 @@
 import {isFunction, isIterable} from '../utils/';
-import {equalsAndHash, equalsFor} from '../hash';
+import {equalsAndHash, equalsFor} from './hash';
 import {Container} from "./container";
 import {HashBuckets} from "./hashbuckets";
 import {some, none} from "../option";
@@ -8,7 +8,7 @@ import {some, none} from "../option";
  * HashMap - HashMap Implementation for JavaScript
  * @namespace Mootable
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.15.0
+ * @version 1.0.0
  * Homepage: https://github.com/mootable/hashmap
  */
 /**

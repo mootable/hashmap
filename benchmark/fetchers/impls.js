@@ -10,7 +10,7 @@ if (categories.length > 0) {
 /**
  * HashMap - HashMap Implementation for JavaScript
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.15.0
+ * @version 1.0.0
  * Homepage: https://github.com/mootable/hashmap
  */
 const esmRequire = require("esm")(module/*, options*/);
@@ -23,12 +23,12 @@ const mapImplsMetaData = {
         classification: 'mootable'
     },
     'map': {location: '../bench-compare/nativeMap.js', esm: false, className: 'Map', classification: 'native'},
-    'flesler-hashmap': {
-        location: 'Z--bench-compare--flesler-hashmap',
-        esm: false,
-        className: 'HashMap',
-        classification: 'other'
-    },
+    // 'flesler-hashmap': {
+    //     location: 'Z--bench-compare--flesler-hashmap',
+    //     esm: false,
+    //     className: 'HashMap',
+    //     classification: 'other'
+    // },
     // Very slow to load.
     //   'donhash': {location: '../bench-compare/donHashMap.js', esm: false, className: 'HashMap', classification: 'other'},
 };

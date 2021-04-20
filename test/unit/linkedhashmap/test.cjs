@@ -1,7 +1,8 @@
 /* jshint ignore:start */
 const expect = require('chai').expect;
 const esmRequire = require("esm")(module/*, options*/);
-const {LinkedHashMap, LinkedContainer} = esmRequire('../../../src/linkedhashmap/');
+const {LinkedContainer} = esmRequire('../../../src/linkedhashmap/');
+const {LinkedHashMap} = esmRequire('../../../src/')
 
 if (process.env.UNDER_TEST_UNIT !== 'true') {
     return 0;

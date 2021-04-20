@@ -8,7 +8,7 @@ const Utils = {
     sameValueZero,
     abstractEquals,
     strictEquals,
-    sameValue
+    sameValue,
 } = esmRequire('../../../src/utils');
 
 if (process.env.UNDER_TEST_UNIT !== 'true') {

@@ -171,6 +171,7 @@ const ${safeBenchmarkName}Chart = function() {
                 },
                 y: {
                     display: true,
+                    type: 'logarithmic',
                     title: {
                         display: true,
                         text: 'Operations per second',

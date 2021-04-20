@@ -77,7 +77,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line846">line 846</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line846">line 846</a>
     </li></ul></dd>
     
 
@@ -128,11 +128,14 @@
     
         <p class="code-caption">Create a SetIterable from a Map.</p>
     
-    <pre class="prettyprint"><code>const myMap = new Map();// iterating over a setIterable backed by a map, will yield [key,value] arrays.const setIterable = SetIterable.from(myMap);</code></pre>
+    <pre class="prettyprint"><code>const myMap = new Map();
+// iterating over a setIterable backed by a map, will yield [key,value] arrays.
+const setIterable = SetIterable.from(myMap);</code></pre>
 
         <p class="code-caption">Create a SetIterable from a Set.</p>
     
-    <pre class="prettyprint"><code>const mySet = new Set();const setIterable = SetIterable.from(mySet);</code></pre>
+    <pre class="prettyprint"><code>const mySet = new Set();
+const setIterable = SetIterable.from(mySet);</code></pre>
 
         <p class="code-caption">Create a SetIterable from an Array.</p>
     
@@ -140,15 +143,25 @@
 
         <p class="code-caption">Create a SetIterable from an Iterable.</p>
     
-    <pre class="prettyprint"><code>// any object that implements *[Symbol.iterator]() or [Symbol.iterator]() can be used.const myIterable = {    *[Symbol.iterator]() {        yield "value1";        yield "value2";        yield "value3";    }}const setIterable = SetIterable.from(myIterable);</code></pre>
+    <pre class="prettyprint"><code>// any object that implements *[Symbol.iterator]() or [Symbol.iterator]() can be used.
+const myIterable = {
+    *[Symbol.iterator]() {
+        yield "value1";
+        yield "value2";
+        yield "value3";
+    }
+}
+const setIterable = SetIterable.from(myIterable);</code></pre>
 
         <p class="code-caption">Create a SetIterable from a Mootable HashMap.</p>
     
-    <pre class="prettyprint"><code>// iterating over a SetIterable backed by a map, will yield [key,value] arrays.const setIterable =  SetIterable.from(new HashMap());</code></pre>
+    <pre class="prettyprint"><code>// iterating over a SetIterable backed by a map, will yield [key,value] arrays.
+const setIterable =  SetIterable.from(new HashMap());</code></pre>
 
         <p class="code-caption">Create a SetIterable from a Mootable LinkedHashMap.</p>
     
-    <pre class="prettyprint"><code>// iterating over a SetIterable backed by a map, will yield [key,value] arrays.const setIterable =  SetIterable.from(new LinkedHashMap());</code></pre>
+    <pre class="prettyprint"><code>// iterating over a SetIterable backed by a map, will yield [key,value] arrays.
+const setIterable =  SetIterable.from(new LinkedHashMap());</code></pre>
 
 
 
@@ -202,7 +215,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line852">line 852</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line852">line 852</a>
     </li></ul></dd>
     
 
@@ -275,7 +288,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line892">line 892</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line892">line 892</a>
     </li></ul></dd>
     
 
@@ -330,11 +343,14 @@
     
         <p class="code-caption">Create a SetIterable from a Map.</p>
     
-    <pre class="prettyprint"><code>const myMap = new Map();// iterating over a set, will yield [key,value] arrays.const setIterable = SetIterable.from(myMap);</code></pre>
+    <pre class="prettyprint"><code>const myMap = new Map();
+// iterating over a set, will yield [key,value] arrays.
+const setIterable = SetIterable.from(myMap);</code></pre>
 
         <p class="code-caption">Create a SetIterable from a Set.</p>
     
-    <pre class="prettyprint"><code>const mySet = new Set();const setIterable = SetIterable.from(mySet);</code></pre>
+    <pre class="prettyprint"><code>const mySet = new Set();
+const setIterable = SetIterable.from(mySet);</code></pre>
 
         <p class="code-caption">Create a SetIterable from an Array.</p>
     
@@ -342,15 +358,25 @@
 
         <p class="code-caption">Create a SetIterable from an Iterable.</p>
     
-    <pre class="prettyprint"><code>// any object that implements *[Symbol.iterator]() or [Symbol.iterator]() can be used.const myIterable = {    *[Symbol.iterator]() {        yield "value1";        yield "value2";        yield "value3";    }}const setIterable = SetIterable.from(myIterable);</code></pre>
+    <pre class="prettyprint"><code>// any object that implements *[Symbol.iterator]() or [Symbol.iterator]() can be used.
+const myIterable = {
+    *[Symbol.iterator]() {
+        yield "value1";
+        yield "value2";
+        yield "value3";
+    }
+}
+const setIterable = SetIterable.from(myIterable);</code></pre>
 
         <p class="code-caption">Create a SetIterable from a Mootable HashMap.</p>
     
-    <pre class="prettyprint"><code>// iterating over a SetIterable backed by a map, will yield [key,value] arrays.const setIterable =  SetIterable.from(new HashMap());</code></pre>
+    <pre class="prettyprint"><code>// iterating over a SetIterable backed by a map, will yield [key,value] arrays.
+const setIterable =  SetIterable.from(new HashMap());</code></pre>
 
         <p class="code-caption">Create a SetIterable from a Mootable LinkedHashMap.</p>
     
-    <pre class="prettyprint"><code>// iterating over a SetIterable backed by a map, will yield [key,value] arrays.const setIterable =  SetIterable.from(new LinkedHashMap());</code></pre>
+    <pre class="prettyprint"><code>// iterating over a SetIterable backed by a map, will yield [key,value] arrays.
+const setIterable =  SetIterable.from(new LinkedHashMap());</code></pre>
 
 
 
@@ -469,7 +495,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line992">line 992</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line992">line 992</a>
     </li></ul></dd>
     
 
@@ -550,31 +576,53 @@ The original collector, with the exception of arrays, will be modified as we cal
     
         <p class="code-caption">Collect to a new <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></p>
     
-    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const myArray = mapIterable.collect();// myArray === [[1,'value1'],[2,'value2'],[3,'value3']]:</code></pre>
+    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const myArray = mapIterable.collect();
+// myArray === [[1,'value1'],[2,'value2'],[3,'value3']]:</code></pre>
 
         <p class="code-caption">Collect with an empty existing <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></p>
     
-    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const oldArray = [];const newArray = mapIterable.collect(oldArray);// newArray === [[1,'value1'],[2,'value2'],[3,'value3']]// oldArray === []</code></pre>
+    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const oldArray = [];
+const newArray = mapIterable.collect(oldArray);
+// newArray === [[1,'value1'],[2,'value2'],[3,'value3']]
+// oldArray === []</code></pre>
 
         <p class="code-caption">Collect with an existing <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a> with values</p>
     
-    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const oldArray = [[2,'someOtherValue']];const newArray = mapIterable.collect(oldArray);// newArray === [[2,'someOtherValue'],[1,'value1'],[2,'value2'],[3,'value3']]// oldArray === [[2,'someOtherValue']]</code></pre>
+    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const oldArray = [[2,'someOtherValue']];
+const newArray = mapIterable.collect(oldArray);
+// newArray === [[2,'someOtherValue'],[1,'value1'],[2,'value2'],[3,'value3']]
+// oldArray === [[2,'someOtherValue']]</code></pre>
 
         <p class="code-caption">Collect to an existing <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a> with values, modifying the old array.</p>
     
-    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const array  = [[2,'someOtherValue']];array.push(mapIterable.collect())// array === [[2,'someOtherValue'],[1,'value1'],[2,'value2'],[3,'value3']]</code></pre>
+    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const array  = [[2,'someOtherValue']];
+array.push(mapIterable.collect())
+// array === [[2,'someOtherValue'],[1,'value1'],[2,'value2'],[3,'value3']]</code></pre>
 
         <p class="code-caption">Collect to a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set">Set</a></p>
     
-    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const oldSet = new Set().add('willRemain');const newSet = mapIterable.collect(oldSet);// oldSet === newSet === ['willRemain',[1,'value1'],[2,'value2'],[3,'value3']]</code></pre>
+    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const oldSet = new Set().add('willRemain');
+const newSet = mapIterable.collect(oldSet);
+// oldSet === newSet === ['willRemain',[1,'value1'],[2,'value2'],[3,'value3']]</code></pre>
 
         <p class="code-caption">Collect to a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map">Map</a></p>
     
-    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const oldMap = new Map().set(2,'willBeOverwritten').set(5,'willRemain');const newMap = mapIterable.collect(oldMap);// oldMap === newMap === [[2,'value2'],[5,'willRemain'],[1,'value1'],[3,'value3']]</code></pre>
+    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const oldMap = new Map().set(2,'willBeOverwritten').set(5,'willRemain');
+const newMap = mapIterable.collect(oldMap);
+// oldMap === newMap === [[2,'value2'],[5,'willRemain'],[1,'value1'],[3,'value3']]</code></pre>
 
         <p class="code-caption">Collect to a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a></p>
     
-    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const oldObject = {'1','willBeOverridden'};const newObject = mapIterable.collect(oldObject);// oldObject === newObject === {'1': 'value1', '2': 'value2', '3': 'value3'}</code></pre>
+    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const oldObject = {'1','willBeOverridden'};
+const newObject = mapIterable.collect(oldObject);
+// oldObject === newObject === {'1': 'value1', '2': 'value2', '3': 'value3'}</code></pre>
 
 
 
@@ -734,7 +782,7 @@ The original collector, with the exception of arrays, will be modified as we cal
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line1199">line 1199</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line1199">line 1199</a>
     </li></ul></dd>
     
 
@@ -797,11 +845,20 @@ This is based on <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScrip
     
         <p class="code-caption">concatenate 2 sets</p>
     
-    <pre class="prettyprint"><code>const set1 = new Set(['value1','value2','value3']);const set2 = new Set(['value1a','value2a','value3a']);const setIterable = SetIterable.from(set1).concat(set2);// Notice how any unique constraints are gone.// setIterable === ['value1','value2','value3','value1a','value2a'],'value3a']// setIterable instanceof SetIterable</code></pre>
+    <pre class="prettyprint"><code>const set1 = new Set(['value1','value2','value3']);
+const set2 = new Set(['value1a','value2a','value3a']);
+const setIterable = SetIterable.from(set1).concat(set2);
+// Notice how any unique constraints are gone.
+// setIterable === ['value1','value2','value3','value1a','value2a'],'value3a']
+// setIterable instanceof SetIterable</code></pre>
 
         <p class="code-caption">concatenate an array</p>
     
-    <pre class="prettyprint"><code>const set = new Set(['value1','value2','value3']);const array = ['hello','world'];const setIterable = SetIterable.from(set).concat(array);// setIterable === ['value1','value2','value3','hello','world']// setIterable instanceof SetIterable</code></pre>
+    <pre class="prettyprint"><code>const set = new Set(['value1','value2','value3']);
+const array = ['hello','world'];
+const setIterable = SetIterable.from(set).concat(array);
+// setIterable === ['value1','value2','value3','hello','world']
+// setIterable instanceof SetIterable</code></pre>
 
 
 
@@ -923,7 +980,7 @@ This is based on <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScrip
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line1233">line 1233</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line1233">line 1233</a>
     </li></ul></dd>
     
 
@@ -985,7 +1042,11 @@ This is based on <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScrip
     
         <p class="code-caption">collect all the entries</p>
     
-    <pre class="prettyprint"><code>const set = new Set([1,2,3]);const entriesIterable = SetIterable.from(set).entries();// entriesIterable instanceof MapIterableconst entries = entriesIterable.collect();// entries === [[1,1],[2,'2],[3,3]]</code></pre>
+    <pre class="prettyprint"><code>const set = new Set([1,2,3]);
+const entriesIterable = SetIterable.from(set).entries();
+// entriesIterable instanceof MapIterable
+const entries = entriesIterable.collect();
+// entries === [[1,1],[2,'2],[3,3]]</code></pre>
 
 
 
@@ -1042,7 +1103,7 @@ This is based on <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScrip
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line1059">line 1059</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line1059">line 1059</a>
     </li></ul></dd>
     
 
@@ -1111,11 +1172,17 @@ This is based on <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScrip
     
         <p class="code-caption">Do all values start with value. (yes)</p>
     
-    <pre class="prettyprint"><code>const set = new Set().add('value1').add('value2').add('value3');const setIterable = SetIterable.from(set);const everyResult = setIterable.every((value) => value.startsWith('value'));// everyResult === true</code></pre>
+    <pre class="prettyprint"><code>const set = new Set().add('value1').add('value2').add('value3');
+const setIterable = SetIterable.from(set);
+const everyResult = setIterable.every((value) => value.startsWith('value'));
+// everyResult === true</code></pre>
 
         <p class="code-caption">Do all values start with value. (no)</p>
     
-    <pre class="prettyprint"><code>const set = new Set().add('value1').add('doesntStart').add('value3');const setIterable = SetIterable.from(set);const everyResult = setIterable.every((value) => value.startsWith('value'));// everyResult === false</code></pre>
+    <pre class="prettyprint"><code>const set = new Set().add('value1').add('doesntStart').add('value3');
+const setIterable = SetIterable.from(set);
+const everyResult = setIterable.every((value) => value.startsWith('value'));
+// everyResult === false</code></pre>
 
 
 
@@ -1284,7 +1351,7 @@ This is based on <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScrip
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line912">line 912</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line912">line 912</a>
     </li></ul></dd>
     
 
@@ -1339,7 +1406,12 @@ This is based on <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScrip
     
         <p class="code-caption">Only match values which are odd numbered.</p>
     
-    <pre class="prettyprint"><code>const hashmap = SetIterable.from([1,2,3]);const filteredIterable = hashmap.filter((value) => value % 2 !== 0);filteredIterable.forEach((value) => console.log(value));// will log to the console:// 1// 3</code></pre>
+    <pre class="prettyprint"><code>const hashmap = SetIterable.from([1,2,3]);
+const filteredIterable = hashmap.filter((value) => value % 2 !== 0);
+filteredIterable.forEach((value) => console.log(value));
+// will log to the console:
+// 1
+// 3</code></pre>
 
 
 
@@ -1510,7 +1582,7 @@ This is based on <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScrip
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line1149">line 1149</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line1149">line 1149</a>
     </li></ul></dd>
     
 
@@ -1577,11 +1649,17 @@ This is based on <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScrip
     
         <p class="code-caption">Find a value</p>
     
-    <pre class="prettyprint"><code>const set = new Set().add('value1').add('value2').add('value3');const setIterable = SetIterable.from(set);const findResult = setIterable.find((value) => value.endsWith('ue2'));// findResult === 'value2'</code></pre>
+    <pre class="prettyprint"><code>const set = new Set().add('value1').add('value2').add('value3');
+const setIterable = SetIterable.from(set);
+const findResult = setIterable.find((value) => value.endsWith('ue2'));
+// findResult === 'value2'</code></pre>
 
         <p class="code-caption">Can't find a value</p>
     
-    <pre class="prettyprint"><code>const set = new Set().add('value1').add('value2').add('value3');const setIterable = SetIterable.from(set);const findResult = setIterable.find((value) => value.startsWith('something'));// findResult === undefined</code></pre>
+    <pre class="prettyprint"><code>const set = new Set().add('value1').add('value2').add('value3');
+const setIterable = SetIterable.from(set);
+const findResult = setIterable.find((value) => value.startsWith('something'));
+// findResult === undefined</code></pre>
 
 
 
@@ -1752,7 +1830,7 @@ This is based on <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScrip
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line930">line 930</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line930">line 930</a>
     </li></ul></dd>
     
 
@@ -1807,7 +1885,13 @@ This is based on <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScrip
     
         <p class="code-caption">Log all the  values.</p>
     
-    <pre class="prettyprint"><code>const set = new Set().add('value1').add('value2').add('value3');const setIterable = SetIterable.from(set);mapIterable.forEach((value) => console.log(value));// will log to the console:// value1// value2// value3</code></pre>
+    <pre class="prettyprint"><code>const set = new Set().add('value1').add('value2').add('value3');
+const setIterable = SetIterable.from(set);
+mapIterable.forEach((value) => console.log(value));
+// will log to the console:
+// value1
+// value2
+// value3</code></pre>
 
 
 
@@ -1978,7 +2062,7 @@ This is based on <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScrip
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line1124">line 1124</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line1124">line 1124</a>
     </li></ul></dd>
     
 
@@ -2048,11 +2132,17 @@ If backed by a Map or HashMap, then it will match [key,value] pairs not keys.</p
     
         <p class="code-caption">Does this contain a value that is there</p>
     
-    <pre class="prettyprint"><code>const set = new Set().add('value1').add('value2').add('value3');const setIterable = SetIterable.from(set);const hasResult = setIterable.has('value2');// hasResult === true</code></pre>
+    <pre class="prettyprint"><code>const set = new Set().add('value1').add('value2').add('value3');
+const setIterable = SetIterable.from(set);
+const hasResult = setIterable.has('value2');
+// hasResult === true</code></pre>
 
         <p class="code-caption">Does this contain a value that isn't there</p>
     
-    <pre class="prettyprint"><code>const set = new Set().add(1).add(2).add(3);const setIterable = SetIterable.from(set);const hasResult = setIterable.has(4);// hasResult === false</code></pre>
+    <pre class="prettyprint"><code>const set = new Set().add(1).add(2).add(3);
+const setIterable = SetIterable.from(set);
+const hasResult = setIterable.has(4);
+// hasResult === false</code></pre>
 
 
 
@@ -2207,7 +2297,7 @@ If backed by a Map or HashMap, then it will match [key,value] pairs not keys.</p
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line1218">line 1218</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line1218">line 1218</a>
     </li></ul></dd>
     
 
@@ -2324,7 +2414,7 @@ Behaves the same way as the JS Set Object in that it just returns values</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line1174">line 1174</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line1174">line 1174</a>
     </li></ul></dd>
     
 
@@ -2389,7 +2479,12 @@ Behaves the same way as the JS Set Object in that it just returns values</p>
     
         <p class="code-caption">return just values with 'ish' on the end</p>
     
-    <pre class="prettyprint"><code>const set = new Set().add('value1').add('value2').add('value3');const setIterable = SetIterable.from(set);const mapped = setIterable.map((value, key) => value+'ish');const mapArray = mapped.collect();// mapArray === ['value1ish','value2ish','value3ish']// mapped instanceof SetIterable</code></pre>
+    <pre class="prettyprint"><code>const set = new Set().add('value1').add('value2').add('value3');
+const setIterable = SetIterable.from(set);
+const mapped = setIterable.map((value, key) => value+'ish');
+const mapArray = mapped.collect();
+// mapArray === ['value1ish','value2ish','value3ish']
+// mapped instanceof SetIterable</code></pre>
 
 
 
@@ -2558,7 +2653,7 @@ Behaves the same way as the JS Set Object in that it just returns values</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line1028">line 1028</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line1028">line 1028</a>
     </li></ul></dd>
     
 
@@ -2620,11 +2715,17 @@ Behaves the same way as the JS Set Object in that it just returns values</p>
     
         <p class="code-caption">add all the values</p>
     
-    <pre class="prettyprint"><code>const set = new Set().add(1).add(2).add(3);const setIterable = SetIterable.from(set);const reduceResult = setIterable.reduce((accumulator, value) => accumulator+value, 0);// reduceResult === 6</code></pre>
+    <pre class="prettyprint"><code>const set = new Set().add(1).add(2).add(3);
+const setIterable = SetIterable.from(set);
+const reduceResult = setIterable.reduce((accumulator, value) => accumulator+value, 0);
+// reduceResult === 6</code></pre>
 
         <p class="code-caption">add all the values into one string in reverse order</p>
     
-    <pre class="prettyprint"><code>const set = new Set().add('value1').add('value2').add('value3');const setIterable = SetIterable.from(set);const reduceResult = setIterable.reduce((accumulator, value) => value+accumulator, '');// reduceResult === 'value3value2value1'</code></pre>
+    <pre class="prettyprint"><code>const set = new Set().add('value1').add('value2').add('value3');
+const setIterable = SetIterable.from(set);
+const reduceResult = setIterable.reduce((accumulator, value) => value+accumulator, '');
+// reduceResult === 'value3value2value1'</code></pre>
 
 
 
@@ -2832,7 +2933,7 @@ Behaves the same way as the JS Set Object in that it just returns values</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line1091">line 1091</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line1091">line 1091</a>
     </li></ul></dd>
     
 
@@ -2901,11 +3002,17 @@ Behaves the same way as the JS Set Object in that it just returns values</p>
     
         <p class="code-caption">Do any values start with value. (yes all of them)</p>
     
-    <pre class="prettyprint"><code>const set = new Set().add('value1').add('value2').add('value3');const setIterable = SetIterable.from(set);const someResult = setIterable.some((value) => value.startsWith('value'));// someResult === true</code></pre>
+    <pre class="prettyprint"><code>const set = new Set().add('value1').add('value2').add('value3');
+const setIterable = SetIterable.from(set);
+const someResult = setIterable.some((value) => value.startsWith('value'));
+// someResult === true</code></pre>
 
         <p class="code-caption">Do any values start with value. (yes 2 of them)</p>
     
-    <pre class="prettyprint"><code>const set = new Set().add('value1').add('doesntStart').add('value3');const setIterable = SetIterable.from(set);const someResult = setIterable.some((value) => value.startsWith('value'));// someResult === true</code></pre>
+    <pre class="prettyprint"><code>const set = new Set().add('value1').add('doesntStart').add('value3');
+const setIterable = SetIterable.from(set);
+const someResult = setIterable.some((value) => value.startsWith('value'));
+// someResult === true</code></pre>
 
 
 
@@ -3076,7 +3183,7 @@ Behaves the same way as the JS Set Object in that it just returns values</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line1208">line 1208</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line1208">line 1208</a>
     </li></ul></dd>
     
 

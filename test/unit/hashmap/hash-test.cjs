@@ -2,7 +2,7 @@
 const chalk = require('chalk')
 const expect = require('chai').expect;
 const esmRequire = require("esm")(module/*, options*/);
-const Hash = {hash, hashCodeFor, equalsFor, equalsAndHash} = esmRequire('../../../src/hash')
+const Hash = {hash, hashCodeFor, equalsFor, equalsAndHash} = esmRequire('../../../src/hashmap/hash')
 const {sameValueZero,strictEquals} = esmRequire('../../../src/utils')
 const {some,none} = esmRequire('../../../src/option')
 

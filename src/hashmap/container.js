@@ -4,7 +4,7 @@ import {none, some} from '../option/';
  * HashMap - HashMap Container Implementation for JavaScript
  * @namespace Mootable.HashMap
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.15.0
+ * @version 1.0.0
  * Homepage: https://github.com/mootable/hashmap
  */
 

@@ -1,12 +1,12 @@
 /**
  * HashMap - HashMap Implementation for JavaScript
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.15.0
+ * @version 1.0.0
  * Homepage: https://github.com/mootable/hashmap
  */
 const {kvStore, MAP_SIZES} = require('./test_data.js');
 const {mapImpls} = require('./impls.js');
-const {hashCodeFor} = require('../../src/hash');
+const {hashCodeFor} = require('../../src/hashmap/hash');
 const cachedMemorySizes = {};
 const cache = {};
 

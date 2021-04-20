@@ -1,13 +1,13 @@
 import {HashMap} from '../hashmap/';
 import {Container} from '../hashmap/container';
-import {equalsAndHash} from "../hash";
+import {equalsAndHash} from "../hashmap/hash";
 import {some, none} from "../option";
 
 /**
  * HashMap - LinkedHashMap Implementation for JavaScript
  * @namespace Mootable
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 0.15.0
+ * @version 1.0.0
  * Homepage: https://github.com/mootable/hashmap
  */
 /**

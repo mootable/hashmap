@@ -2,7 +2,7 @@
 const expect = require('chai').expect;
 const esmRequire = require("esm")(module/*, options*/);
 const {Container} = esmRequire('../../../src/hashmap/container')
-const {HashMap} = esmRequire('../../../src/hashmap')
+const {HashMap} = esmRequire('../../../src/')
 
 if (process.env.UNDER_TEST_UNIT !== 'true') {
     return 0;

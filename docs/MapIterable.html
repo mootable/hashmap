@@ -77,7 +77,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line45">line 45</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line45">line 45</a>
     </li></ul></dd>
     
 
@@ -128,27 +128,45 @@
     
         <p class="code-caption">Create a MapIterable from a Map.</p>
     
-    <pre class="prettyprint"><code>const myMap = new Map();const mapIterable = MapIterable.from(myMap);</code></pre>
+    <pre class="prettyprint"><code>const myMap = new Map();
+const mapIterable = MapIterable.from(myMap);</code></pre>
 
         <p class="code-caption">Create a MapIterable from a Set.</p>
     
-    <pre class="prettyprint"><code>const mySet = new Set();// sets wrapped in a map iterable must have a value of an Array matching [key,value]mySet.add(["key", "value"]);const mapIterable = MapIterable.from(mySet);</code></pre>
+    <pre class="prettyprint"><code>const mySet = new Set();
+// sets wrapped in a map iterable must have a value of an Array matching [key,value]
+mySet.add(["key", "value"]);
+const mapIterable = MapIterable.from(mySet);</code></pre>
 
         <p class="code-caption">Create a MapIterable from an Array.</p>
     
-    <pre class="prettyprint"><code>// arrays wrapped in a map iterable must have be an array of arrays matching [key,value]const myArray = [["key", "value"]];const mapIterable = MapIterable.from(myArray);</code></pre>
+    <pre class="prettyprint"><code>// arrays wrapped in a map iterable must have be an array of arrays matching [key,value]
+const myArray = [["key", "value"]];
+const mapIterable = MapIterable.from(myArray);</code></pre>
 
         <p class="code-caption">Create a MapIterable from an Iterable.</p>
     
-    <pre class="prettyprint"><code>// iterables wrapped in a map iterable must yield arrays matching [key,value],// any object that implements *[Symbol.iterator]() or [Symbol.iterator]()// can be used as long as they follow that contract.const myIterable = {    *[Symbol.iterator]() {        yield ["key1", "value1"];        yield ["key2", "value2"];        yield ["key3", "value3"];    }}const mapIterable = MapIterable.from(myIterable);</code></pre>
+    <pre class="prettyprint"><code>// iterables wrapped in a map iterable must yield arrays matching [key,value],
+// any object that implements *[Symbol.iterator]() or [Symbol.iterator]()
+// can be used as long as they follow that contract.
+const myIterable = {
+    *[Symbol.iterator]() {
+        yield ["key1", "value1"];
+        yield ["key2", "value2"];
+        yield ["key3", "value3"];
+    }
+}
+const mapIterable = MapIterable.from(myIterable);</code></pre>
 
         <p class="code-caption">Create a MapIterable from a Mootable HashMap.</p>
     
-    <pre class="prettyprint"><code>// all Mootable HashMaps extend MapIterable, no need to wrap with the MapIterable.from() function.const mapIterable = new HashMap();</code></pre>
+    <pre class="prettyprint"><code>// all Mootable HashMaps extend MapIterable, no need to wrap with the MapIterable.from() function.
+const mapIterable = new HashMap();</code></pre>
 
         <p class="code-caption">Create a MapIterable from a Mootable LinkedHashMap.</p>
     
-    <pre class="prettyprint"><code>// all Mootable LinkedHashMaps extend MapIterable, no need to wrap with the MapIterable.from() function.const mapIterable = new LinkedHashMap();</code></pre>
+    <pre class="prettyprint"><code>// all Mootable LinkedHashMaps extend MapIterable, no need to wrap with the MapIterable.from() function.
+const mapIterable = new LinkedHashMap();</code></pre>
 
 
 
@@ -202,7 +220,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line58">line 58</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line58">line 58</a>
     </li></ul></dd>
     
 
@@ -255,7 +273,12 @@
     
         <p class="code-caption">Return the size of this mapIterable.</p>
     
-    <pre class="prettyprint"><code>const myMap = new Map();// sets 2 values, and replaces 1 of themmyMap.set("key1","val1").set("key2","val2").set("key2","val2a");const mapIterable = MapIterable.from(myMap);// returns 2const theSize = mapIterable.size;</code></pre>
+    <pre class="prettyprint"><code>const myMap = new Map();
+// sets 2 values, and replaces 1 of them
+myMap.set("key1","val1").set("key2","val2").set("key2","val2a");
+const mapIterable = MapIterable.from(myMap);
+// returns 2
+const theSize = mapIterable.size;</code></pre>
 
 
 
@@ -282,7 +305,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line103">line 103</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line103">line 103</a>
     </li></ul></dd>
     
 
@@ -337,27 +360,45 @@
     
         <p class="code-caption">Create a MapIterable from a Map.</p>
     
-    <pre class="prettyprint"><code>const myMap = new Map();const mapIterable = MapIterable.from(myMap);</code></pre>
+    <pre class="prettyprint"><code>const myMap = new Map();
+const mapIterable = MapIterable.from(myMap);</code></pre>
 
         <p class="code-caption">Create a MapIterable from a Set.</p>
     
-    <pre class="prettyprint"><code>const mySet = new Set();// sets wrapped in a map iterable must have a value of an Array matching [key,value]mySet.add(["key", "value"]);const mapIterable = MapIterable.from(mySet);</code></pre>
+    <pre class="prettyprint"><code>const mySet = new Set();
+// sets wrapped in a map iterable must have a value of an Array matching [key,value]
+mySet.add(["key", "value"]);
+const mapIterable = MapIterable.from(mySet);</code></pre>
 
         <p class="code-caption">Create a MapIterable from an Array.</p>
     
-    <pre class="prettyprint"><code>// arrays wrapped in a map iterable must have be an array of arrays matching [key,value]const myArray = [["key", "value"]];const mapIterable = MapIterable.from(myArray);</code></pre>
+    <pre class="prettyprint"><code>// arrays wrapped in a map iterable must have be an array of arrays matching [key,value]
+const myArray = [["key", "value"]];
+const mapIterable = MapIterable.from(myArray);</code></pre>
 
         <p class="code-caption">Create a MapIterable from an Iterable.</p>
     
-    <pre class="prettyprint"><code>// iterables wrapped in a map iterable must yield arrays matching [key,value],// any object that implements *[Symbol.iterator]() or [Symbol.iterator]()// can be used as long as they follow that contract.const myIterable = {    *[Symbol.iterator]() {        yield ["key1", "value1"];        yield ["key2", "value2"];        yield ["key3", "value3"];    }}const mapIterable = MapIterable.from(myIterable);</code></pre>
+    <pre class="prettyprint"><code>// iterables wrapped in a map iterable must yield arrays matching [key,value],
+// any object that implements *[Symbol.iterator]() or [Symbol.iterator]()
+// can be used as long as they follow that contract.
+const myIterable = {
+    *[Symbol.iterator]() {
+        yield ["key1", "value1"];
+        yield ["key2", "value2"];
+        yield ["key3", "value3"];
+    }
+}
+const mapIterable = MapIterable.from(myIterable);</code></pre>
 
         <p class="code-caption">Create a MapIterable from a Mootable HashMap.</p>
     
-    <pre class="prettyprint"><code>// all Mootable HashMaps extend MapIterable, no need to wrap with the MapIterable.from function. If you do it will just return it back.const mapIterable = new HashMap();</code></pre>
+    <pre class="prettyprint"><code>// all Mootable HashMaps extend MapIterable, no need to wrap with the MapIterable.from function. If you do it will just return it back.
+const mapIterable = new HashMap();</code></pre>
 
         <p class="code-caption">Create a MapIterable from a Mootable LinkedHashMap.</p>
     
-    <pre class="prettyprint"><code>// all Mootable LinkedHashMaps extend MapIterable, no need to wrap with the MapIterable.from() function.If you do it will just return it back.const mapIterable = new LinkedHashMap();</code></pre>
+    <pre class="prettyprint"><code>// all Mootable LinkedHashMaps extend MapIterable, no need to wrap with the MapIterable.from() function.If you do it will just return it back.
+const mapIterable = new LinkedHashMap();</code></pre>
 
 
 
@@ -479,7 +520,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line231">line 231</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line231">line 231</a>
     </li></ul></dd>
     
 
@@ -560,31 +601,53 @@ The original collector, with the exception of arrays, will be modified as we cal
     
         <p class="code-caption">Collect to a new <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></p>
     
-    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const myArray = mapIterable.collect();// myArray === [[1,'value1'],[2,'value2'],[3,'value3']]:</code></pre>
+    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const myArray = mapIterable.collect();
+// myArray === [[1,'value1'],[2,'value2'],[3,'value3']]:</code></pre>
 
         <p class="code-caption">Collect with an empty existing <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></p>
     
-    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const oldArray = [];const newArray = mapIterable.collect(oldArray);// newArray === [[1,'value1'],[2,'value2'],[3,'value3']]// oldArray === []</code></pre>
+    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const oldArray = [];
+const newArray = mapIterable.collect(oldArray);
+// newArray === [[1,'value1'],[2,'value2'],[3,'value3']]
+// oldArray === []</code></pre>
 
         <p class="code-caption">Collect with an existing <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a> with values</p>
     
-    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const oldArray = [[2,'someOtherValue']];const newArray = mapIterable.collect(oldArray);// newArray === [[2,'someOtherValue'],[1,'value1'],[2,'value2'],[3,'value3']]// oldArray === [[2,'someOtherValue']]</code></pre>
+    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const oldArray = [[2,'someOtherValue']];
+const newArray = mapIterable.collect(oldArray);
+// newArray === [[2,'someOtherValue'],[1,'value1'],[2,'value2'],[3,'value3']]
+// oldArray === [[2,'someOtherValue']]</code></pre>
 
         <p class="code-caption">Collect to an existing <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a> with values, modifying the old array.</p>
     
-    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const array  = [[2,'someOtherValue']];array.push(mapIterable.collect())// array === [[2,'someOtherValue'],[1,'value1'],[2,'value2'],[3,'value3']]</code></pre>
+    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const array  = [[2,'someOtherValue']];
+array.push(mapIterable.collect())
+// array === [[2,'someOtherValue'],[1,'value1'],[2,'value2'],[3,'value3']]</code></pre>
 
         <p class="code-caption">Collect to a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set">Set</a></p>
     
-    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const oldSet = new Set().add('willRemain');const newSet = mapIterable.collect(oldSet);// oldSet === newSet === ['willRemain',[1,'value1'],[2,'value2'],[3,'value3']]</code></pre>
+    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const oldSet = new Set().add('willRemain');
+const newSet = mapIterable.collect(oldSet);
+// oldSet === newSet === ['willRemain',[1,'value1'],[2,'value2'],[3,'value3']]</code></pre>
 
         <p class="code-caption">Collect to a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map">Map</a></p>
     
-    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const oldMap = new Map().set(2,'willBeOverwritten').set(5,'willRemain');const newMap = mapIterable.collect(oldMap);// oldMap === newMap === [[2,'value2'],[5,'willRemain'],[1,'value1'],[3,'value3']]</code></pre>
+    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const oldMap = new Map().set(2,'willBeOverwritten').set(5,'willRemain');
+const newMap = mapIterable.collect(oldMap);
+// oldMap === newMap === [[2,'value2'],[5,'willRemain'],[1,'value1'],[3,'value3']]</code></pre>
 
         <p class="code-caption">Collect to a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a></p>
     
-    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const oldObject = {'1','willBeOverridden'};const newObject = mapIterable.collect(oldObject);// oldObject === newObject === {'1': 'value1', '2': 'value2', '3': 'value3'}</code></pre>
+    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const oldObject = {'1','willBeOverridden'};
+const newObject = mapIterable.collect(oldObject);
+// oldObject === newObject === {'1': 'value1', '2': 'value2', '3': 'value3'}</code></pre>
 
 
 
@@ -744,7 +807,7 @@ The original collector, with the exception of arrays, will be modified as we cal
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line731">line 731</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line731">line 731</a>
     </li></ul></dd>
     
 
@@ -815,11 +878,21 @@ This is based on <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScrip
     
         <p class="code-caption">concatenate 2 maps</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const hashmap2 = new LinkedHashMap([[1,'value1a'],[2,'value2a'],[3,'value3a']]);const mapIterable = hashmap.concat(hashmap2);// Notice how the keys are repeated, any unique constraints are gone.// mapIterable === [[1,'value1'],[2,'value2'],[3,'value3'],[1,'value1a'],[2,'value2a'],[3,'value3a']]// mapIterable instanceof MapIterable</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const hashmap2 = new LinkedHashMap([[1,'value1a'],[2,'value2a'],[3,'value3a']]);
+const mapIterable = hashmap.concat(hashmap2);
+// Notice how the keys are repeated, any unique constraints are gone.
+// mapIterable === [[1,'value1'],[2,'value2'],[3,'value3'],[1,'value1a'],[2,'value2a'],[3,'value3a']]
+// mapIterable instanceof MapIterable</code></pre>
 
         <p class="code-caption">concatenate an array</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const array = ['hello','world'];const setIterable = hashmap.concat(array);// Notice how we have key value pairs and strings mixed.// setIterable === [[1,'value1'],[2,'value2'],[3,'value3'],'hello','world']// setIterable instanceof SetIterable</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const array = ['hello','world'];
+const setIterable = hashmap.concat(array);
+// Notice how we have key value pairs and strings mixed.
+// setIterable === [[1,'value1'],[2,'value2'],[3,'value3'],'hello','world']
+// setIterable instanceof SetIterable</code></pre>
 
 
 
@@ -944,7 +1017,7 @@ This is based on <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScrip
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line763">line 763</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line763">line 763</a>
     </li></ul></dd>
     
 
@@ -1003,11 +1076,21 @@ This is based on <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScrip
     
         <p class="code-caption">concatenate 2 maps</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const hashmap2 = new LinkedHashMap([[1,'value1a'],[2,'value2a'],[3,'value3a']]);const mapIterable = hashmap.concatMap(hashmap2);// Notice how the keys are repeated, any unique constraints are gone.// mapIterable === [[1,'value1'],[2,'value2'],[3,'value3'],[1,'value1a'],[2,'value2a'],[3,'value3a']]// mapIterable instanceof MapIterable</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const hashmap2 = new LinkedHashMap([[1,'value1a'],[2,'value2a'],[3,'value3a']]);
+const mapIterable = hashmap.concatMap(hashmap2);
+// Notice how the keys are repeated, any unique constraints are gone.
+// mapIterable === [[1,'value1'],[2,'value2'],[3,'value3'],[1,'value1a'],[2,'value2a'],[3,'value3a']]
+// mapIterable instanceof MapIterable</code></pre>
 
         <p class="code-caption">concatenate an array</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const array = [[1,'hello'],[3,'world']];const mapIterable = hashmap.concatMap(array);// Notice how everything is a key value pair.// mapIterable === [[1,'value1'],[2,'value2'],[3,'value3'],[1,'hello'],[3,'world']]// mapIterable instanceof MapIterable</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const array = [[1,'hello'],[3,'world']];
+const mapIterable = hashmap.concatMap(array);
+// Notice how everything is a key value pair.
+// mapIterable === [[1,'value1'],[2,'value2'],[3,'value3'],[1,'hello'],[3,'world']]
+// mapIterable instanceof MapIterable</code></pre>
 
 
 
@@ -1129,7 +1212,7 @@ This is based on <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScrip
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line811">line 811</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line811">line 811</a>
     </li></ul></dd>
     
 
@@ -1191,7 +1274,11 @@ This is based on <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScrip
     
         <p class="code-caption">collect all the entries</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const entriesIterable = hashmap.entries();// entriesIterable instanceof MapIterableconst entries = entriesIterable.collect();// entries === [[1,'value1'],[2,'value2'],[3,'value3']]</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const entriesIterable = hashmap.entries();
+// entriesIterable instanceof MapIterable
+const entries = entriesIterable.collect();
+// entries === [[1,'value1'],[2,'value2'],[3,'value3']]</code></pre>
 
 
 
@@ -1248,7 +1335,7 @@ This is based on <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScrip
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line274">line 274</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line274">line 274</a>
     </li></ul></dd>
     
 
@@ -1317,11 +1404,15 @@ This is based on <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScrip
     
         <p class="code-caption">Do all values start with value. (yes)</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const everyResult = hashmap.every((value) => value.startsWith('value'));// everyResult === true</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const everyResult = hashmap.every((value) => value.startsWith('value'));
+// everyResult === true</code></pre>
 
         <p class="code-caption">Do all values start with value. (no)</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'doesntStart'],[3,'value3']]);const everyResult = hashmap.every((value) => value.startsWith('value'));// everyResult === false</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'doesntStart'],[3,'value3']]);
+const everyResult = hashmap.every((value) => value.startsWith('value'));
+// everyResult === false</code></pre>
 
 
 
@@ -1490,7 +1581,7 @@ This is based on <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScrip
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line140">line 140</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line140">line 140</a>
     </li></ul></dd>
     
 
@@ -1545,7 +1636,12 @@ This is based on <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScrip
     
         <p class="code-caption">Only match keys which are odd numbered.</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const filteredIterable = hashmap.filter((value,key) => key % 2 !== 0);filteredIterable.forEach((value) => console.log(value));// will log to the console:// value1// value3</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const filteredIterable = hashmap.filter((value,key) => key % 2 !== 0);
+filteredIterable.forEach((value) => console.log(value));
+// will log to the console:
+// value1
+// value3</code></pre>
 
 
 
@@ -1714,7 +1810,7 @@ This is based on <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScrip
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line331">line 331</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line331">line 331</a>
     </li></ul></dd>
     
 
@@ -1781,11 +1877,15 @@ This is based on <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScrip
     
         <p class="code-caption">Find a value</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const findResult = hashmap.find((value) => value.endsWith('ue2'));// findResult === 'value2'</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const findResult = hashmap.find((value) => value.endsWith('ue2'));
+// findResult === 'value2'</code></pre>
 
         <p class="code-caption">Can't find a value</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const findResult = hashmap.find((value) => value.startsWith('something'));// findResult === undefined</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const findResult = hashmap.find((value) => value.startsWith('something'));
+// findResult === undefined</code></pre>
 
 
 
@@ -1956,7 +2056,7 @@ This is based on <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScrip
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line359">line 359</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line359">line 359</a>
     </li></ul></dd>
     
 
@@ -2023,11 +2123,15 @@ This is based on <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScrip
     
         <p class="code-caption">Find a key</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const findIndexResult = hashmap.findIndex((value) => value.endsWith('ue2'));// findIndexResult === 2</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const findIndexResult = hashmap.findIndex((value) => value.endsWith('ue2'));
+// findIndexResult === 2</code></pre>
 
         <p class="code-caption">Can't find a key</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const findIndexResult = hashmap.findIndex((value) => value.startsWith('something'));// findIndexResult === undefined</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const findIndexResult = hashmap.findIndex((value) => value.startsWith('something'));
+// findIndexResult === undefined</code></pre>
 
 
 
@@ -2198,7 +2302,7 @@ This is based on <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScrip
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line168">line 168</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line168">line 168</a>
     </li></ul></dd>
     
 
@@ -2253,7 +2357,12 @@ This is based on <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScrip
     
         <p class="code-caption">Log all the keys and values.</p>
     
-    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);mapIterable.forEach((value) => console.log(key, value));// will log to the console:// 1 value1// 2 value2// 3 value3</code></pre>
+    <pre class="prettyprint"><code>const mapIterable = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+mapIterable.forEach((value) => console.log(key, value));
+// will log to the console:
+// 1 value1
+// 2 value2
+// 3 value3</code></pre>
 
 
 
@@ -2422,7 +2531,7 @@ This is based on <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScrip
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line443">line 443</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line443">line 443</a>
     </li></ul></dd>
     
 
@@ -2496,11 +2605,15 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
         <p class="code-caption">>What is the value for a key</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const getResult = hashmap.get(1);// getResult === 'value1'</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const getResult = hashmap.get(1);
+// getResult === 'value1'</code></pre>
 
         <p class="code-caption">What is the value for a key that isn't there</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const getResult = hashmap.get(4);// getResult === undefined</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const getResult = hashmap.get(4);
+// getResult === undefined</code></pre>
 
 
 
@@ -2612,7 +2725,7 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line417">line 417</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line417">line 417</a>
     </li></ul></dd>
     
 
@@ -2681,11 +2794,15 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
         <p class="code-caption">>Does this contain a key that is there</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const hasResult = hashmap.has(1);// hasResult === true</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const hasResult = hashmap.has(1);
+// hasResult === true</code></pre>
 
         <p class="code-caption">Does this contain a key that isn't there</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const hasResult = hashmap.has(4);// hasResult === false</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const hasResult = hashmap.has(4);
+// hasResult === false</code></pre>
 
 
 
@@ -2797,7 +2914,7 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line388">line 388</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line388">line 388</a>
     </li></ul></dd>
     
 
@@ -2865,11 +2982,15 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
         <p class="code-caption">Find the key for a value</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const indexOfResult = hashmap.indexOf('value2');// indexOfResult === 2</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const indexOfResult = hashmap.indexOf('value2');
+// indexOfResult === 2</code></pre>
 
         <p class="code-caption">what is the key of a non existent value</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const indexOfResult = hashmap.indexOf('something');// indexOfResult === undefined</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const indexOfResult = hashmap.indexOf('something');
+// indexOfResult === undefined</code></pre>
 
 
 
@@ -2981,7 +3102,7 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line781">line 781</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line781">line 781</a>
     </li></ul></dd>
     
 
@@ -3043,7 +3164,11 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
         <p class="code-caption">collect all the keys</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const keysIterable = hashmap.keys();// keysIterable instanceof SetIterableconst keys = keysIterable.collect();// keys === [1,2,3]</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const keysIterable = hashmap.keys();
+// keysIterable instanceof SetIterable
+const keys = keysIterable.collect();
+// keys === [1,2,3]</code></pre>
 
 
 
@@ -3104,7 +3229,7 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line695">line 695</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line695">line 695</a>
     </li></ul></dd>
     
 
@@ -3183,23 +3308,45 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
         <p class="code-caption">return just values</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const setIterable = hashmap.map((value, key) => value)const mapArray = setIterable.collect();// mapArray === ['value1','value2','value3']// setIterable instanceof SetIterable</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const setIterable = hashmap.map((value, key) => value)
+const mapArray = setIterable.collect();
+// mapArray === ['value1','value2','value3']
+// setIterable instanceof SetIterable</code></pre>
 
         <p class="code-caption">swap the keys and the values</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const setIterable = hashmap.map((value, key) => [value,key])const mapArray = setIterable.collect();// mapArray === [['value1',1],['value2',2],['value3',3]]// setIterable instanceof SetIterable</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const setIterable = hashmap.map((value, key) => [value,key])
+const mapArray = setIterable.collect();
+// mapArray === [['value1',1],['value2',2],['value3',3]]
+// setIterable instanceof SetIterable</code></pre>
 
         <p class="code-caption">swap the keys and the values with 2 functions</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const mapIterable = hashmap.map([(value) => value,(value, key) => key])const mapArray = mapIterable.collect();// mapArray === [['value1',1],['value2',2],['value3',3]]// mapIterable instanceof MapIterable</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const mapIterable = hashmap.map([(value) => value,(value, key) => key])
+const mapArray = mapIterable.collect();
+// mapArray === [['value1',1],['value2',2],['value3',3]]
+// mapIterable instanceof MapIterable</code></pre>
 
         <p class="code-caption">modify just the keys</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);// Notice we are passing an array of one function.const mapIterable = hashmap.map([(value, key) => value])const mapArray = mapIterable.collect();// mapArray === [['value1','value1'],['value2','value2'],['value2','value2']]// mapIterable instanceof MapIterable</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+// Notice we are passing an array of one function.
+const mapIterable = hashmap.map([(value, key) => value])
+const mapArray = mapIterable.collect();
+// mapArray === [['value1','value1'],['value2','value2'],['value2','value2']]
+// mapIterable instanceof MapIterable</code></pre>
 
         <p class="code-caption">modify just the values</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);// Notice we are passing an array of two, but have only defined the last as a function.const mapIterable = hashmap.map([undefined,(value, key) => key])const mapArray = mapIterable.collect();// mapArray === [[1,1],[2,2],[3,3]]// mapIterable instanceof MapIterable</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+// Notice we are passing an array of two, but have only defined the last as a function.
+const mapIterable = hashmap.map([undefined,(value, key) => key])
+const mapArray = mapIterable.collect();
+// mapArray === [[1,1],[2,2],[3,3]]
+// mapIterable instanceof MapIterable</code></pre>
 
 
 
@@ -3403,7 +3550,7 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line618">line 618</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line618">line 618</a>
     </li></ul></dd>
     
 
@@ -3482,19 +3629,33 @@ This does not modify the original collection, and execution is deferred until it
     
         <p class="code-caption">swap the keys and the values</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const mapEntriesIterable = hashmap.mapEntries((value, key) => [value,key])const mapEntriesArray = mapEntriesIterable.collect();// mapEntriesArray === [['value1',1],['value2',2],['value3',3]]</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const mapEntriesIterable = hashmap.mapEntries((value, key) => [value,key])
+const mapEntriesArray = mapEntriesIterable.collect();
+// mapEntriesArray === [['value1',1],['value2',2],['value3',3]]</code></pre>
 
         <p class="code-caption">swap the keys and the values with 2 functions</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const mapEntriesIterable = hashmap.mapEntries([(value) => value,(value, key) => key])const mapEntriesArray = mapEntriesIterable.collect();// mapEntriesArray === [['value1',1],['value2',2],['value3',3]]</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const mapEntriesIterable = hashmap.mapEntries([(value) => value,(value, key) => key])
+const mapEntriesArray = mapEntriesIterable.collect();
+// mapEntriesArray === [['value1',1],['value2',2],['value3',3]]</code></pre>
 
         <p class="code-caption">modify just the keys</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);// Notice we are passing an array of one function.const mapEntriesIterable = hashmap.mapEntries([(value, key) => value])const mapEntriesArray = mapEntriesIterable.collect();// mapEntriesArray === [['value1','value1'],['value2','value2'],['value2','value2']]</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+// Notice we are passing an array of one function.
+const mapEntriesIterable = hashmap.mapEntries([(value, key) => value])
+const mapEntriesArray = mapEntriesIterable.collect();
+// mapEntriesArray === [['value1','value1'],['value2','value2'],['value2','value2']]</code></pre>
 
         <p class="code-caption">modify just the values</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);// Notice we are passing an array of two, but have only defined the last as a function.const mapEntriesIterable = hashmap.mapEntries([undefined,(value, key) => key])const mapEntriesArray = mapEntriesIterable.collect();// mapEntriesArray === [[1,1],[2,2],[3,3]]</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+// Notice we are passing an array of two, but have only defined the last as a function.
+const mapEntriesIterable = hashmap.mapEntries([undefined,(value, key) => key])
+const mapEntriesArray = mapEntriesIterable.collect();
+// mapEntriesArray === [[1,1],[2,2],[3,3]]</code></pre>
 
 
 
@@ -3695,7 +3856,7 @@ This does not modify the original collection, and execution is deferred until it
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line558">line 558</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line558">line 558</a>
     </li></ul></dd>
     
 
@@ -3758,7 +3919,10 @@ This does not modify the original collection, and execution is deferred until it
     
         <p class="code-caption">add one to all the keys and turn them into strings</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const mappedKeysIterable = hashmap.mapKeys((value, key) => 'k'+(key+1));const mappedKeysArray = mappedKeysIterable.collect();// mappedKeysArray === [['k2','value1'],['k3','value2'],['k4','value3']]</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const mappedKeysIterable = hashmap.mapKeys((value, key) => 'k'+(key+1));
+const mappedKeysArray = mappedKeysIterable.collect();
+// mappedKeysArray === [['k2','value1'],['k3','value2'],['k4','value3']]</code></pre>
 
 
 
@@ -3927,7 +4091,7 @@ This does not modify the original collection, and execution is deferred until it
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line575">line 575</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line575">line 575</a>
     </li></ul></dd>
     
 
@@ -3990,7 +4154,10 @@ This does not modify the original collection, and execution is deferred until it
     
         <p class="code-caption">prepend the values with the keys</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const mappedValuesIterable = hashmap.mapValues((value, key) => key + value);const mappedValuesArray = mappedValuesIterable.collect();// mappedValuesArray === [['1','1value1'],[2,'2value2'],[3,'3value3']]</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const mappedValuesIterable = hashmap.mapValues((value, key) => key + value);
+const mappedValuesArray = mappedValuesIterable.collect();
+// mappedValuesArray === [['1','1value1'],[2,'2value2'],[3,'3value3']]</code></pre>
 
 
 
@@ -4159,7 +4326,7 @@ This does not modify the original collection, and execution is deferred until it
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line469">line 469</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line469">line 469</a>
     </li></ul></dd>
     
 
@@ -4233,11 +4400,15 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
         <p class="code-caption">>What is the value for a key</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const getResult = hashmap.get(1);// getResult === 'value1'</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const getResult = hashmap.get(1);
+// getResult === 'value1'</code></pre>
 
         <p class="code-caption">What is the value for a key that isn't there</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const getResult = hashmap.get(4);// getResult === undefined</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const getResult = hashmap.get(4);
+// getResult === undefined</code></pre>
 
 
 
@@ -4349,7 +4520,7 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line517">line 517</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line517">line 517</a>
     </li></ul></dd>
     
 
@@ -4411,11 +4582,15 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
         <p class="code-caption">add all the keys</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const reduceResult = hashmap.reduce((accumulator, value, key) => accumulator+key, 0);// reduceResult === 6</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const reduceResult = hashmap.reduce((accumulator, value, key) => accumulator+key, 0);
+// reduceResult === 6</code></pre>
 
         <p class="code-caption">add all the values into one string in reverse order</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const reduceResult = hashmap.reduce((accumulator, value) => value+accumulator, '');// reduceResult === 'value3value2value1'</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const reduceResult = hashmap.reduce((accumulator, value) => value+accumulator, '');
+// reduceResult === 'value3value2value1'</code></pre>
 
 
 
@@ -4623,7 +4798,7 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line304">line 304</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line304">line 304</a>
     </li></ul></dd>
     
 
@@ -4692,11 +4867,15 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
         <p class="code-caption">Do any values start with value. (yes all of them)</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const someResult = hashmap.some((value) => value.startsWith('value'));// someResult === true</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const someResult = hashmap.some((value) => value.startsWith('value'));
+// someResult === true</code></pre>
 
         <p class="code-caption">Do any values start with value. (yes 2 of them)</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'doesntStart'],[3,'value3']]);const someResult = hashmap.some((value) => value.startsWith('value'));// someResult === true</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'doesntStart'],[3,'value3']]);
+const someResult = hashmap.some((value) => value.startsWith('value'));
+// someResult === true</code></pre>
 
 
 
@@ -4867,7 +5046,7 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line796">line 796</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line796">line 796</a>
     </li></ul></dd>
     
 
@@ -4929,7 +5108,11 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
         <p class="code-caption">collect all the values</p>
     
-    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const valuesIterable = hashmap.values();// valuesIterable instanceof SetIterableconst values = valuesIterable.collect();// values === ['value1','value2','value3']</code></pre>
+    <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const valuesIterable = hashmap.values();
+// valuesIterable instanceof SetIterable
+const values = valuesIterable.collect();
+// values === ['value1','value2','value3']</code></pre>
 
 
 
@@ -4996,7 +5179,7 @@ If backed by a Map or HashMap, or in fact any collection that implements the <co
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line144">line 144</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line144">line 144</a>
     </li></ul></dd>
     
 
@@ -5221,7 +5404,7 @@ A callback to execute on every <code>[key,value]</code> pair of this map iterabl
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line525">line 525</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line525">line 525</a>
     </li></ul></dd>
     
 
@@ -5291,7 +5474,8 @@ How this mapped value is used depends on the calling function.</p>
     
         <p class="code-caption">swap key and value</p>
     
-    <pre class="prettyprint"><code>const mapEntriesFunction = ( value, key) => [value, key];// the typical response is [key, value]</code></pre>
+    <pre class="prettyprint"><code>const mapEntriesFunction = ( value, key) => [value, key];
+// the typical response is [key, value]</code></pre>
 
 
 
@@ -5479,7 +5663,7 @@ How this mapped value is used depends on the calling function.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line110">line 110</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line110">line 110</a>
     </li></ul></dd>
     
 
@@ -5734,7 +5918,7 @@ How this mapped value is used depends on the calling function.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="iterable_index.js.html">iterable/index.js</a>, <a href="iterable_index.js.html#line484">line 484</a>
+        <a href="iterable_index.js.html">iterable/hash.js</a>, <a href="iterable_index.js.html#line484">line 484</a>
     </li></ul></dd>
     
 

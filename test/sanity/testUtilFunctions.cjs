@@ -35,11 +35,10 @@ function underTest() {
  * isFiniteNumber
  */
 describe('Util Functions', function () {
-    let Mootable, Utils;
+    let Mootable;
     before(function () {
         const UnderTest = underTest();
         Mootable = UnderTest.Mootable;
-        Utils = Mootable.Utils;
         console.info(`Testing '${this.test.parent.title}' as '${UnderTest.name}' from '${UnderTest.location}'`);
         // runs once before the first test in this block
     });
@@ -47,108 +46,108 @@ describe('Util Functions', function () {
     describe('isIterable()', function () {
 
         it('takes an array', function () {
-            expect(Utils.isIterable([1, 'hello', 1, 'there'])).to.be.true;
+            expect(Mootable.isIterable([1, 'hello', 1, 'there'])).to.be.true;
         });
         it('takes a HashMap', function () {
-            expect(Utils.isIterable(new Mootable.HashMap([[1, 'hello'], [2, 'there']]))).to.be.true;
+            expect(Mootable.isIterable(new Mootable.HashMap([[1, 'hello'], [2, 'there']]))).to.be.true;
         });
         it('takes a LinkedHashMap', function () {
-            expect(Utils.isIterable(new Mootable.LinkedHashMap([[1, 'hello'], [2, 'there']]))).to.be.true;
+            expect(Mootable.isIterable(new Mootable.LinkedHashMap([[1, 'hello'], [2, 'there']]))).to.be.true;
         });
         it('takes a set', function () {
-            expect(Utils.isIterable(new Set(['hello', 'there']))).to.be.true;
+            expect(Mootable.isIterable(new Set(['hello', 'there']))).to.be.true;
         });
         it('takes a map', function () {
-            expect(Utils.isIterable(new Map([[1, 'hello'], [2, 'there']]))).to.be.true;
+            expect(Mootable.isIterable(new Map([[1, 'hello'], [2, 'there']]))).to.be.true;
         });
 
         it('takes a string', function () {
-            expect(Utils.isIterable("hello test")).to.be.true;
+            expect(Mootable.isIterable("hello test")).to.be.true;
         });
 
         it('doesnt take a function', function () {
             const takeFive = function () {
                 return 5;
             }
-            expect(Utils.isIterable(takeFive)).to.be.false;
+            expect(Mootable.isIterable(takeFive)).to.be.false;
         });
         it('doesnt take  an async function', function () {
             const takeFive = async function () {
                 return 5;
             }
-            expect(Utils.isIterable(takeFive)).to.be.false;
+            expect(Mootable.isIterable(takeFive)).to.be.false;
         });
         it('doesnt take a lambda', function () {
-            expect(Utils.isIterable(() => 5)).to.be.false;
+            expect(Mootable.isIterable(() => 5)).to.be.false;
         });
         it('doesnt take empty', function () {
-            expect(Utils.isIterable()).to.be.false;
+            expect(Mootable.isIterable()).to.be.false;
         });
         it('doesnt take null', function () {
-            expect(Utils.isIterable(null)).to.be.false;
+            expect(Mootable.isIterable(null)).to.be.false;
         });
         it('doesnt take undefined', function () {
-            expect(Utils.isIterable(undefined)).to.be.false;
+            expect(Mootable.isIterable(undefined)).to.be.false;
         });
         it('doesnt take a number', function () {
-            expect(Utils.isIterable(5)).to.be.false;
+            expect(Mootable.isIterable(5)).to.be.false;
         });
         it('doesnt take an empty object', function () {
-            expect(Utils.isIterable({})).to.be.false;
+            expect(Mootable.isIterable({})).to.be.false;
         });
         it('doesnt take a filled object', function () {
             const myObject = {"one": 1, "two": 2};
-            expect(Utils.isIterable(myObject)).to.be.false;
+            expect(Mootable.isIterable(myObject)).to.be.false;
         });
     });
     describe('isString()', function () {
 
         it('takes a string', function () {
-            expect(Utils.isString("hello test")).to.be.true;
+            expect(Mootable.isString("hello test")).to.be.true;
         });
         it('doesnt take a function', function () {
             const takeFive = function () {
                 return 5;
             }
-            expect(Utils.isString(takeFive)).to.be.false;
+            expect(Mootable.isString(takeFive)).to.be.false;
         });
         it('doesnt take  an async function', function () {
             const takeFive = async function () {
                 return 5;
             }
-            expect(Utils.isString(takeFive)).to.be.false;
+            expect(Mootable.isString(takeFive)).to.be.false;
         });
         it('doesnt take  a lambda', function () {
-            expect(Utils.isString(() => 5)).to.be.false;
+            expect(Mootable.isString(() => 5)).to.be.false;
         });
         it('doesnt take empty', function () {
-            expect(Utils.isString()).to.be.false;
+            expect(Mootable.isString()).to.be.false;
         });
         it('doesnt take null', function () {
-            expect(Utils.isString(null)).to.be.false;
+            expect(Mootable.isString(null)).to.be.false;
         });
         it('doesnt take undefined', function () {
-            expect(Utils.isString(undefined)).to.be.false;
+            expect(Mootable.isString(undefined)).to.be.false;
         });
         it('doesnt take a number', function () {
-            expect(Utils.isString(5)).to.be.false;
+            expect(Mootable.isString(5)).to.be.false;
         });
         it('doesnt take an array', function () {
-            expect(Utils.isString([1, 2, 3, 4])).to.be.false;
+            expect(Mootable.isString([1, 2, 3, 4])).to.be.false;
         });
         it('doesnt take a function array', function () {
-            expect(Utils.isString([() => {
+            expect(Mootable.isString([() => {
                 return 5
             }, () => {
                 return 4
             }])).to.be.false;
         });
         it('doesnt take an empty object', function () {
-            expect(Utils.isString({})).to.be.false;
+            expect(Mootable.isString({})).to.be.false;
         });
         it('doesnt take a filled object', function () {
             const myObject = {"one": 1, "two": 2};
-            expect(Utils.isString(myObject)).to.be.false;
+            expect(Mootable.isString(myObject)).to.be.false;
         });
     });
 
@@ -158,48 +157,48 @@ describe('Util Functions', function () {
             const takeFive = function () {
                 return 5;
             }
-            expect(Utils.isFunction(takeFive)).to.be.true;
+            expect(Mootable.isFunction(takeFive)).to.be.true;
         });
         it('takes an async function', function () {
             const takeFive = async function () {
                 return 5;
             }
-            expect(Utils.isFunction(takeFive)).to.be.true;
+            expect(Mootable.isFunction(takeFive)).to.be.true;
         });
         it('takes a lambda', function () {
-            expect(Utils.isFunction(() => 5)).to.be.true;
+            expect(Mootable.isFunction(() => 5)).to.be.true;
         });
         it('doesnt take empty', function () {
-            expect(Utils.isFunction()).to.be.false;
+            expect(Mootable.isFunction()).to.be.false;
         });
         it('doesnt take null', function () {
-            expect(Utils.isFunction(null)).to.be.false;
+            expect(Mootable.isFunction(null)).to.be.false;
         });
         it('doesnt take undefined', function () {
-            expect(Utils.isFunction(undefined)).to.be.false;
+            expect(Mootable.isFunction(undefined)).to.be.false;
         });
         it('doesnt take a number', function () {
-            expect(Utils.isFunction(5)).to.be.false;
+            expect(Mootable.isFunction(5)).to.be.false;
         });
         it('doesnt take an array', function () {
-            expect(Utils.isFunction([1, 2, 3, 4])).to.be.false;
+            expect(Mootable.isFunction([1, 2, 3, 4])).to.be.false;
         });
         it('doesnt take a function array', function () {
-            expect(Utils.isFunction([() => {
+            expect(Mootable.isFunction([() => {
                 return 5
             }, () => {
                 return 4
             }])).to.be.false;
         });
         it('doesnt take an empty object', function () {
-            expect(Utils.isFunction({})).to.be.false;
+            expect(Mootable.isFunction({})).to.be.false;
         });
         it('doesnt take a filled object', function () {
             const myObject = {"one": 1, "two": 2};
-            expect(Utils.isFunction(myObject)).to.be.false;
+            expect(Mootable.isFunction(myObject)).to.be.false;
         });
         it('doesnt take a string', function () {
-            expect(Utils.isFunction("hello test")).to.be.false;
+            expect(Mootable.isFunction("hello test")).to.be.false;
         });
     });
 });

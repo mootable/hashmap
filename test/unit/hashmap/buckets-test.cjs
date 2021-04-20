@@ -2,7 +2,7 @@
 
 const expect = require('chai').expect;
 const esmRequire = require("esm")(module/*, options*/);
-const {equalsAndHash} = esmRequire("../../../src/hash");
+const {equalsAndHash} = esmRequire("../../../src/hashmap/hash");
 const {Container} = esmRequire('../../../src/hashmap/container')
 const {HashBuckets, HamtBuckets, hammingWeight} = esmRequire('../../../src/hashmap/hashbuckets')
 

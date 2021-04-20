@@ -1,55 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    
-    <meta charset="utf-8">
-    <title>hash/hash.js - Documentation</title>
-    
-    
-    <script src="scripts/prettify/prettify.js"></script>
-    <script src="scripts/prettify/lang-css.js"></script>
-    <!--[if lt IE 9]>
-      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
-    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
-    <script src="scripts/nav.js" defer></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body>
-
-<input type="checkbox" id="nav-trigger" class="nav-trigger" />
-<label for="nav-trigger" class="navicon-button x">
-  <div class="navicon"></div>
-</label>
-
-<label for="nav-trigger" class="overlay"></label>
-
-<nav class="wrap">
-    
-    <input type="text" id="nav-search" placeholder="Search" />
-    
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="HashMap.html">HashMap</a><ul class='methods'><li data-type='method' style='display: none;'><a href="HashMap.html#clear">clear</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#clone">clone</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#copy">copy</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#createContainer">createContainer</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#delete">delete</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#emplace">emplace</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#entries">entries</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#entriesRight">entriesRight</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#forEach">forEach</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#forEachRight">forEachRight</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#get">get</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#has">has</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#keyOf">keyOf</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#keys">keys</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#keysRight">keysRight</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#optionalGet">optionalGet</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#optionalKeyOf">optionalKeyOf</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#set">set</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#values">values</a></li><li data-type='method' style='display: none;'><a href="HashMap.html#valuesRight">valuesRight</a></li></ul></li><li><a href="LinkedContainer.html">LinkedContainer</a></li><li><a href="LinkedHashMap.html">LinkedHashMap</a><ul class='methods'><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#clear">clear</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#clone">clone</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#copy">copy</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#createContainer">createContainer</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#delete">delete</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#emplace">emplace</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#entries">entries</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#entriesRight">entriesRight</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#forEach">forEach</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#forEachRight">forEachRight</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#get">get</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#has">has</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#keyOf">keyOf</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#keys">keys</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#keysRight">keysRight</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#optionalGet">optionalGet</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#optionalKeyOf">optionalKeyOf</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#set">set</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#values">values</a></li><li data-type='method' style='display: none;'><a href="LinkedHashMap.html#valuesRight">valuesRight</a></li></ul></li><li><a href="MapIterable.html">MapIterable</a><ul class='methods'><li data-type='method' style='display: none;'><a href="MapIterable.html#.from">from</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#collect">collect</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#concat">concat</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#concatMap">concatMap</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#entries">entries</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#every">every</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#filter">filter</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#find">find</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#findIndex">findIndex</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#forEach">forEach</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#get">get</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#has">has</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#indexOf">indexOf</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#keys">keys</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#map">map</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#mapEntries">mapEntries</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#mapKeys">mapKeys</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#mapValues">mapValues</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#optionalGet">optionalGet</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#reduce">reduce</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#some">some</a></li><li data-type='method' style='display: none;'><a href="MapIterable.html#values">values</a></li></ul></li><li><a href="Option.html">Option</a><ul class='methods'><li data-type='method' style='display: none;'><a href="Option.html#.some">some</a></li></ul></li><li><a href="SetIterable.html">SetIterable</a><ul class='methods'><li data-type='method' style='display: none;'><a href="SetIterable.html#.from">from</a></li><li data-type='method' style='display: none;'><a href="SetIterable.html#collect">collect</a></li><li data-type='method' style='display: none;'><a href="SetIterable.html#concat">concat</a></li><li data-type='method' style='display: none;'><a href="SetIterable.html#entries">entries</a></li><li data-type='method' style='display: none;'><a href="SetIterable.html#every">every</a></li><li data-type='method' style='display: none;'><a href="SetIterable.html#filter">filter</a></li><li data-type='method' style='display: none;'><a href="SetIterable.html#find">find</a></li><li data-type='method' style='display: none;'><a href="SetIterable.html#forEach">forEach</a></li><li data-type='method' style='display: none;'><a href="SetIterable.html#has">has</a></li><li data-type='method' style='display: none;'><a href="SetIterable.html#keys">keys</a></li><li data-type='method' style='display: none;'><a href="SetIterable.html#map">map</a></li><li data-type='method' style='display: none;'><a href="SetIterable.html#reduce">reduce</a></li><li data-type='method' style='display: none;'><a href="SetIterable.html#some">some</a></li><li data-type='method' style='display: none;'><a href="SetIterable.html#values">values</a></li></ul></li></ul><h3>Modules</h3><ul><li><a href="module-@mootable_hashmap.html">@mootable/hashmap</a></li></ul><h3>Namespaces</h3><ul><li><a href="Mootable.html">Mootable</a></li><li></li><li></li><li><a href="Mootable.Hash.html">Hash</a></li><li><a href="Mootable.HashMap.html">HashMap</a></li><li><a href="Mootable.Option.html">Option</a></li><li><a href="Mootable.Utils.html">Utils</a></li></ul><h3>Global</h3><ul><li><a href="global.html#abstractEquals">abstractEquals</a></li><li><a href="global.html#equalsAndHash">equalsAndHash</a></li><li><a href="global.html#equalsFor">equalsFor</a></li><li><a href="global.html#hammingWeight">hammingWeight</a></li><li><a href="global.html#hash">hash</a></li><li><a href="global.html#hashCodeFor">hashCodeFor</a></li><li><a href="global.html#isFunction">isFunction</a></li><li><a href="global.html#isIterable">isIterable</a></li><li><a href="global.html#isString">isString</a></li><li><a href="global.html#none">none</a></li><li><a href="global.html#sameValue">sameValue</a></li><li><a href="global.html#sameValueZero">sameValueZero</a></li><li><a href="global.html#some">some</a></li><li><a href="global.html#strictEquals">strictEquals</a></li></ul>
-</nav>
-
-<div id="main">
-    
-    <h1 class="page-title">hash/hash.js</h1>
-    
-
-    
-
-
-
-    
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>import {sameValueZero, strictEquals, isFunction} from '../utils';
+import {sameValueZero, strictEquals, isFunction} from '../utils';
 import {Option} from "../option";
 /**
  * Hash - Hash functions
  * @namespace Mootable.Hash
- * @author Jack Moxley &lt;https://github.com/jackmoxley>
+ * @author Jack Moxley <https://github.com/jackmoxley>
  * @version 1.0.0
  * Homepage: https://github.com/mootable/hashmap
  */
@@ -66,26 +20,26 @@ import {Option} from "../option";
 export function hash(key, len = 0, seed = 0) {
     len = len > 0 ? Math.min(len, key.length) : key.length;
     seed |= 0;
-    const remaining = len &amp; 1;
+    const remaining = len & 1;
     const doubleBytes = len - remaining;
     let hash = seed, k = 0, i = 0;
 
-    while (i &lt; doubleBytes) {
-        k = (key.charCodeAt(i++) &amp; 0xffff) |
-            ((key.charCodeAt(i++) &amp; 0xffff) &lt;&lt; 16);
+    while (i < doubleBytes) {
+        k = (key.charCodeAt(i++) & 0xffff) |
+            ((key.charCodeAt(i++) & 0xffff) << 16);
         k *= 0xcc9e2d51;
-        k = (k &lt;&lt; 15) | (k >>> 17);
+        k = (k << 15) | (k >>> 17);
         k *= 0x1b873593;
         hash ^= k;
-        hash = (hash &lt;&lt; 13) | (hash >>> 19);
+        hash = (hash << 13) | (hash >>> 19);
         hash *= 5;
         hash += 0xe6546b64;
     }
     if (remaining) {
-        k ^= (key.charCodeAt(i) &amp; 0xffff);
+        k ^= (key.charCodeAt(i) & 0xffff);
 
         k *= 0xcc9e2d51;
-        k = (k &lt;&lt; 15) | (k >>> 17);
+        k = (k << 15) | (k >>> 17);
         k *= 0x1b873593;
         hash ^= k;
     }
@@ -197,7 +151,7 @@ let HASH_COUNTER = 0;
  * - If it is a date, it compares the type, and the time values.
  * - If it is an option, it compares if they both have values, and then the values.
  * - If it has an equals function and that equals function when comapring 2 keys, return true. then it will use that.
- *   - The function can either be in the form &lt;code>key.equals(other)&lt;/code>, or &lt;code>key.equals(other,key)&lt;/code> in the case of static-like functions.
+ *   - The function can either be in the form <code>key.equals(other)</code>, or <code>key.equals(other,key)</code> in the case of static-like functions.
  *
  * The expectation and requirement is this key will always be the first argument to the method, the behaviour maybe unexpected if parameters are reversed.
  *
@@ -377,34 +331,3 @@ export function equalsAndHash(key, options) {
         }
     }
 }
-</code></pre>
-        </article>
-    </section>
-
-
-
-
-    
-    
-</div>
-
-<br class="clear">
-
-<footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a> on Mon Apr 19 2021 01:28:36 GMT+0100 (British Summer Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
-</footer>
-
-<script>prettyPrint();</script>
-<script src="scripts/polyfill.js"></script>
-<script src="scripts/linenumber.js"></script>
-
-<script src="scripts/search.js" defer></script>
-
-
-<script src="scripts/collapse.js" defer></script>
-
-
-    <link type="text/css" rel="stylesheet" href="docs.css">
-    
-</body>
-</html>

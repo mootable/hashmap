@@ -10,7 +10,7 @@
     "import": "./dist/hashmap.mjs",
     "require": "./dist/hashmap.cjs"
   },
-  "version": "0.15.0",
+  "version": "1.0.0",
   "description": "HashMap, LinkedHashMap and Higher Order Functions for all other Iterables, such as Map, Set and Array",
   "keywords": [
     "mootable",
