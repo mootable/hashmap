@@ -356,7 +356,7 @@ export class HamtBuckets {
  * @return {number} amount of ones.
  */
 export const hammingWeight = (flags) => {
-    flags -= ((flags >> 1) & 0x55555555);
-    flags = (flags & 0x33333333) + ((flags >> 2) & 0x33333333);
-    return ((flags + (flags >> 4) & 0xF0F0F0F) * 0x1010101) >> 24;
+    flags -= ((flags >>> 1) & 0x55555555);
+    flags = (flags & 0x33333333) + ((flags >>> 2) & 0x33333333);
+    return ((flags + (flags >> 4) & 0xF0F0F0F) * 0x1010101) >>> 24;
 };

@@ -1,6 +1,6 @@
 /**
  * Option - a class to get round nullable fields.
- * @namespace Mootable.Option
+ * @namespace Mootable
  * @author Jack Moxley <https://github.com/jackmoxley>
  * @version 1.0.0
  * Homepage: https://github.com/mootable/hashmap
@@ -31,6 +31,7 @@
  * // logs - world
  */
 export class Option {
+
     /**
      * Usage of this constructor should generally be avoided,
      * - instead use the some or none method on Option,
@@ -89,6 +90,7 @@ export class Option {
     static some(value) {
         return some(value);
     }
+
     /**
      * Provides an iterable for the Option
      * If using a for loop.

@@ -3187,7 +3187,7 @@
 
   /**
    * Option - a class to get round nullable fields.
-   * @namespace Mootable.Option
+   * @namespace Mootable
    * @author Jack Moxley <https://github.com/jackmoxley>
    * @version 1.0.0
    * Homepage: https://github.com/mootable/hashmap
@@ -5238,9 +5238,9 @@
    */
 
   var hammingWeight = function hammingWeight(flags) {
-    flags -= flags >> 1 & 0x55555555;
-    flags = (flags & 0x33333333) + (flags >> 2 & 0x33333333);
-    return (flags + (flags >> 4) & 0xF0F0F0F) * 0x1010101 >> 24;
+    flags -= flags >>> 1 & 0x55555555;
+    flags = (flags & 0x33333333) + (flags >>> 2 & 0x33333333);
+    return (flags + (flags >> 4) & 0xF0F0F0F) * 0x1010101 >>> 24;
   };
 
   /**
@@ -5252,19 +5252,72 @@
    */
 
   /**
-   * This HashMap is backed by a hashtrie, and can be tuned to specific use cases.
+   * This HashMap is backed by a Hash array mapped trie.
    *
    */
 
   var HashMap = /*#__PURE__*/function () {
     /**
-     * This HashMap is backed by a hashtrie, and can be tuned to specific use cases.
+     * This HashMap is backed by a Hash array mapped trie.
      * - `new HashMap()` creates an empty hashmap
      * - `new HashMap(copy:Iterable)` creates a hashmap which is a copy of the provided iterable.
-     *   1) `copy` either
+     *   - One of
+     *      - an object that provides a [Symbol.Iterator] function with the same signature as `Map.[Symbol.Iterator]`, such as `Map` or this `HashMap` and `LinkedHashMap`
+     *          - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
+     *      - an object that provides a entries function with the same signature as `Map.entries`, such as `Map` or this `HashMap` and `LinkedHashMap`
      *      - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
-     *      - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
-     * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>)} [copy]
+     *
+     * @example <caption>Create an empty HashMap</caption>
+     * const hashmap = new HashMap();
+     * // hashmap.size === 0;
+     * @example <caption>Create HashMap from an array of key value pairs</caption>
+     * const arr = [[1,'value1'],[2,'value2'],[3,'value3']];
+     * const hashmap = new HashMap(arr);
+     * // hashmap.size === 3;
+     * @example <caption>Create HashMap from another map</caption>
+     * const map = new Map([[1,'value1'],[2,'value2'],[3,'value3']])
+     * const hashmap = new HashMap(map);
+     * // hashmap.size === 3;
+     * @example <caption>Create HashMap from another HashMap</caption>
+     * const first = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']])
+     * const hashmap = new HashMap(first);
+     * // hashmap.size === 3;
+     * @example <caption>Create HashMap from a class with symbol iterator</caption>
+     * class MyIterable = {
+     *     *[Symbol.iterator] () {
+     *         yield ["key1", "value1"];
+     *         yield ["key2", "value2"];
+     *         yield ["key3", "value3"];
+     *         yield ["key4", "value4"];
+     *     }
+     * }
+     * const iterable = new MyIterable();
+     * const hashmap = new HashMap(iterable);
+     * // hashmap.size === 4;
+     * // it doesn't have to be a generator, an iterator works too.
+     * @example <caption>Create HashMap from an object with an entries generator function</caption>
+     * const entriesObj = {
+     *     entries: function* () {
+     *         yield ["key1", "value1"];
+     *         yield ["key2", "value2"];
+     *         yield ["key3", "value3"];
+     *         yield ["key4", "value4"];
+     *     }
+     * }
+     * const hashmap = new HashMap(entriesObj);
+     * // hashmap.size === 4;
+     * // it doesn't have to be a generator, an iterator works too.
+     * @example <caption>Create HashMap from an object with a forEach function</caption>
+     * const forEachObj = {
+     *      forEach: (callback, ctx) => {
+     *              for (let i = 1; i <= 4; i++) {
+     *                  callback.call(ctx, 'value' + i, 'key' + i);
+     *              }
+     *      }
+     * };
+     * const hashmap = new HashMap(forEachObj);
+     * // hashmap.size === 4;
+     * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>|ObjectWithForEach.<function(function(value, key))>|ObjectWithEntries.<function>)}[copy]
      */
     function HashMap(copy) {
       _classCallCheck(this, HashMap);
@@ -5276,8 +5329,87 @@
       }
     }
     /**
-     * Returns the number of elements in this hashmap
-     * @return {number}
+     * User Defined Equals Method
+     * A user defined function to define an equals method against 2 keys.
+     * @callback HashMap#overrideEquals
+     * @param {*} firstKey - the first key.
+     * @param {*} secondKey - the second key
+     * @returns {boolean} is it equal or not
+     */
+
+    /**
+     * User Defined Hash Method
+     * A user defined function to describe how to hash a key.
+     * @callback HashMap#overrideHash
+     * @param {*} key - the first key.
+     * @returns {number} a 32 bit integer as a hash.
+     */
+
+    /**
+     * User defined hashing and equals methods
+     * HashMap will find the best fit for your objects, and if your keys themselves have the appropriate methods,
+     * then it will use them. However if you want to override that functionality this object allows you to do it.
+     * Not all functions and properties are used in every function, please refer to that function for details.
+     * If a function in future chooses to use one of the other properties or functions, it will NOT be marked as a breaking change.
+     * So be explicit.
+     * @typedef {Object} HashMap#overrides
+     * @property {number|HashMap#overrideHash} [hash] - The overriding hash value, or method to use.
+     * @property {HashMap#overrideEquals} [equals] - The overriding equals method to use
+     * @property {boolean} [reverse] - whether to search in reverse.
+     */
+
+    /**
+     * For Each Function
+     * A callback to execute on every <code>[key,value]</code> pair of this map iterable.
+     * @example <caption>log the keys and values</caption>
+     * const forEachFunction = (value, key) => console.log(key,value)
+     * @callback HashMap#ForEachCallback
+     * @param {*} [value] - the entry value.
+     * @param {*} [key] - the entry key
+     * @param {HashMap} [map] - the calling Map Iterable.
+     */
+
+    /**
+     * Test each element of the map to see if it matches and return
+     *  - true if the key and value match.
+     *  - false if it doesn't.
+     * @example <caption>Only match keys divisible by 2</caption>
+     * const myMatchPredicate = (value, key) => key % 2 === 0;
+     * @example <caption>Only match values which are equal to another key in the map</caption>
+     * const myMatchPredicate = (value, key, mapIterable) => mapIterable.has(value);
+     * @example <caption>An alternative implementation, (but potentially slower, and assumes no undefined value)</caption>
+     * const myMatchPredicate = (value, key, mapIterable) => mapIterable.indexOf(key) !== undefined;
+     * @callback HashMap#MatchesPredicate
+     * @param {*} [value] - the entry value.
+     * @param {*} [key] - the entry key
+     * @param {HashMap} [iterable] - the HashMap.
+     * @return {boolean} a value that coerces to true if it matches, or to false otherwise.
+     */
+
+    /**
+     * Reduce Function
+     * A callback to accumulate values from the HashMap <code>[key,value]</code> into a single value.
+     *
+     * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce|Array.reduce}
+     * @example <caption>add all the keys</caption>
+     * const reduceFunction = (accumulator, value, key) => accumulator+key
+     * @callback HashMap#ReduceFunction
+     * @param {*} [accumulator] - the value from the last execution of this function.
+     * @param {*} [value] - the entry value.
+     * @param {*} [key] - the entry key
+     * @param {HashMap} [hashmap] - the calling HashMap.
+     * @return {*} [accumulator] - the value to pass to the next time this function is called or the final return value.
+     */
+
+    /**
+     * Returns the number of elements in this hashmap.
+     *
+     * @example
+     * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+     * const size = hashmap.size;
+     * console.log(size);
+     * // logs: 3
+     * @return {number} the number of elements in the array
      */
 
 
@@ -5287,26 +5419,20 @@
         return this.buckets.size;
       }
       /**
-       * Returns the number of elements in this hashmap
-       * @return {number}
+       * Returns the number of elements in this hashmap.
+       *
+       * @example
+       * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+       * const length = hashmap.length;
+       * console.log(length);
+       * // logs: 3
+       * @return {number} the number of elements in the array
        */
 
     }, {
       key: "length",
       get: function get() {
         return this.buckets.size;
-      }
-      /**
-       * Create a container for this hashmap, overriden by {@link LinkedHashMap}
-       * @package
-       * @param hash
-       * @return {Container}
-       */
-
-    }, {
-      key: "createContainer",
-      value: function createContainer(parent, hash) {
-        return new Container(this, parent, hash);
       }
       /**
        * Does the map have this key.
@@ -5325,14 +5451,14 @@
        * // hasResult === false
        * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/has|Map.has}
        * @param {*} key - the matching key we use to identify if we have a match.
-       * @param {HashMap.methodOptions} [options] - a set of optional options to allow a user to define the hashcode and equals methods, rather than them being looked up.
+       * @param {HashMap#overrides<equals, hash>} [overrides] - a set of optional overrides to allow a user to define the hash and equals methods, rather than them being looked up.
        * @returns {boolean} - if it holds the key or not.
        */
 
     }, {
       key: "has",
-      value: function has(key, options) {
-        var op = equalsAndHash(key, options);
+      value: function has(key, overrides) {
+        var op = equalsAndHash(key, overrides);
         return this.buckets.has(key, op);
       }
       /**
@@ -5341,8 +5467,9 @@
        * - if no elements match, it returns undefined.
        * - it is legitimate for keys to be null or undefined, and if set, will find a value.
        * - it is also legitimate for values to be null or undefined, as such get should never be used as an existence check. {@see HashMap#optionalGet}
-       *
-       * Maps typically index keys, and so is generally a fast operation.
+       * Also provides a way to override both the equals and the hash
+       * Performance:
+       *  - will be O(1) approaching O(log n)
        * @example <caption>>What is the value for a key</caption>
        * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
        * const getResult = hashmap.get(1);
@@ -5353,26 +5480,27 @@
        * // getResult === undefined
        * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/get|Map.get}
        * @param {*} key - the matching key we use to identify if we have a match.
-       * @param {HashMap.methodOptions} [options] - a set of optional options to allow a user to define the hashcode and equals methods, rather than them being looked up.
+       * @param {HashMap#overrides<equals, hash>} [overrides] - a set of optional overrides to allow a user to define the hashcode and equals methods, rather than them being looked up.
        * @returns {*} - the value of the element that matches.
        */
 
     }, {
       key: "get",
-      value: function get(key, options) {
-        var op = equalsAndHash(key, options);
+      value: function get(key, overrides) {
+        var op = equalsAndHash(key, overrides);
         return this.buckets.get(key, op);
       }
       /**
-       * Potentially Slow!
+       * Get the key from the map using the provided value.
+       * Performance O(n) as we have to iterate over the whole map, to find each value and perform an equality aginst it.
        * @param value
        * @return {*}
        */
 
     }, {
       key: "keyOf",
-      value: function keyOf(value, options) {
-        var equals = options && isFunction(options.equals) ? options.equals : equalsFor(value);
+      value: function keyOf(value, overrides) {
+        var equals = overrides && isFunction(overrides.equals) ? overrides.equals : equalsFor(value);
 
         var _iterator = _createForOfIteratorHelper(this.entries()),
             _step;
@@ -5396,13 +5524,14 @@
       /**
        * Potentially Slow!
        * @param value
+       * @param {HashMap#overrides<equals>} [overrides] - a set of optional overrides to allow a user to define the hash and equals methods, rather than them being looked up.
        * @return {*}
        */
 
     }, {
       key: "lastKeyOf",
-      value: function lastKeyOf(value, options) {
-        var equals = options && isFunction(options.equals) ? options.equals : equalsFor(value);
+      value: function lastKeyOf(value, overrides) {
+        var equals = overrides && isFunction(overrides.equals) ? overrides.equals : equalsFor(value);
 
         var _iterator2 = _createForOfIteratorHelper(this.entriesRight()),
             _step2;
@@ -5426,13 +5555,13 @@
       /**
        * Slow!
        * @param value
-       * @return {Option}
+       * @param {HashMap#overrides<equals>} [overrides] - a set of optional overrides to allow a user to define the hash and equals methods, rather than them being looked up.
        */
 
     }, {
       key: "optionalKeyOf",
-      value: function optionalKeyOf(value, options) {
-        var equals = options && isFunction(options.equals) ? options.equals : equalsFor(value);
+      value: function optionalKeyOf(value, overrides) {
+        var equals = overrides && isFunction(overrides.equals) ? overrides.equals : equalsFor(value);
 
         var _iterator3 = _createForOfIteratorHelper(this.entries()),
             _step3;
@@ -5456,13 +5585,13 @@
       /**
        * Slow!
        * @param value
-       * @return {Option}
+       * @param {HashMap#overrides<equals>} [overrides] - a set of optional overrides to allow a user to define the hash and equals methods, rather than them being looked up.
        */
 
     }, {
       key: "optionalLastKeyOf",
-      value: function optionalLastKeyOf(value, options) {
-        var equals = options && isFunction(options.equals) ? options.equals : equalsFor(value);
+      value: function optionalLastKeyOf(value, overrides) {
+        var equals = overrides && isFunction(overrides.equals) ? overrides.equals : equalsFor(value);
 
         var _iterator4 = _createForOfIteratorHelper(this.entriesRight()),
             _step4;
@@ -5506,14 +5635,14 @@
        * @see {@link Option.none}
        * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/get|Map.get}
        * @param {*} key - the key we use to identify if we have a match.
-       * @param {HashMap.methodOptions} [options] - a set of optional options to allow a user to define the hashcode and equals methods, rather than them being looked up.
+       * @param {HashMap#overrides<equals, hash>} [overrides] - a set of optional overrides to allow a user to define the hashcode and equals methods, rather than them being looked up.
        * @returns {Option} - an optional result.
        */
 
     }, {
       key: "optionalGet",
-      value: function optionalGet(key, options) {
-        var op = equalsAndHash(key, options);
+      value: function optionalGet(key, overrides) {
+        var op = equalsAndHash(key, overrides);
         return this.buckets.optionalGet(key, op);
       }
       /**
@@ -5909,14 +6038,14 @@
        *
        * @param {*} key - the key we want to key our value to
        * @param {*} value - the value we are setting
-       * @param {HashMap.methodOptions} [options] - a set of optional options to allow a user to define the hashcode and equals methods, rather than them being looked up.
+       * @param {HashMap#overrides<equals, hash>} [overrides] - a set of optional overrides to allow a user to define the hashcode and equals methods, rather than them being looked up.
        * @return {HashMap}
        */
 
     }, {
       key: "set",
-      value: function set(key, value, options) {
-        var op = equalsAndHash(key, options);
+      value: function set(key, value, overrides) {
+        var op = equalsAndHash(key, overrides);
         this.buckets.set(key, value, op);
         return this;
       }
@@ -5924,14 +6053,14 @@
        *
        * @param {*} key - the key we want to key our value to
        * @param handler
-       * @param {HashMap.methodOptions} [options] - a set of optional options to allow a user to define the hashcode and equals methods, rather than them being looked up.
+       * @param {HashMap#overrides<equals, hash>} [overrides] - a set of optional overrides to allow a user to define the hashcode and equals methods, rather than them being looked up.
        * @return {*} the new value
        */
 
     }, {
       key: "emplace",
-      value: function emplace(key, handler, options) {
-        var op = equalsAndHash(key, options);
+      value: function emplace(key, handler, overrides) {
+        var op = equalsAndHash(key, overrides);
         return this.buckets.emplace(key, handler, op);
       }
       /**
@@ -6007,14 +6136,13 @@
       /**
        * Deletes an entry from this hashmap, using the provided key
        * @param key
-       * @param {HashMap.methodOptions} [options] - a set of optional options to allow a user to define the hashcode and equals methods, rather than them being looked up.
-       * @return {HashMap}
+       * @param {HashMap#overrides<equals, hash>} [overrides] - a set of optional overrides to allow a user to define the hashcode and equals methods, rather than them being looked up.     * @return {HashMap}
        */
 
     }, {
       key: "delete",
-      value: function _delete(key, options) {
-        var op = equalsAndHash(key, options);
+      value: function _delete(key, overrides) {
+        var op = equalsAndHash(key, overrides);
         this.buckets.delete(key, op);
         return this;
       }
@@ -6169,7 +6297,7 @@
        * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some|Array.some}
        * @param {HashMap#MatchesPredicate} [somePredicate=(value, key, iterable) => true] - the predicate to identify if we have a match.
        * @param {*} [thisArg] - Value to use as <code>this</code> when executing <code>somePredicate</code>
-       * @param {HashMap.methodOptions} [options] - a set of optional options to allow a user to define whether to search in reverse
+       * @param {HashMap#overrides<reverse>} [overrides] - a set of optional overrides to allow a user to define whether to search in reverse
        * @returns {boolean} - true if all elements match, false if one or more elements fails to match.
        */
 
@@ -6180,8 +6308,8 @@
           return true;
         };
         var thisArg = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : undefined;
-        var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : undefined;
-        var iterator = options && options.reverse ? this.entriesRight() : this.entries();
+        var overrides = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : undefined;
+        var iterator = overrides && overrides.reverse ? this.entriesRight() : this.entries();
 
         var _iterator18 = _createForOfIteratorHelper(iterator),
             _step18;
@@ -6345,7 +6473,7 @@
       /**
        * Iterates over all the entries in the map.
        *
-       * @return {Generator<any, void, any>}
+       * @yields {entries:Array.<key,value>} each entry in the map
        */
 
     }, {
@@ -6367,33 +6495,9 @@
         }, value, this);
       })
       /**
-       * Iterates over all the entries in the map in reverse.
-       *
-       * @return {Generator<any, void, any>}
-       */
-
-    }, {
-      key: "entriesRight",
-      value:
-      /*#__PURE__*/
-      regeneratorRuntime.mark(function entriesRight() {
-        return regeneratorRuntime.wrap(function entriesRight$(_context2) {
-          while (1) {
-            switch (_context2.prev = _context2.next) {
-              case 0:
-                return _context2.delegateYield(this.buckets.entriesRight(), "t0", 1);
-
-              case 1:
-              case "end":
-                return _context2.stop();
-            }
-          }
-        }, entriesRight, this);
-      })
-      /**
        * Iterates over all the entries in the map.
        *
-       * @return {Generator<any, void, any>}
+       * @yields {entries:Array.<key,value>} each entry in the map
        */
 
     }, {
@@ -6401,23 +6505,47 @@
       value:
       /*#__PURE__*/
       regeneratorRuntime.mark(function entries() {
-        return regeneratorRuntime.wrap(function entries$(_context3) {
+        return regeneratorRuntime.wrap(function entries$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                return _context2.delegateYield(this.buckets, "t0", 1);
+
+              case 1:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, entries, this);
+      })
+      /**
+       * Iterates over all the entries in the map.
+       *
+       * @yields {entries:Array.<key,value>} each entry in the map in reverse order
+       */
+
+    }, {
+      key: "entriesRight",
+      value:
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function entriesRight() {
+        return regeneratorRuntime.wrap(function entriesRight$(_context3) {
           while (1) {
             switch (_context3.prev = _context3.next) {
               case 0:
-                return _context3.delegateYield(this.buckets, "t0", 1);
+                return _context3.delegateYield(this.buckets.entriesRight(), "t0", 1);
 
               case 1:
               case "end":
                 return _context3.stop();
             }
           }
-        }, entries, this);
+        }, entriesRight, this);
       })
       /**
        * Iterates over all the keys in the map.
        *
-       * @return {Generator<any, void, any>}
+       * @yields {key:any} each key in the map
        */
 
     }, {
@@ -6441,7 +6569,7 @@
       /**
        * Iterates over all the values in the map.
        *
-       * @return {Generator<any, void, any>}
+       * @yields {value:any} each value in the map.
        */
 
     }, {
@@ -6464,7 +6592,8 @@
       })
       /**
        * Iterates over all the keys in the map in reverse.
-       * @return {Generator<any, void, any>}
+       *
+       * @yields {key:any} each key in the map in reverse order
        */
 
     }, {
@@ -6487,7 +6616,8 @@
       })
       /**
        * Iterates over all the values in the map in reverse.
-       * @return {Generator<any, void, any>}
+       *
+       * @yields {value:any} each value in the map in reverse order
        */
 
     }, {
@@ -6507,76 +6637,23 @@
             }
           }
         }, valuesRight, this);
-      })
-      /**
-       * User Defined Equals Method
-       * A user defined function to define an equals method against 2 keys.
-       * @callback HashMap.methodOptionsEquals
-       * @param {*} firstKey - the first key.
-       * @param {*} secondKey - the second key
-       * @returns {boolean} is it equal or not
-       */
+      }) // Private
 
       /**
-       * User Defined Hash Method
-       * A user defined function to describe how to hash a key.
-       * @callback HashMap.methodOptionsHash
-       * @param {*} key - the first key.
-       * @returns {number} a 32 bit integer as a hash.
+       * Create a container for this hashmap, overridden by {@link LinkedHashMap}
+       * This is an internal method, used for extension of hashmaps.
+       * It allows for control of the leaves without having to mess with the hashbuckets and hamtpbuckets.
+       * @private
+       * @param {*} parent the parent of the container.
+       * @param {number} hash the hash we want to assign to the container
+       * @return {Container} the created container.
        */
 
-      /**
-       * User defined hashing and equals methods
-       * HashMap will find the best fit for your objects, and if your keys themselves have the appropriate methods,
-       * then it will use them. However if you want to override that functionality this options object allows you to do it.
-       * @typedef {Object} HashMap.methodOptions
-       * @property {number|HashMap.methodOptionsHash} [hash] - The optional hash value, or method to use.
-       * @property {HashMap.methodOptionsEquals} [equals] - The optional equals method to use
-       */
-
-      /**
-       * For Each Function
-       * A callback to execute on every <code>[key,value]</code> pair of this map iterable.
-       * @example <caption>log the keys and values</caption>
-       * const forEachFunction = (value, key) => console.log(key,value)
-       * @callback HashMap#ForEachCallback
-       * @param {*} [value] - the entry value.
-       * @param {*} [key] - the entry key
-       * @param {HashMap} [map] - the calling Map Iterable.
-       */
-
-      /**
-       * Test each element of the map to see if it matches and return
-       *  - true if the key and value match.
-       *  - false if it doesn't.
-       * @example <caption>Only match keys divisible by 2</caption>
-       * const myMatchPredicate = (value, key) => key % 2 === 0;
-       * @example <caption>Only match values which are equal to another key in the map</caption>
-       * const myMatchPredicate = (value, key, mapIterable) => mapIterable.has(value);
-       * @example <caption>An alternative implementation, (but potentially slower, and assumes no undefined value)</caption>
-       * const myMatchPredicate = (value, key, mapIterable) => mapIterable.indexOf(key) !== undefined;
-       * @callback HashMap#MatchesPredicate
-       * @param {*} [value] - the entry value.
-       * @param {*} [key] - the entry key
-       * @param {HashMap} [iterable] - the HashMap.
-       * @return {boolean} a value that coerces to true if it matches, or to false otherwise.
-       */
-
-      /**
-       * Reduce Function
-       * A callback to accumulate values from the HashMap <code>[key,value]</code> into a single value.
-       *
-       * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce|Array.reduce}
-       * @example <caption>add all the keys</caption>
-       * const reduceFunction = (accumulator, value, key) => accumulator+key
-       * @callback HashMap#ReduceFunction
-       * @param {*} [accumulator] - the value from the last execution of this function.
-       * @param {*} [value] - the entry value.
-       * @param {*} [key] - the entry key
-       * @param {HashMap} [hashmap] - the calling HashMap.
-       * @return {*} [accumulator] - the value to pass to the next time this function is called or the final return value.
-       */
-
+    }, {
+      key: "createContainer",
+      value: function createContainer(parent, hash) {
+        return new Container(this, parent, hash);
+      }
     }]);
 
     return HashMap;
@@ -6604,10 +6681,64 @@
      * This LinkedHashMap is is an extension of {@link HashMap} however LinkedHashMap also maintains insertion order of keys, and guarantees to iterate over them in that order.
      * - `new LinkedHashMap()` creates an empty linked hashmap
      * - `new LinkedHashMap(copy:Iterable)` creates a linked hashmap which is a copy of the provided iterable.
-     *   1) `copy` either
+     *   - One of
+     *      - an object that provides a [Symbol.Iterator] function with the same signature as `Map.[Symbol.Iterator]`, such as `Map` or this `HashMap` and `LinkedHashMap`
+     *          - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
+     *      - an object that provides a entries function with the same signature as `Map.entries`, such as `Map` or this `HashMap` and `LinkedHashMap`
      *      - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
-     *      - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
-     * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>)} [copy]
+     *
+     * @example <caption>Create an empty LinkedHashMap</caption>
+     * const linkedhashmap = new LinkedHashMap();
+     * // linkedhashmap.size === 0;
+     * @example <caption>Create LinkedHashMap from an array of key value pairs</caption>
+     * const arr = [[1,'value1'],[2,'value2'],[3,'value3']];
+     * const linkedhashmap = new LinkedHashMap(arr);
+     * // linkedhashmap.size === 3;
+     * @example <caption>Create LinkedHashMap from another map</caption>
+     * const map = new Map([[1,'value1'],[2,'value2'],[3,'value3']])
+     * const linkedhashmap = new LinkedHashMap(map);
+     * // linkedhashmap.size === 3;
+     * @example <caption>Create LinkedHashMap from another HashMap</caption>
+     * const first = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']])
+     * const linkedhashmap = new LinkedHashMap(first);
+     * // linkedhashmap.size === 3;
+     * // will accept LinkedHashMap as well
+     * @example <caption>Create LinkedHashMap from a class with symbol iterator</caption>
+     * class MyIterable = {
+     *     *[Symbol.iterator] () {
+     *         yield ["key1", "value1"];
+     *         yield ["key2", "value2"];
+     *         yield ["key3", "value3"];
+     *         yield ["key4", "value4"];
+     *     }
+     * }
+     * const iterable = new MyIterable();
+     * const linkedhashmap = new LinkedHashMap(iterable);
+     * // linkedhashmap.size === 4;
+     * // it doesn't have to be a generator, an iterator works too.
+     * @example <caption>Create LinkedHashMap from an object with an entries generator function</caption>
+     * const entriesObj = {
+     *     entries: function* () {
+     *         yield ["key1", "value1"];
+     *         yield ["key2", "value2"];
+     *         yield ["key3", "value3"];
+     *         yield ["key4", "value4"];
+     *     }
+     * }
+     * const linkedhashmap = new LinkedHashMap(entriesObj);
+     * // linkedhashmap.size === 4;
+     * // it doesn't have to be a generator, an iterator works too.
+     * @example <caption>Create LinkedHashMap from an object with a forEach function</caption>
+     * const forEachObj = {
+     *      forEach: (callback, ctx) => {
+     *              for (let i = 1; i <= 4; i++) {
+     *                  callback.call(ctx, 'value' + i, 'key' + i);
+     *              }
+     *      }
+     * };
+     * const linkedhashmap = new LinkedHashMap(forEachObj);
+     * // linkedhashmap.size === 4;
+     * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>|ObjectWithForEach.<function(function(value, key))>|ObjectWithEntries.<function>)}[copy]
      */
     function LinkedHashMap(copy) {
       var _this;
@@ -6623,6 +6754,11 @@
 
       return _this;
     }
+    /**
+     * @inheritDoc
+     * @return {HashMap}
+     */
+
 
     _createClass(LinkedHashMap, [{
       key: "clear",
@@ -6631,58 +6767,106 @@
         this.end = undefined;
         return _get(_getPrototypeOf(LinkedHashMap.prototype), "clear", this).call(this);
       }
-    }, {
-      key: "createContainer",
-      value: function createContainer(parent, hash) {
-        return new LinkedContainer(this, parent, hash);
-      }
+      /**
+       *
+       * @param key
+       * @param value
+       * @param {HashMap#overrides<equals, hash>} [overrides] - a set of optional overrides to allow a user to define the hashcode and equals methods, rather than them being looked up.     * @return {HashMap}
+       * @return {LinkedHashMap}
+       */
+
     }, {
       key: "setLeft",
-      value: function setLeft(key, value, options) {
-        var op = equalsAndHash(key, options);
+      value: function setLeft(key, value, overrides) {
+        var op = equalsAndHash(key, overrides);
         op.addToStart = true;
         this.buckets.set(key, value, op);
         return this;
       }
+      /**
+       *
+       * @param key
+       * @param handler
+       * @param {HashMap#overrides<equals, hash>} [overrides] - a set of optional overrides to allow a user to define the hashcode and equals methods, rather than them being looked up.     * @return {HashMap}
+       * @return {*}
+       */
+
     }, {
       key: "emplaceLeft",
-      value: function emplaceLeft(key, handler, options) {
-        var op = equalsAndHash(key, options);
+      value: function emplaceLeft(key, handler, overrides) {
+        var op = equalsAndHash(key, overrides);
         op.addToStart = true;
         return this.buckets.emplace(key, handler, op);
       }
+      /**
+       *
+       * @param key
+       * @param value
+       * @param {HashMap#overrides<equals, hash>} [overrides] - a set of optional overrides to allow a user to define the hashcode and equals methods, rather than them being looked up.     * @return {HashMap}
+       * @return {LinkedHashMap}
+       */
+
     }, {
       key: "push",
-      value: function push(key, value, options) {
-        var op = equalsAndHash(key, options);
+      value: function push(key, value, overrides) {
+        var op = equalsAndHash(key, overrides);
         op.moveOnUpdate = true;
         this.buckets.set(key, value, op);
         return this;
       }
+      /**
+       *
+       * @param key
+       * @param handler
+       * @param {HashMap#overrides<equals, hash>} [overrides] - a set of optional overrides to allow a user to define the hashcode and equals methods, rather than them being looked up.     * @return {HashMap}
+       * @return {*}
+       */
+
     }, {
       key: "pushEmplace",
-      value: function pushEmplace(key, handler, options) {
-        var op = equalsAndHash(key, options);
+      value: function pushEmplace(key, handler, overrides) {
+        var op = equalsAndHash(key, overrides);
         op.moveOnUpdate = true;
         return this.buckets.emplace(key, handler, op);
       }
+      /**
+       *
+       * @param key
+       * @param value
+       * @param {HashMap#overrides<equals, hash>} [overrides] - a set of optional overrides to allow a user to define the hashcode and equals methods, rather than them being looked up.     * @return {HashMap}
+       * @return {LinkedHashMap}
+       */
+
     }, {
       key: "unshift",
-      value: function unshift(key, value, options) {
-        var op = equalsAndHash(key, options);
+      value: function unshift(key, value, overrides) {
+        var op = equalsAndHash(key, overrides);
         op.moveOnUpdate = true;
         op.addToStart = true;
         this.buckets.set(key, value, op);
         return this;
       }
+      /**
+       *
+       * @param key
+       * @param handler
+       * @param {HashMap#overrides<equals, hash>} [overrides] - a set of optional overrides to allow a user to define the hashcode and equals methods, rather than them being looked up.     * @return {HashMap}
+       * @return {*}
+       */
+
     }, {
       key: "unshiftEmplace",
-      value: function unshiftEmplace(key, handler, options) {
-        var op = equalsAndHash(key, options);
+      value: function unshiftEmplace(key, handler, overrides) {
+        var op = equalsAndHash(key, overrides);
         op.moveOnUpdate = true;
         op.addToStart = true;
         return this.buckets.emplace(key, handler, op);
       }
+      /**
+       *
+       * @return {undefined|*}
+       */
+
     }, {
       key: "shift",
       value: function shift() {
@@ -6695,6 +6879,11 @@
 
         return undefined;
       }
+      /**
+       *
+       * @return {undefined|*}
+       */
+
     }, {
       key: "pop",
       value: function pop() {
@@ -6707,6 +6896,11 @@
 
         return undefined;
       }
+      /**
+       *
+       * @return {undefined|*}
+       */
+
     }, {
       key: "head",
       value: function head() {
@@ -6718,6 +6912,11 @@
 
         return undefined;
       }
+      /**
+       *
+       * @return {undefined|*}
+       */
+
     }, {
       key: "tail",
       value: function tail() {
@@ -6729,6 +6928,11 @@
 
         return undefined;
       }
+      /**
+       *
+       * @return {Option}
+       */
+
     }, {
       key: "optionalHead",
       value: function optionalHead() {
@@ -6740,6 +6944,11 @@
 
         return none;
       }
+      /**
+       *
+       * @return {Option}
+       */
+
     }, {
       key: "optionalTail",
       value: function optionalTail() {
@@ -6751,6 +6960,11 @@
 
         return none;
       }
+      /**
+       *
+       * @return {undefined|*}
+       */
+
     }, {
       key: "headKey",
       value: function headKey() {
@@ -6762,6 +6976,11 @@
 
         return undefined;
       }
+      /**
+       *
+       * @return {undefined|*}
+       */
+
     }, {
       key: "tailKey",
       value: function tailKey() {
@@ -6773,6 +6992,11 @@
 
         return undefined;
       }
+      /**
+       *
+       * @return {Option}
+       */
+
     }, {
       key: "optionalHeadKey",
       value: function optionalHeadKey() {
@@ -6784,6 +7008,11 @@
 
         return none;
       }
+      /**
+       *
+       * @return {Option}
+       */
+
     }, {
       key: "optionalTailKey",
       value: function optionalTailKey() {
@@ -6795,6 +7024,11 @@
 
         return none;
       }
+      /**
+       * @inheritDoc
+       * @return {LinkedHashMap}
+       */
+
     }, {
       key: "reverse",
       value: function reverse() {
@@ -6829,7 +7063,7 @@
       /**
        * Iterates over all the entries in the map.
        *
-       * @return {Generator<any, void, any>}
+       * @yields {entries:Array.<key,value>} each entry in the map
        */
 
     }, {
@@ -6850,9 +7084,17 @@
           }
         }, value, this);
       })
+      /**
+       * Iterates over all the entries in the map.
+       *
+       * @yields {entries:Array.<key,value>} each entry in the map
+       */
+
     }, {
       key: "entries",
-      value: /*#__PURE__*/regeneratorRuntime.mark(function entries() {
+      value:
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function entries() {
         var entry;
         return regeneratorRuntime.wrap(function entries$(_context2) {
           while (1) {
@@ -6881,9 +7123,17 @@
           }
         }, entries, this);
       })
+      /**
+       * Iterates over all the entries in the map in reverse order.
+       *
+       * @yields {entries:Array.<key,value>} each entry in the map in reverse order
+       */
+
     }, {
       key: "entriesRight",
-      value: /*#__PURE__*/regeneratorRuntime.mark(function entriesRight() {
+      value:
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function entriesRight() {
         var entry;
         return regeneratorRuntime.wrap(function entriesRight$(_context3) {
           while (1) {
@@ -6915,7 +7165,7 @@
       /**
        * Iterates over all the keys in the map.
        *
-       * @return {Generator<any, void, any>}
+       * @yields {key:any} each key in the map
        */
 
     }, {
@@ -6954,7 +7204,7 @@
       /**
        * Iterates over all the values in the map.
        *
-       * @return {Generator<any, void, any>}
+       * @yields {value:any} each value in the map
        */
 
     }, {
@@ -6992,7 +7242,7 @@
       })
       /**
        * Iterates over all the keys in the map in reverse.
-       * @return {Generator<any, void, any>}
+       * @yields {key:any} each key in the map in reverse order
        */
 
     }, {
@@ -7030,7 +7280,7 @@
       })
       /**
        * Iterates over all the values in the map in reverse.
-       * @return {Generator<any, void, any>}
+       * @yields {value:any} each value in the map in reverse order
        */
 
     }, {
@@ -7065,13 +7315,27 @@
             }
           }
         }, valuesRight, this);
-      })
+      }) // private
+
+      /**
+       * @private
+       * @param parent
+       * @param hash
+       * @return {LinkedContainer}
+       */
+
+    }, {
+      key: "createContainer",
+      value: function createContainer(parent, hash) {
+        return new LinkedContainer(this, parent, hash);
+      }
     }]);
 
     return LinkedHashMap;
   }(HashMap);
   /**
    * Holds multiple entries, but shrinks to a single container if reduced to a size of one.
+   * @private
    */
 
   var LinkedContainer = /*#__PURE__*/function (_Container) {
@@ -7087,14 +7351,14 @@
 
     _createClass(LinkedContainer, [{
       key: "createEntry",
-      value: function createEntry(key, value, options) {
-        var entry = _get(_getPrototypeOf(LinkedContainer.prototype), "createEntry", this).call(this, key, value, options);
+      value: function createEntry(key, value, overrides) {
+        var entry = _get(_getPrototypeOf(LinkedContainer.prototype), "createEntry", this).call(this, key, value, overrides);
 
         var map = this.map;
 
         if (map.start === undefined) {
           map.end = map.start = entry;
-        } else if (options.addToStart) {
+        } else if (overrides.addToStart) {
           map.start.previous = entry;
           entry.next = map.start;
           map.start = entry;
@@ -7108,11 +7372,11 @@
       }
     }, {
       key: "updateEntry",
-      value: function updateEntry(entry, newValue, options) {
-        _get(_getPrototypeOf(LinkedContainer.prototype), "updateEntry", this).call(this, entry, newValue, options);
+      value: function updateEntry(entry, newValue, overrides) {
+        _get(_getPrototypeOf(LinkedContainer.prototype), "updateEntry", this).call(this, entry, newValue, overrides);
 
-        if (options.moveOnUpdate) {
-          if (options.addToStart) {
+        if (overrides.moveOnUpdate) {
+          if (overrides.addToStart) {
             if (entry.previous) {
               if (entry.next) {
                 entry.next.previous = entry.previous;
