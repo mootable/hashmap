@@ -4,7 +4,7 @@ import {none, some} from '../option/';
  * HashMap - HashMap Container Implementation for JavaScript
  * @namespace Mootable.HashMap
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 1.0.0
+ * @version 1.0.1
  * Homepage: https://github.com/mootable/hashmap
  */
 
@@ -97,7 +97,7 @@ export class Container {
         return value;
     }
 
-    createEntry(key, value, options) {
+    createEntry(key, value) {
         const entry = [key, value];
         entry.parent = this;
         this.contents.push(entry);
@@ -105,7 +105,7 @@ export class Container {
         return entry;
     }
 
-    updateEntry(entry, newValue, options) {
+    updateEntry(entry, newValue) {
         entry[1] = newValue;
     }
 

@@ -2,7 +2,7 @@
  * Option - a class to get round nullable fields.
  * @namespace Mootable
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 1.0.0
+ * @version 1.0.1
  * Homepage: https://github.com/mootable/hashmap
  */
 

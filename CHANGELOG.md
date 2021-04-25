@@ -1,4 +1,8 @@
 # Changelog
+## 1.0.1
+- More Documentation
+- Fixed usage of obj.hasOwnProperty('blah') to be Object.prototype.hasOwnProperty.call(obj,'blah')
+  - this could be a potential security vulnerability. So please update.
 ## 1.0.0
 - Breaking Changes
 - Functionality

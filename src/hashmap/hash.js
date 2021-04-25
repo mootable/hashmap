@@ -1,10 +1,11 @@
 import {sameValueZero, strictEquals, isFunction} from '../utils';
 import {Option} from "../option";
+
 /**
  * Hash - Hash functions
  * @namespace Mootable.Hash
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 1.0.0
+ * @version 1.0.1
  * Homepage: https://github.com/mootable/hashmap
  */
 /**
@@ -113,15 +114,15 @@ export function hashCodeFor(key) {
             }
 
             // Options we work on the values.
-            if(key instanceof Option) {
-                if(key.has) {
+            if (key instanceof Option) {
+                if (key.has) {
                     return 31 * hashCodeFor(key.value);
                 }
                 return 0;
             }
 
             // Hash of Last Resort, ensure we don't consider any objects on the prototype chain.
-            if (key.hasOwnProperty('_mootable_hashCode')) {
+            if (Object.prototype.hasOwnProperty.call(key, '_mootable_hashCode')) {
                 // its our special number, but just in case someone has done something a bit weird with it.
                 // Object equality at this point means that only this key instance can be used to fetch the value.
                 return hashCodeFor(key._mootable_hashCode);
@@ -163,9 +164,9 @@ let HASH_COUNTER = 0;
  */
 export function equalsFor(key) {
     // Regexes and Dates we treat like primitives.
-    switch(typeof key){
+    switch (typeof key) {
         case 'object':
-            if(key) {
+            if (key) {
                 if (key instanceof RegExp) {
                     return (me, them) => {
                         if (them instanceof RegExp) {
@@ -185,7 +186,7 @@ export function equalsFor(key) {
                         const valueEquals = equalsFor(key.value);
                         return (me, them) => {
                             if (them.has) {
-                                return valueEquals(me.value,them.value);
+                                return valueEquals(me.value, them.value);
                             }
                             return false;
                         };
@@ -223,19 +224,19 @@ export function equalsFor(key) {
  * @return {{hash: number, equals: function}} - the hash code and equals function.
  */
 export function equalsAndHash(key, options) {
-    if(options) {
+    if (options) {
         let hash = options.hash;
         let equals = options.equals;
-        if(isFunction(hash)){
+        if (isFunction(hash)) {
             hash = hash(key);
         }
-        if(!Number.isSafeInteger(hash)){
+        if (!Number.isSafeInteger(hash)) {
             hash = hashCodeFor(key);
         }
-        if(!isFunction(equals)) {
+        if (!isFunction(equals)) {
             equals = equalsFor(key);
         }
-        return {hash,equals};
+        return {hash, equals};
     }
 
     const toSetOn = {};
@@ -283,7 +284,7 @@ export function equalsAndHash(key, options) {
                 toSetOn.equals = strictEquals;
                 return toSetOn;
             }
-            toSetOn.equals =  equalsFor(key);
+            toSetOn.equals = equalsFor(key);
             if (key.hashCode) {
                 if (isFunction(key.hashCode)) {
                     toSetOn.hash = hashCodeFor(key.hashCode(key));
@@ -305,8 +306,8 @@ export function equalsAndHash(key, options) {
             }
 
             // Options we work on the values.
-            if(key instanceof Option) {
-                if(key.has) {
+            if (key instanceof Option) {
+                if (key.has) {
                     toSetOn.hash = 31 * hashCodeFor(key.value);
                     return toSetOn;
                 }
@@ -315,7 +316,7 @@ export function equalsAndHash(key, options) {
             }
 
             // Hash of Last Resort, ensure we don't consider any objects on the prototype chain.
-            if (key.hasOwnProperty('_mootable_hashCode')) {
+            if (Object.prototype.hasOwnProperty.call(key, '_mootable_hashCode')) {
                 // its our special number, but just in case someone has done something a bit weird with it.
                 // Object equality at this point means that only this key instance can be used to fetch the value.
                 toSetOn.hash = hashCodeFor(key._mootable_hashCode);

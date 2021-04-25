@@ -2,7 +2,7 @@
  * Utils - Utility functions
  * @namespace Mootable.Utils
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 1.0.0
+ * @version 1.0.1
  * Homepage: https://github.com/mootable/hashmap
  */
 /**
