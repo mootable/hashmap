@@ -54,7 +54,7 @@ import {some, none} from "../option";
  * HashMap - HashMap Implementation for JavaScript
  * @namespace Mootable
  * @author Jack Moxley &lt;https://github.com/jackmoxley>
- * @version 1.0.0
+ * @version 1.0.1
  * Homepage: https://github.com/mootable/hashmap
  */
 /**
@@ -72,6 +72,14 @@ export class HashMap {
      *          - or a 2 dimensional key-value array, e.g. `[['key1','val1'], ['key2','val2']]`.
      *      - an object that provides a entries function with the same signature as `Map.entries`, such as `Map` or this `HashMap` and `LinkedHashMap`
      *      - an object that provides a forEach function with the same signature as `Map.forEach`, such as `Map` or this `HashMap` and `LinkedHashMap`
+     *
+     * Although this hashmap has no fixed guarantee on how it orders its elements, it does
+     * maintain an order, undecipherable as it maybe, first by hashcode, and then by by order of
+     * insertion. As such methods that iterate forwards and the equivalent backwards (Right)
+     * methods are correct in the order of which values returned, and are in reverse to one another.
+     *
+     * However these reverse methods are more valuable when used on an ordered map such as the
+     * {@link LinkedHashMap}, which maintains and provides control for the order of insertion.
      *
      * @example &lt;caption>Create an empty HashMap&lt;/caption>
      * const hashmap = new HashMap();
@@ -248,6 +256,31 @@ export class HashMap {
      * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const hasResult = hashmap.has(4);
      * // hasResult === false
+     * @example &lt;caption>Advanced: using a predefined hashCode and equals on the key&lt;/caption>
+     * class NameKey {
+     *     constructor(firstName, secondName) {
+     *         this.firstName = firstName;
+     *         this.secondName = secondName;
+     *     }
+     *     hashCode() {
+     *          return (Mootable.hash(firstName) * 31) +Mootable.hash(secondName);
+     *     }
+     *     equals(other) {
+     *          return other &amp;&amp; other instanceof NameKey &amp;&amp; other.firstName === this.firstName &amp;&amp; other.secondName === this.secondName;
+     *     }
+     * }
+     * const hashmap = new HashMap([[new NameKey('John','Smith'),'Librarian'],[new NameKey('Orlando','Keleshian'),'Engineer']]);
+     * const key = new NameKey('John','Smith');
+     * const hasResult = hashmap.has(key);
+     * // hasResult === true
+     * @example &lt;caption>Advanced: using a custom hash and equals, to determine if there are entries for a specific hash&lt;/caption>
+     * const myHash = 3;
+     * const hashEquals = {hash: myHash, equals: () => true}
+     * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+     * const hasResult = hashmap.has(0, hashEquals);
+     * // hasResult === true
+     * // the hash of the number 3 is actually also 3. all 32 bit integers have the same hash.
+     * // 0 doesn't exist in the hashMap, but we are circumventing using the key entirely.
      * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/has|Map.has}
      * @param {*} key - the matching key we use to identify if we have a match.
      * @param {HashMap#overrides&lt;equals, hash>} [overrides] - a set of optional overrides to allow a user to define the hash and equals methods, rather than them being looked up.
@@ -275,6 +308,31 @@ export class HashMap {
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const getResult = hashmap.get(4);
      * // getResult === undefined
+     * @example &lt;caption>Advanced: using a predefined hashCode and equals on the key&lt;/caption>
+     * class NameKey {
+     *     constructor(firstName, secondName) {
+     *         this.firstName = firstName;
+     *         this.secondName = secondName;
+     *     }
+     *     hashCode() {
+     *          return (Mootable.hash(firstName) * 31) +Mootable.hash(secondName);
+     *     }
+     *     equals(other) {
+     *          return other &amp;&amp; other instanceof NameKey &amp;&amp; other.firstName === this.firstName &amp;&amp; other.secondName === this.secondName;
+     *     }
+     * }
+     * const hashmap = new HashMap([[new NameKey('John','Smith'),'Librarian'],[new NameKey('Orlando','Keleshian'),'Engineer']]);
+     * const key = new NameKey('John','Smith');
+     * const getResult = hashmap.get(key);
+     * // getResult === 'Librarian'
+     * @example &lt;caption>Advanced: using a custom hash and equals, to get the first entry for a specific hash&lt;/caption>
+     * const myHash = 3;
+     * const hashEquals = {hash: myHash, equals: () => true}
+     * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+     * const getResult = hashmap.get(0, hashEquals);
+     * // getResult === 'value3'
+     * // the hash of the number 3 is actually also 3. all 32 bit integers have the same hash.
+     * // 0 doesn't exist in the hashMap, but we are circumventing using the key entirely.
      * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/get|Map.get}
      * @param {*} key - the matching key we use to identify if we have a match.
      * @param {HashMap#overrides&lt;equals, hash>} [overrides] - a set of optional overrides to allow a user to define the hashcode and equals methods, rather than them being looked up.
@@ -286,10 +344,44 @@ export class HashMap {
     }
 
     /**
-     * Get the key from the map using the provided value.
-     * Performance O(n) as we have to iterate over the whole map, to find each value and perform an equality aginst it.
-     * @param value
-     * @return {*}
+     * Get the key from the map using the provided value. Since values are not hashed, this has to check each value in the map until a value matches, or the whole map, if none match. As such this is a slow operation.
+     * Performance O(n) as we have to iterate over the whole map, to find each value and perform
+     * an equality against it.
+     * @example &lt;caption>>What is the key for a value&lt;/caption>
+     * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+     * const keyOfResult = hashmap.keyOf('value2');
+     * // keyOfResult === 2
+     * @example &lt;caption>What is the value for a key that isn't there&lt;/caption>
+     * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+     * const keyOfResult = hashmap.keyOf('value4');
+     * // keyOfResult === undefined
+     * @example &lt;caption>Advanced: using a predefined hashCode and equals on the key&lt;/caption>
+     * class NameKey {
+     *     constructor(firstName, secondName) {
+     *         this.firstName = firstName;
+     *         this.secondName = secondName;
+     *     }
+     *     hashCode() {
+     *          return (Mootable.hash(firstName) * 31) +Mootable.hash(secondName);
+     *     }
+     *     equals(other) {
+     *          return other &amp;&amp; other instanceof NameKey &amp;&amp; other.firstName === this.firstName &amp;&amp; other.secondName === this.secondName;
+     *     }
+     * }
+     * const hashmap = new HashMap([[new NameKey('John','Smith'),'Librarian'],[new NameKey('Orlando','Keleshian'),'Engineer']]);
+     * const keyOfResult = hashmap.keyOf('Engineer');
+     * // getResult ~ NameKey('Orlando','Keleshian')
+     * @example &lt;caption>Advanced: using a custom equals, to get the first key in the
+     * hashmap&lt;/caption>
+     * const myEquals = {equals: () => true}
+     * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+     * const keyOfResult = hashmap.keyOf(0, myEquals);
+     * // keyOfResult === 1
+     * // 0 doesn't exist in the hashMap, but we are circumventing using the key entirely.
+     * @param {*} value - The value we are searching the map for
+     * @param {HashMap#overrides&lt;equals>} [overrides] - an optional override to allow a user to
+     * define the equals methods, rather than it being looked up on the value.
+     * @return {*|undefined} the first key for this value or undefined
      */
     keyOf(value, overrides) {
         const equals = overrides &amp;&amp; isFunction(overrides.equals) ? overrides.equals : equalsFor(value);
@@ -302,10 +394,46 @@ export class HashMap {
     }
 
     /**
-     * Potentially Slow!
-     * @param value
-     * @param {HashMap#overrides&lt;equals>} [overrides] - a set of optional overrides to allow a user to define the hash and equals methods, rather than them being looked up.
-     * @return {*}
+     * Get the key from the map using the provided value, searching the map in reverse. Since values
+     * are not hashed, this has to check each value in the map until a value matches, or the
+     * whole map, if none match. As such this is a slow operation.
+     * Performance O(n) as we have to iterate over the whole map, to find each value and perform
+     * an equality against it.
+     * @example &lt;caption>>What is the key for a value&lt;/caption>
+     * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+     * const lastKeyOfResult = hashmap.lastKeyOf('value2');
+     * // lastKeyOfResult === 2
+     * @example &lt;caption>What is the value for a key that isn't there&lt;/caption>
+     * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+     * const lastKeyOfResult = hashmap.lastKeyOf('value4');
+     * // lastKeyOfResult === undefined
+     * @example &lt;caption>Advanced: using a predefined hashCode and equals on the key&lt;/caption>
+     * class NameKey {
+     *     constructor(firstName, secondName) {
+     *         this.firstName = firstName;
+     *         this.secondName = secondName;
+     *     }
+     *     hashCode() {
+     *          return (Mootable.hash(firstName) * 31) +Mootable.hash(secondName);
+     *     }
+     *     equals(other) {
+     *          return other &amp;&amp; other instanceof NameKey &amp;&amp; other.firstName === this.firstName &amp;&amp; other.secondName === this.secondName;
+     *     }
+     * }
+     * const hashmap = new HashMap([[new NameKey('John','Smith'),'Librarian'],[new NameKey('Orlando','Keleshian'),'Engineer']]);
+     * const lastKeyOfResult = hashmap.lastKeyOf('Engineer');
+     * // getResult ~ NameKey('Orlando','Keleshian')
+     * @example &lt;caption>Advanced: using a custom equals, to get the last key in the
+     * hashmap&lt;/caption>
+     * const myEquals = {equals: () => true}
+     * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+     * const lastKeyOfResult = hashmap.lastKeyOf(0, myEquals);
+     * // lastKeyOfResult === 3
+     * // 0 doesn't exist in the hashMap, but we are circumventing using the key entirely.
+     * @param {*} value - The value we are searching the map for, (in reverse)
+     * @param {HashMap#overrides&lt;equals>} [overrides] - an optional override to allow a user to
+     * define the equals methods, rather than it being looked up on the value.
+     * @return {*|undefined} the last key for this value or undefined
      */
     lastKeyOf(value, overrides) {
         const equals = overrides &amp;&amp; isFunction(overrides.equals) ? overrides.equals : equalsFor(value);
@@ -318,9 +446,46 @@ export class HashMap {
     }
 
     /**
-     * Slow!
-     * @param value
-     * @param {HashMap#overrides&lt;equals>} [overrides] - a set of optional overrides to allow a user to define the hash and equals methods, rather than them being looked up.
+     * Get the key from the map using the provided value, and wrap it in an {@link Option}.
+     * Since values are not hashed, this has to check each value in the map until a value
+     * matches, or the whole map, if none match. As such this is a slow operation.
+     * Performance O(n) as we have to iterate over the whole map, to find each value and perform
+     * an equality against it.
+     * @example &lt;caption>>What is the key for a value&lt;/caption>
+     * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+     * const optionalKeyOfResult = hashmap.optionalKeyOf('value2');
+     * // optionalKeyOfResult === Option.some(2)
+     * @example &lt;caption>What is the value for a key that isn't there&lt;/caption>
+     * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+     * const optionalKeyOfResult = hashmap.optionalKeyOf('value4');
+     * // optionalKeyOfResult === Option.none
+     * @example &lt;caption>Advanced: using a predefined hashCode and equals on the key&lt;/caption>
+     * class NameKey {
+     *     constructor(firstName, secondName) {
+     *         this.firstName = firstName;
+     *         this.secondName = secondName;
+     *     }
+     *     hashCode() {
+     *          return (Mootable.hash(firstName) * 31) +Mootable.hash(secondName);
+     *     }
+     *     equals(other) {
+     *          return other &amp;&amp; other instanceof NameKey &amp;&amp; other.firstName === this.firstName &amp;&amp; other.secondName === this.secondName;
+     *     }
+     * }
+     * const hashmap = new HashMap([[new NameKey('John','Smith'),'Librarian'],[new NameKey('Orlando','Keleshian'),'Engineer']]);
+     * const optionalKeyOfResult = hashmap.optionalKeyOf('Engineer');
+     * // getResult ~ Option.some(NameKey('Orlando','Keleshian'))
+     * @example &lt;caption>Advanced: using a custom equals, to get the first key in the
+     * hashmap&lt;/caption>
+     * const myEquals = {equals: () => true}
+     * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+     * const optionalKeyOfResult = hashmap.optionalKeyOf(0, myEquals);
+     * // optionalKeyOfResult === Option.some(1)
+     * // 0 doesn't exist in the hashMap, but we are circumventing using the key entirely.
+     * @param {*} value - The value we are searching the map for
+     * @param {HashMap#overrides&lt;equals>} [overrides] - an optional overrides to allow a user to
+     * define the equals methods, rather than it being looked up on the value.
+     * @return {Option} the first key for this value or none
      */
     optionalKeyOf(value, overrides) {
         const equals = overrides &amp;&amp; isFunction(overrides.equals) ? overrides.equals : equalsFor(value);
@@ -333,9 +498,46 @@ export class HashMap {
     }
 
     /**
-     * Slow!
-     * @param value
-     * @param {HashMap#overrides&lt;equals>} [overrides] - a set of optional overrides to allow a user to define the hash and equals methods, rather than them being looked up.
+     * Get the key from the map using the provided value, searching the map in reverse. Since values
+     * are not hashed, this has to check each value in the map until a value matches, or the
+     * whole map, if none match. As such this is a slow operation.
+     * Performance O(n) as we have to iterate over the whole map, to find each value and perform
+     * an equality against it.
+     * @example &lt;caption>>What is the key for a value&lt;/caption>
+     * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+     * const optionalLastKeyOfResult = hashmap.optionalLastKeyOf('value2');
+     * // optionalLastKeyOfResult === Option.some(2)
+     * @example &lt;caption>What is the value for a key that isn't there&lt;/caption>
+     * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+     * const optionalLastKeyOfResult = hashmap.optionalLastKeyOf('value4');
+     * // optionalLastKeyOfResult === Option.none
+     * @example &lt;caption>Advanced: using a predefined hashCode and equals on the key&lt;/caption>
+     * class NameKey {
+     *     constructor(firstName, secondName) {
+     *         this.firstName = firstName;
+     *         this.secondName = secondName;
+     *     }
+     *     hashCode() {
+     *          return (Mootable.hash(firstName) * 31) +Mootable.hash(secondName);
+     *     }
+     *     equals(other) {
+     *          return other &amp;&amp; other instanceof NameKey &amp;&amp; other.firstName === this.firstName &amp;&amp; other.secondName === this.secondName;
+     *     }
+     * }
+     * const hashmap = new HashMap([[new NameKey('John','Smith'),'Librarian'],[new NameKey('Orlando','Keleshian'),'Engineer']]);
+     * const optionalLastKeyOfResult = hashmap.optionalLastKeyOf('Engineer');
+     * // getResult ~ Option.some(NameKey('Orlando','Keleshian'))
+     * @example &lt;caption>Advanced: using a custom equals, to get the last key in the
+     * hashmap&lt;/caption>
+     * const myEquals = {equals: () => true}
+     * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+     * const optionalLastKeyOfResult = hashmap.optionalLastKeyOf(0, myEquals);
+     * // optionalLastKeyOfResult === Option.some(3)
+     * // 0 doesn't exist in the hashMap, but we are circumventing using the key entirely.
+     * @param {*} value - The value we are searching the map for, (in reverse)
+     * @param {HashMap#overrides&lt;equals>} [overrides] - an optional overrides to allow a user to
+     * define the equals methods, rather than it being looked up on the value.
+     * @return {Option} the last key for this value or none
      */
     optionalLastKeyOf(value, overrides) {
         const equals = overrides &amp;&amp; isFunction(overrides.equals) ? overrides.equals : equalsFor(value);
@@ -955,7 +1157,7 @@ export class HashMap {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a> on Wed Apr 21 2021 00:42:49 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a> on Sun Apr 25 2021 00:56:05 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
