@@ -121,69 +121,6 @@
 
         
             
-<h4 class="name" id="hammingWeight"><span class="type-signature">(constant) </span>hammingWeight<span class="type-signature"></span></h4>
-
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_hashbuckets.js.html">hashmap/hashbuckets.js</a>, <a href="hashmap_hashbuckets.js.html#line358">line 358</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>Counts the number of ones in a 32 bit integer.</p>
-</div>
-
-
-
-
-
-
-
-
-        
-            
 <h4 class="name" id="none"><span class="type-signature">(constant) </span>none<span class="type-signature"> :<a href="Option.html">Option</a></span></h4>
 
 
@@ -322,7 +259,7 @@
     <p>A function that when called with a value returns an Option object of the form:
 <code>{value:value,has:true}</code>
 Even if a value is not provided it still counts as existing, this is different from other libraries,
-we are effectively saying as null and undefined count as valid values.</p>
+we are effectively saying that null and undefined count as valid values.</p>
 </div>
 
 
@@ -376,7 +313,7 @@ const option = some(myValue);
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="utils_index.js.html">utils/index.js</a>, <a href="utils_index.js.html#line67">line 67</a>
+        <a href="utils_index.js.html">utils/index.js</a>, <a href="utils_index.js.html#line98">line 98</a>
     </li></ul></dd>
     
 
@@ -891,6 +828,184 @@ in that any object that equals another, should produce the same hashcode.</p>
 
     
 
+    <h4 class="name" id="hammingWeight"><span class="type-signature"></span>hammingWeight<span class="signature">(flags)</span><span class="type-signature"> &rarr; {number}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="utils_index.js.html">utils/index.js</a>, <a href="utils_index.js.html#line126">line 126</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://en.wikipedia.org/wiki/Hamming_weight">hammingWeight</a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Counts the number of ones in a binary representation of a 32 bit integer.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Examples</h5>
+    
+        <p class="code-caption"> count the number of bits set to one for the value 22</p>
+    
+    <pre class="prettyprint"><code>const myNumber = 22; // 10110 in binary
+Mootable.hammingWeight(myNumber) === 3;</code></pre>
+
+        <p class="code-caption"> count the number of bits set to one for the value 12947</p>
+    
+    <pre class="prettyprint"><code>const myNumber = 12947; // 11001010010011 in binary
+Mootable.hammingWeight(myNumber) === 7;</code></pre>
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>flags</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>32 bit integer</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>amount of ones.</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">number</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
     <h4 class="name" id="hash"><span class="type-signature"></span>hash<span class="signature">(key, len, seed)</span><span class="type-signature"> &rarr; {number}</span></h4>
 
     
@@ -1274,7 +1389,7 @@ in that any object that equals another, should produce the same hashcode.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="utils_index.js.html">utils/index.js</a>, <a href="utils_index.js.html#line13">line 13</a>
+        <a href="utils_index.js.html">utils/index.js</a>, <a href="utils_index.js.html#line22">line 22</a>
     </li></ul></dd>
     
 
@@ -1325,6 +1440,24 @@ in that any object that equals another, should produce the same hashcode.</p>
 
 
 
+    <h5>Examples</h5>
+    
+        <p class="code-caption"> test if its a function</p>
+    
+    <pre class="prettyprint"><code>const myFunc = () => 1 + 1;
+Mootable.isFunction(myFunc) === true;</code></pre>
+
+        <p class="code-caption"> test if its not a function</p>
+    
+    <pre class="prettyprint"><code>const notAFunction = {};
+Mootable.isFunction(notAFunction) === false;</code></pre>
+
+        <p class="code-caption"> test if its null</p>
+    
+    <pre class="prettyprint"><code>const notAFunction = null;
+Mootable.isFunction(notAFunction) === false;</code></pre>
+
+
 
 
     <h5>Parameters:</h5>
@@ -1357,13 +1490,21 @@ in that any object that equals another, should produce the same hashcode.</p>
 
             <td class="type">
             
+                
+<span class="param-type">function</span>
+|
+
+<span class="param-type">*</span>
+
+
+            
             </td>
 
             
 
             
 
-            <td class="description last"></td>
+            <td class="description last"><p>the function/object to test</p></td>
         </tr>
 
     
@@ -1388,6 +1529,10 @@ in that any object that equals another, should produce the same hashcode.</p>
 <h5>Returns:</h5>
 
         
+<div class="param-desc">
+    <p>true if this is function and not null.</p>
+</div>
+
 
 
 <dl class="param-type">
@@ -1423,7 +1568,7 @@ in that any object that equals another, should produce the same hashcode.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="utils_index.js.html">utils/index.js</a>, <a href="utils_index.js.html#line22">line 22</a>
+        <a href="utils_index.js.html">utils/index.js</a>, <a href="utils_index.js.html#line45">line 45</a>
     </li></ul></dd>
     
 
@@ -1463,7 +1608,8 @@ in that any object that equals another, should produce the same hashcode.</p>
 
 
 <div class="description usertext">
-    <p>Is the passed object iterable</p>
+    <p>Is the passed object iterable and not null, i.e. it has a function that has a type of
+[Symbol.iterator]</p>
 </div>
 
 
@@ -1472,6 +1618,28 @@ in that any object that equals another, should produce the same hashcode.</p>
 
 
 
+
+
+    <h5>Examples</h5>
+    
+        <p class="code-caption"> test if its iterable</p>
+    
+    <pre class="prettyprint"><code>class MyIterable {
+    * [Symbol.iterator]() {
+        yield 1;
+    }
+}
+Mootable.isIterable(new MyIterable()) === true;</code></pre>
+
+        <p class="code-caption"> test if its not an iterable</p>
+    
+    <pre class="prettyprint"><code>const notAnIterable = {};
+Mootable.isIterable(notAnIterable) === false;</code></pre>
+
+        <p class="code-caption"> test if its null</p>
+    
+    <pre class="prettyprint"><code>const notAnIterable = null;
+Mootable.isIterable(notAnIterable) === false;</code></pre>
 
 
 
@@ -1506,13 +1674,21 @@ in that any object that equals another, should produce the same hashcode.</p>
 
             <td class="type">
             
+                
+<span class="param-type">Iterable</span>
+|
+
+<span class="param-type">*</span>
+
+
+            
             </td>
 
             
 
             
 
-            <td class="description last"></td>
+            <td class="description last"><p>the object to test</p></td>
         </tr>
 
     
@@ -1537,6 +1713,10 @@ in that any object that equals another, should produce the same hashcode.</p>
 <h5>Returns:</h5>
 
         
+<div class="param-desc">
+    <p>true if this has a Symbol.iterator function</p>
+</div>
+
 
 
 <dl class="param-type">
@@ -1572,7 +1752,7 @@ in that any object that equals another, should produce the same hashcode.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="utils_index.js.html">utils/index.js</a>, <a href="utils_index.js.html#line31">line 31</a>
+        <a href="utils_index.js.html">utils/index.js</a>, <a href="utils_index.js.html#line63">line 63</a>
     </li></ul></dd>
     
 
@@ -1612,7 +1792,7 @@ in that any object that equals another, should produce the same hashcode.</p>
 
 
 <div class="description usertext">
-    <p>Is the passed value not null and a string</p>
+    <p>Is the passed value is not null and is a string</p>
 </div>
 
 
@@ -1621,6 +1801,24 @@ in that any object that equals another, should produce the same hashcode.</p>
 
 
 
+
+
+    <h5>Examples</h5>
+    
+        <p class="code-caption"> test if its iterable</p>
+    
+    <pre class="prettyprint"><code>const myString = "hello world";
+Mootable.isString(myString) === true;</code></pre>
+
+        <p class="code-caption"> test if its not an iterable</p>
+    
+    <pre class="prettyprint"><code>const notAString = {};
+Mootable.isString(notAString) === false;</code></pre>
+
+        <p class="code-caption"> test if its null</p>
+    
+    <pre class="prettyprint"><code>const notAString = null;
+Mootable.isString(notAString) === false;</code></pre>
 
 
 
@@ -1655,13 +1853,21 @@ in that any object that equals another, should produce the same hashcode.</p>
 
             <td class="type">
             
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type">*</span>
+
+
+            
             </td>
 
             
 
             
 
-            <td class="description last"></td>
+            <td class="description last"><p>the string/object to test</p></td>
         </tr>
 
     
@@ -1686,6 +1892,10 @@ in that any object that equals another, should produce the same hashcode.</p>
 <h5>Returns:</h5>
 
         
+<div class="param-desc">
+    <p>true if this is a string</p>
+</div>
+
 
 
 <dl class="param-type">
@@ -1721,7 +1931,7 @@ in that any object that equals another, should produce the same hashcode.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="utils_index.js.html">utils/index.js</a>, <a href="utils_index.js.html#line45">line 45</a>
+        <a href="utils_index.js.html">utils/index.js</a>, <a href="utils_index.js.html#line76">line 76</a>
     </li></ul></dd>
     
 
@@ -1902,7 +2112,7 @@ The only difference between sameValue and sameValueZero is that +0 and -0 are co
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="utils_index.js.html">utils/index.js</a>, <a href="utils_index.js.html#line55">line 55</a>
+        <a href="utils_index.js.html">utils/index.js</a>, <a href="utils_index.js.html#line86">line 86</a>
     </li></ul></dd>
     
 
@@ -2083,7 +2293,7 @@ The only difference between === and sameValueZero is that NaN counts as equal on
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="utils_index.js.html">utils/index.js</a>, <a href="utils_index.js.html#line79">line 79</a>
+        <a href="utils_index.js.html">utils/index.js</a>, <a href="utils_index.js.html#line110">line 110</a>
     </li></ul></dd>
     
 
@@ -2267,7 +2477,7 @@ Simply does a strict equality comparison <code>===</code> against 2 values</p>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a> on Sun Apr 25 2021 00:57:31 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a> on Mon Apr 26 2021 00:02:25 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

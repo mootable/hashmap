@@ -521,7 +521,7 @@ console.log(size);
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line834">line 834</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line876">line 876</a>
     </li></ul></dd>
     
 
@@ -566,7 +566,7 @@ console.log(size);
 
 
 <div class="description usertext">
-    <p>clears the data from this hashmap.</p>
+    <p>Clears the data from this hashmap. All data is orphaned, and will be Garbage Collected.</p>
 </div>
 
 
@@ -596,6 +596,10 @@ console.log(size);
 <h5>Returns:</h5>
 
         
+<div class="param-desc">
+    <p>this hashmap</p>
+</div>
+
 
 
 <dl class="param-type">
@@ -741,7 +745,7 @@ console.log(size);
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line790">line 790</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line831">line 831</a>
     </li></ul></dd>
     
 
@@ -945,7 +949,7 @@ console.log(size);
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line824">line 824</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line866">line 866</a>
     </li></ul></dd>
     
 
@@ -1124,7 +1128,7 @@ console.log(size);
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line778">line 778</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line819">line 819</a>
     </li></ul></dd>
     
 
@@ -1782,7 +1786,7 @@ console.log(size);
 
     
 
-    <h4 class="name" id="every"><span class="type-signature"></span>every<span class="signature">(everyPredicate<span class="signature-attributes">opt</span>, thisArg<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    <h4 class="name" id="every"><span class="type-signature"></span>every<span class="signature">(everyPredicate<span class="signature-attributes">opt</span>, thisArg<span class="signature-attributes">opt</span>, overrides<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
 
     
 
@@ -1794,7 +1798,7 @@ console.log(size);
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line904">line 904</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line947">line 947</a>
     </li></ul></dd>
     
 
@@ -1983,6 +1987,43 @@ const everyResult = hashmap.every((value) => value.startsWith('value'));
         </tr>
 
     
+
+        <tr>
+            
+                <td class="name"><code>overrides</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="HashMap.html#overrides">HashMap#overrides</a>.&lt;reverse></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>a set of optional overrides to allow a user to define whether to search in reverse</p></td>
+        </tr>
+
+    
     </tbody>
 </table>
 
@@ -2043,7 +2084,7 @@ const everyResult = hashmap.every((value) => value.startsWith('value'));
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line555">line 555</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line588">line 588</a>
     </li></ul></dd>
     
 
@@ -2292,7 +2333,7 @@ const findResult = hashmap.find((value) => value.startsWith('something'));
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line664">line 664</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line701">line 701</a>
     </li></ul></dd>
     
 
@@ -2541,7 +2582,7 @@ const findIndexResult = hashmap.findIndex((value) => value.startsWith('something
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line582">line 582</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line615">line 615</a>
     </li></ul></dd>
     
 
@@ -2790,7 +2831,7 @@ const findResult = hashmap.find((value) => value.startsWith('something'));
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line692">line 692</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line729">line 729</a>
     </li></ul></dd>
     
 
@@ -3039,7 +3080,7 @@ const findIndexResult = hashmap.findIndex((value) => value.startsWith('something
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line854">line 854</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line896">line 896</a>
     </li></ul></dd>
     
 
@@ -3273,7 +3314,7 @@ mapIterable.forEach((value) => console.log(key, value));
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line876">line 876</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line918">line 918</a>
     </li></ul></dd>
     
 
@@ -4248,7 +4289,7 @@ const hasResult = hashmap.has(0, hashEquals);
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line340">line 340</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line341">line 341</a>
     </li></ul></dd>
     
 
@@ -4283,6 +4324,13 @@ const hasResult = hashmap.has(0, hashEquals);
 
     
 
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf">Array.indexOf</a></li>
+        </ul>
+    </dd>
     
 
     
@@ -4730,7 +4778,7 @@ define the equals methods, rather than it being looked up on the value.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line392">line 392</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line394">line 394</a>
     </li></ul></dd>
     
 
@@ -4765,6 +4813,13 @@ define the equals methods, rather than it being looked up on the value.</p></td>
 
     
 
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/lastIndexOf">Array.lastIndexOf</a></li>
+        </ul>
+    </dd>
     
 
     
@@ -4986,7 +5041,7 @@ define the equals methods, rather than it being looked up on the value.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line609">line 609</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line644">line 644</a>
     </li></ul></dd>
     
 
@@ -5025,6 +5080,10 @@ define the equals methods, rather than it being looked up on the value.</p></td>
     <dt class="tag-see">See:</dt>
     <dd class="tag-see">
         <ul>
+            <li><a href="Option.html#.some"><code>Option.some</code></a></li>
+        
+            <li><a href="Option.html#.none"><code>Option.none</code></a></li>
+        
             <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find">Array.find</a></li>
         </ul>
     </dd>
@@ -5235,7 +5294,7 @@ const findResult = hashmap.find((value) => value.startsWith('something'));
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line720">line 720</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line759">line 759</a>
     </li></ul></dd>
     
 
@@ -5274,6 +5333,10 @@ const findResult = hashmap.find((value) => value.startsWith('something'));
     <dt class="tag-see">See:</dt>
     <dd class="tag-see">
         <ul>
+            <li><a href="Option.html#.some"><code>Option.some</code></a></li>
+        
+            <li><a href="Option.html#.none"><code>Option.none</code></a></li>
+        
             <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex">Array.findIndex</a></li>
         </ul>
     </dd>
@@ -5484,7 +5547,7 @@ const findIndexResult = hashmap.findIndex((value) => value.startsWith('something
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line636">line 636</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line673">line 673</a>
     </li></ul></dd>
     
 
@@ -5523,6 +5586,10 @@ const findIndexResult = hashmap.findIndex((value) => value.startsWith('something
     <dt class="tag-see">See:</dt>
     <dd class="tag-see">
         <ul>
+            <li><a href="Option.html#.some"><code>Option.some</code></a></li>
+        
+            <li><a href="Option.html#.none"><code>Option.none</code></a></li>
+        
             <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find">Array.find</a></li>
         </ul>
     </dd>
@@ -5733,7 +5800,7 @@ const findResult = hashmap.find((value) => value.startsWith('something'));
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line748">line 748</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line789">line 789</a>
     </li></ul></dd>
     
 
@@ -5772,6 +5839,10 @@ const findResult = hashmap.find((value) => value.startsWith('something'));
     <dt class="tag-see">See:</dt>
     <dd class="tag-see">
         <ul>
+            <li><a href="Option.html#.some"><code>Option.some</code></a></li>
+        
+            <li><a href="Option.html#.none"><code>Option.none</code></a></li>
+        
             <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex">Array.findIndex</a></li>
         </ul>
     </dd>
@@ -5982,7 +6053,7 @@ const findIndexResult = hashmap.findIndex((value) => value.startsWith('something
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line532">line 532</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line565">line 565</a>
     </li></ul></dd>
     
 
@@ -6061,19 +6132,48 @@ const findIndexResult = hashmap.findIndex((value) => value.startsWith('something
     
     <pre class="prettyprint"><code>const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
 const getResult = hashmap.optionalGet(1);
-// getResult === {value:'value1',has:true}</code></pre>
+// getResult === Option.some('value1') {value:'value1',has:true}</code></pre>
 
         <p class="code-caption">What is the value for a key that isn't there</p>
     
     <pre class="prettyprint"><code>const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
 const getResult = hashmap.optionalGet(4);
-// getResult === {has:false}</code></pre>
+// getResult === Option.none {has:false}</code></pre>
 
         <p class="code-caption">What is the value for a key with an undefined value</p>
     
     <pre class="prettyprint"><code>const hashmap = new HashMap([[1,'value1'],[2,undefined],[3,'value3']]);
 const getResult = hashmap.optionalGet(2);
-// getResult === {value:undefined,has:true}</code></pre>
+// getResult === Option.some(undefined) {value:undefined,has:true}</code></pre>
+
+        <p class="code-caption">Advanced: using a predefined hashCode and equals on the key</p>
+    
+    <pre class="prettyprint"><code>class NameKey {
+    constructor(firstName, secondName) {
+        this.firstName = firstName;
+        this.secondName = secondName;
+    }
+    hashCode() {
+         return (Mootable.hash(firstName) * 31) +Mootable.hash(secondName);
+    }
+    equals(other) {
+         return other &amp;&amp; other instanceof NameKey &amp;&amp; other.firstName === this.firstName &amp;&amp; other.secondName === this.secondName;
+    }
+}
+const hashmap = new HashMap([[new NameKey('John','Smith'),'Librarian'],[new NameKey('Orlando','Keleshian'),'Engineer']]);
+const key = new NameKey('John','Smith');
+const getResult = hashmap.optionalGet(key);
+// getResult === Option.some('Librarian') {value:'Librarian',has:true}</code></pre>
+
+        <p class="code-caption">Advanced: using a custom hash and equals, to get the first entry for a specific hash</p>
+    
+    <pre class="prettyprint"><code>const myHash = 3;
+const hashEquals = {hash: myHash, equals: () => true}
+const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+const getResult = hashmap.optionalGet(0, hashEquals);
+// getResult === Option.some('value3')  {value:'value3',has:true}
+// the hash of the number 3 is actually also 3. all 32 bit integers have the same hash.
+// 0 doesn't exist in the hashMap, but we are circumventing using the key entirely.</code></pre>
 
 
 
@@ -6430,7 +6530,7 @@ const getResult = hashmap.optionalGet(2);
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line444">line 444</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line449">line 449</a>
     </li></ul></dd>
     
 
@@ -6465,6 +6565,17 @@ const getResult = hashmap.optionalGet(2);
 
     
 
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="Option.html#.some"><code>Option.some</code></a></li>
+        
+            <li><a href="Option.html#.none"><code>Option.none</code></a></li>
+        
+            <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf">Array.indexOf</a></li>
+        </ul>
+    </dd>
     
 
     
@@ -6683,7 +6794,7 @@ define the equals methods, rather than it being looked up on the value.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line496">line 496</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line504">line 504</a>
     </li></ul></dd>
     
 
@@ -6718,6 +6829,17 @@ define the equals methods, rather than it being looked up on the value.</p></td>
 
     
 
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="Option.html#.some"><code>Option.some</code></a></li>
+        
+            <li><a href="Option.html#.none"><code>Option.none</code></a></li>
+        
+            <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/lastIndexOf">Array.lastIndexOf</a></li>
+        </ul>
+    </dd>
     
 
     
@@ -7670,7 +7792,7 @@ define the equals methods, rather than it being looked up on the value.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line963">line 963</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line1007">line 1007</a>
     </li></ul></dd>
     
 
@@ -7935,7 +8057,7 @@ const reduceResult = hashmap.reduce((accumulator, value) => value+accumulator, '
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line1001">line 1001</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line1045">line 1045</a>
     </li></ul></dd>
     
 
@@ -8301,7 +8423,7 @@ const reduceResult = hashmap.reduceRight((accumulator, value) => value+accumulat
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line765">line 765</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line806">line 806</a>
     </li></ul></dd>
     
 
@@ -8852,7 +8974,7 @@ const reduceResult = hashmap.reduceRight((accumulator, value) => value+accumulat
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line935">line 935</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line979">line 979</a>
     </li></ul></dd>
     
 
@@ -11348,7 +11470,7 @@ A callback to accumulate values from the HashMap <code>[key,value]</code> into a
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a> on Sun Apr 25 2021 00:57:31 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a> on Mon Apr 26 2021 00:02:25 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
