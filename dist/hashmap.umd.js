@@ -1014,25 +1014,57 @@
 
 	/**
 	 * Is the passed value not null and a function
-	 * @param func
-	 * @returns {boolean}
+	 * @example <caption> test if its a function</caption>
+	 * const myFunc = () => 1 + 1;
+	 * Mootable.isFunction(myFunc) === true;
+	 * @example <caption> test if its not a function</caption>
+	 * const notAFunction = {};
+	 * Mootable.isFunction(notAFunction) === false;
+	 * @example <caption> test if its null</caption>
+	 * const notAFunction = null;
+	 * Mootable.isFunction(notAFunction) === false;
+	 * @param {function|*} func - the function/object to test
+	 * @returns {boolean} true if this is function and not null.
 	 */
 	function isFunction(func) {
 	  return !!(func && func.constructor && func.call && func.apply);
 	}
 	/**
-	 * Is the passed object iterable
-	 * @param iterable
-	 * @return {boolean}
+	 * Is the passed object iterable and not null, i.e. it has a function that has a type of
+	 * [Symbol.iterator]
+	 * @example <caption> test if its iterable</caption>
+	 * class MyIterable {
+	 *     * [Symbol.iterator]() {
+	 *         yield 1;
+	 *     }
+	 * }
+	 * Mootable.isIterable(new MyIterable()) === true;
+	 * @example <caption> test if its not an iterable</caption>
+	 * const notAnIterable = {};
+	 * Mootable.isIterable(notAnIterable) === false;
+	 * @example <caption> test if its null</caption>
+	 * const notAnIterable = null;
+	 * Mootable.isIterable(notAnIterable) === false;
+	 * @param {Iterable|*} iterable - the object to test
+	 * @return {boolean} true if this has a Symbol.iterator function
 	 */
 
 	function isIterable(iterable) {
 	  return !!(iterable && isFunction(iterable[Symbol.iterator]));
 	}
 	/**
-	 * Is the passed value not null and a string
-	 * @param str
-	 * @returns {boolean}
+	 * Is the passed value is not null and is a string
+	 * @example <caption> test if its iterable</caption>
+	 * const myString = "hello world";
+	 * Mootable.isString(myString) === true;
+	 * @example <caption> test if its not an iterable</caption>
+	 * const notAString = {};
+	 * Mootable.isString(notAString) === false;
+	 * @example <caption> test if its null</caption>
+	 * const notAString = null;
+	 * Mootable.isString(notAString) === false;
+	 * @param {string|*} str - the string/object to test
+	 * @returns {boolean} true if this is a string
 	 */
 
 	function isString(str) {
@@ -1062,6 +1094,24 @@
 
 	function strictEquals(x, y) {
 	  return x === y;
+	}
+	/**
+	 * Counts the number of ones in a binary representation of a 32 bit integer.
+	 * @example <caption> count the number of bits set to one for the value 22</caption>
+	 * const myNumber = 22; // 10110 in binary
+	 * Mootable.hammingWeight(myNumber) === 3;
+	 * @example <caption> count the number of bits set to one for the value 12947</caption>
+	 * const myNumber = 12947; // 11001010010011 in binary
+	 * Mootable.hammingWeight(myNumber) === 7;
+	 * @see {@link https://en.wikipedia.org/wiki/Hamming_weight hammingWeight}
+	 * @param {number} flags 32 bit integer
+	 * @return {number} amount of ones.
+	 */
+
+	function hammingWeight(flags) {
+	  flags -= flags >>> 1 & 0x55555555;
+	  flags = (flags & 0x33333333) + (flags >>> 2 & 0x33333333);
+	  return (flags + (flags >> 4) & 0xF0F0F0F) * 0x1010101 >>> 24;
 	}
 
 	/**
@@ -1193,7 +1243,7 @@
 	 * A function that when called with a value returns an Option object of the form:
 	 * <code>{value:value,has:true}</code>
 	 * Even if a value is not provided it still counts as existing, this is different from other libraries,
-	 * we are effectively saying as null and undefined count as valid values.
+	 * we are effectively saying that null and undefined count as valid values.
 	 * @example  <caption>create an option using some</caption>
 	 * const myValue = 'hello';
 	 * const option = some(myValue);
@@ -2181,18 +2231,6 @@
 	  }
 
 	}
-	/**
-	 * Counts the number of ones in a 32 bit integer.
-	 *
-	 * @param {number} flags 32 bit integet
-	 * @return {number} amount of ones.
-	 */
-
-	const hammingWeight = flags => {
-	  flags -= flags >>> 1 & 0x55555555;
-	  flags = (flags & 0x33333333) + (flags >>> 2 & 0x33333333);
-	  return (flags + (flags >> 4) & 0xF0F0F0F) * 0x1010101 >>> 24;
-	};
 
 	/**
 	 * HashMap - HashMap Implementation for JavaScript
@@ -2527,6 +2565,7 @@
 	   * const keyOfResult = hashmap.keyOf(0, myEquals);
 	   * // keyOfResult === 1
 	   * // 0 doesn't exist in the hashMap, but we are circumventing using the key entirely.
+	   * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf Array.indexOf}
 	   * @param {*} value - The value we are searching the map for
 	   * @param {HashMap#overrides<equals>} [overrides] - an optional override to allow a user to
 	   * define the equals methods, rather than it being looked up on the value.
@@ -2582,6 +2621,7 @@
 	   * const lastKeyOfResult = hashmap.lastKeyOf(0, myEquals);
 	   * // lastKeyOfResult === 3
 	   * // 0 doesn't exist in the hashMap, but we are circumventing using the key entirely.
+	   * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/lastIndexOf Array.lastIndexOf}
 	   * @param {*} value - The value we are searching the map for, (in reverse)
 	   * @param {HashMap#overrides<equals>} [overrides] - an optional override to allow a user to
 	   * define the equals methods, rather than it being looked up on the value.
@@ -2637,6 +2677,9 @@
 	   * const optionalKeyOfResult = hashmap.optionalKeyOf(0, myEquals);
 	   * // optionalKeyOfResult === Option.some(1)
 	   * // 0 doesn't exist in the hashMap, but we are circumventing using the key entirely.
+	   * @see {@link Option.some}
+	   * @see {@link Option.none}
+	   * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf Array.indexOf}
 	   * @param {*} value - The value we are searching the map for
 	   * @param {HashMap#overrides<equals>} [overrides] - an optional overrides to allow a user to
 	   * define the equals methods, rather than it being looked up on the value.
@@ -2692,6 +2735,9 @@
 	   * const optionalLastKeyOfResult = hashmap.optionalLastKeyOf(0, myEquals);
 	   * // optionalLastKeyOfResult === Option.some(3)
 	   * // 0 doesn't exist in the hashMap, but we are circumventing using the key entirely.
+	   * @see {@link Option.some}
+	   * @see {@link Option.none}
+	   * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/lastIndexOf Array.lastIndexOf}
 	   * @param {*} value - The value we are searching the map for, (in reverse)
 	   * @param {HashMap#overrides<equals>} [overrides] - an optional overrides to allow a user to
 	   * define the equals methods, rather than it being looked up on the value.
@@ -2720,15 +2766,40 @@
 	   * @example <caption>>What is the value for a key</caption>
 	   * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
 	   * const getResult = hashmap.optionalGet(1);
-	   * // getResult === {value:'value1',has:true}
+	   * // getResult === Option.some('value1') {value:'value1',has:true}
 	   * @example <caption>What is the value for a key that isn't there</caption>
 	   * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
 	   * const getResult = hashmap.optionalGet(4);
-	   * // getResult === {has:false}
+	   * // getResult === Option.none {has:false}
 	   * @example <caption>What is the value for a key with an undefined value</caption>
 	   * const hashmap = new HashMap([[1,'value1'],[2,undefined],[3,'value3']]);
 	   * const getResult = hashmap.optionalGet(2);
-	   * // getResult === {value:undefined,has:true}
+	   * // getResult === Option.some(undefined) {value:undefined,has:true}
+	   * @example <caption>Advanced: using a predefined hashCode and equals on the key</caption>
+	   * class NameKey {
+	   *     constructor(firstName, secondName) {
+	   *         this.firstName = firstName;
+	   *         this.secondName = secondName;
+	   *     }
+	   *     hashCode() {
+	   *          return (Mootable.hash(firstName) * 31) +Mootable.hash(secondName);
+	   *     }
+	   *     equals(other) {
+	   *          return other && other instanceof NameKey && other.firstName === this.firstName && other.secondName === this.secondName;
+	   *     }
+	   * }
+	   * const hashmap = new HashMap([[new NameKey('John','Smith'),'Librarian'],[new NameKey('Orlando','Keleshian'),'Engineer']]);
+	   * const key = new NameKey('John','Smith');
+	   * const getResult = hashmap.optionalGet(key);
+	   * // getResult === Option.some('Librarian') {value:'Librarian',has:true}
+	   * @example <caption>Advanced: using a custom hash and equals, to get the first entry for a specific hash</caption>
+	   * const myHash = 3;
+	   * const hashEquals = {hash: myHash, equals: () => true}
+	   * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+	   * const getResult = hashmap.optionalGet(0, hashEquals);
+	   * // getResult === Option.some('value3')  {value:'value3',has:true}
+	   * // the hash of the number 3 is actually also 3. all 32 bit integers have the same hash.
+	   * // 0 doesn't exist in the hashMap, but we are circumventing using the key entirely.
 	   * @see {@link Option.some}
 	   * @see {@link Option.none}
 	   * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/get|Map.get}
@@ -2813,6 +2884,8 @@
 	   * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
 	   * const findResult = hashmap.find((value) => value.startsWith('something'));
 	   * // findResult === undefined
+	   * @see {@link Option.some}
+	   * @see {@link Option.none}
 	   * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find|Array.find}
 	   * @param {HashMap#MatchesPredicate} [findPredicate=(value, key, iterable) => value] - the predicate to identify if we have a match.
 	   * @param {*} [thisArg] - Value to use as <code>this</code> when executing <code>findPredicate</code>
@@ -2842,6 +2915,8 @@
 	   * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
 	   * const findResult = hashmap.find((value) => value.startsWith('something'));
 	   * // findResult === undefined
+	   * @see {@link Option.some}
+	   * @see {@link Option.none}
 	   * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find|Array.find}
 	   * @param {HashMap#MatchesPredicate} [findPredicate=(value, key, iterable) => value] - the predicate to identify if we have a match.
 	   * @param {*} [thisArg] - Value to use as <code>this</code> when executing <code>findPredicate</code>
@@ -2932,6 +3007,8 @@
 	   * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
 	   * const findIndexResult = hashmap.findIndex((value) => value.startsWith('something'));
 	   * // findIndexResult === undefined
+	   * @see {@link Option.some}
+	   * @see {@link Option.none}
 	   * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex|Array.findIndex}
 	   * @param {HashMap#MatchesPredicate} [findKeyPredicate=(value, key, iterable) => key] - the predicate to identify if we have a match.
 	   * @param {*} [thisArg] - Value to use as <code>this</code> when executing <code>findIndexPredicate</code>
@@ -2962,6 +3039,8 @@
 	   * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
 	   * const findIndexResult = hashmap.findIndex((value) => value.startsWith('something'));
 	   * // findIndexResult === undefined
+	   * @see {@link Option.some}
+	   * @see {@link Option.none}
 	   * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex|Array.findIndex}
 	   * @param {HashMap#MatchesPredicate} [findKeyPredicate=(value, key, iterable) => key] - the predicate to identify if we have a match.
 	   * @param {*} [thisArg] - Value to use as <code>this</code> when executing <code>findIndexPredicate</code>
@@ -3040,7 +3119,8 @@
 	    throw new TypeError('HashMap.copy expects an object which is iterable, has an entries iterable function, or has a forEach function on it');
 	  }
 	  /**
-	   * Makes a copy of this hashmap and returns a new one.
+	   * Makes a full copy of this hashmap and returns the clone.
+	   *
 	   * @return {HashMap}
 	   */
 
@@ -3061,8 +3141,8 @@
 	    return this;
 	  }
 	  /**
-	   * clears the data from this hashmap.
-	   * @return {HashMap}
+	   * Clears the data from this hashmap. All data is orphaned, and will be Garbage Collected.
+	   * @return {HashMap} this hashmap
 	   */
 
 
@@ -3137,12 +3217,15 @@
 	   * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/every|Array.every}
 	   * @param {HashMap#MatchesPredicate} [everyPredicate=(value, key, iterable) => true] - if the provided function returns <code>false</code>, at any point the <code>every()</code> function returns false.
 	   * @param {*} [thisArg] - Value to use as <code>this</code> when executing <code>everyPredicate</code>
+	   * @param {HashMap#overrides<reverse>} [overrides] - a set of optional overrides to allow a user to define whether to search in reverse
 	   * @returns {boolean} true if all elements match, false if one or more elements fails to match.
 	   */
 
 
-	  every(everyPredicate = () => true, thisArg = undefined) {
-	    for (const [key, value] of this.entries()) {
+	  every(everyPredicate = () => true, thisArg = undefined, overrides = undefined) {
+	    const iterator = overrides && overrides.reverse ? this.entriesRight() : this.entries();
+
+	    for (const [key, value] of iterator) {
 	      if (!everyPredicate.call(thisArg, value, key, this)) {
 	        return false;
 	      }

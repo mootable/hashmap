@@ -4,10 +4,6 @@ const esmRequire = require("esm")(module/*, options*/);
 const {Container} = esmRequire('../../../src/hashmap/container')
 const {sameValueZero} = esmRequire('../../../src/utils')
 
-if (process.env.UNDER_TEST_UNIT !== 'true') {
-    return 0;
-}
-
 /**
  * constructor
  * get

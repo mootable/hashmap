@@ -4,10 +4,6 @@ const esmRequire = require("esm")(module/*, options*/);
 const {LinkedContainer} = esmRequire('../../../src/linkedhashmap/');
 const {LinkedHashMap} = esmRequire('../../../src/')
 
-if (process.env.UNDER_TEST_UNIT !== 'true') {
-    return 0;
-}
-
 describe('LinkedHashMap Class', function () {
 
     context('constructor()', function () {

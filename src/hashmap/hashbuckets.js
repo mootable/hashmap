@@ -1,4 +1,5 @@
 import {none} from '../option/';
+import {hammingWeight} from '../utils/';
 
 const SHIFT = 7;
 const WIDTH = 1 << SHIFT;
@@ -349,14 +350,3 @@ export class HamtBuckets {
     }
 }
 
-/**
- * Counts the number of ones in a 32 bit integer.
- *
- * @param {number} flags 32 bit integet
- * @return {number} amount of ones.
- */
-export const hammingWeight = (flags) => {
-    flags -= ((flags >>> 1) & 0x55555555);
-    flags = (flags & 0x33333333) + ((flags >>> 2) & 0x33333333);
-    return ((flags + (flags >> 4) & 0xF0F0F0F) * 0x1010101) >>> 24;
-};

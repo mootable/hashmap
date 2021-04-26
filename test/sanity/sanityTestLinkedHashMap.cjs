@@ -1,34 +1,8 @@
 /* jshint ignore:start */
 const expect = require('chai').expect;
-if(process.env.UNDER_TEST_SANITY !== 'true'){
-    return 0;
-}
-function underTest() {
-    const rootDirectory = '../../';
-    const name = process.env.UNDER_TEST_NAME;
-    const location = rootDirectory+process.env.UNDER_TEST_LOCATION;
-    const esm = process.env.UNDER_TEST_ESM === 'true';
-    if (esm) {
-        const esmRequire = require("esm")(module/*, options*/);
-        const {LinkedHashMap, Mootable} = esmRequire(location);
-        return {
-            LinkedHashMap,
-            Mootable,
-            name, location, esm
-        };
-    } else {
-        const {LinkedHashMap, Mootable} = require(location);
-        return {
-            LinkedHashMap,
-            Mootable,
-            name, location, esm
-        };
-    }
-}
+const {underTest} = require('./sanitySupport.cjs');
 
-
-describe('linkedHashMap', function () {
-
+describe('linkedHashMap @sanity', function () {
     let LinkedHashMap, Mootable;
     let linkedHashMap;
     before(function () {

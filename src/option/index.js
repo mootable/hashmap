@@ -125,7 +125,7 @@ export class Option {
  * A function that when called with a value returns an Option object of the form:
  * <code>{value:value,has:true}</code>
  * Even if a value is not provided it still counts as existing, this is different from other libraries,
- * we are effectively saying as null and undefined count as valid values.
+ * we are effectively saying that null and undefined count as valid values.
  * @example  <caption>create an option using some</caption>
  * const myValue = 'hello';
  * const option = some(myValue);

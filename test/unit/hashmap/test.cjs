@@ -4,10 +4,6 @@ const esmRequire = require("esm")(module/*, options*/);
 const {Container} = esmRequire('../../../src/hashmap/container')
 const {HashMap} = esmRequire('../../../src/')
 
-if (process.env.UNDER_TEST_UNIT !== 'true') {
-    return 0;
-}
-
 describe('HashMap Class', function () {
     context('constructor()', function () {
         it('constructor(), basic', function () {
@@ -1883,6 +1879,13 @@ describe('HashMap Class', function () {
             expect(hashmap.every(() => false)).to.be.false;
         });
 
+        it('every() should return false if all are wrong in reverse', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            expect(hashmap.every(() => false,undefined,{reverse:true})).to.be.false;
+        });
         it('every() should return true if no predicate included', function () {
             // Given
             const hashmap = new HashMap();
@@ -1891,12 +1894,20 @@ describe('HashMap Class', function () {
             expect(hashmap.every()).to.be.true;
         });
 
-        it('every() should true false if all are right', function () {
+        it('every() should return true false if all are right', function () {
             // Given
             const hashmap = new HashMap();
             hashmap.set('key', 'value');
             hashmap.set('key2', 'value2');
             expect(hashmap.every(() => true)).to.be.true;
+        });
+
+        it('every() should return true false if all are right in reverse', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            expect(hashmap.every(() => true,undefined,{reverse:true})).to.be.true;
         });
         it('every() should return false if one is wrong', function () {
             // Given
@@ -1904,6 +1915,13 @@ describe('HashMap Class', function () {
             hashmap.set('key', 'value');
             hashmap.set('key2', 'value2');
             expect(hashmap.every((value) => value !== 'value2')).to.be.false;
+        });
+        it('every() should return false if one is wrong in reverse', function () {
+            // Given
+            const hashmap = new HashMap();
+            hashmap.set('key', 'value');
+            hashmap.set('key2', 'value2');
+            expect(hashmap.every((value) => value !== 'value2',undefined,{reverse:true})).to.be.false;
         });
         it('every() should respect function context', function () {
             // Given

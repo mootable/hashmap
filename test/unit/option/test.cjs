@@ -3,10 +3,6 @@ const expect = require('chai').expect;
 const esmRequire = require("esm")(module/*, options*/);
 const {Mootable:{Option, some, none}} = esmRequire('../../../src/')
 
-if (process.env.UNDER_TEST_UNIT !== 'true') {
-    return 0;
-}
-
 /**
  * hash,
  * isFunction,

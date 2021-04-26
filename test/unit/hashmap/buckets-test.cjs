@@ -6,51 +6,6 @@ const {equalsAndHash} = esmRequire("../../../src/hashmap/hash");
 const {Container} = esmRequire('../../../src/hashmap/container')
 const {HashBuckets, HamtBuckets, hammingWeight} = esmRequire('../../../src/hashmap/hashbuckets')
 
-if (process.env.UNDER_TEST_UNIT !== 'true') {
-    return 0;
-}
-
-describe('hammingWeight', function () {
-    it('zero elements', function () {
-        const flags = 0;
-        expect(hammingWeight(flags)).to.equal(0);
-    });
-    it('all elements', function () {
-        const flags = 0b11111111111111111111111111111111;
-        expect(hammingWeight(flags)).to.equal(32);
-    });
-    it('first element', function () {
-        const flags = 0b1;
-        expect(hammingWeight(flags)).to.equal(1);
-    });
-    it('second element', function () {
-        const flags = 0b10;
-        expect(hammingWeight(flags)).to.equal(1);
-    });
-    it('31st element', function () {
-        const flags = 0b01000000000000000000000000000000;
-        expect(hammingWeight(flags)).to.equal(1);
-    });
-    it('32nd element', function () {
-        const flags = 0b10000000000000000000000000000000;
-        expect(hammingWeight(flags)).to.equal(1);
-    });
-    it('alternate elements', function () {
-        const flags = 0b10101010101010101010101010101010;
-        expect(hammingWeight(flags)).to.equal(16);
-        const flags2 = 0b01010101010101010101010101010101;
-        expect(hammingWeight(flags2)).to.equal(16);
-    });
-    it('two elements', function () {
-        const flags = 0b1010;
-        expect(hammingWeight(flags)).to.equal(2);
-    });
-    it('five elements', function () {
-        const flags = 0b11000101010;
-        expect(hammingWeight(flags)).to.equal(5);
-    });
-});
-
 /**
  * constructor(map)
  * clear()

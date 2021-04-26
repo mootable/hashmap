@@ -4,9 +4,6 @@ const esmRequire = require("esm")(module/*, options*/);
 const {LinkedHashMap, LinkedContainer} = esmRequire('../../../src/linkedhashmap/');
 const {sameValueZero} = esmRequire('../../../src/utils')
 
-if (process.env.UNDER_TEST_UNIT !== 'true') {
-    return 0;
-}
 describe('LinkedContainer Class', function () {
 
     let defaultMap = new LinkedHashMap();

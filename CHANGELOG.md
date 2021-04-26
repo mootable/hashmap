@@ -1,4 +1,10 @@
 # Changelog
+# Current
+- Added overrides for every() as it fails fast and being able to search in reverse maybe optimal.
+- More Documentation
+- More Examples
+- Removed unneeded node environment variables for testing.
+- moved common support code into its own file.
 ## 1.0.1
 - More Documentation
 - Fixed usage of obj.hasOwnProperty('blah') to be Object.prototype.hasOwnProperty.call(obj,'blah')

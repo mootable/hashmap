@@ -6,10 +6,6 @@ const Hash = {hash, hashCodeFor, equalsFor, equalsAndHash} = esmRequire('../../.
 const {sameValueZero,strictEquals} = esmRequire('../../../src/utils')
 const {some,none} = esmRequire('../../../src/option')
 
-if (process.env.UNDER_TEST_UNIT !== 'true') {
-    return 0;
-}
-
 describe('Hash Functions', function () {
 
     const rand = require('random-seed').create();
