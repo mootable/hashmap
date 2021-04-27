@@ -202,7 +202,7 @@ export class HashMap {
      * - it is legitimate for keys to be null or undefined.
      *
      * Maps typically index keys, and so is generally a fast operation.
-     * @example <caption>>Does this contain a key that is there</caption>
+     * @example <caption>Does this contain a key that is there</caption>
      * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const hasResult = hashmap.has(1);
      * // hasResult === true
@@ -254,7 +254,7 @@ export class HashMap {
      * Also provides a way to override both the equals and the hash
      * Performance:
      *  - will be O(1) approaching O(log n)
-     * @example <caption>>What is the value for a key</caption>
+     * @example <caption>What is the value for a key</caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const getResult = hashmap.get(1);
      * // getResult === 'value1'
@@ -301,7 +301,7 @@ export class HashMap {
      * Get the key from the map using the provided value. Since values are not hashed, this has to check each value in the map until a value matches, or the whole map, if none match. As such this is a slow operation.
      * Performance O(n) as we have to iterate over the whole map, to find each value and perform
      * an equality against it.
-     * @example <caption>>What is the key for a value</caption>
+     * @example <caption>What is the key for a value</caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const keyOfResult = hashmap.keyOf('value2');
      * // keyOfResult === 2
@@ -354,7 +354,7 @@ export class HashMap {
      * whole map, if none match. As such this is a slow operation.
      * Performance O(n) as we have to iterate over the whole map, to find each value and perform
      * an equality against it.
-     * @example <caption>>What is the key for a value</caption>
+     * @example <caption>What is the key for a value</caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const lastKeyOfResult = hashmap.lastKeyOf('value2');
      * // lastKeyOfResult === 2
@@ -407,7 +407,7 @@ export class HashMap {
      * matches, or the whole map, if none match. As such this is a slow operation.
      * Performance O(n) as we have to iterate over the whole map, to find each value and perform
      * an equality against it.
-     * @example <caption>>What is the key for a value</caption>
+     * @example <caption>What is the key for a value</caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const optionalKeyOfResult = hashmap.optionalKeyOf('value2');
      * // optionalKeyOfResult === Option.some(2)
@@ -462,7 +462,7 @@ export class HashMap {
      * whole map, if none match. As such this is a slow operation.
      * Performance O(n) as we have to iterate over the whole map, to find each value and perform
      * an equality against it.
-     * @example <caption>>What is the key for a value</caption>
+     * @example <caption>What is the key for a value</caption>
      * const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const optionalLastKeyOfResult = hashmap.optionalLastKeyOf('value2');
      * // optionalLastKeyOfResult === Option.some(2)
@@ -518,7 +518,7 @@ export class HashMap {
      * - it is legitimate for keys to be null or undefined, and if set, will still acknowledge it exists, against the key.
      *
      * Maps typically index keys, and so is generally a fast operation.
-     * @example <caption>>What is the value for a key</caption>
+     * @example <caption>What is the value for a key</caption>
      * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const getResult = hashmap.optionalGet(1);
      * // getResult === Option.some('value1') {value:'value1',has:true}
@@ -798,7 +798,7 @@ export class HashMap {
     /**
      * Sets a value onto this map, using the key as its reference.
      *
-     * @example <caption>>set a value</caption>
+     * @example <caption>set a value</caption>
      * const hashmap = new HashMap();
      * hashmap.set(1,'value1');
      * const hasResult = hashmap.has(1);
