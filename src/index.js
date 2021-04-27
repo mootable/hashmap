@@ -1,6 +1,15 @@
 import {HashMap} from "./hashmap/";
 import {LinkedHashMap} from "./linkedhashmap/";
-import {isFunction, isIterable, isString} from './utils/';
+import {
+    isFunction,
+    isIterable,
+    isString,
+    sameValueZero,
+    strictEquals,
+    abstractEquals,
+    sameValue,
+    hammingWeight
+} from './utils/';
 import {hash, equalsAndHash, hashCodeFor, equalsFor} from './hashmap/hash';
 import {none, some, Option} from './option/';
 
@@ -20,8 +29,11 @@ const Mootable = {
     equalsFor,
     some,
     none,
-    Option
+    Option,
+    sameValueZero, strictEquals, abstractEquals, sameValue, hammingWeight
 };
+
+
 export {
     HashMap,
     LinkedHashMap,

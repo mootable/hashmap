@@ -49,7 +49,7 @@
     "build:jsdocs": "jsdoc -c jsdoc-config.json",
     "coverage": " nyc npm test",
     "benchmark": "node benchmark/benchmark.js",
-    "lint": "jshint ./src/ ./test/",
+    "lint": "eslint src/**",
     "test": "mocha --grep @sanity --invert",
     "test:sanity": "run-p test:sanity:**",
     "test:sanity:src": "mocha --config testconfig/src.mocharc.cjs --grep @sanity",

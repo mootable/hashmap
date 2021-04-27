@@ -3,12 +3,11 @@ const expect = require('chai').expect;
 const {underTest} = require('./sanitySupport.cjs');
 
 describe('linkedHashMap @sanity', function () {
-    let LinkedHashMap, Mootable;
+    let LinkedHashMap;
     let linkedHashMap;
     before(function () {
         const UnderTest = underTest();
         LinkedHashMap = UnderTest.LinkedHashMap;
-        Mootable = UnderTest.Mootable;
         console.info(`Testing '${this.test.parent.title}' as '${UnderTest.name}' from '${UnderTest.location}'`);
         // runs once before the first test in this block
     });
@@ -262,6 +261,7 @@ describe('linkedHashMap @sanity', function () {
     describe('ES6 Iterators', function () {
         it('should do nothing on an empty linkedHashMap', function () {
             let called = false;
+            // eslint-disable-next-line no-unused-vars
             for (let pair of linkedHashMap) { // jshint ignore:line
                 // (`pair` is not used)
                 called = true;
@@ -387,7 +387,6 @@ describe('linkedHashMap @sanity', function () {
 
 
     describe('constructor', function () {
-        this.timeout(0);
 
         it('should create an empty linkedHashMap when no arguments', function () {
             expect(linkedHashMap.length).to.equal(0);

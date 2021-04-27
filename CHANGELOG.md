@@ -1,6 +1,8 @@
 # Changelog
 # Current
 - Added overrides for every() as it fails fast and being able to search in reverse maybe optimal.
+- Made equalsFor and equalsAndHash methods on the hashmap using Object.defineProperty(), in preparation for typed maps.
+- removed jshint and replaced with eslint as the linting tool.
 - More Documentation
 - More Examples
 - Removed unneeded node environment variables for testing.

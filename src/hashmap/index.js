@@ -1,8 +1,8 @@
 import {isFunction, isIterable} from '../utils/';
-import {equalsAndHash, equalsFor} from './hash';
 import {Container} from "./container";
 import {HashBuckets} from "./hashbuckets";
 import {some, none} from "../option";
+import {equalsAndHash, equalsFor} from './hash';
 
 /**
  * HashMap - HashMap Implementation for JavaScript
@@ -85,7 +85,7 @@ export class HashMap {
      * };
      * const hashmap = new HashMap(forEachObj);
      * // hashmap.size === 4;
-     * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>|ObjectWithForEach.<function(function(value, key))>|ObjectWithEntries.<function>)}[copy]
+     * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>|Object)} [copy]
      */
     constructor(copy) {
         this.buckets = new HashBuckets(this);
@@ -241,7 +241,7 @@ export class HashMap {
      * @returns {boolean} - if it holds the key or not.
      */
     has(key, overrides) {
-        const op = equalsAndHash(key, overrides);
+        const op = this.equalsAndHash(key, overrides);
         return this.buckets.has(key, op);
     }
 
@@ -293,7 +293,7 @@ export class HashMap {
      * @returns {*} - the value of the element that matches.
      */
     get(key, overrides) {
-        const op = equalsAndHash(key, overrides);
+        const op = this.equalsAndHash(key, overrides);
         return this.buckets.get(key, op);
     }
 
@@ -339,7 +339,7 @@ export class HashMap {
      * @return {*|undefined} the first key for this value or undefined
      */
     keyOf(value, overrides) {
-        const equals = overrides && isFunction(overrides.equals) ? overrides.equals : equalsFor(value);
+        const equals = overrides && isFunction(overrides.equals) ? overrides.equals : this.equalsFor(value);
         for (const entry of this.entries()) {
             if (equals(value, entry[1])) {
                 return entry[0];
@@ -392,7 +392,7 @@ export class HashMap {
      * @return {*|undefined} the last key for this value or undefined
      */
     lastKeyOf(value, overrides) {
-        const equals = overrides && isFunction(overrides.equals) ? overrides.equals : equalsFor(value);
+        const equals = overrides && isFunction(overrides.equals) ? overrides.equals : this.equalsFor(value);
         for (const entry of this.entriesRight()) {
             if (equals(value, entry[1])) {
                 return entry[0];
@@ -447,7 +447,7 @@ export class HashMap {
      * @return {Option} the first key for this value or none
      */
     optionalKeyOf(value, overrides) {
-        const equals = overrides && isFunction(overrides.equals) ? overrides.equals : equalsFor(value);
+        const equals = overrides && isFunction(overrides.equals) ? overrides.equals : this.equalsFor(value);
         for (const entry of this.entries()) {
             if (equals(value, entry[1])) {
                 return some(entry[0]);
@@ -502,7 +502,7 @@ export class HashMap {
      * @return {Option} the last key for this value or none
      */
     optionalLastKeyOf(value, overrides) {
-        const equals = overrides && isFunction(overrides.equals) ? overrides.equals : equalsFor(value);
+        const equals = overrides && isFunction(overrides.equals) ? overrides.equals : this.equalsFor(value);
         for (const entry of this.entriesRight()) {
             if (equals(value, entry[1])) {
                 return some(entry[0]);
@@ -563,7 +563,7 @@ export class HashMap {
      * @returns {Option} - an optional result.
      */
     optionalGet(key, overrides) {
-        const op = equalsAndHash(key, overrides);
+        const op = this.equalsAndHash(key, overrides);
         return this.buckets.optionalGet(key, op);
     }
 
@@ -798,13 +798,48 @@ export class HashMap {
     /**
      * Sets a value onto this map, using the key as its reference.
      *
+     * @example <caption>>set a value</caption>
+     * const hashmap = new HashMap();
+     * hashmap.set(1,'value1');
+     * const hasResult = hashmap.has(1);
+     * // hasResult === true
+     * @example <caption>>overwrite a value</caption>
+     * const hashmap = new HashMap([[1,'value1'],[2,'value2']]);
+     * hashmap.set(2,'other');
+     * const getResult = hashmap.get(2);
+     * // getResult === 'other'
+     * @example <caption>Advanced: using a predefined hashCode and equals on the key</caption>
+     * class NameKey {
+     *     constructor(firstName, secondName) {
+     *         this.firstName = firstName;
+     *         this.secondName = secondName;
+     *     }
+     *     hashCode() {
+     *          return (Mootable.hash(firstName) * 31) +Mootable.hash(secondName);
+     *     }
+     *     equals(other) {
+     *          return other && other instanceof NameKey && other.firstName === this.firstName && other.secondName === this.secondName;
+     *     }
+     * }
+     * const hashmap = new HashMap();
+     * hashmap.set(new NameKey('John','Smith'),'Librarian);
+     * const hasResult = hashmap.has(new NameKey('John','Smith'));
+     * // hasResult === true
+     * @example <caption>Advanced: using a custom hash and equals, to set a value to a specific
+     * hash</caption>
+     * const hashmap = new HashMap();
+     * hashmap.set(1,'value1', {hash: 3});
+     * const hasResult = hashmap.has(3, {equals: () => true} );
+     * // hasResult === true
+     * // the hash of the number 3 is actually also 3. all 32 bit integers have the same hash.
+     * // 0 doesn't exist in the hashMap, but we are circumventing using the key entirely.
      * @param {*} key - the key we want to key our value to
      * @param {*} value - the value we are setting
      * @param {HashMap#overrides<equals, hash>} [overrides] - a set of optional overrides to allow a user to define the hashcode and equals methods, rather than them being looked up.
-     * @return {HashMap}
+     * @return {HashMap} this hashmap
      */
     set(key, value, overrides) {
-        const op = equalsAndHash(key, overrides);
+        const op = this.equalsAndHash(key, overrides);
         this.buckets.set(key, value, op);
         return this;
     }
@@ -817,7 +852,7 @@ export class HashMap {
      * @return {*} the new value
      */
     emplace(key, handler, overrides) {
-        const op = equalsAndHash(key, overrides);
+        const op = this.equalsAndHash(key, overrides);
         return this.buckets.emplace(key, handler, op);
     }
 
@@ -864,7 +899,7 @@ export class HashMap {
      * @param {HashMap#overrides<equals, hash>} [overrides] - a set of optional overrides to allow a user to define the hashcode and equals methods, rather than them being looked up.     * @return {HashMap}
      */
     delete(key, overrides) {
-        const op = equalsAndHash(key, overrides);
+        const op = this.equalsAndHash(key, overrides);
         this.buckets.delete(key, op);
         return this;
     }
@@ -1139,5 +1174,10 @@ export class HashMap {
     createContainer(parent, hash) {
         return new Container(this, parent, hash);
     }
-
 }
+
+Object.defineProperty(HashMap.prototype, 'equalsFor', {value: equalsFor, configurable: true});
+Object.defineProperty(HashMap.prototype, 'equalsAndHash', {
+    value: equalsAndHash,
+    configurable: true
+});

@@ -1,6 +1,5 @@
 import {HashMap} from '../hashmap/';
 import {Container} from '../hashmap/container';
-import {equalsAndHash} from "../hashmap/hash";
 import {some, none} from "../option";
 
 /**
@@ -77,7 +76,7 @@ export class LinkedHashMap extends HashMap {
      * };
      * const linkedhashmap = new LinkedHashMap(forEachObj);
      * // linkedhashmap.size === 4;
-     * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>|ObjectWithForEach.<function(function(value, key))>|ObjectWithEntries.<function>)}[copy]
+     * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>|Object)} [copy]
      */
     constructor(copy) {
         super(copy);
@@ -105,7 +104,7 @@ export class LinkedHashMap extends HashMap {
      * @return {LinkedHashMap}
      */
     setLeft(key, value, overrides) {
-        const op = equalsAndHash(key, overrides);
+        const op = this.equalsAndHash(key, overrides);
         op.addToStart = true;
         this.buckets.set(key, value, op);
         return this;
@@ -119,7 +118,7 @@ export class LinkedHashMap extends HashMap {
      * @return {*}
      */
     emplaceLeft(key, handler, overrides) {
-        const op = equalsAndHash(key, overrides);
+        const op = this.equalsAndHash(key, overrides);
         op.addToStart = true;
         return this.buckets.emplace(key, handler, op);
     }
@@ -132,7 +131,7 @@ export class LinkedHashMap extends HashMap {
      * @return {LinkedHashMap}
      */
     push(key, value, overrides) {
-        const op = equalsAndHash(key, overrides);
+        const op = this.equalsAndHash(key, overrides);
         op.moveOnUpdate = true;
         this.buckets.set(key, value, op);
         return this;
@@ -146,7 +145,7 @@ export class LinkedHashMap extends HashMap {
      * @return {*}
      */
     pushEmplace(key, handler, overrides) {
-        const op = equalsAndHash(key, overrides);
+        const op = this.equalsAndHash(key, overrides);
         op.moveOnUpdate = true;
         return this.buckets.emplace(key, handler, op);
     }
@@ -159,7 +158,7 @@ export class LinkedHashMap extends HashMap {
      * @return {LinkedHashMap}
      */
     unshift(key, value, overrides) {
-        const op = equalsAndHash(key, overrides);
+        const op = this.equalsAndHash(key, overrides);
         op.moveOnUpdate = true;
         op.addToStart = true;
         this.buckets.set(key, value, op);
@@ -174,7 +173,7 @@ export class LinkedHashMap extends HashMap {
      * @return {*}
      */
     unshiftEmplace(key, handler, overrides) {
-        const op = equalsAndHash(key, overrides);
+        const op = this.equalsAndHash(key, overrides);
         op.moveOnUpdate = true;
         op.addToStart = true;
         return this.buckets.emplace(key, handler, op);
@@ -414,6 +413,7 @@ export class LinkedHashMap extends HashMap {
             entry = entry.previous;
         }
     }
+
 // private
 
     /**

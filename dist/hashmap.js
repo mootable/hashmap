@@ -2633,7 +2633,7 @@
   // `SameValue` abstract operation
   // https://tc39.es/ecma262/#sec-samevalue
   // eslint-disable-next-line es/no-object-is -- safe
-  var sameValue = Object.is || function is(x, y) {
+  var sameValue$1 = Object.is || function is(x, y) {
     // eslint-disable-next-line no-self-compare -- NaN check
     return x === y ? x !== 0 || 1 / x === 1 / y : x != x && y != y;
   };
@@ -2641,7 +2641,7 @@
   // `Object.is` method
   // https://tc39.es/ecma262/#sec-object.is
   _export({ target: 'Object', stat: true }, {
-    is: sameValue
+    is: sameValue$1
   });
 
   // `Number.isNaN` method
@@ -2836,6 +2836,17 @@
     return !!(str && (typeof str === 'string' || str instanceof String));
   }
   /**
+   * sameValue is the result of Object.is.
+   * The only difference between sameValue and sameValueZero is that +0 and -0 are considered different with sameValue.
+   * @see {@link https://262.ecma-international.org/6.0/#sec-samevalue sameValue}
+   * @function
+   * @param x - the first object to compare
+   * @param y - the second object to compare
+   * @returns {boolean} - if they are equals according to {@link https://262.ecma-international.org/6.0/#sec-samevalue ECMA Spec for Same Value}
+   */
+
+  var sameValue = Object.is;
+  /**
    * sameValueZero is the equality method used by Map, Array, Set etc.
    * The only difference between === and sameValueZero is that NaN counts as equal on sameValueZero
    * @see {@link https://262.ecma-international.org/6.0/#sec-samevaluezero saveValueZero}
@@ -2846,6 +2857,18 @@
 
   function sameValueZero(x, y) {
     return x === y || Number.isNaN(x) && Number.isNaN(y);
+  }
+  /**
+   * The abstract Equals method <code>==</code>.
+   * Simply does an abstract equality comparison <code>==</code> against 2 values
+   * @see {@link https://262.ecma-international.org/6.0/#sec-abstract-equality-comparison abstractEquals}
+   * @param x - the first object to compare
+   * @param y - the second object to compare
+   * @returns {boolean} - if they are equals according to {@link https://262.ecma-international.org/6.0/#sec-abstract-equality-comparison ECMA Spec for Abstract Equality}
+   */
+
+  function abstractEquals(x, y) {
+    return x == y; // jshint ignore:line
   }
   /**
    * The strict Equals method <code>===</code>.
@@ -2878,289 +2901,176 @@
     return (flags + (flags >> 4) & 0xF0F0F0F) * 0x1010101 >>> 24;
   }
 
-  var globalIsFinite = global$1.isFinite;
-
-  // `Number.isFinite` method
-  // https://tc39.es/ecma262/#sec-number.isfinite
-  // eslint-disable-next-line es/no-number-isfinite -- safe
-  var numberIsFinite = Number.isFinite || function isFinite(it) {
-    return typeof it == 'number' && globalIsFinite(it);
-  };
-
-  // `Number.isFinite` method
-  // https://tc39.es/ecma262/#sec-number.isfinite
-  _export({ target: 'Number', stat: true }, { isFinite: numberIsFinite });
-
-  var floor = Math.floor;
-
-  // `Number.isInteger` method implementation
-  // https://tc39.es/ecma262/#sec-number.isinteger
-  var isInteger = function isInteger(it) {
-    return !isObject(it) && isFinite(it) && floor(it) === it;
-  };
-
-  var abs = Math.abs;
-
-  // `Number.isSafeInteger` method
-  // https://tc39.es/ecma262/#sec-number.issafeinteger
-  _export({ target: 'Number', stat: true }, {
-    isSafeInteger: function isSafeInteger(number) {
-      return isInteger(number) && abs(number) <= 0x1FFFFFFFFFFFFF;
-    }
-  });
-
-  // `RegExp.prototype.flags` getter implementation
-  // https://tc39.es/ecma262/#sec-get-regexp.prototype.flags
-  var regexpFlags = function () {
-    var that = anObject(this);
-    var result = '';
-    if (that.global) result += 'g';
-    if (that.ignoreCase) result += 'i';
-    if (that.multiline) result += 'm';
-    if (that.dotAll) result += 's';
-    if (that.unicode) result += 'u';
-    if (that.sticky) result += 'y';
-    return result;
-  };
-
-  var TO_STRING = 'toString';
-  var RegExpPrototype$1 = RegExp.prototype;
-  var nativeToString = RegExpPrototype$1[TO_STRING];
-
-  var NOT_GENERIC = fails(function () { return nativeToString.call({ source: 'a', flags: 'b' }) != '/a/b'; });
-  // FF44- RegExp#toString has a wrong name
-  var INCORRECT_NAME = nativeToString.name != TO_STRING;
-
-  // `RegExp.prototype.toString` method
-  // https://tc39.es/ecma262/#sec-regexp.prototype.tostring
-  if (NOT_GENERIC || INCORRECT_NAME) {
-    redefine(RegExp.prototype, TO_STRING, function toString() {
-      var R = anObject(this);
-      var p = String(R.source);
-      var rf = R.flags;
-      var f = String(rf === undefined && R instanceof RegExp && !('flags' in RegExpPrototype$1) ? regexpFlags.call(R) : rf);
-      return '/' + p + '/' + f;
-    }, { unsafe: true });
-  }
-
-  var MATCH$1 = wellKnownSymbol('match');
-
-  // `IsRegExp` abstract operation
-  // https://tc39.es/ecma262/#sec-isregexp
-  var isRegexp = function (it) {
-    var isRegExp;
-    return isObject(it) && ((isRegExp = it[MATCH$1]) !== undefined ? !!isRegExp : classofRaw(it) == 'RegExp');
-  };
-
-  // babel-minify transpiles RegExp('a', 'y') -> /a/y and it causes SyntaxError,
-  // so we use an intermediate function.
-  function RE(s, f) {
-    return RegExp(s, f);
-  }
-
-  var UNSUPPORTED_Y$2 = fails(function () {
-    // babel-minify transpiles RegExp('a', 'y') -> /a/y and it causes SyntaxError
-    var re = RE('a', 'y');
-    re.lastIndex = 2;
-    return re.exec('abcd') != null;
-  });
-
-  var BROKEN_CARET = fails(function () {
-    // https://bugzilla.mozilla.org/show_bug.cgi?id=773687
-    var re = RE('^r', 'gy');
-    re.lastIndex = 2;
-    return re.exec('str') != null;
-  });
-
-  var regexpStickyHelpers = {
-  	UNSUPPORTED_Y: UNSUPPORTED_Y$2,
-  	BROKEN_CARET: BROKEN_CARET
-  };
-
   var SPECIES$2 = wellKnownSymbol('species');
 
-  var setSpecies = function (CONSTRUCTOR_NAME) {
-    var Constructor = getBuiltIn(CONSTRUCTOR_NAME);
-    var defineProperty = objectDefineProperty.f;
-
-    if (descriptors && Constructor && !Constructor[SPECIES$2]) {
-      defineProperty(Constructor, SPECIES$2, {
-        configurable: true,
-        get: function () { return this; }
-      });
-    }
+  var arrayMethodHasSpeciesSupport = function (METHOD_NAME) {
+    // We can't use this feature detection in V8 since it causes
+    // deoptimization and serious performance degradation
+    // https://github.com/zloirock/core-js/issues/677
+    return engineV8Version >= 51 || !fails(function () {
+      var array = [];
+      var constructor = array.constructor = {};
+      constructor[SPECIES$2] = function () {
+        return { foo: 1 };
+      };
+      return array[METHOD_NAME](Boolean).foo !== 1;
+    });
   };
 
-  var defineProperty = objectDefineProperty.f;
-  var getOwnPropertyNames = objectGetOwnPropertyNames.f;
+  var $map = arrayIteration.map;
 
 
+  var HAS_SPECIES_SUPPORT$2 = arrayMethodHasSpeciesSupport('map');
+
+  // `Array.prototype.map` method
+  // https://tc39.es/ecma262/#sec-array.prototype.map
+  // with adding support of @@species
+  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$2 }, {
+    map: function map(callbackfn /* , thisArg */) {
+      return $map(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
+    }
+  });
+
+  var $find = arrayIteration.find;
 
 
+  var FIND = 'find';
+  var SKIPS_HOLES$1 = true;
 
-  var enforceInternalState = internalState.enforce;
+  // Shouldn't skip holes
+  if (FIND in []) Array(1)[FIND](function () { SKIPS_HOLES$1 = false; });
 
+  // `Array.prototype.find` method
+  // https://tc39.es/ecma262/#sec-array.prototype.find
+  _export({ target: 'Array', proto: true, forced: SKIPS_HOLES$1 }, {
+    find: function find(callbackfn /* , that = undefined */) {
+      return $find(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
+    }
+  });
 
+  // https://tc39.es/ecma262/#sec-array.prototype-@@unscopables
+  addToUnscopables(FIND);
 
-  var MATCH = wellKnownSymbol('match');
-  var NativeRegExp = global$1.RegExp;
-  var RegExpPrototype = NativeRegExp.prototype;
-  var re1 = /a/g;
-  var re2 = /a/g;
+  var createProperty = function (object, key, value) {
+    var propertyKey = toPrimitive(key);
+    if (propertyKey in object) objectDefineProperty.f(object, propertyKey, createPropertyDescriptor(0, value));
+    else object[propertyKey] = value;
+  };
 
-  // "new" should create a new object, old webkit bug
-  var CORRECT_NEW = new NativeRegExp(re1) !== re1;
+  var HAS_SPECIES_SUPPORT$1 = arrayMethodHasSpeciesSupport('splice');
 
-  var UNSUPPORTED_Y$1 = regexpStickyHelpers.UNSUPPORTED_Y;
+  var max$1 = Math.max;
+  var min = Math.min;
+  var MAX_SAFE_INTEGER = 0x1FFFFFFFFFFFFF;
+  var MAXIMUM_ALLOWED_LENGTH_EXCEEDED = 'Maximum allowed length exceeded';
 
-  var FORCED = descriptors && isForced_1('RegExp', (!CORRECT_NEW || UNSUPPORTED_Y$1 || fails(function () {
-    re2[MATCH] = false;
-    // RegExp constructor can alter flags and IsRegExp works correct with @@match
-    return NativeRegExp(re1) != re1 || NativeRegExp(re2) == re2 || NativeRegExp(re1, 'i') != '/a/i';
-  })));
-
-  // `RegExp` constructor
-  // https://tc39.es/ecma262/#sec-regexp-constructor
-  if (FORCED) {
-    var RegExpWrapper = function RegExp(pattern, flags) {
-      var thisIsRegExp = this instanceof RegExpWrapper;
-      var patternIsRegExp = isRegexp(pattern);
-      var flagsAreUndefined = flags === undefined;
-      var sticky;
-
-      if (!thisIsRegExp && patternIsRegExp && pattern.constructor === RegExpWrapper && flagsAreUndefined) {
-        return pattern;
+  // `Array.prototype.splice` method
+  // https://tc39.es/ecma262/#sec-array.prototype.splice
+  // with adding support of @@species
+  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$1 }, {
+    splice: function splice(start, deleteCount /* , ...items */) {
+      var O = toObject(this);
+      var len = toLength(O.length);
+      var actualStart = toAbsoluteIndex(start, len);
+      var argumentsLength = arguments.length;
+      var insertCount, actualDeleteCount, A, k, from, to;
+      if (argumentsLength === 0) {
+        insertCount = actualDeleteCount = 0;
+      } else if (argumentsLength === 1) {
+        insertCount = 0;
+        actualDeleteCount = len - actualStart;
+      } else {
+        insertCount = argumentsLength - 2;
+        actualDeleteCount = min(max$1(toInteger(deleteCount), 0), len - actualStart);
       }
-
-      if (CORRECT_NEW) {
-        if (patternIsRegExp && !flagsAreUndefined) pattern = pattern.source;
-      } else if (pattern instanceof RegExpWrapper) {
-        if (flagsAreUndefined) flags = regexpFlags.call(pattern);
-        pattern = pattern.source;
+      if (len + insertCount - actualDeleteCount > MAX_SAFE_INTEGER) {
+        throw TypeError(MAXIMUM_ALLOWED_LENGTH_EXCEEDED);
       }
-
-      if (UNSUPPORTED_Y$1) {
-        sticky = !!flags && flags.indexOf('y') > -1;
-        if (sticky) flags = flags.replace(/y/g, '');
+      A = arraySpeciesCreate(O, actualDeleteCount);
+      for (k = 0; k < actualDeleteCount; k++) {
+        from = actualStart + k;
+        if (from in O) createProperty(A, k, O[from]);
       }
-
-      var result = inheritIfRequired(
-        CORRECT_NEW ? new NativeRegExp(pattern, flags) : NativeRegExp(pattern, flags),
-        thisIsRegExp ? this : RegExpPrototype,
-        RegExpWrapper
-      );
-
-      if (UNSUPPORTED_Y$1 && sticky) {
-        var state = enforceInternalState(result);
-        state.sticky = true;
+      A.length = actualDeleteCount;
+      if (insertCount < actualDeleteCount) {
+        for (k = actualStart; k < len - actualDeleteCount; k++) {
+          from = k + actualDeleteCount;
+          to = k + insertCount;
+          if (from in O) O[to] = O[from];
+          else delete O[to];
+        }
+        for (k = len; k > len - actualDeleteCount + insertCount; k--) delete O[k - 1];
+      } else if (insertCount > actualDeleteCount) {
+        for (k = len - actualDeleteCount; k > actualStart; k--) {
+          from = k + actualDeleteCount - 1;
+          to = k + insertCount - 1;
+          if (from in O) O[to] = O[from];
+          else delete O[to];
+        }
       }
+      for (k = 0; k < insertCount; k++) {
+        O[k + actualStart] = arguments[k + 2];
+      }
+      O.length = len - actualDeleteCount + insertCount;
+      return A;
+    }
+  });
 
+  var $findIndex = arrayIteration.findIndex;
+
+
+  var FIND_INDEX = 'findIndex';
+  var SKIPS_HOLES = true;
+
+  // Shouldn't skip holes
+  if (FIND_INDEX in []) Array(1)[FIND_INDEX](function () { SKIPS_HOLES = false; });
+
+  // `Array.prototype.findIndex` method
+  // https://tc39.es/ecma262/#sec-array.prototype.findindex
+  _export({ target: 'Array', proto: true, forced: SKIPS_HOLES }, {
+    findIndex: function findIndex(callbackfn /* , that = undefined */) {
+      return $findIndex(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
+    }
+  });
+
+  // https://tc39.es/ecma262/#sec-array.prototype-@@unscopables
+  addToUnscopables(FIND_INDEX);
+
+  var HAS_SPECIES_SUPPORT = arrayMethodHasSpeciesSupport('slice');
+
+  var SPECIES$1 = wellKnownSymbol('species');
+  var nativeSlice = [].slice;
+  var max = Math.max;
+
+  // `Array.prototype.slice` method
+  // https://tc39.es/ecma262/#sec-array.prototype.slice
+  // fallback for not array-like ES3 strings and DOM objects
+  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT }, {
+    slice: function slice(start, end) {
+      var O = toIndexedObject(this);
+      var length = toLength(O.length);
+      var k = toAbsoluteIndex(start, length);
+      var fin = toAbsoluteIndex(end === undefined ? length : end, length);
+      // inline `ArraySpeciesCreate` for usage native `Array#slice` where it's possible
+      var Constructor, result, n;
+      if (isArray(O)) {
+        Constructor = O.constructor;
+        // cross-realm fallback
+        if (typeof Constructor == 'function' && (Constructor === Array || isArray(Constructor.prototype))) {
+          Constructor = undefined;
+        } else if (isObject(Constructor)) {
+          Constructor = Constructor[SPECIES$1];
+          if (Constructor === null) Constructor = undefined;
+        }
+        if (Constructor === Array || Constructor === undefined) {
+          return nativeSlice.call(O, k, fin);
+        }
+      }
+      result = new (Constructor === undefined ? Array : Constructor)(max(fin - k, 0));
+      for (n = 0; k < fin; k++, n++) if (k in O) createProperty(result, n, O[k]);
+      result.length = n;
       return result;
-    };
-    var proxy = function (key) {
-      key in RegExpWrapper || defineProperty(RegExpWrapper, key, {
-        configurable: true,
-        get: function () { return NativeRegExp[key]; },
-        set: function (it) { NativeRegExp[key] = it; }
-      });
-    };
-    var keys = getOwnPropertyNames(NativeRegExp);
-    var index = 0;
-    while (keys.length > index) proxy(keys[index++]);
-    RegExpPrototype.constructor = RegExpWrapper;
-    RegExpWrapper.prototype = RegExpPrototype;
-    redefine(global$1, 'RegExp', RegExpWrapper);
-  }
-
-  // https://tc39.es/ecma262/#sec-get-regexp-@@species
-  setSpecies('RegExp');
-
-  var nativeExec = RegExp.prototype.exec;
-  var nativeReplace = shared('native-string-replace', String.prototype.replace);
-
-  var patchedExec = nativeExec;
-
-  var UPDATES_LAST_INDEX_WRONG = (function () {
-    var re1 = /a/;
-    var re2 = /b*/g;
-    nativeExec.call(re1, 'a');
-    nativeExec.call(re2, 'a');
-    return re1.lastIndex !== 0 || re2.lastIndex !== 0;
-  })();
-
-  var UNSUPPORTED_Y = regexpStickyHelpers.UNSUPPORTED_Y || regexpStickyHelpers.BROKEN_CARET;
-
-  // nonparticipating capturing group, copied from es5-shim's String#split patch.
-  // eslint-disable-next-line regexp/no-assertion-capturing-group, regexp/no-empty-group, regexp/no-lazy-ends -- testing
-  var NPCG_INCLUDED = /()??/.exec('')[1] !== undefined;
-
-  var PATCH = UPDATES_LAST_INDEX_WRONG || NPCG_INCLUDED || UNSUPPORTED_Y;
-
-  if (PATCH) {
-    patchedExec = function exec(str) {
-      var re = this;
-      var lastIndex, reCopy, match, i;
-      var sticky = UNSUPPORTED_Y && re.sticky;
-      var flags = regexpFlags.call(re);
-      var source = re.source;
-      var charsAdded = 0;
-      var strCopy = str;
-
-      if (sticky) {
-        flags = flags.replace('y', '');
-        if (flags.indexOf('g') === -1) {
-          flags += 'g';
-        }
-
-        strCopy = String(str).slice(re.lastIndex);
-        // Support anchored sticky behavior.
-        if (re.lastIndex > 0 && (!re.multiline || re.multiline && str[re.lastIndex - 1] !== '\n')) {
-          source = '(?: ' + source + ')';
-          strCopy = ' ' + strCopy;
-          charsAdded++;
-        }
-        // ^(? + rx + ) is needed, in combination with some str slicing, to
-        // simulate the 'y' flag.
-        reCopy = new RegExp('^(?:' + source + ')', flags);
-      }
-
-      if (NPCG_INCLUDED) {
-        reCopy = new RegExp('^' + source + '$(?!\\s)', flags);
-      }
-      if (UPDATES_LAST_INDEX_WRONG) lastIndex = re.lastIndex;
-
-      match = nativeExec.call(sticky ? reCopy : re, strCopy);
-
-      if (sticky) {
-        if (match) {
-          match.input = match.input.slice(charsAdded);
-          match[0] = match[0].slice(charsAdded);
-          match.index = re.lastIndex;
-          re.lastIndex += match[0].length;
-        } else re.lastIndex = 0;
-      } else if (UPDATES_LAST_INDEX_WRONG && match) {
-        re.lastIndex = re.global ? match.index + match[0].length : lastIndex;
-      }
-      if (NPCG_INCLUDED && match && match.length > 1) {
-        // Fix browsers whose `exec` methods don't consistently return `undefined`
-        // for NPCG, like IE8. NOTE: This doesn' work for /(.?)?/
-        nativeReplace.call(match[0], reCopy, function () {
-          for (i = 1; i < arguments.length - 2; i++) {
-            if (arguments[i] === undefined) match[i] = undefined;
-          }
-        });
-      }
-
-      return match;
-    };
-  }
-
-  var regexpExec = patchedExec;
-
-  // `RegExp.prototype.exec` method
-  // https://tc39.es/ecma262/#sec-regexp.prototype.exec
-  _export({ target: 'RegExp', proto: true, forced: /./.exec !== regexpExec }, {
-    exec: regexpExec
+    }
   });
 
   var freezing = !fails(function () {
@@ -3413,561 +3323,6 @@
     return new Option(true, value);
   };
   var none = new Option(false, undefined);
-
-  /**
-   * Hash - Hash functions
-   * @namespace Mootable.Hash
-   * @author Jack Moxley <https://github.com/jackmoxley>
-   * @version 1.0.1
-   * Homepage: https://github.com/mootable/hashmap
-   */
-
-  /**
-   * Modified Murmur3 hash generator, with capped lengths.
-   * This is NOT a cryptographic hash, this hash is designed to create as even a spread across a 32bit integer as is possible.
-   * @see {@link https://github.com/aappleby/smhasher|MurmurHash specification on Github}
-   * @see {@link https://en.wikipedia.org/wiki/MurmurHash|MurmurHash on Wikipedia}
-   * @param key the string being hashed
-   * @param len the max limit on the number of characters to hash
-   * @param seed an optional random seed, or previous hash value to continue hashing against.
-   * @returns {number} the hash
-   */
-
-  function hash(key) {
-    var len = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-    var seed = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
-    len = len > 0 ? Math.min(len, key.length) : key.length;
-    seed |= 0;
-    var remaining = len & 1;
-    var doubleBytes = len - remaining;
-    var hash = seed,
-        k = 0,
-        i = 0;
-
-    while (i < doubleBytes) {
-      k = key.charCodeAt(i++) & 0xffff | (key.charCodeAt(i++) & 0xffff) << 16;
-      k *= 0xcc9e2d51;
-      k = k << 15 | k >>> 17;
-      k *= 0x1b873593;
-      hash ^= k;
-      hash = hash << 13 | hash >>> 19;
-      hash *= 5;
-      hash += 0xe6546b64;
-    }
-
-    if (remaining) {
-      k ^= key.charCodeAt(i) & 0xffff;
-      k *= 0xcc9e2d51;
-      k = k << 15 | k >>> 17;
-      k *= 0x1b873593;
-      hash ^= k;
-    }
-
-    hash ^= len;
-    hash ^= hash >>> 16;
-    hash *= 0x85ebca6b;
-    hash ^= hash >>> 13;
-    hash *= 0xc2b2ae35;
-    hash ^= hash >>> 16;
-    return hash | 0;
-  }
-  /**
-   * Given any object return back a hashcode
-   * - If the key is undefined, null, false, NaN, infinite etc then it will be assigned a hash of 0.
-   * - If it is a primitive such as string, number bigint it either take the numeric value, or the string value, and hash that.
-   * - if it is a function, symbol or regex it hashes their string values.
-   * - if it is a date, it uses the time value as the hash.
-   * Otherwise
-   * - If it has a hashCode function it will execute it, passing the key as the first and only argument. It will call this function again on its result.
-   * - If it has a hashCode attribute it will call this function on it.
-   * - If it can't do any of the above, it will assign a randomly generated hashcode, to the key using a hidden property.
-   *
-   * As with all hashmaps, there is a contractual equivalence between hashcode and equals methods,
-   * in that any object that equals another, should produce the same hashcode.
-   *
-   * @param {*} key - the key to get the hash code from
-   * @return {number} - the hash code.
-   */
-
-  function hashCodeFor(key) {
-    var keyType = _typeof(key);
-
-    switch (keyType) {
-      case 'undefined':
-        return 0;
-
-      case 'boolean':
-        return key ? 1 : 0;
-
-      case 'string':
-        return hash(key);
-
-      case 'number':
-        if (!Number.isFinite(key)) {
-          return 0;
-        }
-
-        if (Number.isSafeInteger(key)) {
-          return key | 0;
-        }
-
-        return hash(key.toString());
-
-      case 'bigint':
-      case 'symbol':
-      case 'function':
-        return hash(key.toString());
-
-      case 'object':
-      default:
-        {
-          if (key === null) {
-            return 0;
-          }
-
-          if (key.hashCode) {
-            if (isFunction(key.hashCode)) {
-              return hashCodeFor(key.hashCode(key));
-            }
-
-            return hashCodeFor(key.hashCode);
-          } // Regexes and Dates we treat like primitives.
-
-
-          if (key instanceof Date) {
-            return key.getTime();
-          }
-
-          if (key instanceof RegExp) {
-            return hash(key.toString());
-          } // Options we work on the values.
-
-
-          if (key instanceof Option) {
-            if (key.has) {
-              return 31 * hashCodeFor(key.value);
-            }
-
-            return 0;
-          } // Hash of Last Resort, ensure we don't consider any objects on the prototype chain.
-
-
-          if (Object.prototype.hasOwnProperty.call(key, '_mootable_hashCode')) {
-            // its our special number, but just in case someone has done something a bit weird with it.
-            // Object equality at this point means that only this key instance can be used to fetch the value.
-            return hashCodeFor(key._mootable_hashCode);
-          }
-
-          var hashCode = HASH_COUNTER++; // unenumerable, unwritable, unconfigurable
-
-          Object.defineProperty(key, '_mootable_hashCode', {
-            value: hashCode
-          });
-          return hashCode;
-        }
-    }
-  }
-  /**
-   * an internal counter for managing unhashable objects.
-   * @private
-   * @ignore
-   * @type {number}
-   */
-
-  var HASH_COUNTER = 0;
-  /**
-   * Given a key, produce an equals method that fits the hashcode contract.
-   * - In almost all cases it will return with ECMASpec sameValueZero method. As is the case with native map, set and array.
-   * - If it is a regex, it compares the type, and the string values.
-   * - If it is a date, it compares the type, and the time values.
-   * - If it is an option, it compares if they both have values, and then the values.
-   * - If it has an equals function and that equals function when comapring 2 keys, return true. then it will use that.
-   *   - The function can either be in the form <code>key.equals(other)</code>, or <code>key.equals(other,key)</code> in the case of static-like functions.
-   *
-   * The expectation and requirement is this key will always be the first argument to the method, the behaviour maybe unexpected if parameters are reversed.
-   *
-   * As with all hashmaps, there is a contractual equivalence between hashcode and equals methods,
-   * in that any object that equals another, should produce the same hashcode.
-   *
-   * @param {*} key - the key to get the hash code from
-   * @return {(function(*, *): boolean)} - an equals function for 2 keys.
-   */
-
-  function equalsFor(key) {
-    // Regexes and Dates we treat like primitives.
-    switch (_typeof(key)) {
-      case 'object':
-        if (key) {
-          if (key instanceof RegExp) {
-            return function (me, them) {
-              if (them instanceof RegExp) {
-                return me.toString() === them.toString();
-              }
-
-              return false;
-            };
-          } else if (key instanceof Date) {
-            return function (me, them) {
-              if (them instanceof Date) {
-                return me.getTime() === them.getTime();
-              }
-
-              return false;
-            };
-          } else if (key instanceof Option) {
-            if (key.has) {
-              var valueEquals = equalsFor(key.value);
-              return function (me, them) {
-                if (them.has) {
-                  return valueEquals(me.value, them.value);
-                }
-
-                return false;
-              };
-            } else {
-              return function (me, them) {
-                return !them.has;
-              };
-            }
-          } else if (isFunction(key.equals)) {
-            return function (me, them) {
-              return me.equals(them, me);
-            };
-          }
-        }
-
-        return strictEquals;
-
-      case 'number':
-      case 'bigint':
-        return sameValueZero;
-
-      default:
-        return strictEquals;
-    }
-  }
-  /**
-   * Given any object return back a hashcode
-   * - If the key is undefined, null, false, NaN, infinite etc then it will be assigned a hash of 0.
-   * - If it is a primitive such as string, number bigint it either take the numeric value, or the string value, and hash that.
-   * - if it is a function, symbol or regex it hashes their string values.
-   * - if it is a date, it uses the time value as the hash.
-   * Otherwise
-   * - If it has a hashCode function it will execute it, passing the key as the first and only argument. It will call this function again on its result.
-   * - If it has a hashCode attribute it will call this function on it.
-   * - If it can't do any of the above, it will assign a randomly generated hashcode, to the key using a hidden property.
-   *
-   * As with all hashmaps, there is a contractual equivalence between hashcode and equals methods,
-   * in that any object that equals another, should produce the same hashcode.
-   *
-   * @param {*} key - the key to get the hash code from
-   * @return {{hash: number, equals: function}} - the hash code and equals function.
-   */
-
-  function equalsAndHash(key, options) {
-    if (options) {
-      var _hash = options.hash;
-      var equals = options.equals;
-
-      if (isFunction(_hash)) {
-        _hash = _hash(key);
-      }
-
-      if (!Number.isSafeInteger(_hash)) {
-        _hash = hashCodeFor(key);
-      }
-
-      if (!isFunction(equals)) {
-        equals = equalsFor(key);
-      }
-
-      return {
-        hash: _hash,
-        equals: equals
-      };
-    }
-
-    var toSetOn = {};
-
-    var keyType = _typeof(key);
-
-    switch (keyType) {
-      case 'undefined':
-        toSetOn.hash = 0;
-        toSetOn.equals = strictEquals;
-        return toSetOn;
-
-      case 'boolean':
-        toSetOn.hash = key ? 1 : 0;
-        toSetOn.equals = strictEquals;
-        return toSetOn;
-
-      case 'string':
-        toSetOn.hash = hash(key);
-        toSetOn.equals = strictEquals;
-        return toSetOn;
-
-      case 'number':
-        if (!Number.isFinite(key)) {
-          toSetOn.hash = 0;
-          toSetOn.equals = sameValueZero;
-          return toSetOn;
-        }
-
-        if (Number.isSafeInteger(key)) {
-          toSetOn.hash = key | 0;
-          toSetOn.equals = sameValueZero;
-          return toSetOn;
-        }
-
-        toSetOn.hash = hash(key.toString());
-        toSetOn.equals = sameValueZero;
-        return toSetOn;
-
-      case 'bigint':
-        toSetOn.hash = hash(key.toString());
-        toSetOn.equals = sameValueZero;
-        return toSetOn;
-
-      case 'symbol':
-      case 'function':
-        toSetOn.hash = hash(key.toString());
-        toSetOn.equals = strictEquals;
-        return toSetOn;
-
-      case 'object':
-      default:
-        {
-          if (key === null) {
-            toSetOn.hash = 0;
-            toSetOn.equals = strictEquals;
-            return toSetOn;
-          }
-
-          toSetOn.equals = equalsFor(key);
-
-          if (key.hashCode) {
-            if (isFunction(key.hashCode)) {
-              toSetOn.hash = hashCodeFor(key.hashCode(key));
-              return toSetOn;
-            } else {
-              toSetOn.hash = hashCodeFor(key.hashCode);
-              return toSetOn;
-            }
-          } // Regexes and Dates we treat like primitives.
-
-
-          if (key instanceof Date) {
-            toSetOn.hash = key.getTime();
-            return toSetOn;
-          }
-
-          if (key instanceof RegExp) {
-            toSetOn.hash = hash(key.toString());
-            return toSetOn;
-          } // Options we work on the values.
-
-
-          if (key instanceof Option) {
-            if (key.has) {
-              toSetOn.hash = 31 * hashCodeFor(key.value);
-              return toSetOn;
-            }
-
-            toSetOn.hash = 0;
-            return toSetOn;
-          } // Hash of Last Resort, ensure we don't consider any objects on the prototype chain.
-
-
-          if (Object.prototype.hasOwnProperty.call(key, '_mootable_hashCode')) {
-            // its our special number, but just in case someone has done something a bit weird with it.
-            // Object equality at this point means that only this key instance can be used to fetch the value.
-            toSetOn.hash = hashCodeFor(key._mootable_hashCode);
-            return toSetOn;
-          }
-
-          var hashCode = HASH_COUNTER++; // unenumerable, unwritable, unconfigurable
-
-          Object.defineProperty(key, '_mootable_hashCode', {
-            value: hashCode
-          });
-          toSetOn.hash = hashCode;
-          return toSetOn;
-        }
-    }
-  }
-
-  var SPECIES$1 = wellKnownSymbol('species');
-
-  var arrayMethodHasSpeciesSupport = function (METHOD_NAME) {
-    // We can't use this feature detection in V8 since it causes
-    // deoptimization and serious performance degradation
-    // https://github.com/zloirock/core-js/issues/677
-    return engineV8Version >= 51 || !fails(function () {
-      var array = [];
-      var constructor = array.constructor = {};
-      constructor[SPECIES$1] = function () {
-        return { foo: 1 };
-      };
-      return array[METHOD_NAME](Boolean).foo !== 1;
-    });
-  };
-
-  var $map = arrayIteration.map;
-
-
-  var HAS_SPECIES_SUPPORT$2 = arrayMethodHasSpeciesSupport('map');
-
-  // `Array.prototype.map` method
-  // https://tc39.es/ecma262/#sec-array.prototype.map
-  // with adding support of @@species
-  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$2 }, {
-    map: function map(callbackfn /* , thisArg */) {
-      return $map(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
-    }
-  });
-
-  var $find = arrayIteration.find;
-
-
-  var FIND = 'find';
-  var SKIPS_HOLES$1 = true;
-
-  // Shouldn't skip holes
-  if (FIND in []) Array(1)[FIND](function () { SKIPS_HOLES$1 = false; });
-
-  // `Array.prototype.find` method
-  // https://tc39.es/ecma262/#sec-array.prototype.find
-  _export({ target: 'Array', proto: true, forced: SKIPS_HOLES$1 }, {
-    find: function find(callbackfn /* , that = undefined */) {
-      return $find(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
-    }
-  });
-
-  // https://tc39.es/ecma262/#sec-array.prototype-@@unscopables
-  addToUnscopables(FIND);
-
-  var createProperty = function (object, key, value) {
-    var propertyKey = toPrimitive(key);
-    if (propertyKey in object) objectDefineProperty.f(object, propertyKey, createPropertyDescriptor(0, value));
-    else object[propertyKey] = value;
-  };
-
-  var HAS_SPECIES_SUPPORT$1 = arrayMethodHasSpeciesSupport('splice');
-
-  var max$1 = Math.max;
-  var min = Math.min;
-  var MAX_SAFE_INTEGER = 0x1FFFFFFFFFFFFF;
-  var MAXIMUM_ALLOWED_LENGTH_EXCEEDED = 'Maximum allowed length exceeded';
-
-  // `Array.prototype.splice` method
-  // https://tc39.es/ecma262/#sec-array.prototype.splice
-  // with adding support of @@species
-  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$1 }, {
-    splice: function splice(start, deleteCount /* , ...items */) {
-      var O = toObject(this);
-      var len = toLength(O.length);
-      var actualStart = toAbsoluteIndex(start, len);
-      var argumentsLength = arguments.length;
-      var insertCount, actualDeleteCount, A, k, from, to;
-      if (argumentsLength === 0) {
-        insertCount = actualDeleteCount = 0;
-      } else if (argumentsLength === 1) {
-        insertCount = 0;
-        actualDeleteCount = len - actualStart;
-      } else {
-        insertCount = argumentsLength - 2;
-        actualDeleteCount = min(max$1(toInteger(deleteCount), 0), len - actualStart);
-      }
-      if (len + insertCount - actualDeleteCount > MAX_SAFE_INTEGER) {
-        throw TypeError(MAXIMUM_ALLOWED_LENGTH_EXCEEDED);
-      }
-      A = arraySpeciesCreate(O, actualDeleteCount);
-      for (k = 0; k < actualDeleteCount; k++) {
-        from = actualStart + k;
-        if (from in O) createProperty(A, k, O[from]);
-      }
-      A.length = actualDeleteCount;
-      if (insertCount < actualDeleteCount) {
-        for (k = actualStart; k < len - actualDeleteCount; k++) {
-          from = k + actualDeleteCount;
-          to = k + insertCount;
-          if (from in O) O[to] = O[from];
-          else delete O[to];
-        }
-        for (k = len; k > len - actualDeleteCount + insertCount; k--) delete O[k - 1];
-      } else if (insertCount > actualDeleteCount) {
-        for (k = len - actualDeleteCount; k > actualStart; k--) {
-          from = k + actualDeleteCount - 1;
-          to = k + insertCount - 1;
-          if (from in O) O[to] = O[from];
-          else delete O[to];
-        }
-      }
-      for (k = 0; k < insertCount; k++) {
-        O[k + actualStart] = arguments[k + 2];
-      }
-      O.length = len - actualDeleteCount + insertCount;
-      return A;
-    }
-  });
-
-  var $findIndex = arrayIteration.findIndex;
-
-
-  var FIND_INDEX = 'findIndex';
-  var SKIPS_HOLES = true;
-
-  // Shouldn't skip holes
-  if (FIND_INDEX in []) Array(1)[FIND_INDEX](function () { SKIPS_HOLES = false; });
-
-  // `Array.prototype.findIndex` method
-  // https://tc39.es/ecma262/#sec-array.prototype.findindex
-  _export({ target: 'Array', proto: true, forced: SKIPS_HOLES }, {
-    findIndex: function findIndex(callbackfn /* , that = undefined */) {
-      return $findIndex(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
-    }
-  });
-
-  // https://tc39.es/ecma262/#sec-array.prototype-@@unscopables
-  addToUnscopables(FIND_INDEX);
-
-  var HAS_SPECIES_SUPPORT = arrayMethodHasSpeciesSupport('slice');
-
-  var SPECIES = wellKnownSymbol('species');
-  var nativeSlice = [].slice;
-  var max = Math.max;
-
-  // `Array.prototype.slice` method
-  // https://tc39.es/ecma262/#sec-array.prototype.slice
-  // fallback for not array-like ES3 strings and DOM objects
-  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT }, {
-    slice: function slice(start, end) {
-      var O = toIndexedObject(this);
-      var length = toLength(O.length);
-      var k = toAbsoluteIndex(start, length);
-      var fin = toAbsoluteIndex(end === undefined ? length : end, length);
-      // inline `ArraySpeciesCreate` for usage native `Array#slice` where it's possible
-      var Constructor, result, n;
-      if (isArray(O)) {
-        Constructor = O.constructor;
-        // cross-realm fallback
-        if (typeof Constructor == 'function' && (Constructor === Array || isArray(Constructor.prototype))) {
-          Constructor = undefined;
-        } else if (isObject(Constructor)) {
-          Constructor = Constructor[SPECIES];
-          if (Constructor === null) Constructor = undefined;
-        }
-        if (Constructor === Array || Constructor === undefined) {
-          return nativeSlice.call(O, k, fin);
-        }
-      }
-      result = new (Constructor === undefined ? Array : Constructor)(max(fin - k, 0));
-      for (n = 0; k < fin; k++, n++) if (k in O) createProperty(result, n, O[k]);
-      result.length = n;
-      return result;
-    }
-  });
 
   /**
    * HashMap - HashMap Container Implementation for JavaScript
@@ -5290,6 +4645,674 @@
     return HamtBuckets;
   }();
 
+  var globalIsFinite = global$1.isFinite;
+
+  // `Number.isFinite` method
+  // https://tc39.es/ecma262/#sec-number.isfinite
+  // eslint-disable-next-line es/no-number-isfinite -- safe
+  var numberIsFinite = Number.isFinite || function isFinite(it) {
+    return typeof it == 'number' && globalIsFinite(it);
+  };
+
+  // `Number.isFinite` method
+  // https://tc39.es/ecma262/#sec-number.isfinite
+  _export({ target: 'Number', stat: true }, { isFinite: numberIsFinite });
+
+  var floor = Math.floor;
+
+  // `Number.isInteger` method implementation
+  // https://tc39.es/ecma262/#sec-number.isinteger
+  var isInteger = function isInteger(it) {
+    return !isObject(it) && isFinite(it) && floor(it) === it;
+  };
+
+  var abs = Math.abs;
+
+  // `Number.isSafeInteger` method
+  // https://tc39.es/ecma262/#sec-number.issafeinteger
+  _export({ target: 'Number', stat: true }, {
+    isSafeInteger: function isSafeInteger(number) {
+      return isInteger(number) && abs(number) <= 0x1FFFFFFFFFFFFF;
+    }
+  });
+
+  // `RegExp.prototype.flags` getter implementation
+  // https://tc39.es/ecma262/#sec-get-regexp.prototype.flags
+  var regexpFlags = function () {
+    var that = anObject(this);
+    var result = '';
+    if (that.global) result += 'g';
+    if (that.ignoreCase) result += 'i';
+    if (that.multiline) result += 'm';
+    if (that.dotAll) result += 's';
+    if (that.unicode) result += 'u';
+    if (that.sticky) result += 'y';
+    return result;
+  };
+
+  var TO_STRING = 'toString';
+  var RegExpPrototype$1 = RegExp.prototype;
+  var nativeToString = RegExpPrototype$1[TO_STRING];
+
+  var NOT_GENERIC = fails(function () { return nativeToString.call({ source: 'a', flags: 'b' }) != '/a/b'; });
+  // FF44- RegExp#toString has a wrong name
+  var INCORRECT_NAME = nativeToString.name != TO_STRING;
+
+  // `RegExp.prototype.toString` method
+  // https://tc39.es/ecma262/#sec-regexp.prototype.tostring
+  if (NOT_GENERIC || INCORRECT_NAME) {
+    redefine(RegExp.prototype, TO_STRING, function toString() {
+      var R = anObject(this);
+      var p = String(R.source);
+      var rf = R.flags;
+      var f = String(rf === undefined && R instanceof RegExp && !('flags' in RegExpPrototype$1) ? regexpFlags.call(R) : rf);
+      return '/' + p + '/' + f;
+    }, { unsafe: true });
+  }
+
+  var MATCH$1 = wellKnownSymbol('match');
+
+  // `IsRegExp` abstract operation
+  // https://tc39.es/ecma262/#sec-isregexp
+  var isRegexp = function (it) {
+    var isRegExp;
+    return isObject(it) && ((isRegExp = it[MATCH$1]) !== undefined ? !!isRegExp : classofRaw(it) == 'RegExp');
+  };
+
+  // babel-minify transpiles RegExp('a', 'y') -> /a/y and it causes SyntaxError,
+  // so we use an intermediate function.
+  function RE(s, f) {
+    return RegExp(s, f);
+  }
+
+  var UNSUPPORTED_Y$2 = fails(function () {
+    // babel-minify transpiles RegExp('a', 'y') -> /a/y and it causes SyntaxError
+    var re = RE('a', 'y');
+    re.lastIndex = 2;
+    return re.exec('abcd') != null;
+  });
+
+  var BROKEN_CARET = fails(function () {
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=773687
+    var re = RE('^r', 'gy');
+    re.lastIndex = 2;
+    return re.exec('str') != null;
+  });
+
+  var regexpStickyHelpers = {
+  	UNSUPPORTED_Y: UNSUPPORTED_Y$2,
+  	BROKEN_CARET: BROKEN_CARET
+  };
+
+  var SPECIES = wellKnownSymbol('species');
+
+  var setSpecies = function (CONSTRUCTOR_NAME) {
+    var Constructor = getBuiltIn(CONSTRUCTOR_NAME);
+    var defineProperty = objectDefineProperty.f;
+
+    if (descriptors && Constructor && !Constructor[SPECIES]) {
+      defineProperty(Constructor, SPECIES, {
+        configurable: true,
+        get: function () { return this; }
+      });
+    }
+  };
+
+  var defineProperty = objectDefineProperty.f;
+  var getOwnPropertyNames = objectGetOwnPropertyNames.f;
+
+
+
+
+
+  var enforceInternalState = internalState.enforce;
+
+
+
+  var MATCH = wellKnownSymbol('match');
+  var NativeRegExp = global$1.RegExp;
+  var RegExpPrototype = NativeRegExp.prototype;
+  var re1 = /a/g;
+  var re2 = /a/g;
+
+  // "new" should create a new object, old webkit bug
+  var CORRECT_NEW = new NativeRegExp(re1) !== re1;
+
+  var UNSUPPORTED_Y$1 = regexpStickyHelpers.UNSUPPORTED_Y;
+
+  var FORCED = descriptors && isForced_1('RegExp', (!CORRECT_NEW || UNSUPPORTED_Y$1 || fails(function () {
+    re2[MATCH] = false;
+    // RegExp constructor can alter flags and IsRegExp works correct with @@match
+    return NativeRegExp(re1) != re1 || NativeRegExp(re2) == re2 || NativeRegExp(re1, 'i') != '/a/i';
+  })));
+
+  // `RegExp` constructor
+  // https://tc39.es/ecma262/#sec-regexp-constructor
+  if (FORCED) {
+    var RegExpWrapper = function RegExp(pattern, flags) {
+      var thisIsRegExp = this instanceof RegExpWrapper;
+      var patternIsRegExp = isRegexp(pattern);
+      var flagsAreUndefined = flags === undefined;
+      var sticky;
+
+      if (!thisIsRegExp && patternIsRegExp && pattern.constructor === RegExpWrapper && flagsAreUndefined) {
+        return pattern;
+      }
+
+      if (CORRECT_NEW) {
+        if (patternIsRegExp && !flagsAreUndefined) pattern = pattern.source;
+      } else if (pattern instanceof RegExpWrapper) {
+        if (flagsAreUndefined) flags = regexpFlags.call(pattern);
+        pattern = pattern.source;
+      }
+
+      if (UNSUPPORTED_Y$1) {
+        sticky = !!flags && flags.indexOf('y') > -1;
+        if (sticky) flags = flags.replace(/y/g, '');
+      }
+
+      var result = inheritIfRequired(
+        CORRECT_NEW ? new NativeRegExp(pattern, flags) : NativeRegExp(pattern, flags),
+        thisIsRegExp ? this : RegExpPrototype,
+        RegExpWrapper
+      );
+
+      if (UNSUPPORTED_Y$1 && sticky) {
+        var state = enforceInternalState(result);
+        state.sticky = true;
+      }
+
+      return result;
+    };
+    var proxy = function (key) {
+      key in RegExpWrapper || defineProperty(RegExpWrapper, key, {
+        configurable: true,
+        get: function () { return NativeRegExp[key]; },
+        set: function (it) { NativeRegExp[key] = it; }
+      });
+    };
+    var keys = getOwnPropertyNames(NativeRegExp);
+    var index = 0;
+    while (keys.length > index) proxy(keys[index++]);
+    RegExpPrototype.constructor = RegExpWrapper;
+    RegExpWrapper.prototype = RegExpPrototype;
+    redefine(global$1, 'RegExp', RegExpWrapper);
+  }
+
+  // https://tc39.es/ecma262/#sec-get-regexp-@@species
+  setSpecies('RegExp');
+
+  var nativeExec = RegExp.prototype.exec;
+  var nativeReplace = shared('native-string-replace', String.prototype.replace);
+
+  var patchedExec = nativeExec;
+
+  var UPDATES_LAST_INDEX_WRONG = (function () {
+    var re1 = /a/;
+    var re2 = /b*/g;
+    nativeExec.call(re1, 'a');
+    nativeExec.call(re2, 'a');
+    return re1.lastIndex !== 0 || re2.lastIndex !== 0;
+  })();
+
+  var UNSUPPORTED_Y = regexpStickyHelpers.UNSUPPORTED_Y || regexpStickyHelpers.BROKEN_CARET;
+
+  // nonparticipating capturing group, copied from es5-shim's String#split patch.
+  // eslint-disable-next-line regexp/no-assertion-capturing-group, regexp/no-empty-group, regexp/no-lazy-ends -- testing
+  var NPCG_INCLUDED = /()??/.exec('')[1] !== undefined;
+
+  var PATCH = UPDATES_LAST_INDEX_WRONG || NPCG_INCLUDED || UNSUPPORTED_Y;
+
+  if (PATCH) {
+    patchedExec = function exec(str) {
+      var re = this;
+      var lastIndex, reCopy, match, i;
+      var sticky = UNSUPPORTED_Y && re.sticky;
+      var flags = regexpFlags.call(re);
+      var source = re.source;
+      var charsAdded = 0;
+      var strCopy = str;
+
+      if (sticky) {
+        flags = flags.replace('y', '');
+        if (flags.indexOf('g') === -1) {
+          flags += 'g';
+        }
+
+        strCopy = String(str).slice(re.lastIndex);
+        // Support anchored sticky behavior.
+        if (re.lastIndex > 0 && (!re.multiline || re.multiline && str[re.lastIndex - 1] !== '\n')) {
+          source = '(?: ' + source + ')';
+          strCopy = ' ' + strCopy;
+          charsAdded++;
+        }
+        // ^(? + rx + ) is needed, in combination with some str slicing, to
+        // simulate the 'y' flag.
+        reCopy = new RegExp('^(?:' + source + ')', flags);
+      }
+
+      if (NPCG_INCLUDED) {
+        reCopy = new RegExp('^' + source + '$(?!\\s)', flags);
+      }
+      if (UPDATES_LAST_INDEX_WRONG) lastIndex = re.lastIndex;
+
+      match = nativeExec.call(sticky ? reCopy : re, strCopy);
+
+      if (sticky) {
+        if (match) {
+          match.input = match.input.slice(charsAdded);
+          match[0] = match[0].slice(charsAdded);
+          match.index = re.lastIndex;
+          re.lastIndex += match[0].length;
+        } else re.lastIndex = 0;
+      } else if (UPDATES_LAST_INDEX_WRONG && match) {
+        re.lastIndex = re.global ? match.index + match[0].length : lastIndex;
+      }
+      if (NPCG_INCLUDED && match && match.length > 1) {
+        // Fix browsers whose `exec` methods don't consistently return `undefined`
+        // for NPCG, like IE8. NOTE: This doesn' work for /(.?)?/
+        nativeReplace.call(match[0], reCopy, function () {
+          for (i = 1; i < arguments.length - 2; i++) {
+            if (arguments[i] === undefined) match[i] = undefined;
+          }
+        });
+      }
+
+      return match;
+    };
+  }
+
+  var regexpExec = patchedExec;
+
+  // `RegExp.prototype.exec` method
+  // https://tc39.es/ecma262/#sec-regexp.prototype.exec
+  _export({ target: 'RegExp', proto: true, forced: /./.exec !== regexpExec }, {
+    exec: regexpExec
+  });
+
+  /**
+   * Hash - Hash functions
+   * @namespace Mootable.Hash
+   * @author Jack Moxley <https://github.com/jackmoxley>
+   * @version 1.0.1
+   * Homepage: https://github.com/mootable/hashmap
+   */
+
+  /**
+   * Modified Murmur3 hash generator, with capped lengths.
+   * This is NOT a cryptographic hash, this hash is designed to create as even a spread across a 32bit integer as is possible.
+   * @see {@link https://github.com/aappleby/smhasher|MurmurHash specification on Github}
+   * @see {@link https://en.wikipedia.org/wiki/MurmurHash|MurmurHash on Wikipedia}
+   * @param key the string being hashed
+   * @param len the max limit on the number of characters to hash
+   * @param seed an optional random seed, or previous hash value to continue hashing against.
+   * @returns {number} the hash
+   */
+
+  function hash(key) {
+    var len = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+    var seed = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+    len = len > 0 ? Math.min(len, key.length) : key.length;
+    seed |= 0;
+    var remaining = len & 1;
+    var doubleBytes = len - remaining;
+    var hash = seed,
+        k = 0,
+        i = 0;
+
+    while (i < doubleBytes) {
+      k = key.charCodeAt(i++) & 0xffff | (key.charCodeAt(i++) & 0xffff) << 16;
+      k *= 0xcc9e2d51;
+      k = k << 15 | k >>> 17;
+      k *= 0x1b873593;
+      hash ^= k;
+      hash = hash << 13 | hash >>> 19;
+      hash *= 5;
+      hash += 0xe6546b64;
+    }
+
+    if (remaining) {
+      k ^= key.charCodeAt(i) & 0xffff;
+      k *= 0xcc9e2d51;
+      k = k << 15 | k >>> 17;
+      k *= 0x1b873593;
+      hash ^= k;
+    }
+
+    hash ^= len;
+    hash ^= hash >>> 16;
+    hash *= 0x85ebca6b;
+    hash ^= hash >>> 13;
+    hash *= 0xc2b2ae35;
+    hash ^= hash >>> 16;
+    return hash | 0;
+  }
+  /**
+   * Given any object return back a hashcode
+   * - If the key is undefined, null, false, NaN, infinite etc then it will be assigned a hash of 0.
+   * - If it is a primitive such as string, number bigint it either take the numeric value, or the string value, and hash that.
+   * - if it is a function, symbol or regex it hashes their string values.
+   * - if it is a date, it uses the time value as the hash.
+   * Otherwise
+   * - If it has a hashCode function it will execute it, passing the key as the first and only argument. It will call this function again on its result.
+   * - If it has a hashCode attribute it will call this function on it.
+   * - If it can't do any of the above, it will assign a randomly generated hashcode, to the key using a hidden property.
+   *
+   * As with all hashmaps, there is a contractual equivalence between hashcode and equals methods,
+   * in that any object that equals another, should produce the same hashcode.
+   *
+   * @param {*} key - the key to get the hash code from
+   * @return {number} - the hash code.
+   */
+
+  function hashCodeFor(key) {
+    var keyType = _typeof(key);
+
+    switch (keyType) {
+      case 'undefined':
+        return 0;
+
+      case 'boolean':
+        return key ? 1 : 0;
+
+      case 'string':
+        return hash(key);
+
+      case 'number':
+        if (!Number.isFinite(key)) {
+          return 0;
+        }
+
+        if (Number.isSafeInteger(key)) {
+          return key | 0;
+        }
+
+        return hash(key.toString());
+
+      case 'bigint':
+      case 'symbol':
+      case 'function':
+        return hash(key.toString());
+
+      case 'object':
+      default:
+        {
+          if (key === null) {
+            return 0;
+          }
+
+          if (key.hashCode) {
+            if (isFunction(key.hashCode)) {
+              return hashCodeFor(key.hashCode(key));
+            }
+
+            return hashCodeFor(key.hashCode);
+          } // Regexes and Dates we treat like primitives.
+
+
+          if (key instanceof Date) {
+            return key.getTime();
+          }
+
+          if (key instanceof RegExp) {
+            return hash(key.toString());
+          } // Options we work on the values.
+
+
+          if (key instanceof Option) {
+            if (key.has) {
+              return 31 * hashCodeFor(key.value);
+            }
+
+            return 0;
+          } // Hash of Last Resort, ensure we don't consider any objects on the prototype chain.
+
+
+          if (Object.prototype.hasOwnProperty.call(key, '_mootable_hashCode')) {
+            // its our special number, but just in case someone has done something a bit weird with it.
+            // Object equality at this point means that only this key instance can be used to fetch the value.
+            return hashCodeFor(key._mootable_hashCode);
+          }
+
+          var hashCode = HASH_COUNTER++; // unenumerable, unwritable, unconfigurable
+
+          Object.defineProperty(key, '_mootable_hashCode', {
+            value: hashCode
+          });
+          return hashCode;
+        }
+    }
+  }
+  /**
+   * an internal counter for managing unhashable objects.
+   * @private
+   * @ignore
+   * @type {number}
+   */
+
+  var HASH_COUNTER = 0;
+  /**
+   * Given a key, produce an equals method that fits the hashcode contract.
+   * - In almost all cases it will return with ECMASpec sameValueZero method. As is the case with native map, set and array.
+   * - If it is a regex, it compares the type, and the string values.
+   * - If it is a date, it compares the type, and the time values.
+   * - If it is an option, it compares if they both have values, and then the values.
+   * - If it has an equals function and that equals function when comapring 2 keys, return true. then it will use that.
+   *   - The function can either be in the form <code>key.equals(other)</code>, or <code>key.equals(other,key)</code> in the case of static-like functions.
+   *
+   * The expectation and requirement is this key will always be the first argument to the method, the behaviour maybe unexpected if parameters are reversed.
+   *
+   * As with all hashmaps, there is a contractual equivalence between hashcode and equals methods,
+   * in that any object that equals another, should produce the same hashcode.
+   *
+   * @param {*} key - the key to get the hash code from
+   * @return {(function(*, *): boolean)} - an equals function for 2 keys.
+   */
+
+  function equalsFor(key) {
+    // Regexes and Dates we treat like primitives.
+    switch (_typeof(key)) {
+      case 'object':
+        if (key) {
+          if (key instanceof RegExp) {
+            return function (me, them) {
+              if (them instanceof RegExp) {
+                return me.toString() === them.toString();
+              }
+
+              return false;
+            };
+          } else if (key instanceof Date) {
+            return function (me, them) {
+              if (them instanceof Date) {
+                return me.getTime() === them.getTime();
+              }
+
+              return false;
+            };
+          } else if (key instanceof Option) {
+            if (key.has) {
+              var valueEquals = equalsFor(key.value);
+              return function (me, them) {
+                if (them.has) {
+                  return valueEquals(me.value, them.value);
+                }
+
+                return false;
+              };
+            } else {
+              return function (me, them) {
+                return !them.has;
+              };
+            }
+          } else if (isFunction(key.equals)) {
+            return function (me, them) {
+              return me.equals(them, me);
+            };
+          }
+        }
+
+        return strictEquals;
+
+      case 'number':
+      case 'bigint':
+        return sameValueZero;
+
+      default:
+        return strictEquals;
+    }
+  }
+  /**
+   * Given any object return back a hashcode
+   * - If the key is undefined, null, false, NaN, infinite etc then it will be assigned a hash of 0.
+   * - If it is a primitive such as string, number bigint it either take the numeric value, or the string value, and hash that.
+   * - if it is a function, symbol or regex it hashes their string values.
+   * - if it is a date, it uses the time value as the hash.
+   * Otherwise
+   * - If it has a hashCode function it will execute it, passing the key as the first and only argument. It will call this function again on its result.
+   * - If it has a hashCode attribute it will call this function on it.
+   * - If it can't do any of the above, it will assign a randomly generated hashcode, to the key using a hidden property.
+   *
+   * As with all hashmaps, there is a contractual equivalence between hashcode and equals methods,
+   * in that any object that equals another, should produce the same hashcode.
+   *
+   * @param {*} key - the key to get the hash code from
+   * @return {{hash: number, equals: function}} - the hash code and equals function.
+   */
+
+  function equalsAndHash(key, options) {
+    if (options) {
+      var _hash = options.hash;
+      var equals = options.equals;
+
+      if (isFunction(_hash)) {
+        _hash = _hash(key);
+      }
+
+      if (!Number.isSafeInteger(_hash)) {
+        _hash = hashCodeFor(key);
+      }
+
+      if (!isFunction(equals)) {
+        equals = equalsFor(key);
+      }
+
+      return {
+        hash: _hash,
+        equals: equals
+      };
+    }
+
+    var toSetOn = {};
+
+    var keyType = _typeof(key);
+
+    switch (keyType) {
+      case 'undefined':
+        toSetOn.hash = 0;
+        toSetOn.equals = strictEquals;
+        return toSetOn;
+
+      case 'boolean':
+        toSetOn.hash = key ? 1 : 0;
+        toSetOn.equals = strictEquals;
+        return toSetOn;
+
+      case 'string':
+        toSetOn.hash = hash(key);
+        toSetOn.equals = strictEquals;
+        return toSetOn;
+
+      case 'number':
+        if (!Number.isFinite(key)) {
+          toSetOn.hash = 0;
+          toSetOn.equals = sameValueZero;
+          return toSetOn;
+        }
+
+        if (Number.isSafeInteger(key)) {
+          toSetOn.hash = key | 0;
+          toSetOn.equals = sameValueZero;
+          return toSetOn;
+        }
+
+        toSetOn.hash = hash(key.toString());
+        toSetOn.equals = sameValueZero;
+        return toSetOn;
+
+      case 'bigint':
+        toSetOn.hash = hash(key.toString());
+        toSetOn.equals = sameValueZero;
+        return toSetOn;
+
+      case 'symbol':
+      case 'function':
+        toSetOn.hash = hash(key.toString());
+        toSetOn.equals = strictEquals;
+        return toSetOn;
+
+      case 'object':
+      default:
+        {
+          if (key === null) {
+            toSetOn.hash = 0;
+            toSetOn.equals = strictEquals;
+            return toSetOn;
+          }
+
+          toSetOn.equals = equalsFor(key);
+
+          if (key.hashCode) {
+            if (isFunction(key.hashCode)) {
+              toSetOn.hash = hashCodeFor(key.hashCode(key));
+              return toSetOn;
+            } else {
+              toSetOn.hash = hashCodeFor(key.hashCode);
+              return toSetOn;
+            }
+          } // Regexes and Dates we treat like primitives.
+
+
+          if (key instanceof Date) {
+            toSetOn.hash = key.getTime();
+            return toSetOn;
+          }
+
+          if (key instanceof RegExp) {
+            toSetOn.hash = hash(key.toString());
+            return toSetOn;
+          } // Options we work on the values.
+
+
+          if (key instanceof Option) {
+            if (key.has) {
+              toSetOn.hash = 31 * hashCodeFor(key.value);
+              return toSetOn;
+            }
+
+            toSetOn.hash = 0;
+            return toSetOn;
+          } // Hash of Last Resort, ensure we don't consider any objects on the prototype chain.
+
+
+          if (Object.prototype.hasOwnProperty.call(key, '_mootable_hashCode')) {
+            // its our special number, but just in case someone has done something a bit weird with it.
+            // Object equality at this point means that only this key instance can be used to fetch the value.
+            toSetOn.hash = hashCodeFor(key._mootable_hashCode);
+            return toSetOn;
+          }
+
+          var hashCode = HASH_COUNTER++; // unenumerable, unwritable, unconfigurable
+
+          Object.defineProperty(key, '_mootable_hashCode', {
+            value: hashCode
+          });
+          toSetOn.hash = hashCode;
+          return toSetOn;
+        }
+    }
+  }
+
   /**
    * HashMap - HashMap Implementation for JavaScript
    * @namespace Mootable
@@ -5372,7 +5395,7 @@
      * };
      * const hashmap = new HashMap(forEachObj);
      * // hashmap.size === 4;
-     * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>|ObjectWithForEach.<function(function(value, key))>|ObjectWithEntries.<function>)}[copy]
+     * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>|Object)} [copy]
      */
     function HashMap(copy) {
       _classCallCheck(this, HashMap);
@@ -5538,7 +5561,7 @@
     }, {
       key: "has",
       value: function has(key, overrides) {
-        var op = equalsAndHash(key, overrides);
+        var op = this.equalsAndHash(key, overrides);
         return this.buckets.has(key, op);
       }
       /**
@@ -5592,7 +5615,7 @@
     }, {
       key: "get",
       value: function get(key, overrides) {
-        var op = equalsAndHash(key, overrides);
+        var op = this.equalsAndHash(key, overrides);
         return this.buckets.get(key, op);
       }
       /**
@@ -5640,7 +5663,7 @@
     }, {
       key: "keyOf",
       value: function keyOf(value, overrides) {
-        var equals = overrides && isFunction(overrides.equals) ? overrides.equals : equalsFor(value);
+        var equals = overrides && isFunction(overrides.equals) ? overrides.equals : this.equalsFor(value);
 
         var _iterator = _createForOfIteratorHelper(this.entries()),
             _step;
@@ -5708,7 +5731,7 @@
     }, {
       key: "lastKeyOf",
       value: function lastKeyOf(value, overrides) {
-        var equals = overrides && isFunction(overrides.equals) ? overrides.equals : equalsFor(value);
+        var equals = overrides && isFunction(overrides.equals) ? overrides.equals : this.equalsFor(value);
 
         var _iterator2 = _createForOfIteratorHelper(this.entriesRight()),
             _step2;
@@ -5778,7 +5801,7 @@
     }, {
       key: "optionalKeyOf",
       value: function optionalKeyOf(value, overrides) {
-        var equals = overrides && isFunction(overrides.equals) ? overrides.equals : equalsFor(value);
+        var equals = overrides && isFunction(overrides.equals) ? overrides.equals : this.equalsFor(value);
 
         var _iterator3 = _createForOfIteratorHelper(this.entries()),
             _step3;
@@ -5848,7 +5871,7 @@
     }, {
       key: "optionalLastKeyOf",
       value: function optionalLastKeyOf(value, overrides) {
-        var equals = overrides && isFunction(overrides.equals) ? overrides.equals : equalsFor(value);
+        var equals = overrides && isFunction(overrides.equals) ? overrides.equals : this.equalsFor(value);
 
         var _iterator4 = _createForOfIteratorHelper(this.entriesRight()),
             _step4;
@@ -5924,7 +5947,7 @@
     }, {
       key: "optionalGet",
       value: function optionalGet(key, overrides) {
-        var op = equalsAndHash(key, overrides);
+        var op = this.equalsAndHash(key, overrides);
         return this.buckets.optionalGet(key, op);
       }
       /**
@@ -6326,16 +6349,51 @@
       /**
        * Sets a value onto this map, using the key as its reference.
        *
+       * @example <caption>>set a value</caption>
+       * const hashmap = new HashMap();
+       * hashmap.set(1,'value1');
+       * const hasResult = hashmap.has(1);
+       * // hasResult === true
+       * @example <caption>>overwrite a value</caption>
+       * const hashmap = new HashMap([[1,'value1'],[2,'value2']]);
+       * hashmap.set(2,'other');
+       * const getResult = hashmap.get(2);
+       * // getResult === 'other'
+       * @example <caption>Advanced: using a predefined hashCode and equals on the key</caption>
+       * class NameKey {
+       *     constructor(firstName, secondName) {
+       *         this.firstName = firstName;
+       *         this.secondName = secondName;
+       *     }
+       *     hashCode() {
+       *          return (Mootable.hash(firstName) * 31) +Mootable.hash(secondName);
+       *     }
+       *     equals(other) {
+       *          return other && other instanceof NameKey && other.firstName === this.firstName && other.secondName === this.secondName;
+       *     }
+       * }
+       * const hashmap = new HashMap();
+       * hashmap.set(new NameKey('John','Smith'),'Librarian);
+       * const hasResult = hashmap.has(new NameKey('John','Smith'));
+       * // hasResult === true
+       * @example <caption>Advanced: using a custom hash and equals, to set a value to a specific
+       * hash</caption>
+       * const hashmap = new HashMap();
+       * hashmap.set(1,'value1', {hash: 3});
+       * const hasResult = hashmap.has(3, {equals: () => true} );
+       * // hasResult === true
+       * // the hash of the number 3 is actually also 3. all 32 bit integers have the same hash.
+       * // 0 doesn't exist in the hashMap, but we are circumventing using the key entirely.
        * @param {*} key - the key we want to key our value to
        * @param {*} value - the value we are setting
        * @param {HashMap#overrides<equals, hash>} [overrides] - a set of optional overrides to allow a user to define the hashcode and equals methods, rather than them being looked up.
-       * @return {HashMap}
+       * @return {HashMap} this hashmap
        */
 
     }, {
       key: "set",
       value: function set(key, value, overrides) {
-        var op = equalsAndHash(key, overrides);
+        var op = this.equalsAndHash(key, overrides);
         this.buckets.set(key, value, op);
         return this;
       }
@@ -6350,7 +6408,7 @@
     }, {
       key: "emplace",
       value: function emplace(key, handler, overrides) {
-        var op = equalsAndHash(key, overrides);
+        var op = this.equalsAndHash(key, overrides);
         return this.buckets.emplace(key, handler, op);
       }
       /**
@@ -6433,7 +6491,7 @@
     }, {
       key: "delete",
       value: function _delete(key, overrides) {
-        var op = equalsAndHash(key, overrides);
+        var op = this.equalsAndHash(key, overrides);
         this.buckets.delete(key, op);
         return this;
       }
@@ -6952,6 +7010,14 @@
 
     return HashMap;
   }();
+  Object.defineProperty(HashMap.prototype, 'equalsFor', {
+    value: equalsFor,
+    configurable: true
+  });
+  Object.defineProperty(HashMap.prototype, 'equalsAndHash', {
+    value: equalsAndHash,
+    configurable: true
+  });
 
   /**
    * HashMap - LinkedHashMap Implementation for JavaScript
@@ -7032,7 +7098,7 @@
      * };
      * const linkedhashmap = new LinkedHashMap(forEachObj);
      * // linkedhashmap.size === 4;
-     * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>|ObjectWithForEach.<function(function(value, key))>|ObjectWithEntries.<function>)}[copy]
+     * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>|Object)} [copy]
      */
     function LinkedHashMap(copy) {
       var _this;
@@ -7072,7 +7138,7 @@
     }, {
       key: "setLeft",
       value: function setLeft(key, value, overrides) {
-        var op = equalsAndHash(key, overrides);
+        var op = this.equalsAndHash(key, overrides);
         op.addToStart = true;
         this.buckets.set(key, value, op);
         return this;
@@ -7088,7 +7154,7 @@
     }, {
       key: "emplaceLeft",
       value: function emplaceLeft(key, handler, overrides) {
-        var op = equalsAndHash(key, overrides);
+        var op = this.equalsAndHash(key, overrides);
         op.addToStart = true;
         return this.buckets.emplace(key, handler, op);
       }
@@ -7103,7 +7169,7 @@
     }, {
       key: "push",
       value: function push(key, value, overrides) {
-        var op = equalsAndHash(key, overrides);
+        var op = this.equalsAndHash(key, overrides);
         op.moveOnUpdate = true;
         this.buckets.set(key, value, op);
         return this;
@@ -7119,7 +7185,7 @@
     }, {
       key: "pushEmplace",
       value: function pushEmplace(key, handler, overrides) {
-        var op = equalsAndHash(key, overrides);
+        var op = this.equalsAndHash(key, overrides);
         op.moveOnUpdate = true;
         return this.buckets.emplace(key, handler, op);
       }
@@ -7134,7 +7200,7 @@
     }, {
       key: "unshift",
       value: function unshift(key, value, overrides) {
-        var op = equalsAndHash(key, overrides);
+        var op = this.equalsAndHash(key, overrides);
         op.moveOnUpdate = true;
         op.addToStart = true;
         this.buckets.set(key, value, op);
@@ -7151,7 +7217,7 @@
     }, {
       key: "unshiftEmplace",
       value: function unshiftEmplace(key, handler, overrides) {
-        var op = equalsAndHash(key, overrides);
+        var op = this.equalsAndHash(key, overrides);
         op.moveOnUpdate = true;
         op.addToStart = true;
         return this.buckets.emplace(key, handler, op);
@@ -7745,7 +7811,12 @@
     equalsFor: equalsFor,
     some: _some,
     none: none,
-    Option: Option
+    Option: Option,
+    sameValueZero: sameValueZero,
+    strictEquals: strictEquals,
+    abstractEquals: abstractEquals,
+    sameValue: sameValue,
+    hammingWeight: hammingWeight
   };
 
   exports.HashMap = HashMap;
