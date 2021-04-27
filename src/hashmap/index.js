@@ -822,7 +822,7 @@ export class HashMap {
      *     }
      * }
      * const hashmap = new HashMap();
-     * hashmap.set(new NameKey('John','Smith'),'Librarian);
+     * hashmap.set(new NameKey('John','Smith'),'Librarian');
      * const hasResult = hashmap.has(new NameKey('John','Smith'));
      * // hasResult === true
      * @example <caption>Advanced: using a custom hash and equals, to set a value to a specific
