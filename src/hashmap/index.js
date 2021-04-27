@@ -1176,6 +1176,9 @@ export class HashMap {
     }
 }
 
+/**
+ * Method parsing
+ */
 Object.defineProperty(HashMap.prototype, 'equalsFor', {value: equalsFor, configurable: true});
 Object.defineProperty(HashMap.prototype, 'equalsAndHash', {
     value: equalsAndHash,
