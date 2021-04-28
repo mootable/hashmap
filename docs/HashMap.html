@@ -314,7 +314,7 @@ methods are correct in the order of which values returned, and are in reverse to
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line194">line 194</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line233">line 233</a>
     </li></ul></dd>
     
 
@@ -382,7 +382,7 @@ methods are correct in the order of which values returned, and are in reverse to
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line180">line 180</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line219">line 219</a>
     </li></ul></dd>
     
 
@@ -460,7 +460,7 @@ methods are correct in the order of which values returned, and are in reverse to
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line911">line 911</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line1090">line 1090</a>
     </li></ul></dd>
     
 
@@ -569,7 +569,7 @@ methods are correct in the order of which values returned, and are in reverse to
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line892">line 892</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line1071">line 1071</a>
     </li></ul></dd>
     
 
@@ -674,7 +674,7 @@ methods are correct in the order of which values returned, and are in reverse to
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line866">line 866</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line1045">line 1045</a>
     </li></ul></dd>
     
 
@@ -714,7 +714,7 @@ methods are correct in the order of which values returned, and are in reverse to
 
 
 <div class="description usertext">
-    <p>Copies the keys and values from the iterable, into this one.</p>
+    <p>Copies all the entries from the map, array or iterable, into this hashmap.</p>
 </div>
 
 
@@ -723,6 +723,33 @@ methods are correct in the order of which values returned, and are in reverse to
 
 
 
+
+
+    <h5>Examples</h5>
+    
+        <p class="code-caption">copy into the HashMap from an array of key value pairs</p>
+    
+    <pre class="prettyprint"><code>const hashmap = new HashMap([['key0','value0']]);const arr = [[1,'value1'],[2,'value2'],[3,'value3']];hashmap.copy(arr);// hashmap.size === 4;</code></pre>
+
+        <p class="code-caption">copy into the HashMap from another map</p>
+    
+    <pre class="prettyprint"><code>const hashmap = new HashMap([['key0','value0']]);const map = new Map([[1,'value1'],[2,'value2'],[3,'value3']])hashmap.copy(map);// hashmap.size === 4;</code></pre>
+
+        <p class="code-caption">copy into the HashMap from another HashMap</p>
+    
+    <pre class="prettyprint"><code>const first = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']])const hashmap = new HashMap(first);// hashmap.size === 3;</code></pre>
+
+        <p class="code-caption">copy into the HashMap from a class with symbol iterator</p>
+    
+    <pre class="prettyprint"><code>const hashmap = new HashMap([['key0','value0']]);class MyIterable = {    *[Symbol.iterator] () {        yield ["key1", "value1"];        yield ["key2", "value2"];        yield ["key3", "value3"];        yield ["key4", "value4"];    }}const iterable = new MyIterable();hashmap.copy(iterable);// hashmap.size === 5;// it doesn't have to be a generator, an iterator works too.</code></pre>
+
+        <p class="code-caption">copy into the HashMap from an object with an entries generator function</p>
+    
+    <pre class="prettyprint"><code>const hashmap = new HashMap([['key0','value0']]);const entriesObj = {    entries: function* () {        yield ["key1", "value1"];        yield ["key2", "value2"];        yield ["key3", "value3"];        yield ["key4", "value4"];    }}hashmap.copy(entriesObj);// hashmap.size === 5;// it doesn't have to be a generator, an iterator works too.</code></pre>
+
+        <p class="code-caption">copy into the HashMap from an object with a forEach function</p>
+    
+    <pre class="prettyprint"><code>const hashmap = new HashMap([['key0','value0']]);const forEachObj = {     forEach: (callback, ctx) => {             for (let i = 1; i &lt;= 4; i++) {                 callback.call(ctx, 'value' + i, 'key' + i);             }     }};hashmap.copy(forEachObj);// hashmap.size === 5;</code></pre>
 
 
 
@@ -770,7 +797,7 @@ methods are correct in the order of which values returned, and are in reverse to
 <span class="param-type">Iterable.&lt;Array.&lt;key, value>></span>
 |
 
-<span class="param-type">Array.&lt;Array.&lt;key, value>></span>
+<span class="param-type">Object</span>
 
 
             
@@ -780,7 +807,8 @@ methods are correct in the order of which values returned, and are in reverse to
 
             
 
-            <td class="description last"><p>the iterable to copy</p></td>
+            <td class="description last"><p>the
+iterable to copy</p></td>
         </tr>
 
     
@@ -873,7 +901,7 @@ methods are correct in the order of which values returned, and are in reverse to
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line901">line 901</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line1080">line 1080</a>
     </li></ul></dd>
     
 
@@ -1047,7 +1075,7 @@ methods are correct in the order of which values returned, and are in reverse to
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line854">line 854</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line980">line 980</a>
     </li></ul></dd>
     
 
@@ -1078,6 +1106,15 @@ methods are correct in the order of which values returned, and are in reverse to
     
 
     
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://tc39.es/proposal-upsert/">upsert proposal</a></li>
+        
+            <li><a href="https://github.com/tc39/proposal-upsert">Map.prototype.emplace</a></li>
+        </ul>
+    </dd>
+    
 
     
 </dl>
@@ -1086,12 +1123,45 @@ methods are correct in the order of which values returned, and are in reverse to
 
 
 
+<div class="description usertext">
+    <p>Given a key and a handler object, the emplace method will either remap an existing entry,
+insert a new entry from a mapping function, or both. emplace will return the updated or
+inserted value.</p>
+</div>
 
 
 
 
 
 
+
+
+
+    <h5>Examples</h5>
+    
+        <p class="code-caption">insert into the map</p>
+    
+    <pre class="prettyprint"><code>const hashmap = new HashMap();const handler = {    update: () => {        return 'update';    },    insert: (key, map) => {        return 'insert';    }};const ret = hashmap.emplace('key', handler)// hashmap = [['key', 'insert']]// ret === 'insert'</code></pre>
+
+        <p class="code-caption">update the map</p>
+    
+    <pre class="prettyprint"><code>const hashmap = new HashMap([['key','value']]);const handler = {    update: () => {        return 'update';    },    insert: (key, map) => {        return 'insert';    }};const ret = hashmap.emplace('key', handler)// hashmap = [['key', 'update']]// ret === 'update'</code></pre>
+
+        <p class="code-caption">insert into the map if the key already exists without an update</p>
+    
+    <pre class="prettyprint"><code>const hashmap = new HashMap([['key','value']]);const handler = {    insert: (key, map) => {        return 'insert';    }};const ret = hashmap.emplace('key', handler)// hashmap = [['key', 'value']]// ret === 'value'</code></pre>
+
+        <p class="code-caption">update into the map without an insert method (throws an error)</p>
+    
+    <pre class="prettyprint"><code>const hashmap = new HashMap([['key','value']]);const handler = {    update: (oldValue, key, map) => {        return 'update';    }};hashmap.emplace('key', handler)// throws an Error as insert doesn't exist// hashmap = [['key', 'value']]</code></pre>
+
+        <p class="code-caption">Advanced: using a predefined hashCode and equals on the key</p>
+    
+    <pre class="prettyprint"><code>class NameKey {    constructor(firstName, secondName) {        this.firstName = firstName;        this.secondName = secondName;    }    hashCode() {         return (Mootable.hash(firstName) * 31) +Mootable.hash(secondName);    }    equals(other) {         return other &amp;&amp; other instanceof NameKey &amp;&amp; other.firstName === this.firstName &amp;&amp; other.secondName === this.secondName;    }}const handler = {    insert: (key, map) => {        return 'Librarian';    }};const hashmap = new HashMap();const ret = hashmap.emplace(new NameKey('John','Smith'),handler);// ret === 'Librarian'</code></pre>
+
+        <p class="code-caption">Advanced: using a custom hash and equals, to emplace a value to a specifichash</p>
+    
+    <pre class="prettyprint"><code>const handler = {    insert: (key, map) => {        return 'value1';    }};const hashmap = new HashMap();const ret = hashmap.emplace(1,handler, {hash: 3});// ret === 'value1'// the hash of the number 3 is actually also 3. all 32 bit integers have the same hash.// 0 doesn't exist in the hashMap, but we are circumventing using the key entirely.</code></pre>
 
 
 
@@ -1159,6 +1229,11 @@ methods are correct in the order of which values returned, and are in reverse to
 
             <td class="type">
             
+                
+<span class="param-type"><a href="HashMap.html#emplaceHandler">HashMap#emplaceHandler</a>.&lt;insert, update></span>
+
+
+            
             </td>
 
             
@@ -1173,7 +1248,8 @@ methods are correct in the order of which values returned, and are in reverse to
 
             
 
-            <td class="description last"></td>
+            <td class="description last"><p>the insert and update methods we
+want to use.</p></td>
         </tr>
 
     
@@ -1226,13 +1302,42 @@ methods are correct in the order of which values returned, and are in reverse to
 
 
 
+<h5>Throws:</h5>
+
+        
+
+<dl>
+    <dt>
+        <div class="param-desc usertext">
+        <p>if the insert method does not exist, and it can't find the key.</p>
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl class="param-type">
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">Error</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+
+    
 
 
 <h5>Returns:</h5>
 
         
 <div class="param-desc">
-    <p>the new value</p>
+    <p>the new value that was set, or overwrote.</p>
 </div>
 
 
@@ -1270,7 +1375,7 @@ methods are correct in the order of which values returned, and are in reverse to
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line1114">line 1114</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line1293">line 1293</a>
     </li></ul></dd>
     
 
@@ -1379,7 +1484,7 @@ methods are correct in the order of which values returned, and are in reverse to
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line1123">line 1123</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line1302">line 1302</a>
     </li></ul></dd>
     
 
@@ -1488,7 +1593,7 @@ methods are correct in the order of which values returned, and are in reverse to
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line982">line 982</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line1161">line 1161</a>
     </li></ul></dd>
     
 
@@ -1765,7 +1870,7 @@ methods are correct in the order of which values returned, and are in reverse to
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line588">line 588</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line627">line 627</a>
     </li></ul></dd>
     
 
@@ -2005,7 +2110,7 @@ methods are correct in the order of which values returned, and are in reverse to
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line701">line 701</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line740">line 740</a>
     </li></ul></dd>
     
 
@@ -2179,7 +2284,7 @@ methods are correct in the order of which values returned, and are in reverse to
                 </td>
             
 
-            <td class="description last"><p>Value to use as <code>this</code> when executing <code>findIndexPredicate</code></p></td>
+            <td class="description last"><p>Value to use as <code>this</code> when executing <code>findKeyPredicate</code></p></td>
         </tr>
 
     
@@ -2245,7 +2350,7 @@ methods are correct in the order of which values returned, and are in reverse to
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line615">line 615</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line654">line 654</a>
     </li></ul></dd>
     
 
@@ -2485,7 +2590,7 @@ methods are correct in the order of which values returned, and are in reverse to
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line729">line 729</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line768">line 768</a>
     </li></ul></dd>
     
 
@@ -2519,7 +2624,7 @@ methods are correct in the order of which values returned, and are in reverse to
     <dt class="tag-see">See:</dt>
     <dd class="tag-see">
         <ul>
-            <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex">Array.findIndex</a></li>
+            <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex">Array.prototype.findIndex</a></li>
         </ul>
     </dd>
     
@@ -2659,7 +2764,7 @@ methods are correct in the order of which values returned, and are in reverse to
                 </td>
             
 
-            <td class="description last"><p>Value to use as <code>this</code> when executing <code>findIndexPredicate</code></p></td>
+            <td class="description last"><p>Value to use as <code>this</code> when executing <code>findKeyPredicate</code></p></td>
         </tr>
 
     
@@ -2725,7 +2830,7 @@ methods are correct in the order of which values returned, and are in reverse to
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line931">line 931</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line1110">line 1110</a>
     </li></ul></dd>
     
 
@@ -2947,7 +3052,7 @@ methods are correct in the order of which values returned, and are in reverse to
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line953">line 953</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line1132">line 1132</a>
     </li></ul></dd>
     
 
@@ -3169,7 +3274,7 @@ methods are correct in the order of which values returned, and are in reverse to
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line295">line 295</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line334">line 334</a>
     </li></ul></dd>
     
 
@@ -3238,7 +3343,7 @@ Performance:</li>
 
     <h5>Examples</h5>
     
-        <p class="code-caption">>What is the value for a key</p>
+        <p class="code-caption">What is the value for a key</p>
     
     <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const getResult = hashmap.get(1);// getResult === 'value1'</code></pre>
 
@@ -3407,7 +3512,7 @@ Performance:</li>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line243">line 243</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line282">line 282</a>
     </li></ul></dd>
     
 
@@ -3473,7 +3578,7 @@ Performance:</li>
 
     <h5>Examples</h5>
     
-        <p class="code-caption">>Does this contain a key that is there</p>
+        <p class="code-caption">Does this contain a key that is there</p>
     
     <pre class="prettyprint"><code>const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const hasResult = hashmap.has(1);// hasResult === true</code></pre>
 
@@ -3642,7 +3747,7 @@ Performance:</li>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line341">line 341</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line380">line 380</a>
     </li></ul></dd>
     
 
@@ -3704,7 +3809,7 @@ an equality against it.</p>
 
     <h5>Examples</h5>
     
-        <p class="code-caption">>What is the key for a value</p>
+        <p class="code-caption">What is the key for a value</p>
     
     <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const keyOfResult = hashmap.keyOf('value2');// keyOfResult === 2</code></pre>
 
@@ -3875,7 +3980,7 @@ define the equals methods, rather than it being looked up on the value.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line1132">line 1132</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line1311">line 1311</a>
     </li></ul></dd>
     
 
@@ -3984,7 +4089,7 @@ define the equals methods, rather than it being looked up on the value.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line1150">line 1150</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line1329">line 1329</a>
     </li></ul></dd>
     
 
@@ -4093,7 +4198,7 @@ define the equals methods, rather than it being looked up on the value.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line394">line 394</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line433">line 433</a>
     </li></ul></dd>
     
 
@@ -4157,7 +4262,7 @@ an equality against it.</p>
 
     <h5>Examples</h5>
     
-        <p class="code-caption">>What is the key for a value</p>
+        <p class="code-caption">What is the key for a value</p>
     
     <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const lastKeyOfResult = hashmap.lastKeyOf('value2');// lastKeyOfResult === 2</code></pre>
 
@@ -4328,7 +4433,7 @@ define the equals methods, rather than it being looked up on the value.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line644">line 644</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line683">line 683</a>
     </li></ul></dd>
     
 
@@ -4572,7 +4677,7 @@ define the equals methods, rather than it being looked up on the value.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line759">line 759</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line798">line 798</a>
     </li></ul></dd>
     
 
@@ -4610,7 +4715,7 @@ define the equals methods, rather than it being looked up on the value.</p></td>
         
             <li><a href="Option.html#.none"><code>Option.none</code></a></li>
         
-            <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex">Array.findIndex</a></li>
+            <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex">Array.prototype.findIndex</a></li>
         </ul>
     </dd>
     
@@ -4750,7 +4855,7 @@ define the equals methods, rather than it being looked up on the value.</p></td>
                 </td>
             
 
-            <td class="description last"><p>Value to use as <code>this</code> when executing <code>findIndexPredicate</code></p></td>
+            <td class="description last"><p>Value to use as <code>this</code> when executing <code>findKeyPredicate</code></p></td>
         </tr>
 
     
@@ -4816,7 +4921,7 @@ define the equals methods, rather than it being looked up on the value.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line673">line 673</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line712">line 712</a>
     </li></ul></dd>
     
 
@@ -5060,7 +5165,7 @@ define the equals methods, rather than it being looked up on the value.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line789">line 789</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line828">line 828</a>
     </li></ul></dd>
     
 
@@ -5098,7 +5203,7 @@ define the equals methods, rather than it being looked up on the value.</p></td>
         
             <li><a href="Option.html#.none"><code>Option.none</code></a></li>
         
-            <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex">Array.findIndex</a></li>
+            <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex">Array.prototype.findIndex</a></li>
         </ul>
     </dd>
     
@@ -5238,7 +5343,7 @@ define the equals methods, rather than it being looked up on the value.</p></td>
                 </td>
             
 
-            <td class="description last"><p>Value to use as <code>this</code> when executing <code>findIndexPredicate</code></p></td>
+            <td class="description last"><p>Value to use as <code>this</code> when executing <code>findKeyPredicate</code></p></td>
         </tr>
 
     
@@ -5304,7 +5409,7 @@ define the equals methods, rather than it being looked up on the value.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line565">line 565</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line604">line 604</a>
     </li></ul></dd>
     
 
@@ -5374,7 +5479,7 @@ define the equals methods, rather than it being looked up on the value.</p></td>
 
     <h5>Examples</h5>
     
-        <p class="code-caption">>What is the value for a key</p>
+        <p class="code-caption">What is the value for a key</p>
     
     <pre class="prettyprint"><code>const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const getResult = hashmap.optionalGet(1);// getResult === Option.some('value1') {value:'value1',has:true}</code></pre>
 
@@ -5547,7 +5652,7 @@ define the equals methods, rather than it being looked up on the value.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line449">line 449</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line488">line 488</a>
     </li></ul></dd>
     
 
@@ -5615,7 +5720,7 @@ an equality against it.</p>
 
     <h5>Examples</h5>
     
-        <p class="code-caption">>What is the key for a value</p>
+        <p class="code-caption">What is the key for a value</p>
     
     <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const optionalKeyOfResult = hashmap.optionalKeyOf('value2');// optionalKeyOfResult === Option.some(2)</code></pre>
 
@@ -5783,7 +5888,7 @@ define the equals methods, rather than it being looked up on the value.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line504">line 504</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line543">line 543</a>
     </li></ul></dd>
     
 
@@ -5851,7 +5956,7 @@ an equality against it.</p>
 
     <h5>Examples</h5>
     
-        <p class="code-caption">>What is the key for a value</p>
+        <p class="code-caption">What is the key for a value</p>
     
     <pre class="prettyprint"><code>const hashmap = new LinkedHashMap([[1,'value1'],[2,'value2'],[3,'value3']]);const optionalLastKeyOfResult = hashmap.optionalLastKeyOf('value2');// optionalLastKeyOfResult === Option.some(2)</code></pre>
 
@@ -6019,7 +6124,7 @@ define the equals methods, rather than it being looked up on the value.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line1042">line 1042</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line1221">line 1221</a>
     </li></ul></dd>
     
 
@@ -6273,7 +6378,7 @@ define the equals methods, rather than it being looked up on the value.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line1080">line 1080</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line1259">line 1259</a>
     </li></ul></dd>
     
 
@@ -6527,7 +6632,7 @@ define the equals methods, rather than it being looked up on the value.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line841">line 841</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line881">line 881</a>
     </li></ul></dd>
     
 
@@ -6558,6 +6663,13 @@ define the equals methods, rather than it being looked up on the value.</p></td>
     
 
     
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/set">Map.prototype.set</a></li>
+        </ul>
+    </dd>
+    
 
     
 </dl>
@@ -6580,7 +6692,7 @@ define the equals methods, rather than it being looked up on the value.</p></td>
 
     <h5>Examples</h5>
     
-        <p class="code-caption">>set a value</p>
+        <p class="code-caption">set a value</p>
     
     <pre class="prettyprint"><code>const hashmap = new HashMap();hashmap.set(1,'value1');const hasResult = hashmap.has(1);// hasResult === true</code></pre>
 
@@ -6590,7 +6702,7 @@ define the equals methods, rather than it being looked up on the value.</p></td>
 
         <p class="code-caption">Advanced: using a predefined hashCode and equals on the key</p>
     
-    <pre class="prettyprint"><code>class NameKey {    constructor(firstName, secondName) {        this.firstName = firstName;        this.secondName = secondName;    }    hashCode() {         return (Mootable.hash(firstName) * 31) +Mootable.hash(secondName);    }    equals(other) {         return other &amp;&amp; other instanceof NameKey &amp;&amp; other.firstName === this.firstName &amp;&amp; other.secondName === this.secondName;    }}const hashmap = new HashMap();hashmap.set(new NameKey('John','Smith'),'Librarian);const hasResult = hashmap.has(new NameKey('John','Smith'));// hasResult === true</code></pre>
+    <pre class="prettyprint"><code>class NameKey {    constructor(firstName, secondName) {        this.firstName = firstName;        this.secondName = secondName;    }    hashCode() {         return (Mootable.hash(firstName) * 31) +Mootable.hash(secondName);    }    equals(other) {         return other &amp;&amp; other instanceof NameKey &amp;&amp; other.firstName === this.firstName &amp;&amp; other.secondName === this.secondName;    }}const hashmap = new HashMap();hashmap.set(new NameKey('John','Smith'),'Librarian');const hasResult = hashmap.has(new NameKey('John','Smith'));// hasResult === true</code></pre>
 
         <p class="code-caption">Advanced: using a custom hash and equals, to set a value to a specifichash</p>
     
@@ -6778,7 +6890,7 @@ define the equals methods, rather than it being looked up on the value.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line1014">line 1014</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line1193">line 1193</a>
     </li></ul></dd>
     
 
@@ -7057,7 +7169,7 @@ define the equals methods, rather than it being looked up on the value.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line1141">line 1141</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line1320">line 1320</a>
     </li></ul></dd>
     
 
@@ -7166,7 +7278,7 @@ define the equals methods, rather than it being looked up on the value.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line1159">line 1159</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line1338">line 1338</a>
     </li></ul></dd>
     
 
@@ -7266,6 +7378,576 @@ define the equals methods, rather than it being looked up on the value.</p></td>
 
         
                 
+<h4 class="name" id="emplaceHandler">emplaceHandler</h4>
+
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line147">line 147</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>update</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="HashMap.html#emplaceUpdate">HashMap#emplaceUpdate</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>The update method to use.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>insert</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="HashMap.html#emplaceInsert">HashMap#emplaceInsert</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>The insert method to use</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<div class="description usertext">
+    <p>Emplace handler methods</p>
+<ul>
+<li>Let M be this hashmap.</li>
+<li>For each Record { [[Key]], [[Value]] } e that is an element of entries, do</li>
+<li>If Equal(e.[[Key]], key) is true, then</li>
+<li>If HasProperty(handler, &quot;update&quot;) is true, then
+<ul>
+<li>Let updateFn be ? Get(handler, &quot;update&quot;).</li>
+<li>Let updated be ? Call(updateFn, handler, « e.[[Value]], key, M »).</li>
+<li>Set e.[[Value]] to updated.</li>
+</ul>
+</li>
+<li>Return e.[[Value]].</li>
+<li>Let insertFn be ? Get(handler, &quot;insert&quot;).</li>
+<li>Let inserted be ? Call(insertFn, handler, « e.[[Value]], key, M »).</li>
+<li>Set e.[[Value]] to inserted.</li>
+<li>Return e.[[Value]].</li>
+</ul>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Object</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+            
+                
+
+    
+
+    <h4 class="name" id="emplaceInsert"><span class="type-signature"></span>emplaceInsert<span class="signature">(key, map)</span><span class="type-signature"> &rarr; {*}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line138">line 138</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Emplace Insert Method
+A user defined method to describe how to insert into our map.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>key</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the key to the entry.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>map</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="HashMap.html">HashMap</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the hashmap.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>the new value we want to insert.</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">*</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+            
+                
+
+    
+
+    <h4 class="name" id="emplaceUpdate"><span class="type-signature"></span>emplaceUpdate<span class="signature">(oldValue, key, map)</span><span class="type-signature"> &rarr; {*}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line128">line 128</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Emplace Update Method
+A user defined method to describe how to update our map.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>oldValue</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the oldValue to update.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>key</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the key to the entry.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>map</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="HashMap.html">HashMap</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the hashmap.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>the new value to update the map with.</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">*</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+            
+                
 
     
 
@@ -7281,7 +7963,7 @@ define the equals methods, rather than it being looked up on the value.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line127">line 127</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line166">line 166</a>
     </li></ul></dd>
     
 
@@ -7503,7 +8185,7 @@ A callback to execute on every <code>[key,value]</code> pair of this map iterabl
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line138">line 138</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line177">line 177</a>
     </li></ul></dd>
     
 
@@ -8304,7 +8986,7 @@ So be explicit.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line155">line 155</a>
+        <a href="hashmap_index.js.html">hashmap/index.js</a>, <a href="hashmap_index.js.html#line194">line 194</a>
     </li></ul></dd>
     
 
@@ -8589,7 +9271,7 @@ A callback to accumulate values from the HashMap <code>[key,value]</code> into a
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a> on Tue Apr 27 2021 02:39:37 GMT+0100 (British Summer Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a> on Wed Apr 28 2021 01:00:03 GMT+0100 (British Summer Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

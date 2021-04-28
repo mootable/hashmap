@@ -124,6 +124,45 @@ export class HashMap {
      * @property {boolean} [reverse] - whether to search in reverse.
      */
 
+
+    /**
+     * Emplace Update Method
+     * A user defined method to describe how to update our map.
+     * @callback HashMap#emplaceUpdate
+     * @param {*} oldValue - the oldValue to update.
+     * @param {*} key - the key to the entry.
+     * @param {HashMap} map - the hashmap.
+     * @returns {*} the new value to update the map with.
+     */
+
+    /**
+     * Emplace Insert Method
+     * A user defined method to describe how to insert into our map.
+     * @callback HashMap#emplaceInsert
+     * @param {*} key - the key to the entry.
+     * @param {HashMap} map - the hashmap.
+     * @returns {*} the new value we want to insert.
+     */
+
+    /**
+     * Emplace handler methods
+     * - Let M be this hashmap.
+     * - For each Record { [[Key]], [[Value]] } e that is an element of entries, do
+     *  - If Equal(e.[[Key]], key) is true, then
+     *   - If HasProperty(handler, "update") is true, then
+     *     - Let updateFn be ? Get(handler, "update").
+     *     - Let updated be ? Call(updateFn, handler, « e.[[Value]], key, M »).
+     *     - Set e.[[Value]] to updated.
+     *   - Return e.[[Value]].
+     * - Let insertFn be ? Get(handler, "insert").
+     * - Let inserted be ? Call(insertFn, handler, « e.[[Value]], key, M »).
+     * - Set e.[[Value]] to inserted.
+     * - Return e.[[Value]].
+     * @typedef {Object} HashMap#emplaceHandler
+     * @property {HashMap#emplaceUpdate} [update] - The update method to use.
+     * @property {HashMap#emplaceInsert} [insert] - The insert method to use
+     */
+
     /**
      * For Each Function
      * A callback to execute on every <code>[key,value]</code> pair of this map iterable.
@@ -695,7 +734,7 @@ export class HashMap {
      * // findIndexResult === undefined
      * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex|Array.findIndex}
      * @param {HashMap#MatchesPredicate} [findKeyPredicate=(value, key, iterable) => key] - the predicate to identify if we have a match.
-     * @param {*} [thisArg] - Value to use as <code>this</code> when executing <code>findIndexPredicate</code>
+     * @param {*} [thisArg] - Value to use as <code>this</code> when executing <code>findKeyPredicate</code>
      * @returns {*} - the key of the element that matches..
      */
     findKey(findKeyPredicate = (value, key) => key, thisArg = undefined) {
@@ -721,9 +760,9 @@ export class HashMap {
      * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
      * const findIndexResult = hashmap.findIndex((value) => value.startsWith('something'));
      * // findIndexResult === undefined
-     * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex|Array.findIndex}
+     * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex|Array.prototype.findIndex}
      * @param {HashMap#MatchesPredicate} [findKeyPredicate=(value, key, iterable) => key] - the predicate to identify if we have a match.
-     * @param {*} [thisArg] - Value to use as <code>this</code> when executing <code>findIndexPredicate</code>
+     * @param {*} [thisArg] - Value to use as <code>this</code> when executing <code>findKeyPredicate</code>
      * @returns {*} - the key of the element that matches..
      */
     findLastKey(findKeyPredicate = (value, key) => key, thisArg = undefined) {
@@ -751,9 +790,9 @@ export class HashMap {
      * // findIndexResult === undefined
      * @see {@link Option.some}
      * @see {@link Option.none}
-     * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex|Array.findIndex}
+     * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex|Array.prototype.findIndex}
      * @param {HashMap#MatchesPredicate} [findKeyPredicate=(value, key, iterable) => key] - the predicate to identify if we have a match.
-     * @param {*} [thisArg] - Value to use as <code>this</code> when executing <code>findIndexPredicate</code>
+     * @param {*} [thisArg] - Value to use as <code>this</code> when executing <code>findKeyPredicate</code>
      * @returns {*} - the key of the element that matches..
      */
     optionalFindKey(findKeyPredicate = (value, key) => key, thisArg = undefined) {
@@ -781,9 +820,9 @@ export class HashMap {
      * // findIndexResult === undefined
      * @see {@link Option.some}
      * @see {@link Option.none}
-     * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex|Array.findIndex}
+     * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex|Array.prototype.findIndex}
      * @param {HashMap#MatchesPredicate} [findKeyPredicate=(value, key, iterable) => key] - the predicate to identify if we have a match.
-     * @param {*} [thisArg] - Value to use as <code>this</code> when executing <code>findIndexPredicate</code>
+     * @param {*} [thisArg] - Value to use as <code>this</code> when executing <code>findKeyPredicate</code>
      * @returns {*} - the key of the element that matches..
      */
     optionalFindLastKey(findKeyPredicate = (value, key) => key, thisArg = undefined) {
@@ -833,6 +872,7 @@ export class HashMap {
      * // hasResult === true
      * // the hash of the number 3 is actually also 3. all 32 bit integers have the same hash.
      * // 0 doesn't exist in the hashMap, but we are circumventing using the key entirely.
+     * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/set|Map.prototype.set}
      * @param {*} key - the key we want to key our value to
      * @param {*} value - the value we are setting
      * @param {HashMap#overrides<equals, hash>} [overrides] - a set of optional overrides to allow a user to define the hashcode and equals methods, rather than them being looked up.
@@ -845,11 +885,97 @@ export class HashMap {
     }
 
     /**
+     * Given a key and a handler object, the emplace method will either remap an existing entry,
+     * insert a new entry from a mapping function, or both. emplace will return the updated or
+     * inserted value.
+     * @example <caption>insert into the map</caption>
+     * const hashmap = new HashMap();
+     * const handler = {
+     *     update: () => {
+     *         return 'update';
+     *     },
+     *     insert: (key, map) => {
+     *         return 'insert';
+     *     }
+     * };
+     * const ret = hashmap.emplace('key', handler)
+     * // hashmap = [['key', 'insert']]
+     * // ret === 'insert'
+     * @example <caption>update the map</caption>
+     * const hashmap = new HashMap([['key','value']]);
+     * const handler = {
+     *     update: () => {
+     *         return 'update';
+     *     },
+     *     insert: (key, map) => {
+     *         return 'insert';
+     *     }
+     * };
+     * const ret = hashmap.emplace('key', handler)
+     * // hashmap = [['key', 'update']]
+     * // ret === 'update'
+     * @example <caption>insert into the map if the key already exists without an update</caption>
+     * const hashmap = new HashMap([['key','value']]);
+     * const handler = {
+     *     insert: (key, map) => {
+     *         return 'insert';
+     *     }
+     * };
+     * const ret = hashmap.emplace('key', handler)
+     * // hashmap = [['key', 'value']]
+     * // ret === 'value'
+     * @example <caption>update into the map without an insert method (throws an error)</caption>
+     * const hashmap = new HashMap([['key','value']]);
+     * const handler = {
+     *     update: (oldValue, key, map) => {
+     *         return 'update';
+     *     }
+     * };
+     * hashmap.emplace('key', handler)
+     * // throws an Error as insert doesn't exist
+     * // hashmap = [['key', 'value']]
      *
+     * @example <caption>Advanced: using a predefined hashCode and equals on the key</caption>
+     * class NameKey {
+     *     constructor(firstName, secondName) {
+     *         this.firstName = firstName;
+     *         this.secondName = secondName;
+     *     }
+     *     hashCode() {
+     *          return (Mootable.hash(firstName) * 31) +Mootable.hash(secondName);
+     *     }
+     *     equals(other) {
+     *          return other && other instanceof NameKey && other.firstName === this.firstName && other.secondName === this.secondName;
+     *     }
+     * }
+     * const handler = {
+     *     insert: (key, map) => {
+     *         return 'Librarian';
+     *     }
+     * };
+     * const hashmap = new HashMap();
+     * const ret = hashmap.emplace(new NameKey('John','Smith'),handler);
+     * // ret === 'Librarian'
+     * @example <caption>Advanced: using a custom hash and equals, to emplace a value to a specific
+     * hash</caption>
+     * const handler = {
+     *     insert: (key, map) => {
+     *         return 'value1';
+     *     }
+     * };
+     * const hashmap = new HashMap();
+     * const ret = hashmap.emplace(1,handler, {hash: 3});
+     * // ret === 'value1'
+     * // the hash of the number 3 is actually also 3. all 32 bit integers have the same hash.
+     * // 0 doesn't exist in the hashMap, but we are circumventing using the key entirely.
+     * @see {@link https://tc39.es/proposal-upsert/ upsert proposal}
+     * @see {@link https://github.com/tc39/proposal-upsert|Map.prototype.emplace}
      * @param {*} key - the key we want to key our value to
-     * @param handler
+     * @param {HashMap#emplaceHandler<insert,update>} handler - the insert and update methods we
+     * want to use.
      * @param {HashMap#overrides<equals, hash>} [overrides] - a set of optional overrides to allow a user to define the hashcode and equals methods, rather than them being looked up.
-     * @return {*} the new value
+     * @return {*} the new value that was set, or overwrote.
+     * @throws {Error} if the insert method does not exist, and it can't find the key.
      */
     emplace(key, handler, overrides) {
         const op = this.equalsAndHash(key, overrides);
@@ -857,9 +983,62 @@ export class HashMap {
     }
 
     /**
-     * Copies the keys and values from the iterable, into this one.
+     * Copies all the entries from the map, array or iterable, into this hashmap.
      *
-     * @param {Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>|Array.<Array.<key,value>>} other - the iterable to copy
+     * @example <caption>copy into the HashMap from an array of key value pairs</caption>
+     * const hashmap = new HashMap([['key0','value0']]);
+     * const arr = [[1,'value1'],[2,'value2'],[3,'value3']];
+     * hashmap.copy(arr);
+     * // hashmap.size === 4;
+     * @example <caption>copy into the HashMap from another map</caption>
+     * const hashmap = new HashMap([['key0','value0']]);
+     * const map = new Map([[1,'value1'],[2,'value2'],[3,'value3']])
+     * hashmap.copy(map);
+     * // hashmap.size === 4;
+     * @example <caption>copy into the HashMap from another HashMap</caption>
+     * const first = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']])
+     * const hashmap = new HashMap(first);
+     * // hashmap.size === 3;
+     * @example <caption>copy into the HashMap from a class with symbol iterator</caption>
+     * const hashmap = new HashMap([['key0','value0']]);
+     * class MyIterable = {
+     *     *[Symbol.iterator] () {
+     *         yield ["key1", "value1"];
+     *         yield ["key2", "value2"];
+     *         yield ["key3", "value3"];
+     *         yield ["key4", "value4"];
+     *     }
+     * }
+     * const iterable = new MyIterable();
+     * hashmap.copy(iterable);
+     * // hashmap.size === 5;
+     * // it doesn't have to be a generator, an iterator works too.
+     * @example <caption>copy into the HashMap from an object with an entries generator function</caption>
+     * const hashmap = new HashMap([['key0','value0']]);
+     * const entriesObj = {
+     *     entries: function* () {
+     *         yield ["key1", "value1"];
+     *         yield ["key2", "value2"];
+     *         yield ["key3", "value3"];
+     *         yield ["key4", "value4"];
+     *     }
+     * }
+     * hashmap.copy(entriesObj);
+     * // hashmap.size === 5;
+     * // it doesn't have to be a generator, an iterator works too.
+     * @example <caption>copy into the HashMap from an object with a forEach function</caption>
+     * const hashmap = new HashMap([['key0','value0']]);
+     * const forEachObj = {
+     *      forEach: (callback, ctx) => {
+     *              for (let i = 1; i <= 4; i++) {
+     *                  callback.call(ctx, 'value' + i, 'key' + i);
+     *              }
+     *      }
+     * };
+     * hashmap.copy(forEachObj);
+     * // hashmap.size === 5;
+     * @param {(Map|HashMap|LinkedHashMap|Iterable.<Array.<key,value>>|Object)} other - the
+     * iterable to copy
      * @return {HashMap} this hashmap, with the values copied to it.
      * @throws {TypeError} if the provided object other is null or not iterable.
      */

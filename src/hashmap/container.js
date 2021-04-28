@@ -86,10 +86,12 @@ export class Container {
         const equals = options.equals;
         for (const entry of this.contents) {
             if (equals(key, entry[0])) {
-                const value = 'update' in handler ? handler.update(entry[1], key, this.map)
-                    : handler.insert(key, this.map);
-                this.updateEntry(entry, value, options);
-                return value;
+                if('update' in handler) {
+                    const value =  handler.update(entry[1], key, this.map);
+                    this.updateEntry(entry, value, options);
+                    return value;
+                }
+                return entry[1];
             }
         }
         const value = handler.insert(key, this.map);

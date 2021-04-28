@@ -1450,7 +1450,7 @@ describe('HashMap Class', function () {
             let updateCalled = 0;
             let insertCalled = 0;
             const handler = {
-                update: (oldValue, key, map) => {
+                update: () => {
                     updateCalled++;
                     return "value3";
                 },
@@ -1485,7 +1485,7 @@ describe('HashMap Class', function () {
                     updateCalled++;
                     return "value3";
                 },
-                insert: (key, map) => {
+                insert: () => {
                     insertCalled++;
                     return "value2";
                 }
@@ -1499,23 +1499,21 @@ describe('HashMap Class', function () {
             expect(hashmap.get('key')).to.be.equal("value3");
         });
 
-        it('emplace has keyed entry but no update method', function () {
+        it('emplace has keyed entry but no update method (should just return the old value)', function () {
             const hashmap = new HashMap();
             hashmap.set('key', 'value')
             let insertCalled = 0;
             const handler = {
-                insert: (key, map) => {
-                    expect(key).to.equal("key");
-                    expect(map).to.equal(hashmap);
+                insert: () => {
                     insertCalled++;
                     return "value2";
                 }
             };
             const ret = hashmap.emplace("key", handler);
-            expect(ret).to.equal("value2");
-            expect(insertCalled).to.equal(1);
+            expect(ret).to.equal("value");
+            expect(insertCalled).to.equal(0);
             const value = hashmap.get("key");
-            expect(value).to.equal("value2");
+            expect(value).to.equal("value");
             expect(hashmap.size).to.equal(1);
         });
 

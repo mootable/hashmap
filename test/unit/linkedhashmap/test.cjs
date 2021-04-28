@@ -2104,7 +2104,7 @@ describe('LinkedHashMap Class', function () {
             let updateCalled = 0;
             let insertCalled = 0;
             const handler = {
-                update: (oldValue, key, map) => {
+                update: () => {
                     updateCalled++;
                     return "update";
                 },
@@ -2146,7 +2146,7 @@ describe('LinkedHashMap Class', function () {
                     updateCalled++;
                     return "update";
                 },
-                insert: (key, map) => {
+                insert: () => {
                     insertCalled++;
                     return "insert";
                 }
@@ -2167,27 +2167,25 @@ describe('LinkedHashMap Class', function () {
             expect(linkedHashmap.end.previous).to.be.undefined;
         });
 
-        it('emplace() has keyed entry but no update method', function () {
+        it('emplace() has keyed entry but no update method (should just return the old value)', function () {
             const linkedHashmap = new LinkedHashMap();
             linkedHashmap.set('key', 'value')
             let insertCalled = 0;
             const handler = {
-                insert: (key, map) => {
-                    expect(key).to.equal("key");
-                    expect(map).to.equal(linkedHashmap);
+                insert: () => {
                     insertCalled++;
                     return "insert";
                 }
             };
             const ret = linkedHashmap.emplace("key", handler);
-            expect(ret).to.equal("insert");
-            expect(insertCalled).to.equal(1);
+            expect(ret).to.equal("value");
+            expect(insertCalled).to.equal(0);
             const value = linkedHashmap.get("key");
-            expect(value).to.equal("insert");
+            expect(value).to.equal("value");
             expect(linkedHashmap.size).to.equal(1);
 
-            expect(linkedHashmap.start).to.deep.equal(["key", "insert"]);
-            expect(linkedHashmap.end).to.deep.equal(["key", "insert"]);
+            expect(linkedHashmap.start).to.deep.equal(["key", "value"]);
+            expect(linkedHashmap.end).to.deep.equal(["key", "value"]);
             expect(linkedHashmap.start.previous).to.be.undefined;
             expect(linkedHashmap.start.next).to.be.undefined;
             expect(linkedHashmap.end.next).to.be.undefined;
@@ -2200,7 +2198,7 @@ describe('LinkedHashMap Class', function () {
             let updateCalled = 0;
             let insertCalled = 0;
             const handler = {
-                update: (oldValue, key, map) => {
+                update: () => {
                     updateCalled++;
                     return "update";
                 },
@@ -2242,7 +2240,7 @@ describe('LinkedHashMap Class', function () {
                     updateCalled++;
                     return "update";
                 },
-                insert: (key, map) => {
+                insert: () => {
                     insertCalled++;
                     return "insert";
                 }
@@ -2271,7 +2269,7 @@ describe('LinkedHashMap Class', function () {
             let updateCalled = 0;
             let insertCalled = 0;
             const handler = {
-                update: (oldValue, key, map) => {
+                update: () => {
                     updateCalled++;
                     return "update";
                 },
@@ -2313,7 +2311,7 @@ describe('LinkedHashMap Class', function () {
                     updateCalled++;
                     return "update";
                 },
-                insert: (key, map) => {
+                insert: () => {
                     insertCalled++;
                     return "insert";
                 }
@@ -2339,22 +2337,20 @@ describe('LinkedHashMap Class', function () {
             linkedHashmap.set('key', 'value')
             let insertCalled = 0;
             const handler = {
-                insert: (key, map) => {
-                    expect(key).to.equal("key");
-                    expect(map).to.equal(linkedHashmap);
+                insert: () => {
                     insertCalled++;
                     return "insert";
                 }
             };
             const ret = linkedHashmap.emplaceLeft("key", handler);
-            expect(ret).to.equal("insert");
-            expect(insertCalled).to.equal(1);
+            expect(ret).to.equal("value");
+            expect(insertCalled).to.equal(0);
             const value = linkedHashmap.get("key");
-            expect(value).to.equal("insert");
+            expect(value).to.equal("value");
             expect(linkedHashmap.size).to.equal(1);
 
-            expect(linkedHashmap.start).to.deep.equal(["key", "insert"]);
-            expect(linkedHashmap.end).to.deep.equal(["key", "insert"]);
+            expect(linkedHashmap.start).to.deep.equal(["key", "value"]);
+            expect(linkedHashmap.end).to.deep.equal(["key", "value"]);
             expect(linkedHashmap.start.previous).to.be.undefined;
             expect(linkedHashmap.start.next).to.be.undefined;
             expect(linkedHashmap.end.next).to.be.undefined;
@@ -2367,7 +2363,7 @@ describe('LinkedHashMap Class', function () {
             let updateCalled = 0;
             let insertCalled = 0;
             const handler = {
-                update: (oldValue, key, map) => {
+                update: () => {
                     updateCalled++;
                     return "update";
                 },
@@ -2409,7 +2405,7 @@ describe('LinkedHashMap Class', function () {
                     updateCalled++;
                     return "update";
                 },
-                insert: (key, map) => {
+                insert: () => {
                     insertCalled++;
                     return "insert";
                 }
@@ -2438,7 +2434,7 @@ describe('LinkedHashMap Class', function () {
             let updateCalled = 0;
             let insertCalled = 0;
             const handler = {
-                update: (oldValue, key, map) => {
+                update: () => {
                     updateCalled++;
                     return "update";
                 },
@@ -2480,7 +2476,7 @@ describe('LinkedHashMap Class', function () {
                     updateCalled++;
                     return "update";
                 },
-                insert: (key, map) => {
+                insert: () => {
                     insertCalled++;
                     return "insert";
                 }
@@ -2506,22 +2502,20 @@ describe('LinkedHashMap Class', function () {
             linkedHashmap.set('key', 'value')
             let insertCalled = 0;
             const handler = {
-                insert: (key, map) => {
-                    expect(key).to.equal("key");
-                    expect(map).to.equal(linkedHashmap);
+                insert: () => {
                     insertCalled++;
                     return "insert";
                 }
             };
             const ret = linkedHashmap.pushEmplace("key", handler);
-            expect(ret).to.equal("insert");
-            expect(insertCalled).to.equal(1);
+            expect(ret).to.equal("value");
+            expect(insertCalled).to.equal(0);
             const value = linkedHashmap.get("key");
-            expect(value).to.equal("insert");
+            expect(value).to.equal("value");
             expect(linkedHashmap.size).to.equal(1);
 
-            expect(linkedHashmap.start).to.deep.equal(["key", "insert"]);
-            expect(linkedHashmap.end).to.deep.equal(["key", "insert"]);
+            expect(linkedHashmap.start).to.deep.equal(["key", "value"]);
+            expect(linkedHashmap.end).to.deep.equal(["key", "value"]);
             expect(linkedHashmap.start.previous).to.be.undefined;
             expect(linkedHashmap.start.next).to.be.undefined;
             expect(linkedHashmap.end.next).to.be.undefined;
@@ -2534,7 +2528,7 @@ describe('LinkedHashMap Class', function () {
             let updateCalled = 0;
             let insertCalled = 0;
             const handler = {
-                update: (oldValue, key, map) => {
+                update: () => {
                     updateCalled++;
                     return "update";
                 },
@@ -2576,7 +2570,7 @@ describe('LinkedHashMap Class', function () {
                     updateCalled++;
                     return "update";
                 },
-                insert: (key, map) => {
+                insert: () => {
                     insertCalled++;
                     return "insert";
                 }
@@ -2605,7 +2599,7 @@ describe('LinkedHashMap Class', function () {
             let updateCalled = 0;
             let insertCalled = 0;
             const handler = {
-                update: (oldValue, key, map) => {
+                update: () => {
                     updateCalled++;
                     return "update";
                 },
@@ -2647,7 +2641,7 @@ describe('LinkedHashMap Class', function () {
                     updateCalled++;
                     return "update";
                 },
-                insert: (key, map) => {
+                insert: () => {
                     insertCalled++;
                     return "insert";
                 }
@@ -2673,22 +2667,20 @@ describe('LinkedHashMap Class', function () {
             linkedHashmap.set('key', 'value')
             let insertCalled = 0;
             const handler = {
-                insert: (key, map) => {
-                    expect(key).to.equal("key");
-                    expect(map).to.equal(linkedHashmap);
+                insert: () => {
                     insertCalled++;
                     return "insert";
                 }
             };
             const ret = linkedHashmap.unshiftEmplace("key", handler);
-            expect(ret).to.equal("insert");
-            expect(insertCalled).to.equal(1);
+            expect(ret).to.equal("value");
+            expect(insertCalled).to.equal(0);
             const value = linkedHashmap.get("key");
-            expect(value).to.equal("insert");
+            expect(value).to.equal("value");
             expect(linkedHashmap.size).to.equal(1);
 
-            expect(linkedHashmap.start).to.deep.equal(["key", "insert"]);
-            expect(linkedHashmap.end).to.deep.equal(["key", "insert"]);
+            expect(linkedHashmap.start).to.deep.equal(["key", "value"]);
+            expect(linkedHashmap.end).to.deep.equal(["key", "value"]);
             expect(linkedHashmap.start.previous).to.be.undefined;
             expect(linkedHashmap.start.next).to.be.undefined;
             expect(linkedHashmap.end.next).to.be.undefined;
@@ -2701,7 +2693,7 @@ describe('LinkedHashMap Class', function () {
             let updateCalled = 0;
             let insertCalled = 0;
             const handler = {
-                update: (oldValue, key, map) => {
+                update: () => {
                     updateCalled++;
                     return "update";
                 },
@@ -2743,7 +2735,7 @@ describe('LinkedHashMap Class', function () {
                     updateCalled++;
                     return "update";
                 },
-                insert: (key, map) => {
+                insert: () => {
                     insertCalled++;
                     return "insert";
                 }
@@ -3753,7 +3745,7 @@ describe('LinkedHashMap Class', function () {
             expect(linkedHashmap.reverse()).to.equal(linkedHashmap)
 
             // Then
-            const forEachCallbackForward = (value, key, map) => {
+            const forEachCallbackForward = (value, key) => {
                 executedCount++;
                 expect(key).to.equal("key" + executedCount);
                 expect(value).to.equal("value" + executedCount);
@@ -3813,7 +3805,7 @@ describe('LinkedHashMap Class', function () {
             expect(linkedHashmap.reverse()).to.equal(linkedHashmap)
 
             // Then
-            const forEachCallbackForward = (value, key, map) => {
+            const forEachCallbackForward = (value, key) => {
                 executedCount++;
                 expect(key).to.equal("key" + executedCount);
                 expect(value).to.equal("value" + executedCount);
@@ -3839,6 +3831,7 @@ describe('LinkedHashMap Class', function () {
             linkedHashmap.set("key1", "value1");
             linkedHashmap.set("key2", "value2");
             let executedCount = 0;
+            let key,value;
             // When & Then
             for ([key, value] of linkedHashmap) {
                 executedCount++;
@@ -3855,6 +3848,7 @@ describe('LinkedHashMap Class', function () {
             linkedHashmap.set("key2", "value2");
             linkedHashmap.set("key3", "value3");
             let executedCount = 0;
+            let key,value;
             // When & Then
             for ([key, value] of linkedHashmap) {
                 executedCount++;
@@ -3870,6 +3864,7 @@ describe('LinkedHashMap Class', function () {
             linkedHashmap.set("key1", "value1");
             linkedHashmap.set("key2", "value2");
             let executedCount = 0;
+            let key,value;
             // When & Then
             for ([key, value] of linkedHashmap) {
                 executedCount++;
@@ -3886,6 +3881,7 @@ describe('LinkedHashMap Class', function () {
             linkedHashmap.set("key2", "value2");
             linkedHashmap.set("key3", "value3");
             let executedCount = 0;
+            let key,value;
             // When & Then
             for ([key, value] of linkedHashmap) {
                 executedCount++;

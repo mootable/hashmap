@@ -152,27 +152,26 @@ describe('LinkedContainer Class', function () {
             expect(defaultMap.start.next).to.be.undefined;
             expect(defaultMap.end.previous).to.be.undefined;
         });
-        it('emplace has keyed entry but no update method', function () {
+
+        it('emplace has keyed entry but no update method (should just return the old value)', function () {
             const container = new LinkedContainer(defaultMap);
             container.createEntry("key", "value", {});
             let insertCalled = 0;
             const handler = {
-                insert: (key, map) => {
-                    expect(key).to.equal("key");
-                    expect(map).to.equal(defaultMap);
+                insert: () => {
                     insertCalled++;
                     return "value2";
                 }
             };
             const ret = container.emplace("key", handler, defaultMethodOptions);
-            expect(ret).to.equal("value2");
-            expect(insertCalled).to.equal(1);
+            expect(ret).to.equal("value");
+            expect(insertCalled).to.equal(0);
             const value = container.get("key", defaultMethodOptions);
-            expect(value).to.equal("value2");
+            expect(value).to.equal("value");
             expect(container.size).to.equal(1);
 
-            expect(defaultMap.start).to.deep.equal(["key", "value2"]);
-            expect(defaultMap.end).to.deep.equal(["key", "value2"]);
+            expect(defaultMap.start).to.deep.equal(["key", "value"]);
+            expect(defaultMap.end).to.deep.equal(["key", "value"]);
             expect(defaultMap.start.next).to.be.undefined;
             expect(defaultMap.end.previous).to.be.undefined;
         });

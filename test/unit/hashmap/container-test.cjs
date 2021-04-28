@@ -105,7 +105,7 @@ describe('Container Class', function () {
                     updateCalled++;
                     return "value3";
                 },
-                insert: (key, map) => {
+                insert: () => {
                     insertCalled++;
                     return "value2";
                 }
@@ -118,23 +118,21 @@ describe('Container Class', function () {
             expect(value).to.equal("value3");
             expect(container.size).to.equal(1);
         });
-        it('emplace has keyed entry but no update method', function () {
+        it('emplace has keyed entry but no update method (should just return the old value)', function () {
             const container = new Container(defaultMap);
             container.createEntry("key", "value");
             let insertCalled = 0;
             const handler = {
-                insert: (key, map) => {
-                    expect(key).to.equal("key");
-                    expect(map).to.equal(defaultMap);
+                insert: () => {
                     insertCalled++;
                     return "value2";
                 }
             };
             const ret = container.emplace("key", handler, defaultMethodOptions);
-            expect(ret).to.equal("value2");
-            expect(insertCalled).to.equal(1);
+            expect(ret).to.equal("value");
+            expect(insertCalled).to.equal(0);
             const value = container.get("key", defaultMethodOptions);
-            expect(value).to.equal("value2");
+            expect(value).to.equal("value");
             expect(container.size).to.equal(1);
         });
 
