@@ -6,7 +6,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
  * Utils - Utility functions
  * @namespace Mootable.Utils
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 1.0.1
+ * @version 1.0.2
  * Homepage: https://github.com/mootable/hashmap
  */
 /**
@@ -287,7 +287,7 @@ const none = new Option(false, undefined);
  * HashMap - HashMap Container Implementation for JavaScript
  * @namespace Mootable.HashMap
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 1.0.1
+ * @version 1.0.2
  * Homepage: https://github.com/mootable/hashmap
  */
 
@@ -826,7 +826,7 @@ class HamtBuckets {
  * Hash - Hash functions
  * @namespace Mootable.Hash
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 1.0.1
+ * @version 1.0.2
  * Homepage: https://github.com/mootable/hashmap
  */
 /**
@@ -1158,7 +1158,7 @@ function equalsAndHash(key, options) {
  * HashMap - HashMap Implementation for JavaScript
  * @namespace Mootable
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 1.0.1
+ * @version 1.0.2
  * Homepage: https://github.com/mootable/hashmap
  */
 /**
@@ -2518,7 +2518,7 @@ Object.defineProperty(HashMap.prototype, 'equalsAndHash', {
  * HashMap - LinkedHashMap Implementation for JavaScript
  * @namespace Mootable
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 1.0.1
+ * @version 1.0.2
  * Homepage: https://github.com/mootable/hashmap
  */
 /**

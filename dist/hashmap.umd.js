@@ -1008,7 +1008,7 @@
 	 * Utils - Utility functions
 	 * @namespace Mootable.Utils
 	 * @author Jack Moxley <https://github.com/jackmoxley>
-	 * @version 1.0.1
+	 * @version 1.0.2
 	 * Homepage: https://github.com/mootable/hashmap
 	 */
 
@@ -1294,7 +1294,7 @@
 	 * HashMap - HashMap Container Implementation for JavaScript
 	 * @namespace Mootable.HashMap
 	 * @author Jack Moxley <https://github.com/jackmoxley>
-	 * @version 1.0.1
+	 * @version 1.0.2
 	 * Homepage: https://github.com/mootable/hashmap
 	 */
 
@@ -1887,7 +1887,7 @@
 	 * Hash - Hash functions
 	 * @namespace Mootable.Hash
 	 * @author Jack Moxley <https://github.com/jackmoxley>
-	 * @version 1.0.1
+	 * @version 1.0.2
 	 * Homepage: https://github.com/mootable/hashmap
 	 */
 
@@ -2263,7 +2263,7 @@
 	 * HashMap - HashMap Implementation for JavaScript
 	 * @namespace Mootable
 	 * @author Jack Moxley <https://github.com/jackmoxley>
-	 * @version 1.0.1
+	 * @version 1.0.2
 	 * Homepage: https://github.com/mootable/hashmap
 	 */
 
@@ -3696,7 +3696,7 @@
 	 * HashMap - LinkedHashMap Implementation for JavaScript
 	 * @namespace Mootable
 	 * @author Jack Moxley <https://github.com/jackmoxley>
-	 * @version 1.0.1
+	 * @version 1.0.2
 	 * Homepage: https://github.com/mootable/hashmap
 	 */
 

@@ -6,7 +6,7 @@ import {some, none} from "../option";
  * HashMap - LinkedHashMap Implementation for JavaScript
  * @namespace Mootable
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 1.0.1
+ * @version 1.0.2
  * Homepage: https://github.com/mootable/hashmap
  */
 /**

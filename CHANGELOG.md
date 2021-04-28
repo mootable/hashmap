@@ -1,5 +1,6 @@
 # Changelog
-# Current
+## Current
+## 1.0.2
 - Added overrides for every() as it fails fast and being able to search in reverse maybe optimal.
 - Made equalsFor and equalsAndHash methods on the hashmap using Object.defineProperty(), in preparation for typed maps.
 - made emplace match the proposal more closely, by not using insert to update.
