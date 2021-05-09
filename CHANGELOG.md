@@ -1,5 +1,10 @@
 # Changelog
 ## Current
+## 1.0.3
+- Removed JSDoc which had an underlying dependancy (underscore) which had a security vulnerability, as it is a dev dependancy, there is no additional risk to projects that depend on @mootable/hashmap.
+- Replaced with Documentation.js
+  - Built a Mootable theme.
+- Fixed up a load of the ReadMe and Documentation pages.
 ## 1.0.2
 - Added overrides for every() as it fails fast and being able to search in reverse maybe optimal.
 - Made equalsFor and equalsAndHash methods on the hashmap using Object.defineProperty(), in preparation for typed maps.

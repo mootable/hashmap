@@ -43,12 +43,34 @@
   background: var(--background-color);
 }
 
+#toc {
+  padding-bottom: 65px;
+}
+
 .logo {
   width: 178px;
   text-align: center;
   margin-left: auto;
   margin-right: auto;
   display: block;
+}
+.githubLink {
+  position: fixed;
+  left: 5px;
+  bottom: 5px;
+  z-index: 1000;
+  opacity: 0.3;
+}
+.githubLink:hover {
+  opacity: 1;
+}
+.githubLink img {
+  width: 60px;
+  background-color:black;
+  border-radius:60px;
+}
+.tocFooter {
+  text-align: center;
 }
 
 .black {
