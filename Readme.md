@@ -46,207 +46,200 @@ To run the benchmarks: (Ensure you have the memory to run them)
 
 #### Table of Contents
 
-*   [Classes](#classes)
-    *   [HashMap](#hashmap)
-        *   [Parameters](#parameters)
-        *   [size](#size)
-            *   [Examples](#examples)
-        *   [length](#length)
-            *   [Examples](#examples-1)
-        *   [has](#has)
-            *   [Parameters](#parameters-1)
-            *   [Examples](#examples-2)
-        *   [get](#get)
-            *   [Parameters](#parameters-2)
-            *   [Examples](#examples-3)
-        *   [keyOf](#keyof)
-            *   [Parameters](#parameters-3)
-            *   [Examples](#examples-4)
-        *   [lastKeyOf](#lastkeyof)
-            *   [Parameters](#parameters-4)
-            *   [Examples](#examples-5)
-        *   [optionalKeyOf](#optionalkeyof)
-            *   [Parameters](#parameters-5)
-            *   [Examples](#examples-6)
-        *   [optionalLastKeyOf](#optionallastkeyof)
-            *   [Parameters](#parameters-6)
-            *   [Examples](#examples-7)
-        *   [optionalGet](#optionalget)
-            *   [Parameters](#parameters-7)
-            *   [Examples](#examples-8)
-        *   [find](#find)
-            *   [Parameters](#parameters-8)
-            *   [Examples](#examples-9)
-        *   [findLast](#findlast)
-            *   [Parameters](#parameters-9)
-            *   [Examples](#examples-10)
-        *   [optionalFind](#optionalfind)
-            *   [Parameters](#parameters-10)
-            *   [Examples](#examples-11)
-        *   [optionalFindLast](#optionalfindlast)
-            *   [Parameters](#parameters-11)
-            *   [Examples](#examples-12)
-        *   [findKey](#findkey)
-            *   [Parameters](#parameters-12)
-            *   [Examples](#examples-13)
-        *   [findLastKey](#findlastkey)
-            *   [Parameters](#parameters-13)
-            *   [Examples](#examples-14)
-        *   [optionalFindKey](#optionalfindkey)
-            *   [Parameters](#parameters-14)
-            *   [Examples](#examples-15)
-        *   [optionalFindLastKey](#optionalfindlastkey)
-            *   [Parameters](#parameters-15)
-            *   [Examples](#examples-16)
-        *   [set](#set)
-            *   [Parameters](#parameters-16)
-            *   [Examples](#examples-17)
-        *   [emplace](#emplace)
-            *   [Parameters](#parameters-17)
-            *   [Examples](#examples-18)
-        *   [copy](#copy)
-            *   [Parameters](#parameters-18)
-            *   [Examples](#examples-19)
-        *   [clone](#clone)
-        *   [delete](#delete)
-            *   [Parameters](#parameters-19)
-        *   [clear](#clear)
-        *   [forEach](#foreach)
-            *   [Parameters](#parameters-20)
-            *   [Examples](#examples-20)
-        *   [forEachRight](#foreachright)
-            *   [Parameters](#parameters-21)
-            *   [Examples](#examples-21)
-        *   [every](#every)
-            *   [Parameters](#parameters-22)
-            *   [Examples](#examples-22)
-        *   [some](#some)
-            *   [Parameters](#parameters-23)
-            *   [Examples](#examples-23)
-        *   [reduce](#reduce)
-            *   [Parameters](#parameters-24)
-            *   [Examples](#examples-24)
-        *   [reduceRight](#reduceright)
-            *   [Parameters](#parameters-25)
-            *   [Examples](#examples-25)
-        *   [iterator](#iterator)
-        *   [entries](#entries)
-        *   [entriesRight](#entriesright)
-        *   [keys](#keys)
-        *   [values](#values)
-        *   [keysRight](#keysright)
-        *   [valuesRight](#valuesright)
-    *   [LinkedHashMap](#linkedhashmap)
-        *   [Parameters](#parameters-26)
-        *   [clear](#clear-1)
-        *   [setLeft](#setleft)
-            *   [Parameters](#parameters-27)
-        *   [emplaceLeft](#emplaceleft)
-            *   [Parameters](#parameters-28)
-        *   [push](#push)
-            *   [Parameters](#parameters-29)
-        *   [pushEmplace](#pushemplace)
-            *   [Parameters](#parameters-30)
-        *   [unshift](#unshift)
-            *   [Parameters](#parameters-31)
-        *   [unshiftEmplace](#unshiftemplace)
-            *   [Parameters](#parameters-32)
-        *   [shift](#shift)
-        *   [pop](#pop)
-        *   [head](#head)
-        *   [tail](#tail)
-        *   [optionalHead](#optionalhead)
-        *   [optionalTail](#optionaltail)
-        *   [headKey](#headkey)
-        *   [tailKey](#tailkey)
-        *   [optionalHeadKey](#optionalheadkey)
-        *   [optionalTailKey](#optionaltailkey)
-        *   [reverse](#reverse)
-        *   [clone](#clone-1)
-        *   [iterator](#iterator-1)
-        *   [entries](#entries-1)
-        *   [entriesRight](#entriesright-1)
-        *   [keys](#keys-1)
-        *   [values](#values-1)
-        *   [keysRight](#keysright-1)
-        *   [valuesRight](#valuesright-1)
-    *   [Option](#option)
-        *   [Parameters](#parameters-33)
-        *   [Examples](#examples-26)
-        *   [size](#size-1)
-        *   [iterator](#iterator-2)
-            *   [Examples](#examples-27)
-        *   [none](#none)
-            *   [Examples](#examples-28)
-        *   [some](#some-1)
-            *   [Parameters](#parameters-34)
-            *   [Examples](#examples-29)
-*   [HashMap Callbacks](#hashmap-callbacks)
-    *   [HashMap#overrideEquals](#hashmapoverrideequals)
-        *   [Parameters](#parameters-35)
-    *   [HashMap#overrideHash](#hashmapoverridehash)
-        *   [Parameters](#parameters-36)
-    *   [HashMap#overrides](#hashmapoverrides)
-        *   [Properties](#properties)
-    *   [HashMap#emplaceUpdate](#hashmapemplaceupdate)
-        *   [Parameters](#parameters-37)
-    *   [HashMap#emplaceInsert](#hashmapemplaceinsert)
-        *   [Parameters](#parameters-38)
-    *   [HashMap#emplaceHandler](#hashmapemplacehandler)
-        *   [Properties](#properties-1)
-    *   [HashMap#ForEachCallback](#hashmapforeachcallback)
-        *   [Parameters](#parameters-39)
-        *   [Examples](#examples-30)
-    *   [HashMap#MatchesPredicate](#hashmapmatchespredicate)
-        *   [Parameters](#parameters-40)
-        *   [Examples](#examples-31)
-    *   [HashMap#ReduceFunction](#hashmapreducefunction)
-        *   [Parameters](#parameters-41)
-        *   [Examples](#examples-32)
-*   [Utility Functions](#utility-functions)
-    *   [isFunction](#isfunction)
-        *   [Parameters](#parameters-42)
-        *   [Examples](#examples-33)
-    *   [isIterable](#isiterable)
-        *   [Parameters](#parameters-43)
-        *   [Examples](#examples-34)
-    *   [isString](#isstring)
-        *   [Parameters](#parameters-44)
-        *   [Examples](#examples-35)
-    *   [sameValue](#samevalue)
-        *   [Parameters](#parameters-45)
-    *   [sameValueZero](#samevaluezero)
-        *   [Parameters](#parameters-46)
-    *   [abstractEquals](#abstractequals)
-        *   [Parameters](#parameters-47)
-    *   [strictEquals](#strictequals)
-        *   [Parameters](#parameters-48)
-    *   [hammingWeight](#hammingweight)
-        *   [Parameters](#parameters-49)
-        *   [Examples](#examples-36)
-    *   [hash](#hash)
-        *   [Parameters](#parameters-50)
-    *   [hashCodeFor](#hashcodefor)
-        *   [Parameters](#parameters-51)
-    *   [equalsFor](#equalsfor)
-        *   [Parameters](#parameters-52)
-    *   [equalsAndHash](#equalsandhash)
-        *   [Parameters](#parameters-53)
-    *   [some](#some-2)
-        *   [Parameters](#parameters-54)
-        *   [Examples](#examples-37)
-    *   [none](#none-1)
-        *   [Examples](#examples-38)
+*   [HashMap](#hashmap)
+    *   [Parameters](#parameters)
+    *   [size](#size)
+        *   [Examples](#examples)
+    *   [length](#length)
+        *   [Examples](#examples-1)
+    *   [has](#has)
+        *   [Parameters](#parameters-1)
+        *   [Examples](#examples-2)
+    *   [get](#get)
+        *   [Parameters](#parameters-2)
+        *   [Examples](#examples-3)
+    *   [keyOf](#keyof)
+        *   [Parameters](#parameters-3)
+        *   [Examples](#examples-4)
+    *   [lastKeyOf](#lastkeyof)
+        *   [Parameters](#parameters-4)
+        *   [Examples](#examples-5)
+    *   [optionalKeyOf](#optionalkeyof)
+        *   [Parameters](#parameters-5)
+        *   [Examples](#examples-6)
+    *   [optionalLastKeyOf](#optionallastkeyof)
+        *   [Parameters](#parameters-6)
+        *   [Examples](#examples-7)
+    *   [optionalGet](#optionalget)
+        *   [Parameters](#parameters-7)
+        *   [Examples](#examples-8)
+    *   [find](#find)
+        *   [Parameters](#parameters-8)
+        *   [Examples](#examples-9)
+    *   [findLast](#findlast)
+        *   [Parameters](#parameters-9)
+        *   [Examples](#examples-10)
+    *   [optionalFind](#optionalfind)
+        *   [Parameters](#parameters-10)
+        *   [Examples](#examples-11)
+    *   [optionalFindLast](#optionalfindlast)
+        *   [Parameters](#parameters-11)
+        *   [Examples](#examples-12)
+    *   [findKey](#findkey)
+        *   [Parameters](#parameters-12)
+        *   [Examples](#examples-13)
+    *   [findLastKey](#findlastkey)
+        *   [Parameters](#parameters-13)
+        *   [Examples](#examples-14)
+    *   [optionalFindKey](#optionalfindkey)
+        *   [Parameters](#parameters-14)
+        *   [Examples](#examples-15)
+    *   [optionalFindLastKey](#optionalfindlastkey)
+        *   [Parameters](#parameters-15)
+        *   [Examples](#examples-16)
+    *   [set](#set)
+        *   [Parameters](#parameters-16)
+        *   [Examples](#examples-17)
+    *   [emplace](#emplace)
+        *   [Parameters](#parameters-17)
+        *   [Examples](#examples-18)
+    *   [copy](#copy)
+        *   [Parameters](#parameters-18)
+        *   [Examples](#examples-19)
+    *   [clone](#clone)
+    *   [delete](#delete)
+        *   [Parameters](#parameters-19)
+    *   [clear](#clear)
+    *   [forEach](#foreach)
+        *   [Parameters](#parameters-20)
+        *   [Examples](#examples-20)
+    *   [forEachRight](#foreachright)
+        *   [Parameters](#parameters-21)
+        *   [Examples](#examples-21)
+    *   [every](#every)
+        *   [Parameters](#parameters-22)
+        *   [Examples](#examples-22)
+    *   [some](#some)
+        *   [Parameters](#parameters-23)
+        *   [Examples](#examples-23)
+    *   [reduce](#reduce)
+        *   [Parameters](#parameters-24)
+        *   [Examples](#examples-24)
+    *   [reduceRight](#reduceright)
+        *   [Parameters](#parameters-25)
+        *   [Examples](#examples-25)
+    *   [iterator](#iterator)
+    *   [entries](#entries)
+    *   [entriesRight](#entriesright)
+    *   [keys](#keys)
+    *   [values](#values)
+    *   [keysRight](#keysright)
+    *   [valuesRight](#valuesright)
+*   [LinkedHashMap](#linkedhashmap)
+    *   [Parameters](#parameters-26)
+    *   [clear](#clear-1)
+    *   [setLeft](#setleft)
+        *   [Parameters](#parameters-27)
+    *   [emplaceLeft](#emplaceleft)
+        *   [Parameters](#parameters-28)
+    *   [push](#push)
+        *   [Parameters](#parameters-29)
+    *   [pushEmplace](#pushemplace)
+        *   [Parameters](#parameters-30)
+    *   [unshift](#unshift)
+        *   [Parameters](#parameters-31)
+    *   [unshiftEmplace](#unshiftemplace)
+        *   [Parameters](#parameters-32)
+    *   [shift](#shift)
+    *   [pop](#pop)
+    *   [head](#head)
+    *   [tail](#tail)
+    *   [optionalHead](#optionalhead)
+    *   [optionalTail](#optionaltail)
+    *   [headKey](#headkey)
+    *   [tailKey](#tailkey)
+    *   [optionalHeadKey](#optionalheadkey)
+    *   [optionalTailKey](#optionaltailkey)
+    *   [reverse](#reverse)
+    *   [clone](#clone-1)
+    *   [iterator](#iterator-1)
+    *   [entries](#entries-1)
+    *   [entriesRight](#entriesright-1)
+    *   [keys](#keys-1)
+    *   [values](#values-1)
+    *   [keysRight](#keysright-1)
+    *   [valuesRight](#valuesright-1)
+*   [Option](#option)
+    *   [Parameters](#parameters-33)
+    *   [Examples](#examples-26)
+    *   [size](#size-1)
+    *   [iterator](#iterator-2)
+        *   [Examples](#examples-27)
+    *   [none](#none)
+        *   [Examples](#examples-28)
+    *   [some](#some-1)
+        *   [Parameters](#parameters-34)
+        *   [Examples](#examples-29)
+*   [HashMap#overrideEquals](#hashmapoverrideequals)
+    *   [Parameters](#parameters-35)
+*   [HashMap#overrideHash](#hashmapoverridehash)
+    *   [Parameters](#parameters-36)
+*   [HashMap#overrides](#hashmapoverrides)
+    *   [Properties](#properties)
+*   [HashMap#emplaceUpdate](#hashmapemplaceupdate)
+    *   [Parameters](#parameters-37)
+*   [HashMap#emplaceInsert](#hashmapemplaceinsert)
+    *   [Parameters](#parameters-38)
+*   [HashMap#emplaceHandler](#hashmapemplacehandler)
+    *   [Properties](#properties-1)
+*   [HashMap#ForEachCallback](#hashmapforeachcallback)
+    *   [Parameters](#parameters-39)
+    *   [Examples](#examples-30)
+*   [HashMap#MatchesPredicate](#hashmapmatchespredicate)
+    *   [Parameters](#parameters-40)
+    *   [Examples](#examples-31)
+*   [HashMap#ReduceFunction](#hashmapreducefunction)
+    *   [Parameters](#parameters-41)
+    *   [Examples](#examples-32)
+*   [isFunction](#isfunction)
+    *   [Parameters](#parameters-42)
+    *   [Examples](#examples-33)
+*   [isIterable](#isiterable)
+    *   [Parameters](#parameters-43)
+    *   [Examples](#examples-34)
+*   [isString](#isstring)
+    *   [Parameters](#parameters-44)
+    *   [Examples](#examples-35)
+*   [sameValue](#samevalue)
+    *   [Parameters](#parameters-45)
+*   [sameValueZero](#samevaluezero)
+    *   [Parameters](#parameters-46)
+*   [abstractEquals](#abstractequals)
+    *   [Parameters](#parameters-47)
+*   [strictEquals](#strictequals)
+    *   [Parameters](#parameters-48)
+*   [hammingWeight](#hammingweight)
+    *   [Parameters](#parameters-49)
+    *   [Examples](#examples-36)
+*   [hash](#hash)
+    *   [Parameters](#parameters-50)
+*   [hashCodeFor](#hashcodefor)
+    *   [Parameters](#parameters-51)
+*   [equalsFor](#equalsfor)
+    *   [Parameters](#parameters-52)
+*   [equalsAndHash](#equalsandhash)
+    *   [Parameters](#parameters-53)
+*   [some](#some-2)
+    *   [Parameters](#parameters-54)
+    *   [Examples](#examples-37)
+*   [none](#none-1)
+    *   [Examples](#examples-38)
 
-### Classes
-
-
-
-#### HashMap
+### HashMap
 
 This HashMap is backed by a Hash array mapped trie.
 
-##### Parameters
+#### Parameters
 
 *   `copy` **([Map](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Map) | [HashMap](#hashmap) | [LinkedHashMap](#linkedhashmap) | Iterable<[Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)\<key, value>> | [Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object))?** 
 
@@ -255,11 +248,11 @@ This HashMap is backed by a Hash array mapped trie.
 *   **copyright**: Jack Moxley <https://github.com/jackmoxley>
 *   **author**: Jack Moxley
 
-##### size
+#### size
 
 Returns the number of elements in this hashmap.
 
-###### Examples
+##### Examples
 
 ```javascript
 const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
@@ -270,11 +263,11 @@ console.log(size);
 
 Returns **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** the number of elements in the array
 
-##### length
+#### length
 
 Returns the number of elements in this hashmap.
 
-###### Examples
+##### Examples
 
 ```javascript
 const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
@@ -285,7 +278,7 @@ console.log(length);
 
 Returns **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** the number of elements in the array
 
-##### has
+#### has
 
 *   **See**: [Map.has](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/has)
 
@@ -297,12 +290,12 @@ Does the map have this key.
 
 Maps typically index keys, and so is generally a fast operation.
 
-###### Parameters
+##### Parameters
 
 *   `key` **any** the matching key we use to identify if we have a match.
 *   `overrides` **[HashMap#overrides](#hashmapoverrides)\<equals, [hash](#hash)>?** a set of optional overrides to allow a user to define the hash and equals methods, rather than them being looked up.
 
-###### Examples
+##### Examples
 
 Does this contain a key that is there
 
@@ -355,7 +348,7 @@ const hasResult = hashmap.has(0, hashEquals);
 
 Returns **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** if it holds the key or not.
 
-##### get
+#### get
 
 *   **See**: [Map.get](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/get)
 
@@ -371,12 +364,12 @@ Performance:
 
 *   will be O(1) approaching O(log n)
 
-###### Parameters
+##### Parameters
 
 *   `key` **any** the matching key we use to identify if we have a match.
 *   `overrides` **[HashMap#overrides](#hashmapoverrides)\<equals, [hash](#hash)>?** a set of optional overrides to allow a user to define the hashcode and equals methods, rather than them being looked up.
 
-###### Examples
+##### Examples
 
 What is the value for a key
 
@@ -429,7 +422,7 @@ const getResult = hashmap.get(0, hashEquals);
 
 Returns **any** the value of the element that matches.
 
-##### keyOf
+#### keyOf
 
 *   **See**: [Array.indexOf](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf)
 
@@ -437,13 +430,13 @@ Get the key from the map using the provided value. Since values are not hashed, 
 Performance O(n) as we have to iterate over the whole map, to find each value and perform
 an equality against it.
 
-###### Parameters
+##### Parameters
 
 *   `value` **any** The value we are searching the map for
 *   `overrides` **[HashMap#overrides](#hashmapoverrides)\<equals>?** an optional override to allow a user to
     define the equals methods, rather than it being looked up on the value.
 
-###### Examples
+##### Examples
 
 What is the key for a value
 
@@ -494,7 +487,7 @@ const keyOfResult = hashmap.keyOf(0, myEquals);
 
 Returns **(any | [undefined](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/undefined))** the first key for this value or undefined
 
-##### lastKeyOf
+#### lastKeyOf
 
 *   **See**: [Array.lastIndexOf](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/lastIndexOf)
 
@@ -504,13 +497,13 @@ whole map, if none match. As such this is a slow operation.
 Performance O(n) as we have to iterate over the whole map, to find each value and perform
 an equality against it.
 
-###### Parameters
+##### Parameters
 
 *   `value` **any** The value we are searching the map for, (in reverse)
 *   `overrides` **[HashMap#overrides](#hashmapoverrides)\<equals>?** an optional override to allow a user to
     define the equals methods, rather than it being looked up on the value.
 
-###### Examples
+##### Examples
 
 What is the key for a value
 
@@ -561,7 +554,7 @@ const lastKeyOfResult = hashmap.lastKeyOf(0, myEquals);
 
 Returns **(any | [undefined](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/undefined))** the last key for this value or undefined
 
-##### optionalKeyOf
+#### optionalKeyOf
 
 *   **See**: [Option.some](#optionsome)
 *   **See**: [Option.none](#optionnone)
@@ -573,13 +566,13 @@ matches, or the whole map, if none match. As such this is a slow operation.
 Performance O(n) as we have to iterate over the whole map, to find each value and perform
 an equality against it.
 
-###### Parameters
+##### Parameters
 
 *   `value` **any** The value we are searching the map for
 *   `overrides` **[HashMap#overrides](#hashmapoverrides)\<equals>?** an optional overrides to allow a user to
     define the equals methods, rather than it being looked up on the value.
 
-###### Examples
+##### Examples
 
 What is the key for a value
 
@@ -630,7 +623,7 @@ const optionalKeyOfResult = hashmap.optionalKeyOf(0, myEquals);
 
 Returns **[Option](#option)** the first key for this value or none
 
-##### optionalLastKeyOf
+#### optionalLastKeyOf
 
 *   **See**: [Option.some](#optionsome)
 *   **See**: [Option.none](#optionnone)
@@ -642,13 +635,13 @@ whole map, if none match. As such this is a slow operation.
 Performance O(n) as we have to iterate over the whole map, to find each value and perform
 an equality against it.
 
-###### Parameters
+##### Parameters
 
 *   `value` **any** The value we are searching the map for, (in reverse)
 *   `overrides` **[HashMap#overrides](#hashmapoverrides)\<equals>?** an optional overrides to allow a user to
     define the equals methods, rather than it being looked up on the value.
 
-###### Examples
+##### Examples
 
 What is the key for a value
 
@@ -699,7 +692,7 @@ const optionalLastKeyOfResult = hashmap.optionalLastKeyOf(0, myEquals);
 
 Returns **[Option](#option)** the last key for this value or none
 
-##### optionalGet
+#### optionalGet
 
 *   **See**: [Option.some](#optionsome)
 *   **See**: [Option.none](#optionnone)
@@ -713,12 +706,12 @@ Get an optional value from the map. This is effectively a more efficent combinat
 
 Maps typically index keys, and so is generally a fast operation.
 
-###### Parameters
+##### Parameters
 
 *   `key` **any** the key we use to identify if we have a match.
 *   `overrides` **[HashMap#overrides](#hashmapoverrides)\<equals, [hash](#hash)>?** a set of optional overrides to allow a user to define the hashcode and equals methods, rather than them being looked up.
 
-###### Examples
+##### Examples
 
 What is the value for a key
 
@@ -779,7 +772,7 @@ const getResult = hashmap.optionalGet(0, hashEquals);
 
 Returns **[Option](#option)** an optional result.
 
-##### find
+#### find
 
 *   **See**: [Array.find](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find)
 
@@ -789,12 +782,12 @@ Find the first value in the map which passes the provided <code>MatchesPredicate
 *   if no elements match, it returns undefined.
 *   if no predicate is defined, will return the first value it finds.
 
-###### Parameters
+##### Parameters
 
 *   `findPredicate` **[HashMap#MatchesPredicate](#hashmapmatchespredicate)** the predicate to identify if we have a match. (optional, default `(value,key,iterable)=>value`)
 *   `thisArg` **any?** Value to use as <code>this</code> when executing <code>findPredicate</code> (optional, default `undefined`)
 
-###### Examples
+##### Examples
 
 Find a value
 
@@ -814,7 +807,7 @@ const findResult = hashmap.find((value) => value.startsWith('something'));
 
 Returns **any** the value of the element that matches.
 
-##### findLast
+#### findLast
 
 *   **See**: [Array.find](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find)
 
@@ -824,12 +817,12 @@ Find the first value in the map which passes the provided <code>MatchesPredicate
 *   if no elements match, it returns undefined.
 *   if no predicate is defined, will return the first value it finds.
 
-###### Parameters
+##### Parameters
 
 *   `findPredicate` **[HashMap#MatchesPredicate](#hashmapmatchespredicate)** the predicate to identify if we have a match. (optional, default `(value,key,iterable)=>value`)
 *   `thisArg` **any?** Value to use as <code>this</code> when executing <code>findPredicate</code> (optional, default `undefined`)
 
-###### Examples
+##### Examples
 
 Find a value
 
@@ -849,7 +842,7 @@ const findResult = hashmap.find((value) => value.startsWith('something'));
 
 Returns **any** the value of the element that matches.
 
-##### optionalFind
+#### optionalFind
 
 *   **See**: [Option.some](#optionsome)
 *   **See**: [Option.none](#optionnone)
@@ -861,12 +854,12 @@ Find the first value in the map which passes the provided <code>MatchesPredicate
 *   if no elements match, it returns undefined.
 *   if no predicate is defined, will return the first value it finds.
 
-###### Parameters
+##### Parameters
 
 *   `findPredicate` **[HashMap#MatchesPredicate](#hashmapmatchespredicate)** the predicate to identify if we have a match. (optional, default `(value,key,iterable)=>value`)
 *   `thisArg` **any?** Value to use as <code>this</code> when executing <code>findPredicate</code> (optional, default `undefined`)
 
-###### Examples
+##### Examples
 
 Find a value
 
@@ -886,7 +879,7 @@ const findResult = hashmap.find((value) => value.startsWith('something'));
 
 Returns **any** the value of the element that matches.
 
-##### optionalFindLast
+#### optionalFindLast
 
 *   **See**: [Option.some](#optionsome)
 *   **See**: [Option.none](#optionnone)
@@ -898,12 +891,12 @@ Find the first value in the map which passes the provided <code>MatchesPredicate
 *   if no elements match, it returns undefined.
 *   if no predicate is defined, will return the first value it finds.
 
-###### Parameters
+##### Parameters
 
 *   `findPredicate` **[HashMap#MatchesPredicate](#hashmapmatchespredicate)** the predicate to identify if we have a match. (optional, default `(value,key,iterable)=>value`)
 *   `thisArg` **any?** Value to use as <code>this</code> when executing <code>findPredicate</code> (optional, default `undefined`)
 
-###### Examples
+##### Examples
 
 Find a value
 
@@ -923,7 +916,7 @@ const findResult = hashmap.find((value) => value.startsWith('something'));
 
 Returns **any** the value of the element that matches.
 
-##### findKey
+#### findKey
 
 *   **See**: [Array.findIndex](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex)
 
@@ -933,12 +926,12 @@ Find the first value in the key which passes the provided  <code>MatchesPredicat
 *   if no elements match, it returns undefined.
 *   if no predicate is defined, will return the first key it finds.
 
-###### Parameters
+##### Parameters
 
 *   `findKeyPredicate` **[HashMap#MatchesPredicate](#hashmapmatchespredicate)** the predicate to identify if we have a match. (optional, default `(value,key,iterable)=>key`)
 *   `thisArg` **any?** Value to use as <code>this</code> when executing <code>findKeyPredicate</code> (optional, default `undefined`)
 
-###### Examples
+##### Examples
 
 Find a key
 
@@ -958,7 +951,7 @@ const findIndexResult = hashmap.findIndex((value) => value.startsWith('something
 
 Returns **any** the key of the element that matches..
 
-##### findLastKey
+#### findLastKey
 
 *   **See**: [Array.prototype.findIndex](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex)
 
@@ -968,12 +961,12 @@ Find the first value in the key which passes the provided  <code>MatchesPredicat
 *   if no elements match, it returns undefined.
 *   if no predicate is defined, will return the first key it finds.
 
-###### Parameters
+##### Parameters
 
 *   `findKeyPredicate` **[HashMap#MatchesPredicate](#hashmapmatchespredicate)** the predicate to identify if we have a match. (optional, default `(value,key,iterable)=>key`)
 *   `thisArg` **any?** Value to use as <code>this</code> when executing <code>findKeyPredicate</code> (optional, default `undefined`)
 
-###### Examples
+##### Examples
 
 Find a key
 
@@ -993,7 +986,7 @@ const findIndexResult = hashmap.findIndex((value) => value.startsWith('something
 
 Returns **any** the key of the element that matches..
 
-##### optionalFindKey
+#### optionalFindKey
 
 *   **See**: [Option.some](#optionsome)
 *   **See**: [Option.none](#optionnone)
@@ -1005,12 +998,12 @@ Find the first value in the key which passes the provided  <code>MatchesPredicat
 *   if no elements match, it returns undefined.
 *   if no predicate is defined, will return the first key it finds.
 
-###### Parameters
+##### Parameters
 
 *   `findKeyPredicate` **[HashMap#MatchesPredicate](#hashmapmatchespredicate)** the predicate to identify if we have a match. (optional, default `(value,key,iterable)=>key`)
 *   `thisArg` **any?** Value to use as <code>this</code> when executing <code>findKeyPredicate</code> (optional, default `undefined`)
 
-###### Examples
+##### Examples
 
 Find a key
 
@@ -1030,7 +1023,7 @@ const findIndexResult = hashmap.findIndex((value) => value.startsWith('something
 
 Returns **any** the key of the element that matches..
 
-##### optionalFindLastKey
+#### optionalFindLastKey
 
 *   **See**: [Option.some](#optionsome)
 *   **See**: [Option.none](#optionnone)
@@ -1042,12 +1035,12 @@ Find the first value in the key which passes the provided  <code>MatchesPredicat
 *   if no elements match, it returns undefined.
 *   if no predicate is defined, will return the first key it finds.
 
-###### Parameters
+##### Parameters
 
 *   `findKeyPredicate` **[HashMap#MatchesPredicate](#hashmapmatchespredicate)** the predicate to identify if we have a match. (optional, default `(value,key,iterable)=>key`)
 *   `thisArg` **any?** Value to use as <code>this</code> when executing <code>findKeyPredicate</code> (optional, default `undefined`)
 
-###### Examples
+##### Examples
 
 Find a key
 
@@ -1067,19 +1060,19 @@ const findIndexResult = hashmap.findIndex((value) => value.startsWith('something
 
 Returns **any** the key of the element that matches..
 
-##### set
+#### set
 
 *   **See**: [Map.prototype.set](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/set)
 
 Sets a value onto this map, using the key as its reference.
 
-###### Parameters
+##### Parameters
 
 *   `key` **any** the key we want to key our value to
 *   `value` **any** the value we are setting
 *   `overrides` **[HashMap#overrides](#hashmapoverrides)\<equals, [hash](#hash)>?** a set of optional overrides to allow a user to define the hashcode and equals methods, rather than them being looked up.
 
-###### Examples
+##### Examples
 
 set a value
 
@@ -1134,7 +1127,7 @@ const hasResult = hashmap.has(3, {equals: () => true} );
 
 Returns **[HashMap](#hashmap)** this hashmap
 
-##### emplace
+#### emplace
 
 *   **See**: [upsert proposal](https://tc39.es/proposal-upsert/)
 *   **See**: [Map.prototype.emplace](https://github.com/tc39/proposal-upsert)
@@ -1143,14 +1136,14 @@ Given a key and a handler object, the emplace method will either remap an existi
 insert a new entry from a mapping function, or both. emplace will return the updated or
 inserted value.
 
-###### Parameters
+##### Parameters
 
 *   `key` **any** the key we want to key our value to
 *   `handler` **[HashMap#emplaceHandler](#hashmapemplacehandler)\<insert, update>** the insert and update methods we
     want to use.
 *   `overrides` **[HashMap#overrides](#hashmapoverrides)\<equals, [hash](#hash)>?** a set of optional overrides to allow a user to define the hashcode and equals methods, rather than them being looked up.
 
-###### Examples
+##### Examples
 
 insert into the map
 
@@ -1259,16 +1252,16 @@ const ret = hashmap.emplace(1,handler, {hash: 3});
 
 Returns **any** the new value that was set, or overwrote.
 
-##### copy
+#### copy
 
 Copies all the entries from the map, array or iterable, into this hashmap.
 
-###### Parameters
+##### Parameters
 
 *   `other` **([Map](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Map) | [HashMap](#hashmap) | [LinkedHashMap](#linkedhashmap) | Iterable<[Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)\<key, value>> | [Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object))** the
     iterable to copy
 
-###### Examples
+##### Examples
 
 copy into the HashMap from an array of key value pairs
 
@@ -1350,37 +1343,37 @@ hashmap.copy(forEachObj);
 
 Returns **[HashMap](#hashmap)** this hashmap, with the values copied to it.
 
-##### clone
+#### clone
 
 Makes a full copy of this hashmap and returns the clone.
 
 Returns **[HashMap](#hashmap)** 
 
-##### delete
+#### delete
 
 Deletes an entry from this hashmap, using the provided key
 
-###### Parameters
+##### Parameters
 
 *   `key`  
 *   `overrides` **[HashMap#overrides](#hashmapoverrides)\<equals, [hash](#hash)>?** a set of optional overrides to allow a user to define the hashcode and equals methods, rather than them being looked up.     \* @return {HashMap}
 
-##### clear
+#### clear
 
 Clears the data from this hashmap. All data is orphaned, and will be Garbage Collected.
 
 Returns **[HashMap](#hashmap)** this hashmap
 
-##### forEach
+#### forEach
 
 Execute the provided callback on every <code>\[key,value]</code> pair of this map iterable.
 
-###### Parameters
+##### Parameters
 
 *   `callback` **[HashMap#ForEachCallback](#hashmapforeachcallback)**  (optional, default `(value,key,map)=>{}`)
 *   `thisArg` **any?** Value to use as <code>this</code> when executing <code>forEachCallback</code>
 
-###### Examples
+##### Examples
 
 Log all the keys and values.
 
@@ -1397,16 +1390,16 @@ mapIterable.forEach((value) => console.log(key, value));
 
 Returns **[HashMap](#hashmap)** the hashmap you are foreaching on..
 
-##### forEachRight
+#### forEachRight
 
 Execute the provided callback on every <code>\[key,value]</code> pair of this map iterable in reverse.
 
-###### Parameters
+##### Parameters
 
 *   `callback` **[HashMap#ForEachCallback](#hashmapforeachcallback)**  (optional, default `(value,key,map)=>{}`)
 *   `thisArg` **any?** Value to use as <code>this</code> when executing <code>forEachCallback</code>
 
-###### Examples
+##### Examples
 
 Log all the keys and values.
 
@@ -1423,7 +1416,7 @@ mapIterable.forEachRight((value) => console.log(key, value));
 
 Returns **[HashMap](#hashmap)** the hashmap you are foreaching on..
 
-##### every
+#### every
 
 *   **See**: [Array.every](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/every)
 
@@ -1435,13 +1428,13 @@ Test to see if ALL elements pass the test implemented by the passed <code>Matche
 *   if the iterable is empty, returns true. (irrespective of the predicate)
 *   if no predicate is provided, returns true.
 
-###### Parameters
+##### Parameters
 
 *   `everyPredicate` **[HashMap#MatchesPredicate](#hashmapmatchespredicate)** if the provided function returns <code>false</code>, at any point the <code>every()</code> function returns false. (optional, default `(value,key,iterable)=>true`)
 *   `thisArg` **any?** Value to use as <code>this</code> when executing <code>everyPredicate</code> (optional, default `undefined`)
 *   `overrides` **[HashMap#overrides](#hashmapoverrides)\<reverse>?** a set of optional overrides to allow a user to define whether to search in reverse (optional, default `undefined`)
 
-###### Examples
+##### Examples
 
 Do all values start with value. (yes)
 
@@ -1461,7 +1454,7 @@ const everyResult = hashmap.every((value) => value.startsWith('value'));
 
 Returns **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** true if all elements match, false if one or more elements fails to match.
 
-##### some
+#### some
 
 *   **See**: [Array.some](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some)
 
@@ -1473,13 +1466,13 @@ Test to see if ANY element pass the test implemented by the passed <code>Matches
 *   if the iterable is empty, returns true.
 *   if no predicate is provided, returns true.
 
-###### Parameters
+##### Parameters
 
 *   `somePredicate` **[HashMap#MatchesPredicate](#hashmapmatchespredicate)** the predicate to identify if we have a match. (optional, default `(value,key,iterable)=>true`)
 *   `thisArg` **any?** Value to use as <code>this</code> when executing <code>somePredicate</code> (optional, default `undefined`)
 *   `overrides` **[HashMap#overrides](#hashmapoverrides)\<reverse>?** a set of optional overrides to allow a user to define whether to search in reverse (optional, default `undefined`)
 
-###### Examples
+##### Examples
 
 Do any values start with value. (yes all of them)
 
@@ -1499,7 +1492,7 @@ const someResult = hashmap.some((value) => value.startsWith('value'));
 
 Returns **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** true if all elements match, false if one or more elements fails to match.
 
-##### reduce
+#### reduce
 
 *   **See**: [Array.reduce](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce)
     if initial value is <code>undefined</code> or <code>null</code>, unlike Array.reduce,
@@ -1507,13 +1500,13 @@ Returns **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/
 
 Iterate through the map reducing it to a single value.
 
-###### Parameters
+##### Parameters
 
 *   `reduceFunction` **[HashMap#ReduceFunction](#hashmapreducefunction)** the predicate to identify if we have a match.
 *   `initialValue` **any?** the initial value to start on the reduce.
 *   `thisArg` **any?** Value to use as <code>this</code> when executing <code>reduceFunction</code>
 
-###### Examples
+##### Examples
 
 add all the keys
 
@@ -1533,7 +1526,7 @@ const reduceResult = hashmap.reduce((accumulator, value) => value+accumulator, '
 
 Returns **any** the final accumulated value.
 
-##### reduceRight
+#### reduceRight
 
 *   **See**: [Array.reduceRight](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduceRight)
     if initial value is <code>undefined</code> or <code>null</code>, unlike Array.reduceRight,
@@ -1541,13 +1534,13 @@ Returns **any** the final accumulated value.
 
 Iterate backwards through the map reducing it to a single value.
 
-###### Parameters
+##### Parameters
 
 *   `reduceFunction` **[HashMap#ReduceFunction](#hashmapreducefunction)** the predicate to identify if we have a match.
 *   `initialValue` **any?** the initial value to start on the reduce.
 *   `thisArg` **any?** Value to use as <code>this</code> when executing <code>reduceFunction</code>
 
-###### Examples
+##### Examples
 
 add all the keys
 
@@ -1567,41 +1560,41 @@ const reduceResult = hashmap.reduceRight((accumulator, value) => value+accumulat
 
 Returns **any** the final accumulated value.
 
-##### iterator
+#### iterator
 
 Iterates over all the entries in the map.
 
-##### entries
+#### entries
 
 Iterates over all the entries in the map.
 
-##### entriesRight
+#### entriesRight
 
 Iterates over all the entries in the map.
 
-##### keys
+#### keys
 
 Iterates over all the keys in the map.
 
-##### values
+#### values
 
 Iterates over all the values in the map.
 
-##### keysRight
+#### keysRight
 
 Iterates over all the keys in the map in reverse.
 
-##### valuesRight
+#### valuesRight
 
 Iterates over all the values in the map in reverse.
 
-#### LinkedHashMap
+### LinkedHashMap
 
 **Extends HashMap**
 
 HashMap - LinkedHashMap Implementation for JavaScript
 
-##### Parameters
+#### Parameters
 
 *   `copy` **([Map](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Map) | [HashMap](#hashmap) | [LinkedHashMap](#linkedhashmap) | Iterable<[Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array)\<key, value>> | [Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object))?** 
 
@@ -1610,33 +1603,13 @@ HashMap - LinkedHashMap Implementation for JavaScript
 *   **copyright**: Jack Moxley <https://github.com/jackmoxley>
 *   **author**: Jack Moxley
 
-##### clear
+#### clear
 
 Returns **[HashMap](#hashmap)** 
 
-##### setLeft
+#### setLeft
 
-###### Parameters
-
-*   `key`  
-*   `value`  
-*   `overrides` **[HashMap#overrides](#hashmapoverrides)\<equals, [hash](#hash)>?** a set of optional overrides to allow a user to define the hashcode and equals methods, rather than them being looked up.     \* @return {HashMap}
-
-Returns **[LinkedHashMap](#linkedhashmap)** 
-
-##### emplaceLeft
-
-###### Parameters
-
-*   `key`  
-*   `handler`  
-*   `overrides` **[HashMap#overrides](#hashmapoverrides)\<equals, [hash](#hash)>?** a set of optional overrides to allow a user to define the hashcode and equals methods, rather than them being looked up.     \* @return {HashMap}
-
-Returns **any** 
-
-##### push
-
-###### Parameters
+##### Parameters
 
 *   `key`  
 *   `value`  
@@ -1644,9 +1617,9 @@ Returns **any**
 
 Returns **[LinkedHashMap](#linkedhashmap)** 
 
-##### pushEmplace
+#### emplaceLeft
 
-###### Parameters
+##### Parameters
 
 *   `key`  
 *   `handler`  
@@ -1654,9 +1627,9 @@ Returns **[LinkedHashMap](#linkedhashmap)**
 
 Returns **any** 
 
-##### unshift
+#### push
 
-###### Parameters
+##### Parameters
 
 *   `key`  
 *   `value`  
@@ -1664,9 +1637,9 @@ Returns **any**
 
 Returns **[LinkedHashMap](#linkedhashmap)** 
 
-##### unshiftEmplace
+#### pushEmplace
 
-###### Parameters
+##### Parameters
 
 *   `key`  
 *   `handler`  
@@ -1674,94 +1647,114 @@ Returns **[LinkedHashMap](#linkedhashmap)**
 
 Returns **any** 
 
-##### shift
+#### unshift
 
-Returns **([undefined](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/undefined) | any)** 
+##### Parameters
 
-##### pop
-
-Returns **([undefined](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/undefined) | any)** 
-
-##### head
-
-Returns **([undefined](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/undefined) | any)** 
-
-##### tail
-
-Returns **([undefined](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/undefined) | any)** 
-
-##### optionalHead
-
-Returns **[Option](#option)** 
-
-##### optionalTail
-
-Returns **[Option](#option)** 
-
-##### headKey
-
-Returns **([undefined](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/undefined) | any)** 
-
-##### tailKey
-
-Returns **([undefined](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/undefined) | any)** 
-
-##### optionalHeadKey
-
-Returns **[Option](#option)** 
-
-##### optionalTailKey
-
-Returns **[Option](#option)** 
-
-##### reverse
+*   `key`  
+*   `value`  
+*   `overrides` **[HashMap#overrides](#hashmapoverrides)\<equals, [hash](#hash)>?** a set of optional overrides to allow a user to define the hashcode and equals methods, rather than them being looked up.     \* @return {HashMap}
 
 Returns **[LinkedHashMap](#linkedhashmap)** 
 
-##### clone
+#### unshiftEmplace
+
+##### Parameters
+
+*   `key`  
+*   `handler`  
+*   `overrides` **[HashMap#overrides](#hashmapoverrides)\<equals, [hash](#hash)>?** a set of optional overrides to allow a user to define the hashcode and equals methods, rather than them being looked up.     \* @return {HashMap}
+
+Returns **any** 
+
+#### shift
+
+Returns **([undefined](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/undefined) | any)** 
+
+#### pop
+
+Returns **([undefined](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/undefined) | any)** 
+
+#### head
+
+Returns **([undefined](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/undefined) | any)** 
+
+#### tail
+
+Returns **([undefined](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/undefined) | any)** 
+
+#### optionalHead
+
+Returns **[Option](#option)** 
+
+#### optionalTail
+
+Returns **[Option](#option)** 
+
+#### headKey
+
+Returns **([undefined](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/undefined) | any)** 
+
+#### tailKey
+
+Returns **([undefined](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/undefined) | any)** 
+
+#### optionalHeadKey
+
+Returns **[Option](#option)** 
+
+#### optionalTailKey
+
+Returns **[Option](#option)** 
+
+#### reverse
+
+Returns **[LinkedHashMap](#linkedhashmap)** 
+
+#### clone
 
 Makes a copy of this LinkedHashMap
 
 Returns **[LinkedHashMap](#linkedhashmap)** 
 
-##### iterator
+#### iterator
 
 Iterates over all the entries in the map.
 
-##### entries
+#### entries
 
 Iterates over all the entries in the map.
 
-##### entriesRight
+#### entriesRight
 
 Iterates over all the entries in the map in reverse order.
 
-##### keys
+#### keys
 
 Iterates over all the keys in the map.
 
-##### values
+#### values
 
 Iterates over all the values in the map.
 
-##### keysRight
+#### keysRight
 
 Iterates over all the keys in the map in reverse.
 
-##### valuesRight
+#### valuesRight
 
 Iterates over all the values in the map in reverse.
 
-#### Option
+### Option
 
 Option - a class to get round nullable fields.
 
-##### Parameters
+#### Parameters
 
 *   `has`  whether it contains a value or not.
 *   `value`  the value to set
 
-##### Examples
+#### Examples
 
 iterating over some
 
@@ -1792,7 +1785,7 @@ console.log("world");
 *   **copyright**: Jack Moxley <https://github.com/jackmoxley>
 *   **author**: Jack Moxley
 
-##### size
+#### size
 
 Return the size of this option.
 
@@ -1801,7 +1794,7 @@ Return the size of this option.
 
 Returns **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
 
-##### iterator
+#### iterator
 
 Provides an iterable for the Option
 If using a for loop.
@@ -1809,7 +1802,7 @@ If using a for loop.
 *   If it has a value the loop will execute just once.
 *   If it doesn't have a value the loop will not execute
 
-###### Examples
+##### Examples
 
 iterating over some
 
@@ -1837,13 +1830,13 @@ console.log("world");
 
 Returns **Generator\<any, void, any>** 
 
-##### none
+#### none
 
 A constant representation of an Option with nothing in it: <code>{value:undefined,has:false}</code>
 
 Type: [Option](#option)
 
-###### Examples
+##### Examples
 
 create an option using none
 
@@ -1854,17 +1847,17 @@ const option = Option.none;
 // option.size === 0
 ```
 
-##### some
+#### some
 
 When called with a value returns an Option object of the form: <code>{value:value,has:true}</code>
 Even if a value is not provided it still counts as existing, this is different from other libraries,
 we are effectively saying, null and undefined count as valid values.
 
-###### Parameters
+##### Parameters
 
 *   `value`  the value
 
-###### Examples
+##### Examples
 
 create an option using some
 
@@ -1878,38 +1871,34 @@ const option = Option.some(myValue);
 
 Returns **[Option](#option)** the option in the form <code>{value:value,has:true}</code>
 
-### HashMap Callbacks
-
-
-
-#### HashMap#overrideEquals
+### HashMap#overrideEquals
 
 User Defined Equals Method
 A user defined function to define an equals method against 2 keys.
 
 Type: [Function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function)
 
-##### Parameters
+#### Parameters
 
 *   `firstKey` **any** the first key.
 *   `secondKey` **any** the second key
 
 Returns **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** is it equal or not
 
-#### HashMap#overrideHash
+### HashMap#overrideHash
 
 User Defined Hash Method
 A user defined function to describe how to hash a key.
 
 Type: [Function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function)
 
-##### Parameters
+#### Parameters
 
 *   `key` **any** the first key.
 
 Returns **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** a 32 bit integer as a hash.
 
-#### HashMap#overrides
+### HashMap#overrides
 
 User defined hashing and equals methods
 HashMap will find the best fit for your objects, and if your keys themselves have the appropriate methods,
@@ -1920,20 +1909,20 @@ So be explicit.
 
 Type: [Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)
 
-##### Properties
+#### Properties
 
 *   `hash` **([number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number) | [HashMap#overrideHash](#hashmapoverridehash))?** The overriding hash value, or method to use.
 *   `equals` **[HashMap#overrideEquals](#hashmapoverrideequals)?** The overriding equals method to use
 *   `reverse` **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)?** whether to search in reverse.
 
-#### HashMap#emplaceUpdate
+### HashMap#emplaceUpdate
 
 Emplace Update Method
 A user defined method to describe how to update our map.
 
 Type: [Function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function)
 
-##### Parameters
+#### Parameters
 
 *   `oldValue` **any** the oldValue to update.
 *   `key` **any** the key to the entry.
@@ -1941,21 +1930,21 @@ Type: [Function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Sta
 
 Returns **any** the new value to update the map with.
 
-#### HashMap#emplaceInsert
+### HashMap#emplaceInsert
 
 Emplace Insert Method
 A user defined method to describe how to insert into our map.
 
 Type: [Function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function)
 
-##### Parameters
+#### Parameters
 
 *   `key` **any** the key to the entry.
 *   `map` **[HashMap](#hashmap)** the hashmap.
 
 Returns **any** the new value we want to insert.
 
-#### HashMap#emplaceHandler
+### HashMap#emplaceHandler
 
 Emplace handler methods
 
@@ -1974,25 +1963,25 @@ Emplace handler methods
 
 Type: [Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)
 
-##### Properties
+#### Properties
 
 *   `update` **[HashMap#emplaceUpdate](#hashmapemplaceupdate)?** The update method to use.
 *   `insert` **[HashMap#emplaceInsert](#hashmapemplaceinsert)?** The insert method to use
 
-#### HashMap#ForEachCallback
+### HashMap#ForEachCallback
 
 For Each Function
 A callback to execute on every <code>\[key,value]</code> pair of this map iterable.
 
 Type: [Function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function)
 
-##### Parameters
+#### Parameters
 
 *   `value` **any?** the entry value.
 *   `key` **any?** the entry key
 *   `map` **[HashMap](#hashmap)?** the calling Map Iterable.
 
-##### Examples
+#### Examples
 
 log the keys and values
 
@@ -2000,7 +1989,7 @@ log the keys and values
 const forEachFunction = (value, key) => console.log(key,value)
 ```
 
-#### HashMap#MatchesPredicate
+### HashMap#MatchesPredicate
 
 Test each element of the map to see if it matches and return
 
@@ -2009,13 +1998,13 @@ Test each element of the map to see if it matches and return
 
 Type: [Function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function)
 
-##### Parameters
+#### Parameters
 
 *   `value` **any?** the entry value.
 *   `key` **any?** the entry key
 *   `iterable` **[HashMap](#hashmap)?** the HashMap.
 
-##### Examples
+#### Examples
 
 Only match keys divisible by 2
 
@@ -2037,7 +2026,7 @@ const myMatchPredicate = (value, key, mapIterable) => mapIterable.indexOf(key) !
 
 Returns **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** a value that coerces to true if it matches, or to false otherwise.
 
-#### HashMap#ReduceFunction
+### HashMap#ReduceFunction
 
 *   **See**: [Array.reduce](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce)
 
@@ -2046,14 +2035,14 @@ A callback to accumulate values from the HashMap <code>\[key,value]</code> into 
 
 Type: [Function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function)
 
-##### Parameters
+#### Parameters
 
 *   `accumulator` **any?** the value from the last execution of this function.
 *   `value` **any?** the entry value.
 *   `key` **any?** the entry key
 *   `hashmap` **[HashMap](#hashmap)?** the calling HashMap.
 
-##### Examples
+#### Examples
 
 add all the keys
 
@@ -2063,19 +2052,15 @@ const reduceFunction = (accumulator, value, key) => accumulator+key
 
 Returns **any** \[accumulator] - the value to pass to the next time this function is called or the final return value.
 
-### Utility Functions
-
-
-
-#### isFunction
+### isFunction
 
 Is the passed value not null and a function
 
-##### Parameters
+#### Parameters
 
 *   `func` **([function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function) | any)** the function/object to test
 
-##### Examples
+#### Examples
 
 test if its a function
 
@@ -2100,16 +2085,16 @@ Mootable.isFunction(notAFunction) === false;
 
 Returns **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** true if this is function and not null.
 
-#### isIterable
+### isIterable
 
 Is the passed object iterable and not null, i.e. it has a function that has a type of
 \[Symbol.iterator]
 
-##### Parameters
+#### Parameters
 
 *   `iterable` **(Iterable | any)** the object to test
 
-##### Examples
+#### Examples
 
 test if its iterable
 
@@ -2138,15 +2123,15 @@ Mootable.isIterable(notAnIterable) === false;
 
 Returns **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** true if this has a Symbol.iterator function
 
-#### isString
+### isString
 
 Is the passed value is not null and is a string
 
-##### Parameters
+#### Parameters
 
 *   `str` **([string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String) | any)** the string/object to test
 
-##### Examples
+#### Examples
 
 test if its iterable
 
@@ -2171,73 +2156,73 @@ Mootable.isString(notAString) === false;
 
 Returns **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** true if this is a string
 
-#### sameValue
+### sameValue
 
 *   **See**: [sameValue](https://262.ecma-international.org/6.0/#sec-samevalue)
 
 sameValue is the result of Object.is.
 The only difference between sameValue and sameValueZero is that +0 and -0 are considered different with sameValue.
 
-##### Parameters
+#### Parameters
 
 *   `x`  the first object to compare
 *   `y`  the second object to compare
 
 Returns **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** if they are equals according to [ECMA Spec for Same Value](https://262.ecma-international.org/6.0/#sec-samevalue)
 
-#### sameValueZero
+### sameValueZero
 
 *   **See**: [saveValueZero](https://262.ecma-international.org/6.0/#sec-samevaluezero)
 
 sameValueZero is the equality method used by Map, Array, Set etc.
 The only difference between === and sameValueZero is that NaN counts as equal on sameValueZero
 
-##### Parameters
+#### Parameters
 
 *   `x`  the first object to compare
 *   `y`  the second object to compare
 
 Returns **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** if they are equals according to [ECMA Spec for Same Value Zero](https://262.ecma-international.org/6.0/#sec-samevaluezero)
 
-#### abstractEquals
+### abstractEquals
 
 *   **See**: [abstractEquals](https://262.ecma-international.org/6.0/#sec-abstract-equality-comparison)
 
 The abstract Equals method <code>==</code>.
 Simply does an abstract equality comparison <code>==</code> against 2 values
 
-##### Parameters
+#### Parameters
 
 *   `x`  the first object to compare
 *   `y`  the second object to compare
 
 Returns **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** if they are equals according to [ECMA Spec for Abstract Equality](https://262.ecma-international.org/6.0/#sec-abstract-equality-comparison)
 
-#### strictEquals
+### strictEquals
 
 *   **See**: [strictEquals](https://262.ecma-international.org/6.0/#sec-strict-equality-comparison)
 
 The strict Equals method <code>===</code>.
 Simply does a strict equality comparison <code>===</code> against 2 values
 
-##### Parameters
+#### Parameters
 
 *   `x`  the first object to compare
 *   `y`  the second object to compare
 
 Returns **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** if they are equals according to [ECMA Spec for Strict Equality](https://262.ecma-international.org/6.0/#sec-strict-equality-comparison)
 
-#### hammingWeight
+### hammingWeight
 
 *   **See**: [hammingWeight](https://en.wikipedia.org/wiki/Hamming_weight)
 
 Counts the number of ones in a binary representation of a 32 bit integer.
 
-##### Parameters
+#### Parameters
 
 *   `flags` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** 32 bit integer
 
-##### Examples
+#### Examples
 
 count the number of bits set to one for the value 22
 
@@ -2255,7 +2240,7 @@ Mootable.hammingWeight(myNumber) === 7;
 
 Returns **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** amount of ones.
 
-#### hash
+### hash
 
 *   **See**: [MurmurHash specification on Github](https://github.com/aappleby/smhasher)
 *   **See**: [MurmurHash on Wikipedia](https://en.wikipedia.org/wiki/MurmurHash)
@@ -2263,7 +2248,7 @@ Returns **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/G
 Modified Murmur3 hash generator, with capped lengths.
 This is NOT a cryptographic hash, this hash is designed to create as even a spread across a 32bit integer as is possible.
 
-##### Parameters
+#### Parameters
 
 *   `key`  the string being hashed
 *   `len`  the max limit on the number of characters to hash (optional, default `0`)
@@ -2271,7 +2256,7 @@ This is NOT a cryptographic hash, this hash is designed to create as even a spre
 
 Returns **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** the hash
 
-#### hashCodeFor
+### hashCodeFor
 
 Given any object return back a hashcode
 
@@ -2289,13 +2274,13 @@ Otherwise
 As with all hashmaps, there is a contractual equivalence between hashcode and equals methods,
 in that any object that equals another, should produce the same hashcode.
 
-##### Parameters
+#### Parameters
 
 *   `key` **any** the key to get the hash code from
 
 Returns **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** the hash code.
 
-#### equalsFor
+### equalsFor
 
 Given a key, produce an equals method that fits the hashcode contract.
 
@@ -2311,13 +2296,13 @@ The expectation and requirement is this key will always be the first argument to
 As with all hashmaps, there is a contractual equivalence between hashcode and equals methods,
 in that any object that equals another, should produce the same hashcode.
 
-##### Parameters
+#### Parameters
 
 *   `key` **any** the key to get the hash code from
 
 Returns **(function (any, any): [boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean))** an equals function for 2 keys.
 
-#### equalsAndHash
+### equalsAndHash
 
 Given any object return back a hashcode
 
@@ -2335,14 +2320,14 @@ Otherwise
 As with all hashmaps, there is a contractual equivalence between hashcode and equals methods,
 in that any object that equals another, should produce the same hashcode.
 
-##### Parameters
+#### Parameters
 
 *   `key` **any** the key to get the hash code from
 *   `options`  
 
 Returns **{hash: [number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number), equals: [function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function)}** the hash code and equals function.
 
-#### some
+### some
 
 A function that when called with a value returns an Option object of the form: <code>{value:value,has:true}</code>
 Even if a value is not provided it still counts as existing, this is different from other libraries,
@@ -2350,11 +2335,11 @@ we are effectively saying that null and undefined count as valid values.
 
 Type: function (any?): [Option](#option)
 
-##### Parameters
+#### Parameters
 
 *   `value`  
 
-##### Examples
+#### Examples
 
 create an option using some
 
@@ -2366,13 +2351,13 @@ const option = some(myValue);
 // option.size === 1
 ```
 
-#### none
+### none
 
 A constant representation of an Option with nothing in it: <code>{value:undefined,has:false}</code>
 
 Type: [Option](#option)
 
-##### Examples
+#### Examples
 
 create an option using none
 
