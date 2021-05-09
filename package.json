@@ -47,7 +47,7 @@
     "build": "npm run lint && npm run coverage && npm run build:docs && npm run build:readme && npm run build:transpile && npm run test:sanity",
     "build:transpile": "rollup -c",
     "build:docs": "documentation build src/index.js -f html --theme assets/mootable_theme --config=documentation.yml --github -o docs",
-    "build:readme": "documentation readme src/index.js --config=documentation_md.yml --section=API --markdown-toc-max-depth=2 ",
+    "build:readme": "documentation readme src/index.js --config=documentation_md.yml --section=API --markdown-toc-max-depth=2 --document-exported",
     "coverage": " nyc npm test",
     "benchmark": "node benchmark/benchmark.js",
     "lint": "eslint src/**",
