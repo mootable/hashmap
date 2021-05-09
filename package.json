@@ -44,10 +44,10 @@
     "url": "git://github.com/mootable/hashmap.git"
   },
   "scripts": {
-    "build": "npm run lint && npm run coverage && npm run build:docs && npm run build:readme && npm run build:transpile && npm run test:sanity",
+    "build": "npm run lint && npm run coverage && npm run build:docs && npm run build:api:md && npm run build:transpile && npm run test:sanity",
     "build:transpile": "rollup -c",
     "build:docs": "documentation build src/index.js -f html --theme assets/mootable_theme --config=documentation.yml --github -o docs",
-    "build:readme": "documentation readme src/index.js --config=documentation_md.yml --section=API --markdown-toc-max-depth=3",
+    "build:api:md": "documentation readme --readme-file=API.md src/index.js --config=documentation_md.yml --section=API --markdown-toc-max-depth=3",
     "coverage": " nyc npm test",
     "benchmark": "node benchmark/benchmark.js",
     "lint": "eslint src/**",
