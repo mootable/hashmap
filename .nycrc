@@ -2,6 +2,7 @@
   "all": true,
   "reporter": [
     "lcov",
+    "text-lcov",
     "text",
     "text-summary"
   ],

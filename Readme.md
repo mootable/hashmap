@@ -1,7 +1,7 @@
 ![The Moo Tableau](mootableau_sm.png)
 
 # HashMap & LinkedHashMap
-
+[![Coverage Status](https://coveralls.io/repos/github/mootable/hashmap/badge.svg?branch=master)](https://coveralls.io/github/mootable/hashmap?branch=master)
 ## Description
 
 This project provides `HashMap` and `LinkedHashMap` classes that works both on **Node.js** and the **browser**.
