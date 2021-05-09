@@ -1,0 +1,33 @@
+toc:
+  - name: Classes
+    children:
+    - HashMap
+    - LinkedHashMap
+    - Option
+  - name: HashMap Callbacks
+    children:
+      - HashMap#overrideEquals
+      - HashMap#overrideHash
+      - HashMap#overrides
+      - HashMap#emplaceUpdate
+      - HashMap#emplaceInsert
+      - HashMap#emplaceHandler
+      - HashMap#ForEachCallback
+      - HashMap#MatchesPredicate
+      - HashMap#ReduceFunction
+  - name: Utility Functions
+    children:
+      - isFunction
+      - isIterable
+      - isString
+      - sameValue
+      - sameValueZero
+      - abstractEquals
+      - strictEquals
+      - hammingWeight
+      - hash
+      - hashCodeFor
+      - equalsFor
+      - equalsAndHash
+      - some
+      - none

@@ -1,3 +1,9 @@
+/*
+ * @author Jack Moxley
+ * @copyright Jack Moxley <https://github.com/jackmoxley>
+ * @licence MIT
+ */
+
 import {HashMap} from "./hashmap/";
 import {LinkedHashMap} from "./linkedhashmap/";
 import {
@@ -12,10 +18,6 @@ import {
 } from './utils/';
 import {hash, equalsAndHash, hashCodeFor, equalsFor} from './hashmap/hash';
 import {none, some, Option} from './option/';
-
-/**
- * @module @mootable/hashmap
- */
 
 const Mootable = {
     HashMap,

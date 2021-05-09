@@ -1,12 +1,12 @@
 import {sameValueZero, strictEquals, isFunction} from '../utils';
 import {Option} from "../option";
 
-/**
+/*
  * Hash - Hash functions
- * @namespace Mootable.Hash
- * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 1.0.2
- * Homepage: https://github.com/mootable/hashmap
+ * @author Jack Moxley
+ * @copyright Jack Moxley <https://github.com/jackmoxley>
+ * @licence MIT
+ * @copyright Jack Moxley <https://github.com/jackmoxley>
  */
 /**
  * Modified Murmur3 hash generator, with capped lengths.

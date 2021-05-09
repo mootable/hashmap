@@ -13,6 +13,9 @@ const DEPTH_HAMT = DEPTH - 1;
 
 /**
  * @private
+ * @author Jack Moxley
+ * @copyright Jack Moxley <https://github.com/jackmoxley>
+ * @licence MIT
  */
 export class HashBuckets {
     constructor(map) {

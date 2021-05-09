@@ -1,9 +1,8 @@
-/**
+/*
  * Utils - Utility functions
- * @namespace Mootable.Utils
- * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 1.0.2
- * Homepage: https://github.com/mootable/hashmap
+ * @author Jack Moxley
+ * @copyright Jack Moxley <https://github.com/jackmoxley>
+ * @licence MIT
  */
 /**
  * Is the passed value not null and a function
@@ -131,13 +130,9 @@ function hammingWeight (flags) {
 
 /**
  * Option - a class to get round nullable fields.
- * @namespace Mootable
- * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 1.0.1
- * Homepage: https://github.com/mootable/hashmap
- */
-
-/**
+ * @author Jack Moxley
+ * @copyright Jack Moxley <https://github.com/jackmoxley>
+ * @licence MIT
  * A representation of a value, that might be or might not be null.
  * - Options are immutable, once set, it can't be changed.
  * - Options are iterable
@@ -280,14 +275,10 @@ const some = (value) => new Option(true, value);
 const none = new Option(false, undefined);
 
 /**
- * HashMap - HashMap Container Implementation for JavaScript
- * @namespace Mootable.HashMap
- * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 1.0.2
- * Homepage: https://github.com/mootable/hashmap
- */
-
-/**
+ * HashMap Container Implementation for JavaScript
+ * @author Jack Moxley
+ * @copyright Jack Moxley <https://github.com/jackmoxley>
+ * @licence MIT
  * Using an array this container stores key value pairs for our map.
  * This collection of entries is a leaf node of our Hash Array Trie.
  * As such all entries in the container will have the same hash. In most cases this will be single entry.
@@ -481,6 +472,9 @@ const DEPTH_HAMT = DEPTH - 1;
 
 /**
  * @private
+ * @author Jack Moxley
+ * @copyright Jack Moxley <https://github.com/jackmoxley>
+ * @licence MIT
  */
 class HashBuckets {
     constructor(map) {
@@ -818,12 +812,12 @@ class HamtBuckets {
     }
 }
 
-/**
+/*
  * Hash - Hash functions
- * @namespace Mootable.Hash
- * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 1.0.2
- * Homepage: https://github.com/mootable/hashmap
+ * @author Jack Moxley
+ * @copyright Jack Moxley <https://github.com/jackmoxley>
+ * @licence MIT
+ * @copyright Jack Moxley <https://github.com/jackmoxley>
  */
 /**
  * Modified Murmur3 hash generator, with capped lengths.
@@ -1151,15 +1145,10 @@ function equalsAndHash(key, options) {
 }
 
 /**
- * HashMap - HashMap Implementation for JavaScript
- * @namespace Mootable
- * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 1.0.2
- * Homepage: https://github.com/mootable/hashmap
- */
-/**
  * This HashMap is backed by a Hash array mapped trie.
- *
+ * @author Jack Moxley
+ * @copyright Jack Moxley <https://github.com/jackmoxley>
+ * @licence MIT
  */
 class HashMap {
 
@@ -2501,7 +2490,7 @@ class HashMap {
     }
 }
 
-/**
+/*
  * Method parsing
  */
 Object.defineProperty(HashMap.prototype, 'equalsFor', {value: equalsFor, configurable: true});
@@ -2512,12 +2501,9 @@ Object.defineProperty(HashMap.prototype, 'equalsAndHash', {
 
 /**
  * HashMap - LinkedHashMap Implementation for JavaScript
- * @namespace Mootable
- * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 1.0.2
- * Homepage: https://github.com/mootable/hashmap
- */
-/**
+ * @author Jack Moxley
+ * @copyright Jack Moxley <https://github.com/jackmoxley>
+ * @licence MIT
  * This LinkedHashMap is is an extension of {@link HashMap} however LinkedHashMap also maintains insertion order of keys, and guarantees to iterate over them in that order.
  * @extends HashMap
  */
@@ -3012,8 +2998,10 @@ class LinkedContainer extends Container {
     }
 }
 
-/**
- * @module @mootable/hashmap
+/*
+ * @author Jack Moxley
+ * @copyright Jack Moxley <https://github.com/jackmoxley>
+ * @licence MIT
  */
 
 const Mootable = {

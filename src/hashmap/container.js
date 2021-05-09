@@ -1,14 +1,10 @@
 import {none, some} from '../option/';
 
 /**
- * HashMap - HashMap Container Implementation for JavaScript
- * @namespace Mootable.HashMap
- * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 1.0.2
- * Homepage: https://github.com/mootable/hashmap
- */
-
-/**
+ * HashMap Container Implementation for JavaScript
+ * @author Jack Moxley
+ * @copyright Jack Moxley <https://github.com/jackmoxley>
+ * @licence MIT
  * Using an array this container stores key value pairs for our map.
  * This collection of entries is a leaf node of our Hash Array Trie.
  * As such all entries in the container will have the same hash. In most cases this will be single entry.

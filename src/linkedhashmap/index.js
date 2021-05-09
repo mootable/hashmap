@@ -4,12 +4,9 @@ import {some, none} from "../option";
 
 /**
  * HashMap - LinkedHashMap Implementation for JavaScript
- * @namespace Mootable
- * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 1.0.2
- * Homepage: https://github.com/mootable/hashmap
- */
-/**
+ * @author Jack Moxley
+ * @copyright Jack Moxley <https://github.com/jackmoxley>
+ * @licence MIT
  * This LinkedHashMap is is an extension of {@link HashMap} however LinkedHashMap also maintains insertion order of keys, and guarantees to iterate over them in that order.
  * @extends HashMap
  */

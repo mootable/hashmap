@@ -1,12 +1,8 @@
 /**
  * Option - a class to get round nullable fields.
- * @namespace Mootable
- * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 1.0.1
- * Homepage: https://github.com/mootable/hashmap
- */
-
-/**
+ * @author Jack Moxley
+ * @copyright Jack Moxley <https://github.com/jackmoxley>
+ * @licence MIT
  * A representation of a value, that might be or might not be null.
  * - Options are immutable, once set, it can't be changed.
  * - Options are iterable
