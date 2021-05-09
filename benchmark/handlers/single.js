@@ -1,7 +1,6 @@
 /**
  * HashMap - HashMap Implementation for JavaScript
  * @author Jack Moxley <https://github.com/jackmoxley>
- * @version 1.0.3
  * Homepage: https://github.com/mootable/hashmap
  */
 const {cycle,complete, suite: b_suite,} = require('benny');

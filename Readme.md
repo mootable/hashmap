@@ -1,7 +1,9 @@
-![The Moo Tableau](mootableau_sm.png)
+[![The Moo Tableau](mootableau_sm.png)](https://mootable.github.io/hashmap/) [![Coverage Status](https://coveralls.io/repos/github/mootable/hashmap/badge.svg?branch=master)](https://coveralls.io/github/mootable/hashmap?branch=master) [![Known Vulnerabilities](https://snyk.io/test/github/mootable/hashmap/badge.svg)](https://snyk.io/test/github/mootable/hashmap)
+[![Dependencies](https://status.david-dm.org/gh/mootable/hashmap.svg)](http://inch-ci.org/github/mootable/hashmap) [![Inline docs](http://inch-ci.org/github/mootable/hashmap.svg?branch=master)](http://inch-ci.org/github/mootable/hashmap)
 
 # HashMap & LinkedHashMap
-[![Coverage Status](https://coveralls.io/repos/github/mootable/hashmap/badge.svg?branch=master)](https://coveralls.io/github/mootable/hashmap?branch=master)
+
+
 ## Description
 
 This project provides `HashMap` and `LinkedHashMap` classes that works both on **Node.js** and the **browser**.
@@ -157,7 +159,7 @@ const hashmap = new HashMap(forEachObj);
         *   It must have an identical interface to JS Map
         *   It must be fully written in JS. (Transpiling is acceptable) So that we can guarantee it works in the browser, not just node.
 
-### Benchmarks on version 1.0.3
+### Benchmarks on version 1.0.4
 
 ![Set Get And Delete](BenchmarkSGD.png)
 

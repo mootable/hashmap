@@ -10,7 +10,7 @@
     "import": "./dist/hashmap.mjs",
     "require": "./dist/hashmap.cjs"
   },
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "HashMap, LinkedHashMap and Higher Order Functions for all other Iterables, such as Map, Set and Array",
   "keywords": [
     "mootable",
@@ -48,7 +48,8 @@
     "build:transpile": "rollup -c",
     "build:docs": "documentation build src/index.js -f html --theme assets/mootable_theme --config=documentation.yml --github -o docs",
     "build:api:md": "documentation readme --readme-file=API.md src/index.js --config=documentation_md.yml --section=API --markdown-toc-max-depth=3",
-    "coverage": " nyc npm test && nyc report --reporter=text-lcov | coveralls",
+    "coverage": "nyc npm test && nyc report --reporter=text-lcov",
+    "coveralls": "nyc npm test && nyc report --reporter=text-lcov | coveralls",
     "benchmark": "node benchmark/benchmark.js",
     "lint": "eslint src/**",
     "test": "mocha --grep @sanity --invert",
