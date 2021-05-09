@@ -1,0 +1,195 @@
+:root {
+  --background: #2b2b2b;
+  --foreground: #a3b7c6;
+  --comment: #808080;
+  --selection: #214283;
+  --lineHighlight: #323232;
+
+  --orange: #cc7832;
+  --yellow: #e8bf6a;
+  --brightYellow: #bbb529;
+  --green: #6a8759;
+  --brightGreen: #a5c261;
+  --purple: #9876aa;
+  --blue: #6897bb;
+  --brightBlue: #aec7db;
+  --brightBlueDimmed: #8bafcb;
+  --brown: #8a653b;
+
+  /* text colors */
+  --foreground-bright: #FFFFFF;
+  --foreground-light: #E9E9E9;
+  --foreground-special: #D8D8D8;
+  --foreground-color: #C7C7C7;
+  --foreground-dim: #949494;
+  --foreground-shadow: #828282;
+  --foreground-dark: #333333;
+  --foreground-warn: #bf360c;
+  /* background colors */
+  --background-highlight: #E6E6FF;
+  --background-bright: #8282A0;
+  --background-elevated: #545465;
+  --background-color: #424248;
+  --background-dim: #363639;
+  --background-shadow: #333336;
+  --background-dark: #222228;
+  --background-very-dark: #111117;
+}
+
+.documentation {
+  font-family: Helvetica, sans-serif;
+  color: var(--foreground-color);
+  line-height: 1.5;
+  background: var(--background-color);
+}
+
+.logo {
+  width: 178px;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+}
+
+.black {
+  color: #666;
+}
+
+.code-section {
+  background-color: var(--background-very-dark);
+}
+.toggled-section {
+  background-color: var(--background-dark);
+}
+.static-group {
+  text-transform: uppercase;
+}
+
+h4 {
+  margin: 20px 0 10px 0;
+}
+
+.documentation h3 {
+  color: var(--foreground-special);
+}
+
+
+a {
+  color: var(--brightBlueDimmed);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--brightBlue);
+}
+.documentation a[href]:hover {
+  text-decoration: underline;
+}
+
+a:hover {
+  cursor: pointer;
+}
+
+.py1-ul li {
+  padding: 5px 0;
+}
+
+.max-height-100 {
+  max-height: 100%;
+}
+
+.height-viewport-100 {
+  height: 100vh;
+}
+
+section:target h3 {
+  font-weight: 700;
+}
+
+.documentation td,
+.documentation th {
+  padding: 0.25rem 0.25rem;
+}
+
+h1:hover .anchorjs-link,
+h2:hover .anchorjs-link,
+h3:hover .anchorjs-link,
+h4:hover .anchorjs-link {
+  opacity: 1;
+}
+
+.fix-3 {
+  width: 25%;
+  max-width: 244px;
+}
+
+.fix-3 {
+  width: 25%;
+  max-width: 244px;
+}
+
+@media (min-width: 52em) {
+  .fix-margin-3 {
+    margin-left: 25%;
+  }
+}
+
+.pre,
+pre,
+code,
+.code {
+  font-family: Source Code Pro, Menlo, Consolas, Liberation Mono, monospace;
+  font-size: 14px;
+}
+
+.fill-light {
+  background: var(--background-color);
+}
+
+.width2 {
+  width: 1rem;
+}
+
+.input {
+  font-family: inherit;
+  display: block;
+  width: 100%;
+  height: 2rem;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  font-size: 0.875rem;
+  border-radius: 3px;
+  box-sizing: border-box;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+.prose table th,
+.prose table td {
+  text-align: left;
+  padding: 8px;
+  border: 1px solid #ddd;
+}
+
+.prose table th:nth-child(1) {
+  border-right: none;
+}
+.prose table th:nth-child(2) {
+  border-left: none;
+}
+
+.prose table {
+  border: 1px solid #ddd;
+}
+
+.prose-big {
+  font-size: 18px;
+  line-height: 30px;
+}
+
+.quiet {
+  /*opacity: 0.7;*/
+}
+
