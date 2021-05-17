@@ -1,9 +1,12 @@
 # Changelog
 ## Current
+## 1.0.5
+- Updated Dev Dependencies.
+- Added more documentation.
 ## 1.0.4
 Added badges
 ## 1.0.3
-- Removed JSDoc which had an underlying dependancy (underscore) which had a security vulnerability, as it is a dev dependancy, there is no additional risk to projects that depend on @mootable/hashmap.
+- Removed JSDoc which had an underlying dependency (underscore) which had a security vulnerability, as it is a dev dependency, there is no additional risk to projects that depend on @mootable/hashmap.
 - Replaced with Documentation.js
   - Built a Mootable theme.
 - Fixed up a load of the ReadMe and Documentation pages.

@@ -692,8 +692,8 @@ Find a value
 
 ```javascript
 const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
-const findResult = hashmap.find((value) => value.endsWith('ue2'));
-// findResult === 'value2'
+const findResult = hashmap.find((value) => value.startsWith('val'));
+// findResult === 'value1'
 ```
 
 Can't find a value
@@ -710,11 +710,13 @@ Returns **any** the value of the element that matches.
 
 *   **See**: [Array.find](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find)
 
-Find the first value in the map which passes the provided <code>MatchesPredicate</code>.
+Find the last value in the map which passes the provided <code>MatchesPredicate</code>.
 
-*   return the first <code>value</code> from the <code>\[key,value]</code> pair that matches
+*   return the last <code>value</code> from the <code>\[key,value]</code> pair that matches
 *   if no elements match, it returns undefined.
-*   if no predicate is defined, will return the first value it finds.
+*   if no predicate is defined, will return the last value it finds. (It does this by iterating over the hashmap in reverse, and returning the first
+
+item that matches)
 
 ##### Parameters
 
@@ -723,20 +725,20 @@ Find the first value in the map which passes the provided <code>MatchesPredicate
 
 ##### Examples
 
-Find a value
+Find the last value
 
 ```javascript
 const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
-const findResult = hashmap.find((value) => value.endsWith('ue2'));
-// findResult === 'value2'
+const findLastResult = hashmap.findLast((value) => value.startsWith('val'));
+// findLastResult === 'value3'
 ```
 
 Can't find a value
 
 ```javascript
 const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
-const findResult = hashmap.find((value) => value.startsWith('something'));
-// findResult === undefined
+const findLastResult = hashmap.findLast((value) => value.startsWith('something'));
+// findLastResult === undefined
 ```
 
 Returns **any** the value of the element that matches.
@@ -749,8 +751,8 @@ Returns **any** the value of the element that matches.
 
 Find the first value in the map which passes the provided <code>MatchesPredicate</code>.
 
-*   return the first <code>value</code> from the <code>\[key,value]</code> pair that matches
-*   if no elements match, it returns undefined.
+*   return the first <code>value</code> from the <code>\[key,value]</code> pair that matches, wrapped in an Option
+*   if no elements match, it returns none.
 *   if no predicate is defined, will return the first value it finds.
 
 ##### Parameters
@@ -764,19 +766,20 @@ Find a value
 
 ```javascript
 const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
-const findResult = hashmap.find((value) => value.endsWith('ue2'));
-// findResult === 'value2'
+const optionalFindResult = hashmap.optionalFind((value) => value.startsWith('val'));
+// optionalFindResult.value === 'value1'
+// optionalFindResult.has === true
 ```
 
 Can't find a value
 
 ```javascript
 const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
-const findResult = hashmap.find((value) => value.startsWith('something'));
-// findResult === undefined
+const optionalFindResult = hashmap.optionalFind((value) => value.startsWith('something'));
+// optionalFindResult.has === false
 ```
 
-Returns **any** the value of the element that matches.
+Returns **([Option](#option)\<any> | [Option.none](#optionnone))** the value of the element that matches.
 
 #### optionalFindLast
 
@@ -784,11 +787,13 @@ Returns **any** the value of the element that matches.
 *   **See**: [Option.none](#optionnone)
 *   **See**: [Array.find](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find)
 
-Find the first value in the map which passes the provided <code>MatchesPredicate</code>.
+Find the last value in the map which passes the provided <code>MatchesPredicate</code>.
 
-*   return the first <code>value</code> from the <code>\[key,value]</code> pair that matches
-*   if no elements match, it returns undefined.
-*   if no predicate is defined, will return the first value it finds.
+*   return the last <code>value</code> from the <code>\[key,value]</code> pair that matches, wrapped in an Option
+*   if no elements match, it returns none.
+*   if no predicate is defined, will return the last value it finds. (It does this by iterating over the hashmap in reverse, and returning the first
+
+item that matches)
 
 ##### Parameters
 
@@ -801,25 +806,26 @@ Find a value
 
 ```javascript
 const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
-const findResult = hashmap.find((value) => value.endsWith('ue2'));
-// findResult === 'value2'
+const optionalFindLastResult = hashmap.optionalFindLast((value) => value.startsWith('val'));
+// optionalFindLastResult.value === 'value3'
+// optionalFindLastResult.has === true
 ```
 
 Can't find a value
 
 ```javascript
 const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
-const findResult = hashmap.find((value) => value.startsWith('something'));
-// findResult === undefined
+const optionalFindLastResult = hashmap.optionalFindLast((value) => value.startsWith('something'));
+// optionalFindLastResult.has === false
 ```
 
-Returns **any** the value of the element that matches.
+Returns **([Option](#option)\<any> | [Option.none](#optionnone))** the value of the element that matches.
 
 #### findKey
 
 *   **See**: [Array.findIndex](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex)
 
-Find the first value in the key which passes the provided  <code>MatchesPredicate</code>.
+Find the first key in the map which passes the provided  <code>MatchesPredicate</code>.
 
 *   return the first <code>key</code> from the <code>\[key,value]</code> pair that matches
 *   if no elements match, it returns undefined.
@@ -836,16 +842,16 @@ Find a key
 
 ```javascript
 const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
-const findIndexResult = hashmap.findIndex((value) => value.endsWith('ue2'));
-// findIndexResult === 2
+const findKeyResult = hashmap.findKey((value) => value.startsWith('val'));
+// findKeyResult === 1
 ```
 
 Can't find a key
 
 ```javascript
 const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
-const findIndexResult = hashmap.findIndex((value) => value.startsWith('something'));
-// findIndexResult === undefined
+const findKeyResult = hashmap.findKey((value) => value.startsWith('something'));
+// findKeyResult === undefined
 ```
 
 Returns **any** the key of the element that matches..
@@ -854,11 +860,13 @@ Returns **any** the key of the element that matches..
 
 *   **See**: [Array.prototype.findIndex](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex)
 
-Find the first value in the key which passes the provided  <code>MatchesPredicate</code>.
+Find the last key in the map which passes the provided <code>MatchesPredicate</code>.
 
-*   return the first <code>key</code> from the <code>\[key,value]</code> pair that matches
+*   return the last <code>key</code> from the <code>\[key,value]</code> pair that matches
 *   if no elements match, it returns undefined.
-*   if no predicate is defined, will return the first key it finds.
+*   if no predicate is defined, will return the last key it finds. (It does this by iterating over the hashmap in reverse, and returning the first
+
+item that matches)
 
 ##### Parameters
 
@@ -871,16 +879,16 @@ Find a key
 
 ```javascript
 const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
-const findIndexResult = hashmap.findIndex((value) => value.endsWith('ue2'));
-// findIndexResult === 2
+const findLastKeyResult = hashmap.findLastKey((value) => value.startsWith('val'));
+// findLastKeyResult === 3
 ```
 
 Can't find a key
 
 ```javascript
 const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
-const findIndexResult = hashmap.findIndex((value) => value.startsWith('something'));
-// findIndexResult === undefined
+const findLastKeyResult = hashmap.findLastKey((value) => value.startsWith('something'));
+// findLastKeyResult === undefined
 ```
 
 Returns **any** the key of the element that matches..
@@ -891,10 +899,10 @@ Returns **any** the key of the element that matches..
 *   **See**: [Option.none](#optionnone)
 *   **See**: [Array.prototype.findIndex](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex)
 
-Find the first value in the key which passes the provided  <code>MatchesPredicate</code>.
+Find the first key in the map which passes the provided <code>MatchesPredicate</code>.
 
-*   return the first <code>key</code> from the <code>\[key,value]</code> pair that matches
-*   if no elements match, it returns undefined.
+*   return the first <code>key</code> from the <code>\[key,value]</code> pair that matches, wrapped in an Option
+*   if no elements match, it returns none.
 *   if no predicate is defined, will return the first key it finds.
 
 ##### Parameters
@@ -908,19 +916,20 @@ Find a key
 
 ```javascript
 const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
-const findIndexResult = hashmap.findIndex((value) => value.endsWith('ue2'));
-// findIndexResult === 2
+const optionalFindKeyResult = hashmap.optionalFindKey((value) => value.startsWith('val'));
+// optionalFindKeyResult.value === 1
+// optionalFindKeyResult.has === true
 ```
 
 Can't find a key
 
 ```javascript
 const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
-const findIndexResult = hashmap.findIndex((value) => value.startsWith('something'));
-// findIndexResult === undefined
+const optionalFindKeyResult = hashmap.optionalFindKey((value) => value.startsWith('something'));
+// optionalFindKeyResult.has === false
 ```
 
-Returns **any** the key of the element that matches..
+Returns **([Option](#option)\<any> | [Option.none](#optionnone))** the key of the element that matches.
 
 #### optionalFindLastKey
 
@@ -928,11 +937,13 @@ Returns **any** the key of the element that matches..
 *   **See**: [Option.none](#optionnone)
 *   **See**: [Array.prototype.findIndex](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex)
 
-Find the first value in the key which passes the provided  <code>MatchesPredicate</code>.
+Find the last key in the map which passes the provided <code>MatchesPredicate</code>.
 
-*   return the first <code>key</code> from the <code>\[key,value]</code> pair that matches
-*   if no elements match, it returns undefined.
-*   if no predicate is defined, will return the first key it finds.
+*   return the last <code>key</code> from the <code>\[key,value]</code> pair that matches, wrapped in an Option
+*   if no elements match, it returns none.
+*   if no predicate is defined, will return the last key it finds. (It does this by iterating over the hashmap in reverse, and returning the first
+
+item that matches)
 
 ##### Parameters
 
@@ -945,25 +956,30 @@ Find a key
 
 ```javascript
 const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
-const findIndexResult = hashmap.findIndex((value) => value.endsWith('ue2'));
-// findIndexResult === 2
+const optionalFindLastKeyResult = hashmap.optionalFindLastKey(value) => value.startsWith('val'));
+// optionalFindLastKeyResult.value === 3
+// optionalFindLastKeyResult.has === true
 ```
 
 Can't find a key
 
 ```javascript
 const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
-const findIndexResult = hashmap.findIndex((value) => value.startsWith('something'));
-// findIndexResult === undefined
+const optionalFindLastKeyResult = hashmap.optionalFindLastKey((value) => value.startsWith('something'));
+// optionalFindLastKeyResult.has === false
 ```
 
-Returns **any** the key of the element that matches..
+Returns **([Option](#option)\<any> | [Option.none](#optionnone))** the key of the element that matches.
 
 #### set
 
 *   **See**: [Map.prototype.set](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/set)
 
 Sets a value onto this map, using the key as its reference.
+
+*   If the key already exists, this will overwrite the value with the new value.
+*   If it doesn't exist it adds the new key value pair to the map.
+*   NB: Ordering in a HashMap is not defined by insertion order (much), but by hash value (mostly).
 
 ##### Parameters
 
@@ -1335,7 +1351,7 @@ Test to see if ALL elements pass the test implemented by the passed <code>Matche
 
 ##### Examples
 
-Do all values start with value. (yes)
+Do all values start with 'value'. (yes)
 
 ```javascript
 const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
