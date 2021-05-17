@@ -159,7 +159,7 @@ const hashmap = new HashMap(forEachObj);
         *   It must have an identical interface to JS Map
         *   It must be fully written in JS. (Transpiling is acceptable) So that we can guarantee it works in the browser, not just node.
 
-### Benchmarks on version 1.0.4
+### Benchmarks on version 1.0.5
 
 ![Set Get And Delete](BenchmarkSGD.png)
 
