@@ -1,6 +1,7 @@
 import {nodeResolve} from "@rollup/plugin-node-resolve";
 import commonJs from "@rollup/plugin-commonjs";
 import {terser} from "rollup-plugin-terser";
+import cleanup from 'rollup-plugin-cleanup';
 import babel from '@rollup/plugin-babel';
 
 const input = ["src/index.js"];
@@ -22,6 +23,7 @@ export default [
                     targets: "defaults"
                 }]]
             }),
+            cleanup()
         ],
         output: [{
             file: `dist/hashmap.min.js`,
@@ -56,6 +58,7 @@ export default [
                     targets: "last 2 years and supports es6-module, not dead"
                 }]]
             }),
+            cleanup({comments: 'some'}),
         ],
         output: [{
             file: `dist/hashmap.umd.min.js`,
@@ -77,7 +80,7 @@ export default [
 // ESM and CJS
     {
         input,
-        plugins: [nodeResolve()],
+        plugins: [nodeResolve(), cleanup({comments: 'all'})],
         output: [
             {
                 file: `dist/hashmap.mjs`,

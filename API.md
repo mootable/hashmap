@@ -74,7 +74,7 @@
     *   [valuesRight](#valuesright-1)
 *   [Option](#option)
     *   [Parameters](#parameters-33)
-    *   [Examples](#examples-26)
+    *   [Examples](#examples-33)
     *   [size](#size-1)
     *   [iterator](#iterator-2)
     *   [none](#none)
@@ -93,22 +93,22 @@
     *   [Properties](#properties-1)
 *   [HashMap#ForEachCallback](#hashmapforeachcallback)
     *   [Parameters](#parameters-39)
-    *   [Examples](#examples-30)
+    *   [Examples](#examples-37)
 *   [HashMap#MatchesPredicate](#hashmapmatchespredicate)
     *   [Parameters](#parameters-40)
-    *   [Examples](#examples-31)
+    *   [Examples](#examples-38)
 *   [HashMap#ReduceFunction](#hashmapreducefunction)
     *   [Parameters](#parameters-41)
-    *   [Examples](#examples-32)
+    *   [Examples](#examples-39)
 *   [isFunction](#isfunction)
     *   [Parameters](#parameters-42)
-    *   [Examples](#examples-33)
+    *   [Examples](#examples-40)
 *   [isIterable](#isiterable)
     *   [Parameters](#parameters-43)
-    *   [Examples](#examples-34)
+    *   [Examples](#examples-41)
 *   [isString](#isstring)
     *   [Parameters](#parameters-44)
-    *   [Examples](#examples-35)
+    *   [Examples](#examples-42)
 *   [sameValue](#samevalue)
     *   [Parameters](#parameters-45)
 *   [sameValueZero](#samevaluezero)
@@ -119,7 +119,7 @@
     *   [Parameters](#parameters-48)
 *   [hammingWeight](#hammingweight)
     *   [Parameters](#parameters-49)
-    *   [Examples](#examples-36)
+    *   [Examples](#examples-43)
 *   [hash](#hash)
     *   [Parameters](#parameters-50)
 *   [hashCodeFor](#hashcodefor)
@@ -130,9 +130,9 @@
     *   [Parameters](#parameters-53)
 *   [some](#some-2)
     *   [Parameters](#parameters-54)
-    *   [Examples](#examples-37)
+    *   [Examples](#examples-44)
 *   [none](#none-1)
-    *   [Examples](#examples-38)
+    *   [Examples](#examples-45)
 
 ### HashMap
 
@@ -1479,29 +1479,134 @@ Returns **any** the final accumulated value.
 
 Iterates over all the entries in the map.
 
+##### Examples
+
+iterate over the map
+
+```javascript
+const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+for ([key, value] of hashmap) {
+    console.log(key,value);
+}
+// logs:
+// 1 value1
+// 2 value2
+// 3 value3
+```
+
 #### entries
 
 Iterates over all the entries in the map.
 
+##### Examples
+
+iterate over the map
+
+```javascript
+const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+for ([key, value] of hashmap.entries()) {
+    console.log(key,value);
+}
+// logs:
+// 1 value1
+// 2 value2
+// 3 value3
+```
+
 #### entriesRight
 
-Iterates over all the entries in the map.
+Iterates over all the entries in the map in reverse.
+
+##### Examples
+
+iterate over the map in reverse
+
+```javascript
+const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+for ([key, value] of hashmap.entriesRight()) {
+    console.log(key,value);
+}
+// logs:
+// 3 value3
+// 2 value2
+// 1 value1
+```
 
 #### keys
 
 Iterates over all the keys in the map.
 
+##### Examples
+
+iterate over the keys
+
+```javascript
+const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+for (const key of hashmap.keys()) {
+    console.log(key);
+}
+// logs:
+// 1
+// 2
+// 3
+```
+
 #### values
 
 Iterates over all the values in the map.
+
+##### Examples
+
+iterate over the values
+
+```javascript
+const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+for (const value of hashmap.values()) {
+    console.log(value);
+}
+// logs:
+// value1
+// value2
+// value3
+```
 
 #### keysRight
 
 Iterates over all the keys in the map in reverse.
 
+##### Examples
+
+iterate over the keys
+
+```javascript
+const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+for (const key of hashmap.keysRight()) {
+    console.log(key);
+}
+// logs:
+// 3
+// 2
+// 1
+```
+
 #### valuesRight
 
 Iterates over all the values in the map in reverse.
+
+##### Examples
+
+iterate over the values
+
+```javascript
+const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+for (const value of hashmap.valuesRight()) {
+    console.log(value);
+}
+// logs:
+// value3
+// value2
+// value1
+```
 
 ### LinkedHashMap
 

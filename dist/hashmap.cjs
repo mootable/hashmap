@@ -25,7 +25,6 @@ Object.defineProperty(exports, '__esModule', { value: true });
 function isFunction(func) {
     return !!(func && func.constructor && func.call && func.apply);
 }
-
 /**
  * Is the passed object iterable and not null, i.e. it has a function that has a type of
  * [Symbol.iterator]
@@ -48,7 +47,6 @@ function isFunction(func) {
 function isIterable(iterable) {
     return !!(iterable && isFunction(iterable[Symbol.iterator]));
 }
-
 /**
  * Is the passed value is not null and is a string
  * @example <caption> test if its iterable</caption>
@@ -66,7 +64,6 @@ function isIterable(iterable) {
 function isString(str) { // jshint ignore:line
     return !!(str && (typeof str === 'string' || str instanceof String));
 }
-
 /**
  * sameValue is the result of Object.is.
  * The only difference between sameValue and sameValueZero is that +0 and -0 are considered different with sameValue.
@@ -77,7 +74,6 @@ function isString(str) { // jshint ignore:line
  * @returns {boolean} - if they are equals according to {@link https://262.ecma-international.org/6.0/#sec-samevalue ECMA Spec for Same Value}
  */
 const sameValue = Object.is;
-
 /**
  * sameValueZero is the equality method used by Map, Array, Set etc.
  * The only difference between === and sameValueZero is that NaN counts as equal on sameValueZero
@@ -89,7 +85,6 @@ const sameValue = Object.is;
 function sameValueZero(x, y) {
     return x === y || (Number.isNaN(x) && Number.isNaN(y));
 }
-
 /**
  * The abstract Equals method <code>==</code>.
  * Simply does an abstract equality comparison <code>==</code> against 2 values
@@ -101,7 +96,6 @@ function sameValueZero(x, y) {
 function abstractEquals(x, y) {
     return x == y; // jshint ignore:line
 }
-
 /**
  * The strict Equals method <code>===</code>.
  * Simply does a strict equality comparison <code>===</code> against 2 values
@@ -113,7 +107,6 @@ function abstractEquals(x, y) {
 function strictEquals(x, y) {
     return x === y;
 }
-
 /**
  * Counts the number of ones in a binary representation of a 32 bit integer.
  * @example <caption> count the number of bits set to one for the value 22</caption>
@@ -161,7 +154,6 @@ function hammingWeight (flags) {
  * // logs - world
  */
 class Option {
-
     /**
      * Usage of this constructor should generally be avoided,
      * - instead use the some or none method on Option,
@@ -177,7 +169,6 @@ class Option {
         this.value = value;
         Object.freeze(this);
     }
-
     /**
      * A constant representation of an Option with nothing in it:
      * <code>{value:undefined,has:false}</code>
@@ -191,7 +182,6 @@ class Option {
     static get none() {
         return none;
     }
-
     /**
      * Return the size of this option.
      *  - 1 if it has a value
@@ -201,8 +191,6 @@ class Option {
     get size() {
         return this.has ? 1 : 0;
     }
-
-
     /**
      * When called with a value returns an Option object of the form:
      * <code>{value:value,has:true}</code>
@@ -220,7 +208,6 @@ class Option {
     static some(value) {
         return some(value);
     }
-
     /**
      * Provides an iterable for the Option
      * If using a for loop.
@@ -250,7 +237,6 @@ class Option {
         }
     }
 }
-
 /**
  * A function that when called with a value returns an Option object of the form:
  * <code>{value:value,has:true}</code>
@@ -265,7 +251,6 @@ class Option {
  * @type {function(*=): Option}
  */
 const some = (value) => new Option(true, value);
-
 /**
  * A constant representation of an Option with nothing in it:
  * <code>{value:undefined,has:false}</code>
@@ -289,7 +274,6 @@ const none = new Option(false, undefined);
  * @private
  */
 class Container {
-
     /**
      * Constructs an empty container.
      *
@@ -303,7 +287,6 @@ class Container {
         this.parent = parent;
         this.hash = hash;
     }
-
     /**
      * Does the provided hash conflict with this one, i.e. is it different.
      * This is used for ensuring only the correct keys are added.
@@ -314,7 +297,6 @@ class Container {
     hashConflicts(hash) {
         return hash !== this.hash;
     }
-
     /**
      * Used to fetch the key and value.
      *
@@ -333,7 +315,6 @@ class Container {
         }
         return undefined;
     }
-
     optionalGet(key, options) {
         if (this.size !== 0) {
             const equals = options.equals;
@@ -344,7 +325,6 @@ class Container {
         }
         return none;
     }
-
     set(key, value, options) {
         const equals = options.equals;
         for (const entry of this.contents) {
@@ -355,7 +335,6 @@ class Container {
         }
         this.createEntry(key, value, options);
     }
-
     emplace(key, handler, options) {
         const equals = options.equals;
         for (const entry of this.contents) {
@@ -372,7 +351,6 @@ class Container {
         this.createEntry(key, value, options);
         return value;
     }
-
     createEntry(key, value) {
         const entry = [key, value];
         entry.parent = this;
@@ -380,11 +358,9 @@ class Container {
         this.size += 1;
         return entry;
     }
-
     updateEntry(entry, newValue) {
         entry[1] = newValue;
     }
-
     deleteEntry(entry) {
         const idx = this.contents.indexOf(entry);
         if (idx !== -1) {
@@ -396,7 +372,6 @@ class Container {
             }
         }
     }
-
     deleteIndex(idx) {
         this.size -= 1;
         if (idx === 0) {
@@ -407,7 +382,6 @@ class Container {
             return this.contents.splice(idx, 1)[0];
         }
     }
-
     has(key, options) {
         if (this.size !== 0) {
             const equals = options.equals;
@@ -415,48 +389,40 @@ class Container {
         }
         return false;
     }
-
     delete(key, options) {
         const equals = options.equals;
         const idx = this.contents.findIndex(entry => equals(key, entry[0]));
-
         if (idx === -1) {
             return false;
         }
         this.deleteIndex(idx);
         return true;
     }
-
     * [Symbol.iterator]() {
         for (const entry of this.contents) {
             yield entry.slice();
         }
     }
-
     * entriesRight() {
         for (let idx = this.contents.length - 1; idx >= 0; idx--) {
             yield this.contents[idx].slice();
         }
     }
-
     * keys() {
         for (const entry of this.contents) {
             yield entry[0];
         }
     }
-
     * values() {
         for (const entry of this.contents) {
             yield entry[1];
         }
     }
-
     * keysRight() {
         for (let idx = this.contents.length - 1; idx >= 0; idx--) {
             yield this.contents[idx][0];
         }
     }
-
     * valuesRight() {
         for (let idx = this.contents.length - 1; idx >= 0; idx--) {
             yield this.contents[idx][1];
@@ -468,12 +434,10 @@ const SHIFT = 7;
 const WIDTH = 1 << SHIFT;
 const MASK = WIDTH - 1;
 const DEPTH = 5;
-
 const SHIFT_HAMT = 5;
 const WIDTH_HAMT = 1 << SHIFT_HAMT;
 const MASK_HAMT = WIDTH_HAMT - 1;
 const DEPTH_HAMT = DEPTH - 1;
-
 /**
  * @private
  * @author Jack Moxley
@@ -486,12 +450,10 @@ class HashBuckets {
         this.buckets = [];
         this.size = 0;
     }
-
     clear() {
         this.buckets = [];
         this.size = 0;
     }
-
     bucketFor(hash) {
         const idx = hash & MASK;
         if (idx < this.buckets.length) {
@@ -499,7 +461,6 @@ class HashBuckets {
         }
         return undefined;
     }
-
     set(key, value, options) {
         const hash = options.hash;
         const idx = hash & MASK;
@@ -518,7 +479,6 @@ class HashBuckets {
         bucket.set(key, value, options);
         this.size += bucket.size;
     }
-
     emplace(key, handler, options) {
         const hash = options.hash;
         const idx = hash & MASK;
@@ -535,7 +495,6 @@ class HashBuckets {
         this.size += bucket.size;
         return value;
     }
-
     delete(key, options) {
         const hash = options.hash;
         const idx = hash & MASK;
@@ -549,7 +508,6 @@ class HashBuckets {
         }
         return false;
     }
-
     get(key, options) {
         const hash = options.hash;
         const bucket = this.bucketFor(hash);
@@ -558,7 +516,6 @@ class HashBuckets {
         }
         return undefined;
     }
-
     optionalGet(key, options) {
         const hash = options.hash;
         const bucket = this.bucketFor(hash);
@@ -567,7 +524,6 @@ class HashBuckets {
         }
         return none;
     }
-
     has(key, options) {
         const hash = options.hash;
         const bucket = this.bucketFor(hash);
@@ -576,7 +532,6 @@ class HashBuckets {
         }
         return false;
     }
-
     * [Symbol.iterator]() {
         for (const bucket of this.buckets) {
             if (bucket) {
@@ -584,7 +539,6 @@ class HashBuckets {
             }
         }
     }
-
     * entriesRight() {
         for (let idx = this.buckets.length - 1; idx >= 0; idx--) {
             const bucket = this.buckets[idx];
@@ -593,7 +547,6 @@ class HashBuckets {
             }
         }
     }
-
     * keys() {
         for (const bucket of this.buckets) {
             if (bucket) {
@@ -601,7 +554,6 @@ class HashBuckets {
             }
         }
     }
-
     * values() {
         for (const bucket of this.buckets) {
             if (bucket) {
@@ -609,7 +561,6 @@ class HashBuckets {
             }
         }
     }
-
     * keysRight() {
         for (let idx = this.buckets.length - 1; idx >= 0; idx--) {
             const bucket = this.buckets[idx];
@@ -618,7 +569,6 @@ class HashBuckets {
             }
         }
     }
-
     * valuesRight() {
         for (let idx = this.buckets.length - 1; idx >= 0; idx--) {
             const bucket = this.buckets[idx];
@@ -628,7 +578,6 @@ class HashBuckets {
         }
     }
 }
-
 /**
  * @private
  */
@@ -642,29 +591,24 @@ class HamtBuckets {
         this.depth = depth;
         this.shift = shift;
     }
-
     hashConflicts() {
         return false;
     }
-
     clear() {
         this.size = 0;
         this.buckets = [];
         this.idxFlags = 0;
     }
-
     bucketFor(hash) {
         const idxFlags = this.idxFlags;
         const hashIdx = (hash >>> this.shift) & MASK_HAMT;
         const flag = 1 << hashIdx;
         const idx = hammingWeight(idxFlags & (flag - 1));
-
         if (idxFlags & flag) {
             return this.buckets[idx];
         }
         return undefined;
     }
-
     replacing(oldBucket) {
         const new_flag = 1 << ((oldBucket.hash >>> this.shift) & MASK_HAMT);
         this.idxFlags |= new_flag;
@@ -674,7 +618,6 @@ class HamtBuckets {
         oldBucket.parent = this;
         return this;
     }
-
     set(key, value, options) {
         const hash = options.hash;
         const idxFlags = this.idxFlags;
@@ -700,7 +643,6 @@ class HamtBuckets {
             this.size += 1;
         }
     }
-
     emplace(key, handler, options) {
         const hash = options.hash;
         const idxFlags = this.idxFlags;
@@ -725,7 +667,6 @@ class HamtBuckets {
         this.size += bucket.size;
         return value;
     }
-
     delete(key, options) {
         const hash = options.hash;
         const idxFlags = this.idxFlags;
@@ -752,7 +693,6 @@ class HamtBuckets {
         }
         return false;
     }
-
     get(key, options) {
         const hash = options.hash;
         const bucket = this.bucketFor(hash);
@@ -761,7 +701,6 @@ class HamtBuckets {
         }
         return undefined;
     }
-
     optionalGet(key, options) {
         const hash = options.hash;
         const bucket = this.bucketFor(hash);
@@ -770,7 +709,6 @@ class HamtBuckets {
         }
         return none;
     }
-
     has(key, options) {
         const hash = options.hash;
         const bucket = this.bucketFor(hash);
@@ -779,25 +717,21 @@ class HamtBuckets {
         }
         return false;
     }
-
     * [Symbol.iterator]() {
         for (const bucket of this.buckets) {
             yield* bucket;
         }
     }
-
     * entriesRight() {
         for (let idx = this.buckets.length - 1; idx >= 0; idx--) {
             yield* this.buckets[idx].entriesRight();
         }
     }
-
     * keys() {
         for (const bucket of this.buckets) {
             yield* bucket.keys();
         }
     }
-
     * values() {
         for (const bucket of this.buckets) {
             yield* bucket.values();
@@ -808,7 +742,6 @@ class HamtBuckets {
             yield* this.buckets[idx].keysRight();
         }
     }
-
     * valuesRight() {
         for (let idx = this.buckets.length - 1; idx >= 0; idx--) {
             yield* this.buckets[idx].valuesRight();
@@ -839,7 +772,6 @@ function hash(key, len = 0, seed = 0) {
     const remaining = len & 1;
     const doubleBytes = len - remaining;
     let hash = seed, k = 0, i = 0;
-
     while (i < doubleBytes) {
         k = (key.charCodeAt(i++) & 0xffff) |
             ((key.charCodeAt(i++) & 0xffff) << 16);
@@ -853,13 +785,11 @@ function hash(key, len = 0, seed = 0) {
     }
     if (remaining) {
         k ^= (key.charCodeAt(i) & 0xffff);
-
         k *= 0xcc9e2d51;
         k = (k << 15) | (k >>> 17);
         k *= 0x1b873593;
         hash ^= k;
     }
-
     hash ^= len;
     hash ^= hash >>> 16;
     hash *= 0x85ebca6b;
@@ -868,7 +798,6 @@ function hash(key, len = 0, seed = 0) {
     hash ^= hash >>> 16;
     return hash | 0;
 }
-
 /**
  * Given any object return back a hashcode
  * - If the key is undefined, null, false, NaN, infinite etc then it will be assigned a hash of 0.
@@ -918,8 +847,6 @@ function hashCodeFor(key) {
                 }
                 return hashCodeFor(key.hashCode);
             }
-
-
             // Regexes and Dates we treat like primitives.
             if (key instanceof Date) {
                 return key.getTime();
@@ -927,7 +854,6 @@ function hashCodeFor(key) {
             if (key instanceof RegExp) {
                 return hash(key.toString());
             }
-
             // Options we work on the values.
             if (key instanceof Option) {
                 if (key.has) {
@@ -935,7 +861,6 @@ function hashCodeFor(key) {
                 }
                 return 0;
             }
-
             // Hash of Last Resort, ensure we don't consider any objects on the prototype chain.
             if (Object.prototype.hasOwnProperty.call(key, '_mootable_hashCode')) {
                 // its our special number, but just in case someone has done something a bit weird with it.
@@ -951,7 +876,6 @@ function hashCodeFor(key) {
         }
     }
 }
-
 /**
  * an internal counter for managing unhashable objects.
  * @private
@@ -959,7 +883,6 @@ function hashCodeFor(key) {
  * @type {number}
  */
 let HASH_COUNTER = 0;
-
 /**
  * Given a key, produce an equals method that fits the hashcode contract.
  * - In almost all cases it will return with ECMASpec sameValueZero method. As is the case with native map, set and array.
@@ -1020,7 +943,6 @@ function equalsFor(key) {
             return strictEquals;
     }
 }
-
 /**
  * Given any object return back a hashcode
  * - If the key is undefined, null, false, NaN, infinite etc then it will be assigned a hash of 0.
@@ -1053,7 +975,6 @@ function equalsAndHash(key, options) {
         }
         return {hash, equals};
     }
-
     const toSetOn = {};
     const keyType = typeof key;
     switch (keyType) {
@@ -1109,7 +1030,6 @@ function equalsAndHash(key, options) {
                     return toSetOn;
                 }
             }
-
             // Regexes and Dates we treat like primitives.
             if (key instanceof Date) {
                 toSetOn.hash = key.getTime();
@@ -1119,7 +1039,6 @@ function equalsAndHash(key, options) {
                 toSetOn.hash = hash(key.toString());
                 return toSetOn;
             }
-
             // Options we work on the values.
             if (key instanceof Option) {
                 if (key.has) {
@@ -1129,7 +1048,6 @@ function equalsAndHash(key, options) {
                 toSetOn.hash = 0;
                 return toSetOn;
             }
-
             // Hash of Last Resort, ensure we don't consider any objects on the prototype chain.
             if (Object.prototype.hasOwnProperty.call(key, '_mootable_hashCode')) {
                 // its our special number, but just in case someone has done something a bit weird with it.
@@ -1155,7 +1073,6 @@ function equalsAndHash(key, options) {
  * @licence MIT
  */
 class HashMap {
-
     /**
      * This HashMap is backed by a Hash array mapped trie.
      * - `new HashMap()` creates an empty hashmap
@@ -1232,7 +1149,6 @@ class HashMap {
             this.copy(copy);
         }
     }
-
     /**
      * User Defined Equals Method
      * A user defined function to define an equals method against 2 keys.
@@ -1241,7 +1157,6 @@ class HashMap {
      * @param {*} secondKey - the second key
      * @returns {boolean} is it equal or not
      */
-
     /**
      * User Defined Hash Method
      * A user defined function to describe how to hash a key.
@@ -1249,7 +1164,6 @@ class HashMap {
      * @param {*} key - the first key.
      * @returns {number} a 32 bit integer as a hash.
      */
-
     /**
      * User defined hashing and equals methods
      * HashMap will find the best fit for your objects, and if your keys themselves have the appropriate methods,
@@ -1262,8 +1176,6 @@ class HashMap {
      * @property {HashMap#overrideEquals} [equals] - The overriding equals method to use
      * @property {boolean} [reverse] - whether to search in reverse.
      */
-
-
     /**
      * Emplace Update Method
      * A user defined method to describe how to update our map.
@@ -1273,7 +1185,6 @@ class HashMap {
      * @param {HashMap} map - the hashmap.
      * @returns {*} the new value to update the map with.
      */
-
     /**
      * Emplace Insert Method
      * A user defined method to describe how to insert into our map.
@@ -1282,7 +1193,6 @@ class HashMap {
      * @param {HashMap} map - the hashmap.
      * @returns {*} the new value we want to insert.
      */
-
     /**
      * Emplace handler methods
      * - Let M be this hashmap.
@@ -1301,7 +1211,6 @@ class HashMap {
      * @property {HashMap#emplaceUpdate} [update] - The update method to use.
      * @property {HashMap#emplaceInsert} [insert] - The insert method to use
      */
-
     /**
      * For Each Function
      * A callback to execute on every <code>[key,value]</code> pair of this map iterable.
@@ -1312,7 +1221,6 @@ class HashMap {
      * @param {*} [key] - the entry key
      * @param {HashMap} [map] - the calling Map Iterable.
      */
-
     /**
      * Test each element of the map to see if it matches and return
      *  - true if the key and value match.
@@ -1329,7 +1237,6 @@ class HashMap {
      * @param {HashMap} [iterable] - the HashMap.
      * @return {boolean} a value that coerces to true if it matches, or to false otherwise.
      */
-
     /**
      * Reduce Function
      * A callback to accumulate values from the HashMap <code>[key,value]</code> into a single value.
@@ -1344,7 +1251,6 @@ class HashMap {
      * @param {HashMap} [hashmap] - the calling HashMap.
      * @return {*} [accumulator] - the value to pass to the next time this function is called or the final return value.
      */
-
     /**
      * Returns the number of elements in this hashmap.
      *
@@ -1358,7 +1264,6 @@ class HashMap {
     get size() {
         return this.buckets.size;
     }
-
     /**
      * Returns the number of elements in this hashmap.
      *
@@ -1372,7 +1277,6 @@ class HashMap {
     get length() {
         return this.buckets.size;
     }
-
     /**
      * Does the map have this key.
      * - return true if the <code>key</code> is in the map.
@@ -1422,7 +1326,6 @@ class HashMap {
         const op = this.equalsAndHash(key, overrides);
         return this.buckets.has(key, op);
     }
-
     /**
      * Get a value from the map using this key.
      * - return the first <code>value</code> from the <code>[key,value]</code> pair that matches the key.
@@ -1474,7 +1377,6 @@ class HashMap {
         const op = this.equalsAndHash(key, overrides);
         return this.buckets.get(key, op);
     }
-
     /**
      * Get the key from the map using the provided value. Since values are not hashed, this has to check each value in the map until a value matches, or the whole map, if none match. As such this is a slow operation.
      * Performance O(n) as we have to iterate over the whole map, to find each value and perform
@@ -1525,7 +1427,6 @@ class HashMap {
         }
         return undefined;
     }
-
     /**
      * Get the key from the map using the provided value, searching the map in reverse. Since values
      * are not hashed, this has to check each value in the map until a value matches, or the
@@ -1578,7 +1479,6 @@ class HashMap {
         }
         return undefined;
     }
-
     /**
      * Get the key from the map using the provided value, and wrap it in an {@link Option}.
      * Since values are not hashed, this has to check each value in the map until a value
@@ -1633,7 +1533,6 @@ class HashMap {
         }
         return none;
     }
-
     /**
      * Get the key from the map using the provided value, searching the map in reverse. Since values
      * are not hashed, this has to check each value in the map until a value matches, or the
@@ -1688,7 +1587,6 @@ class HashMap {
         }
         return none;
     }
-
     /**
      * Get an optional value from the map. This is effectively a more efficent combination of calling has and get at the same time.
      * - return the first <code>some(value)</code> from the <code>[key,value]</code> pair that matches
@@ -1744,7 +1642,6 @@ class HashMap {
         const op = this.equalsAndHash(key, overrides);
         return this.buckets.optionalGet(key, op);
     }
-
     /**
      * Find the first value in the map which passes the provided <code>MatchesPredicate</code>.
      * - return the first <code>value</code> from the <code>[key,value]</code> pair that matches
@@ -1771,7 +1668,6 @@ class HashMap {
         }
         return undefined;
     }
-
     /**
      * Find the last value in the map which passes the provided <code>MatchesPredicate</code>.
      * - return the last <code>value</code> from the <code>[key,value]</code> pair that matches
@@ -1799,7 +1695,6 @@ class HashMap {
         }
         return undefined;
     }
-
     /**
      * Find the first value in the map which passes the provided <code>MatchesPredicate</code>.
      * - return the first <code>value</code> from the <code>[key,value]</code> pair that matches, wrapped in an Option
@@ -1829,7 +1724,6 @@ class HashMap {
         }
         return none;
     }
-
     /**
      * Find the last value in the map which passes the provided <code>MatchesPredicate</code>.
      * - return the last <code>value</code> from the <code>[key,value]</code> pair that matches, wrapped in an Option
@@ -1860,7 +1754,6 @@ class HashMap {
         }
         return none;
     }
-
     /**
      * Find the first key in the map which passes the provided  <code>MatchesPredicate</code>.
      * - return the first <code>key</code> from the <code>[key,value]</code> pair that matches
@@ -1888,7 +1781,6 @@ class HashMap {
         }
         return undefined;
     }
-
     /**
      * Find the last key in the map which passes the provided <code>MatchesPredicate</code>.
      * - return the last <code>key</code> from the <code>[key,value]</code> pair that matches
@@ -1917,7 +1809,6 @@ class HashMap {
         }
         return undefined;
     }
-
     /**
      * Find the first key in the map which passes the provided <code>MatchesPredicate</code>.
      * - return the first <code>key</code> from the <code>[key,value]</code> pair that matches, wrapped in an Option
@@ -1948,9 +1839,6 @@ class HashMap {
         }
         return none;
     }
-
-
-
     /**
      * Find the last key in the map which passes the provided <code>MatchesPredicate</code>.
      * - return the last <code>key</code> from the <code>[key,value]</code> pair that matches, wrapped in an Option
@@ -1981,7 +1869,6 @@ class HashMap {
         }
         return none;
     }
-
     /**
      * Sets a value onto this map, using the key as its reference.
      *  - If the key already exists, this will overwrite the value with the new value.
@@ -2034,7 +1921,6 @@ class HashMap {
         this.buckets.set(key, value, op);
         return this;
     }
-
     /**
      * Given a key and a handler object, the emplace method will either remap an existing entry,
      * insert a new entry from a mapping function, or both. emplace will return the updated or
@@ -2132,7 +2018,6 @@ class HashMap {
         const op = this.equalsAndHash(key, overrides);
         return this.buckets.emplace(key, handler, op);
     }
-
     /**
      * Copies all the entries from the map, array or iterable, into this hashmap.
      *
@@ -2213,7 +2098,6 @@ class HashMap {
         }
         throw new TypeError('HashMap.copy expects an object which is iterable, has an entries iterable function, or has a forEach function on it');
     }
-
     /**
      * Makes a full copy of this hashmap and returns the clone.
      *
@@ -2222,7 +2106,6 @@ class HashMap {
     clone() {
         return new HashMap(this);
     }
-
     /**
      * Deletes an entry from this hashmap, using the provided key
      * @param key
@@ -2233,7 +2116,6 @@ class HashMap {
         this.buckets.delete(key, op);
         return this;
     }
-
     /**
      * Clears the data from this hashmap. All data is orphaned, and will be Garbage Collected.
      * @return {HashMap} this hashmap
@@ -2242,7 +2124,6 @@ class HashMap {
         this.buckets.clear();
         return this;
     }
-
     /**
      * Execute the provided callback on every <code>[key,value]</code> pair of this map iterable.
      * @example <caption>Log all the keys and values.</caption>
@@ -2264,7 +2145,6 @@ class HashMap {
         }
         return this;
     }
-
     /**
      * Execute the provided callback on every <code>[key,value]</code> pair of this map iterable in reverse.
      * @example <caption>Log all the keys and values.</caption>
@@ -2286,7 +2166,6 @@ class HashMap {
         }
         return this;
     }
-
     /**
      * Test to see if ALL elements pass the test implemented by the passed <code>MatchesPredicate</code>.
      * - if any element does not match, returns false
@@ -2318,7 +2197,6 @@ class HashMap {
         }
         return true;
     }
-
     /**
      * Test to see if ANY element pass the test implemented by the passed <code>MatchesPredicate</code>.
      * - if any element matches, returns true.
@@ -2350,7 +2228,6 @@ class HashMap {
         }
         return false;
     }
-
     /**
      * Iterate through the map reducing it to a single value.
      * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce|Array.reduce}
@@ -2388,7 +2265,6 @@ class HashMap {
         }
         return accumulator;
     }
-
     /**
      * Iterate backwards through the map reducing it to a single value.
      * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduceRight|Array.reduceRight}
@@ -2426,92 +2302,136 @@ class HashMap {
         }
         return accumulator;
     }
-
     /**
      * Iterates over all the entries in the map.
-     *
-     * @yields {entries:Array.<key,value>} each entry in the map
+     * @example <caption>iterate over the map</caption>
+     * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+     * for ([key, value] of hashmap) {
+     *     console.log(key,value);
+     * }
+     * // logs:
+     * // 1 value1
+     * // 2 value2
+     * // 3 value3
+     * @yields {Array.<key,value>} each entry in the map
      */
     * [Symbol.iterator]() {
         yield* this.entries();
     }
-
     /**
      * Iterates over all the entries in the map.
+     * @example <caption>iterate over the map</caption>
+     * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+     * for ([key, value] of hashmap.entries()) {
+     *     console.log(key,value);
+     * }
+     * // logs:
+     * // 1 value1
+     * // 2 value2
+     * // 3 value3
      *
-     * @yields {entries:Array.<key,value>} each entry in the map
+     * @yields {Array.<key,value>} each entry in the map
      */
     * entries() {
         yield* this.buckets;
     }
-
     /**
-     * Iterates over all the entries in the map.
+     * Iterates over all the entries in the map in reverse.
      *
-     * @yields {entries:Array.<key,value>} each entry in the map in reverse order
+     * @example <caption>iterate over the map in reverse</caption>
+     * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+     * for ([key, value] of hashmap.entriesRight()) {
+     *     console.log(key,value);
+     * }
+     * // logs:
+     * // 3 value3
+     * // 2 value2
+     * // 1 value1
+     * @yields {Array.<key,value>} each entry in the map in reverse order
      */
     * entriesRight() {
         yield* this.buckets.entriesRight();
     }
-
     /**
      * Iterates over all the keys in the map.
+     * @example <caption>iterate over the keys</caption>
+     * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+     * for (const key of hashmap.keys()) {
+     *     console.log(key);
+     * }
+     * // logs:
+     * // 1
+     * // 2
+     * // 3
      *
      * @yields {key:any} each key in the map
      */
     * keys() {
         yield* this.buckets.keys();
     }
-
     /**
      * Iterates over all the values in the map.
-     *
+     * @example <caption>iterate over the values</caption>
+     * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+     * for (const value of hashmap.values()) {
+     *     console.log(value);
+     * }
+     * // logs:
+     * // value1
+     * // value2
+     * // value3
      * @yields {value:any} each value in the map.
      */
     * values() {
         yield* this.buckets.values();
     }
-
     /**
      * Iterates over all the keys in the map in reverse.
+     * @example <caption>iterate over the keys</caption>
+     * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+     * for (const key of hashmap.keysRight()) {
+     *     console.log(key);
+     * }
+     * // logs:
+     * // 3
+     * // 2
+     * // 1
      *
      * @yields {key:any} each key in the map in reverse order
      */
     * keysRight() {
         yield* this.buckets.keysRight();
     }
-
     /**
      * Iterates over all the values in the map in reverse.
+     * @example <caption>iterate over the values</caption>
+     * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+     * for (const value of hashmap.valuesRight()) {
+     *     console.log(value);
+     * }
+     * // logs:
+     * // value3
+     * // value2
+     * // value1
      *
      * @yields {value:any} each value in the map in reverse order
      */
     * valuesRight() {
         yield* this.buckets.valuesRight();
     }
-
-    // Private
-
-    /**
-     * Create a container for this hashmap, overridden by {@link LinkedHashMap}
-     * This is an internal method, used for extension of hashmaps.
-     * It allows for control of the leaves without having to mess with the hashbuckets and hamtpbuckets.
-     * @private
-     * @param {*} parent the parent of the container.
-     * @param {number} hash the hash we want to assign to the container
-     * @return {Container} the created container.
-     */
-    createContainer(parent, hash) {
-        return new Container(this, parent, hash);
-    }
 }
-
 /*
- * Method parsing
+ * private methods
  */
 Object.defineProperty(HashMap.prototype, 'equalsFor', {value: equalsFor, configurable: true});
 Object.defineProperty(HashMap.prototype, 'equalsAndHash', {
     value: equalsAndHash,
+    configurable: true
+});
+Object.defineProperty(HashMap.prototype, 'createContainer', {
+    value: function createContainer(parent, hash) {
+        return new Container(this, parent, hash);
+    },
     configurable: true
 });
 
@@ -2524,7 +2444,6 @@ Object.defineProperty(HashMap.prototype, 'equalsAndHash', {
  * @extends HashMap
  */
 class LinkedHashMap extends HashMap {
-
     /**
      * This LinkedHashMap is is an extension of {@link HashMap} however LinkedHashMap also maintains insertion order of keys, and guarantees to iterate over them in that order.
      * - `new LinkedHashMap()` creates an empty linked hashmap
@@ -2595,7 +2514,6 @@ class LinkedHashMap extends HashMap {
             this.end = undefined;
         }
     }
-
     /**
      * @inheritDoc
      * @return {HashMap}
@@ -2605,7 +2523,6 @@ class LinkedHashMap extends HashMap {
         this.end = undefined;
         return super.clear();
     }
-
     /**
      *
      * @param key
@@ -2619,7 +2536,6 @@ class LinkedHashMap extends HashMap {
         this.buckets.set(key, value, op);
         return this;
     }
-
     /**
      *
      * @param key
@@ -2632,7 +2548,6 @@ class LinkedHashMap extends HashMap {
         op.addToStart = true;
         return this.buckets.emplace(key, handler, op);
     }
-
     /**
      *
      * @param key
@@ -2646,7 +2561,6 @@ class LinkedHashMap extends HashMap {
         this.buckets.set(key, value, op);
         return this;
     }
-
     /**
      *
      * @param key
@@ -2659,7 +2573,6 @@ class LinkedHashMap extends HashMap {
         op.moveOnUpdate = true;
         return this.buckets.emplace(key, handler, op);
     }
-
     /**
      *
      * @param key
@@ -2674,7 +2587,6 @@ class LinkedHashMap extends HashMap {
         this.buckets.set(key, value, op);
         return this;
     }
-
     /**
      *
      * @param key
@@ -2688,7 +2600,6 @@ class LinkedHashMap extends HashMap {
         op.addToStart = true;
         return this.buckets.emplace(key, handler, op);
     }
-
     /**
      *
      * @return {undefined|*}
@@ -2701,7 +2612,6 @@ class LinkedHashMap extends HashMap {
         }
         return undefined;
     }
-
     /**
      *
      * @return {undefined|*}
@@ -2714,7 +2624,6 @@ class LinkedHashMap extends HashMap {
         }
         return undefined;
     }
-
     /**
      *
      * @return {undefined|*}
@@ -2726,7 +2635,6 @@ class LinkedHashMap extends HashMap {
         }
         return undefined;
     }
-
     /**
      *
      * @return {undefined|*}
@@ -2738,7 +2646,6 @@ class LinkedHashMap extends HashMap {
         }
         return undefined;
     }
-
     /**
      *
      * @return {Option}
@@ -2750,7 +2657,6 @@ class LinkedHashMap extends HashMap {
         }
         return none;
     }
-
     /**
      *
      * @return {Option}
@@ -2762,7 +2668,6 @@ class LinkedHashMap extends HashMap {
         }
         return none;
     }
-
     /**
      *
      * @return {undefined|*}
@@ -2774,7 +2679,6 @@ class LinkedHashMap extends HashMap {
         }
         return undefined;
     }
-
     /**
      *
      * @return {undefined|*}
@@ -2786,7 +2690,6 @@ class LinkedHashMap extends HashMap {
         }
         return undefined;
     }
-
     /**
      *
      * @return {Option}
@@ -2798,7 +2701,6 @@ class LinkedHashMap extends HashMap {
         }
         return none;
     }
-
     /**
      *
      * @return {Option}
@@ -2810,7 +2712,6 @@ class LinkedHashMap extends HashMap {
         }
         return none;
     }
-
     /**
      * @inheritDoc
      * @return {LinkedHashMap}
@@ -2831,7 +2732,6 @@ class LinkedHashMap extends HashMap {
         }
         return this;
     }
-
     /**
      * Makes a copy of this LinkedHashMap
      * @return {LinkedHashMap}
@@ -2839,7 +2739,6 @@ class LinkedHashMap extends HashMap {
     clone() {
         return new LinkedHashMap(this);
     }
-
     /**
      * Iterates over all the entries in the map.
      *
@@ -2860,7 +2759,6 @@ class LinkedHashMap extends HashMap {
             entry = entry.next;
         }
     }
-
     /**
      * Iterates over all the entries in the map in reverse order.
      *
@@ -2873,7 +2771,6 @@ class LinkedHashMap extends HashMap {
             entry = entry.previous;
         }
     }
-
     /**
      * Iterates over all the keys in the map.
      *
@@ -2886,7 +2783,6 @@ class LinkedHashMap extends HashMap {
             entry = entry.next;
         }
     }
-
     /**
      * Iterates over all the values in the map.
      *
@@ -2899,7 +2795,6 @@ class LinkedHashMap extends HashMap {
             entry = entry.next;
         }
     }
-
     /**
      * Iterates over all the keys in the map in reverse.
      * @yields {key:any} each key in the map in reverse order
@@ -2911,7 +2806,6 @@ class LinkedHashMap extends HashMap {
             entry = entry.previous;
         }
     }
-
     /**
      * Iterates over all the values in the map in reverse.
      * @yields {value:any} each value in the map in reverse order
@@ -2923,31 +2817,21 @@ class LinkedHashMap extends HashMap {
             entry = entry.previous;
         }
     }
-
-// private
-
-    /**
-     * @private
-     * @param parent
-     * @param hash
-     * @return {LinkedContainer}
-     */
-    createContainer(parent, hash) {
-        return new LinkedContainer(this, parent, hash);
-    }
 }
-
-
+Object.defineProperty(LinkedHashMap.prototype, 'createContainer', {
+    value: function createContainer(parent, hash) {
+        return new LinkedContainer(this, parent, hash);
+    },
+    configurable: true
+});
 /**
  * Holds multiple entries, but shrinks to a single container if reduced to a size of one.
  * @private
  */
 class LinkedContainer extends Container {
-
     constructor(map, parent, hash) {
         super(map, parent, hash);
     }
-
     createEntry(key, value, overrides) {
         const entry = super.createEntry(key, value, overrides);
         const map = this.map;
@@ -2964,7 +2848,6 @@ class LinkedContainer extends Container {
         }
         return entry;
     }
-
     updateEntry(entry, newValue, overrides) {
         super.updateEntry(entry, newValue, overrides);
         if (overrides.moveOnUpdate) {
@@ -2997,7 +2880,6 @@ class LinkedContainer extends Container {
             }
         }
     }
-
     deleteIndex(idx) {
         const oldEntry = super.deleteIndex(idx);
         const map = this.map;
@@ -3019,7 +2901,6 @@ class LinkedContainer extends Container {
  * @copyright Jack Moxley <https://github.com/jackmoxley>
  * @licence MIT
  */
-
 const Mootable = {
     HashMap,
     LinkedHashMap,

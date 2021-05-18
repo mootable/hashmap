@@ -410,20 +410,14 @@ export class LinkedHashMap extends HashMap {
             entry = entry.previous;
         }
     }
-
-// private
-
-    /**
-     * @private
-     * @param parent
-     * @param hash
-     * @return {LinkedContainer}
-     */
-    createContainer(parent, hash) {
-        return new LinkedContainer(this, parent, hash);
-    }
 }
 
+Object.defineProperty(LinkedHashMap.prototype, 'createContainer', {
+    value: function createContainer(parent, hash) {
+        return new LinkedContainer(this, parent, hash);
+    },
+    configurable: true
+});
 
 /**
  * Holds multiple entries, but shrinks to a single container if reduced to a size of one.

@@ -806,7 +806,6 @@ export class HashMap {
     }
 
 
-
     /**
      * Find the last key in the map which passes the provided <code>MatchesPredicate</code>.
      * - return the last <code>key</code> from the <code>[key,value]</code> pair that matches, wrapped in an Option
@@ -1285,8 +1284,16 @@ export class HashMap {
 
     /**
      * Iterates over all the entries in the map.
-     *
-     * @yields {entries:Array.<key,value>} each entry in the map
+     * @example <caption>iterate over the map</caption>
+     * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+     * for ([key, value] of hashmap) {
+     *     console.log(key,value);
+     * }
+     * // logs:
+     * // 1 value1
+     * // 2 value2
+     * // 3 value3
+     * @yields {Array.<key,value>} each entry in the map
      */
     * [Symbol.iterator]() {
         yield* this.entries();
@@ -1294,17 +1301,35 @@ export class HashMap {
 
     /**
      * Iterates over all the entries in the map.
+     * @example <caption>iterate over the map</caption>
+     * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+     * for ([key, value] of hashmap.entries()) {
+     *     console.log(key,value);
+     * }
+     * // logs:
+     * // 1 value1
+     * // 2 value2
+     * // 3 value3
      *
-     * @yields {entries:Array.<key,value>} each entry in the map
+     * @yields {Array.<key,value>} each entry in the map
      */
     * entries() {
         yield* this.buckets;
     }
 
     /**
-     * Iterates over all the entries in the map.
+     * Iterates over all the entries in the map in reverse.
      *
-     * @yields {entries:Array.<key,value>} each entry in the map in reverse order
+     * @example <caption>iterate over the map in reverse</caption>
+     * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+     * for ([key, value] of hashmap.entriesRight()) {
+     *     console.log(key,value);
+     * }
+     * // logs:
+     * // 3 value3
+     * // 2 value2
+     * // 1 value1
+     * @yields {Array.<key,value>} each entry in the map in reverse order
      */
     * entriesRight() {
         yield* this.buckets.entriesRight();
@@ -1312,6 +1337,15 @@ export class HashMap {
 
     /**
      * Iterates over all the keys in the map.
+     * @example <caption>iterate over the keys</caption>
+     * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+     * for (const key of hashmap.keys()) {
+     *     console.log(key);
+     * }
+     * // logs:
+     * // 1
+     * // 2
+     * // 3
      *
      * @yields {key:any} each key in the map
      */
@@ -1321,7 +1355,15 @@ export class HashMap {
 
     /**
      * Iterates over all the values in the map.
-     *
+     * @example <caption>iterate over the values</caption>
+     * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+     * for (const value of hashmap.values()) {
+     *     console.log(value);
+     * }
+     * // logs:
+     * // value1
+     * // value2
+     * // value3
      * @yields {value:any} each value in the map.
      */
     * values() {
@@ -1330,6 +1372,15 @@ export class HashMap {
 
     /**
      * Iterates over all the keys in the map in reverse.
+     * @example <caption>iterate over the keys</caption>
+     * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+     * for (const key of hashmap.keysRight()) {
+     *     console.log(key);
+     * }
+     * // logs:
+     * // 3
+     * // 2
+     * // 1
      *
      * @yields {key:any} each key in the map in reverse order
      */
@@ -1339,6 +1390,15 @@ export class HashMap {
 
     /**
      * Iterates over all the values in the map in reverse.
+     * @example <caption>iterate over the values</caption>
+     * const hashmap = new HashMap([[1,'value1'],[2,'value2'],[3,'value3']]);
+     * for (const value of hashmap.valuesRight()) {
+     *     console.log(value);
+     * }
+     * // logs:
+     * // value3
+     * // value2
+     * // value1
      *
      * @yields {value:any} each value in the map in reverse order
      */
@@ -1346,27 +1406,19 @@ export class HashMap {
         yield* this.buckets.valuesRight();
     }
 
-    // Private
-
-    /**
-     * Create a container for this hashmap, overridden by {@link LinkedHashMap}
-     * This is an internal method, used for extension of hashmaps.
-     * It allows for control of the leaves without having to mess with the hashbuckets and hamtpbuckets.
-     * @private
-     * @param {*} parent the parent of the container.
-     * @param {number} hash the hash we want to assign to the container
-     * @return {Container} the created container.
-     */
-    createContainer(parent, hash) {
-        return new Container(this, parent, hash);
-    }
 }
 
 /*
- * Method parsing
+ * private methods
  */
 Object.defineProperty(HashMap.prototype, 'equalsFor', {value: equalsFor, configurable: true});
 Object.defineProperty(HashMap.prototype, 'equalsAndHash', {
     value: equalsAndHash,
+    configurable: true
+});
+Object.defineProperty(HashMap.prototype, 'createContainer', {
+    value: function createContainer(parent, hash) {
+        return new Container(this, parent, hash);
+    },
     configurable: true
 });

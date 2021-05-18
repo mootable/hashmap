@@ -1,5 +1,9 @@
 # Changelog
 ## Current
+## 1.0.6
+- Made CreateContainer properly private (programmatically)
+- Finished Documenting the base HashMap
+- Removed comments and docs from the browser dist files.
 ## 1.0.5
 - Updated Dev Dependencies.
 - Added more documentation.
