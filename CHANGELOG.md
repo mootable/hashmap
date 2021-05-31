@@ -1,5 +1,7 @@
 # Changelog
 ## Current
+## 1.0.7
+- Updated Dependencies, including rollup
 ## 1.0.6
 - Made CreateContainer properly private (programmatically)
 - Finished Documenting the base HashMap

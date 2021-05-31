@@ -186,7 +186,7 @@
 	(shared$3.exports = function (key, value) {
 	  return store$2[key] || (store$2[key] = value !== undefined ? value : {});
 	})('versions', []).push({
-	  version: '3.12.1',
+	  version: '3.13.1',
 	  mode: 'global',
 	  copyright: '© 2021 Denis Pushkarev (zloirock.ru)'
 	});
@@ -198,7 +198,7 @@
 
 	var toObject$1 = toObject$2;
 	var hasOwnProperty = {}.hasOwnProperty;
-	var has$9 = function hasOwn(it, key) {
+	var has$9 = Object.hasOwn || function hasOwn(it, key) {
 	  return hasOwnProperty.call(toObject$1(it), key);
 	};
 
@@ -245,7 +245,8 @@
 	var V8_VERSION = engineV8Version;
 	var fails$3 = fails$7;
 	var nativeSymbol = !!Object.getOwnPropertySymbols && !fails$3(function () {
-	  return !String(Symbol()) ||
+	  var symbol = Symbol();
+	  return !String(symbol) || !(Object(symbol) instanceof Symbol) ||
 	    !Symbol.sham && V8_VERSION && V8_VERSION < 41;
 	});
 
@@ -445,6 +446,8 @@
 	var addToUnscopables$1 = function (key) {
 	  ArrayPrototype[UNSCOPABLES][key] = true;
 	};
+
+	var iterators = {};
 
 	var store$1 = sharedStore;
 	var functionToString = Function.toString;
@@ -711,7 +714,7 @@
 	var wellKnownSymbol$3 = wellKnownSymbol$5;
 	var ITERATOR$2 = wellKnownSymbol$3('iterator');
 	var BUGGY_SAFARI_ITERATORS$1 = false;
-	var returnThis$1 = function () { return this; };
+	var returnThis$2 = function () { return this; };
 	var IteratorPrototype$2, PrototypeOfArrayIteratorPrototype, arrayIterator;
 	if ([].keys) {
 	  arrayIterator = [].keys();
@@ -727,7 +730,7 @@
 	});
 	if (NEW_ITERATOR_PROTOTYPE) IteratorPrototype$2 = {};
 	if (!has$1(IteratorPrototype$2, ITERATOR$2)) {
-	  createNonEnumerableProperty$2(IteratorPrototype$2, ITERATOR$2, returnThis$1);
+	  createNonEnumerableProperty$2(IteratorPrototype$2, ITERATOR$2, returnThis$2);
 	}
 	var iteratorsCore = {
 	  IteratorPrototype: IteratorPrototype$2,
@@ -748,10 +751,13 @@
 	var create = objectCreate;
 	var createPropertyDescriptor = createPropertyDescriptor$3;
 	var setToStringTag$1 = setToStringTag$2;
+	var Iterators$2 = iterators;
+	var returnThis$1 = function () { return this; };
 	var createIteratorConstructor$1 = function (IteratorConstructor, NAME, next) {
 	  var TO_STRING_TAG = NAME + ' Iterator';
 	  IteratorConstructor.prototype = create(IteratorPrototype$1, { next: createPropertyDescriptor(1, next) });
 	  setToStringTag$1(IteratorConstructor, TO_STRING_TAG, false);
+	  Iterators$2[TO_STRING_TAG] = returnThis$1;
 	  return IteratorConstructor;
 	};
 
@@ -790,6 +796,7 @@
 	var createNonEnumerableProperty$1 = createNonEnumerableProperty$7;
 	var redefine = redefine$2.exports;
 	var wellKnownSymbol$1 = wellKnownSymbol$5;
+	var Iterators$1 = iterators;
 	var IteratorsCore = iteratorsCore;
 	var IteratorPrototype = IteratorsCore.IteratorPrototype;
 	var BUGGY_SAFARI_ITERATORS = IteratorsCore.BUGGY_SAFARI_ITERATORS;
@@ -838,6 +845,7 @@
 	  if (IterablePrototype[ITERATOR$1] !== defaultIterator) {
 	    createNonEnumerableProperty$1(IterablePrototype, ITERATOR$1, defaultIterator);
 	  }
+	  Iterators$1[NAME] = defaultIterator;
 	  if (DEFAULT) {
 	    methods = {
 	      values: getIterationMethod(VALUES),
@@ -855,6 +863,7 @@
 
 	var toIndexedObject = toIndexedObject$4;
 	var addToUnscopables = addToUnscopables$1;
+	var Iterators = iterators;
 	var InternalStateModule = internalState;
 	var defineIterator = defineIterator$1;
 	var ARRAY_ITERATOR = 'Array Iterator';
@@ -880,6 +889,7 @@
 	  if (kind == 'values') return { value: target[index], done: false };
 	  return { value: [index, target[index]], done: false };
 	}, 'values');
+	Iterators.Arguments = Iterators.Array;
 	addToUnscopables('keys');
 	addToUnscopables('values');
 	addToUnscopables('entries');
